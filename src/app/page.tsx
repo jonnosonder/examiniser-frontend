@@ -59,7 +59,7 @@ export default function Home() {
               With the Help of <span id="heroAItextSpan">AI</span></h1>
             <p id="heroP" className="text-primary sm:text-lg lg:text-xl">Some awesome text here talking about how amazing it is</p>
             <div id="heroButtonWrapper">
-              <button className='startBtn mt-4 text-sm sm:text-base lg:text-lg' onClick={() => router.push('/create')}>Start Now</button>
+              <button className='startBtn mt-4 text-sm sm:text-base lg:text-lg' onClick={() => router.push('/start')}>Start Now</button>
             </div>
           </div>
         </div>

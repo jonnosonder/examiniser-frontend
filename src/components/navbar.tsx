@@ -36,16 +36,16 @@ export default function Navbar() {
                 <div className="inline-flex">
                 {navLinks.map((link, index) => (
                     <div key={index} className="inline p-5">
-                    <a href={link.href} className="inline-flex p-1">
+                    <Link  href={link.href} className="inline-flex p-1">
                         {link.title}
-                    </a>
+                    </Link>
                     </div>
                 ))}
                 </div>
             </div>
 
             <div className='inline gap-6'>
-              <button className='underline cursor-pointer' onClick={() => router.push('/create')}>
+              <button className='underline cursor-pointer' onClick={() => router.push('/start')}>
                 Start Creating
               </button>
               {/*

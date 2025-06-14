@@ -9,6 +9,7 @@ module.exports = {
         primary: '#032e2e',
         secondary: '#0C5050',
         accent: '#88CFCF',
+        red: '#E21D20',
         contrast: '#F57C22',
         background: '#f7fbfb',
         hover: '#2a2a2a',

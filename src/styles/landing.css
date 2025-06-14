@@ -155,7 +155,6 @@
 .startBtn {
   will-change: transform;
   color: var(--primary);
-  text-transform: uppercase;
   padding: 10px 20px;
   border-radius: 10px;
   border: 3px solid var(--primary);
