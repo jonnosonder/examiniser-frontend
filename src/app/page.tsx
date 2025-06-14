@@ -13,28 +13,28 @@ export default function Home() {
       <div className="flex w-full h-full">
         {/*Animation section*/}
         <div className="absolute z-[-1] flex flex-col w-full h-full items-center justify-center gap-6 bg-background">
-          <svg id="q1svg" height="20%" viewBox="0 0 190 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg id="q1svg" className='h-[10%] sm:h-[15%] lg:h-[20%]' viewBox="0 0 190 96" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="2" y="2" width="186" height="92" rx="10" stroke="var(--primary)" strokeWidth="2"/>
             <line x1="20" y1="25.5" x2="172" y2="25.5" stroke="var(--primary)"/>
             <line x1="20" y1="41.5" x2="172" y2="41.5" stroke="var(--primary)"/>
             <line x1="20" y1="57.5" x2="172" y2="57.5" stroke="var(--primary)"/>
             <line x1="20" y1="73.5" x2="144" y2="73.5" stroke="var(--primary)"/>
           </svg>
-          <svg id="q2svg" height="20%" viewBox="0 0 190 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg id="q2svg" className='h-[10%] sm:h-[15%] lg:h-[20%]' viewBox="0 0 190 96" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="2" y="2" width="186" height="92" rx="10" stroke="var(--primary)" strokeWidth="2"/>
             <line x1="20" y1="25.5" x2="172" y2="25.5" stroke="var(--primary)"/>
             <line x1="20" y1="41.5" x2="172" y2="41.5" stroke="var(--primary)"/>
             <line x1="20" y1="57.5" x2="172" y2="57.5" stroke="var(--primary)"/>
             <line x1="20" y1="73.5" x2="144" y2="73.5" stroke="var(--primary)"/>
           </svg>
-          <svg id="q3svg" height="20%" viewBox="0 0 190 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg id="q3svg" className='h-[10%] sm:h-[15%] lg:h-[20%]' viewBox="0 0 190 96" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="2" y="2" width="186" height="92" rx="10" stroke="var(--primary)" strokeWidth="2"/>
             <line x1="20" y1="25.5" x2="172" y2="25.5" stroke="var(--primary)"/>
             <line x1="20" y1="41.5" x2="172" y2="41.5" stroke="var(--primary)"/>
             <line x1="20" y1="57.5" x2="172" y2="57.5" stroke="var(--primary)"/>
             <line x1="20" y1="73.5" x2="144" y2="73.5" stroke="var(--primary)"/>
           </svg>
-          <svg className="absolute" height="50%" id="papersvg" viewBox="0 0 97 134" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg className='absolute h-[30%] sm:h-[40%] lg:h-[50%]' id="papersvg" viewBox="0 0 97 134" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="2" y="2" width="93" height="130" rx="10" stroke="var(--primary)" strokeWidth="2"/>
             <line x1="11" y1="13.5" x2="87" y2="13.5" stroke="var(--primary)"/>
             <line x1="11" y1="21.5" x2="87" y2="21.5" stroke="var(--primary)"/>
@@ -52,13 +52,15 @@ export default function Home() {
         </div>
         {/*Contents section*/}
         <div className="flex flex-col w-[50vw] items-center justify-center">
-          <div className='p-4'>
-            <h1 id="heroTitle" className="text-primary font-bold text-5xl">
+          <div className='p-8'>
+            <h1 id="heroTitle" className="text-primary font-bold text-2xl sm:text-3xl lg:text-5xl">
               Create Exam Papers<br />
               <span id="heroKeywordtextSpan">Quick</span> and <span id="heroKeywordtextSpan">Easy</span><br />
               With the Help of <span id="heroAItextSpan">AI</span></h1>
-            <p id="heroP" className="text-primary text-xl">Some awesome text here talking about how amazing it is</p>
-            <button id="heroButton" className='startBtn mt-4' onClick={() => router.push('/create')}>Start Now</button>
+            <p id="heroP" className="text-primary sm:text-lg lg:text-xl">Some awesome text here talking about how amazing it is</p>
+            <div id="heroButtonWrapper">
+              <button className='startBtn mt-4 text-sm sm:text-base lg:text-lg' onClick={() => router.push('/create')}>Start Now</button>
+            </div>
           </div>
         </div>
       </div>

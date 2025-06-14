@@ -1,7 +1,7 @@
+/** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',         // App Router pages, layouts, and templates
-    './src/components/**/*.{js,ts,jsx,tsx}',      // Reusable components
+    './src/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     extend: {
@@ -12,6 +12,9 @@ module.exports = {
         contrast: '#F57C22',
         background: '#f7fbfb',
         hover: '#2a2a2a',
+      },
+      fontFamily: {
+        sans: ['Nunito', 'Arial'],
       },
     },
   },

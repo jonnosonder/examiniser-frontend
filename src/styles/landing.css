@@ -15,7 +15,7 @@
   opacity: 0;
 }
 
-#heroButton {
+#heroButtonWrapper {
   animation-delay: 0.4s;
   animation-name: heroLeftFadeIn;
   animation-duration: 0.5s;
@@ -30,7 +30,7 @@
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0px);
   }
 }
 
@@ -153,17 +153,19 @@
 }
 
 .startBtn {
+  will-change: transform;
   color: var(--primary);
   text-transform: uppercase;
   padding: 10px 20px;
   border-radius: 10px;
-  border: 2px solid var(--primary);
+  border: 3px solid var(--primary);
   background: transparent;
   box-shadow: 3px 3px var(--primary);
   cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.startBtn:active {
+.startBtn:hover {
   box-shadow: none;
   transform: translate(3px, 3px);
 }
