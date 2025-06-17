@@ -12,7 +12,6 @@ module.exports = {
         red: '#E21D20',
         contrast: '#F57C22',
         background: '#f7fbfb',
-        hover: '#2a2a2a',
       },
       fontFamily: {
         sans: ['Nunito', 'Arial'],
