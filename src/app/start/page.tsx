@@ -6,6 +6,7 @@ import { useRef, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Decimal from 'decimal.js';
 import { useDropzone } from 'react-dropzone';
+import { useData } from "@/context/dataContext";
 
 const paperSizes = {
   A3: [
@@ -78,7 +79,8 @@ function getPaperHeight(sizeKey: PaperSizeKey, unit: Unit): Decimal | null {
   return found ? found.height : null;
 }
 
-export default function CreatePage() {
+export default function StartPage() {
+    const { setPageFormatData } = useData();
 
     const router = useRouter();
 
@@ -129,14 +131,14 @@ export default function CreatePage() {
         }
 
         if (widthValue !== null) {
-            let newWidth = convertUnitDecimal(widthValue, selectedUnitValue as Units, selectedValue as Units)
+            const newWidth = convertUnitDecimal(widthValue, selectedUnitValue as Units, selectedValue as Units)
             if (newWidth !== null){
                 setWidthValue(newWidth);
                 setVisualWidthValue(parseFloat(newWidth.toFixed(3)) + selectedValue);
             }
         }
         if (heightValue !== null) {
-            let newHeight = convertUnitDecimal(heightValue, selectedUnitValue as Units, selectedValue as Units)
+            const newHeight = convertUnitDecimal(heightValue, selectedUnitValue as Units, selectedValue as Units)
             if (newHeight !== null){
                 setHeightValue(newHeight);
                 setVisualHeightValue(parseFloat(newHeight.toFixed(3)) + selectedValue);
@@ -196,7 +198,7 @@ export default function CreatePage() {
 
         if (value != ""){
             const isNumeric = /^(\d+(\.\d+)?|\.\d+)$/.test(value);
-            let tempWidth;
+            let tempWidth : Decimal;
             if (isNumeric) {
                 setWidthValue(Decimal(value));
                 tempWidth = Decimal(value);
@@ -238,7 +240,7 @@ export default function CreatePage() {
 
         if (value != ""){
             const isNumeric = /^(\d+(\.\d+)?|\.\d+)$/.test(value);
-            let tempHeight;
+            let tempHeight : Decimal;
             if (isNumeric) {
                 setHeightValue(Decimal(value));
                 tempHeight = Decimal(value);
@@ -457,10 +459,10 @@ export default function CreatePage() {
 
     const switchWidthAndHeight = () => {
         if (visualWidthValue !== "" && visualHeightValue !== "") {
-            let tempWidth = widthValue;
-            let tempHeight = heightValue;
-            let tempVisualWidth = visualWidthValue;
-            let tempVisualHeight = visualHeightValue;
+            const tempWidth = widthValue;
+            const tempHeight = heightValue;
+            const tempVisualWidth = visualWidthValue;
+            const tempVisualHeight = visualHeightValue;
             setWidthValue(tempHeight);
             setHeightValue(tempWidth);
             setVisualWidthValue(tempVisualHeight !== null ? tempVisualHeight.toString() : "");
@@ -511,6 +513,17 @@ export default function CreatePage() {
                     { once: true }
                 );
             }
+        }
+
+        if (validation) {
+            setPageFormatData({ 
+                newProject: true,
+                fileDimension: selectedFileDimension,
+                unit: selectedUnitValue,
+                width: widthValue,
+                height: heightValue,
+             });
+            router.push("/editor");
         }
     } 
    

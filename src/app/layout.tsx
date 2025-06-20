@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import '../styles/globals.css';
 import '../styles/colors.css';
-
+import { DataProvider } from "../context/dataContext";
 
 export const metadata: Metadata = {
   title: "Examiniser",
@@ -16,12 +16,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"></meta>
         <link rel="icon" href="/favicon.ico" />
 
       </head>
       <body>
-        {children}
+        <DataProvider>{children}</DataProvider>
       </body>
     </html>
   );
