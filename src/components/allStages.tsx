@@ -1,11 +1,18 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Stage, Layer, Rect } from 'react-konva';
-import { getStages, subscribe } from '@/lib/stageStore';
+import { getStages, subscribe, maxWidthHeight } from '@/lib/stageStore';
+import "@/styles/allStages.css"
 
 export default function AllStages() {
   const [stages, setStages] = useState(getStages());
+
+  const stageContainerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
+  const [containerHeight, setContainerHeight] = useState(0);
+  //const [marginValueX, setMarginValueX] = useState<number>(112);
+  //const [marginValueY, setMarginValueY] = useState<number>(80);
 
   useEffect(() => {
     const unsubscribe = subscribe(() => {
@@ -14,20 +21,22 @@ export default function AllStages() {
     return () => unsubscribe();
   }, []);
 
-  // The fixed size of the preview container
-  const containerWidth = 500;
-  const containerHeight = 700;
+  useEffect(() => {
+    if (stageContainerRef.current) {
+      const displayDimension = maxWidthHeight();
+      const divContainer = stageContainerRef.current.getBoundingClientRect();
+      const adjust = 20;
+      const scale = Math.min(divContainer.width / (displayDimension.maxWidth - adjust), divContainer.height / (displayDimension.maxHeight - adjust));
+      console.log(scale);
+      setContainerWidth(displayDimension.maxWidth * scale);
+      setContainerHeight(displayDimension.maxHeight * scale);
+      console.log(displayDimension.maxWidth * scale);
+      console.log(displayDimension.maxHeight * scale);
+    }
+  }, [stages]);
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: '1rem',
-        justifyContent: 'center',
-        padding: '1rem',
-      }}
-    >
+    <div ref={stageContainerRef} className='overflow-y-auto custom-scroll h-full w-full flex flex-col items-center justify-start space-y-4 p-4'>
       {stages.map((stage) => {
         const scaleX = containerWidth / stage.width;
         const scaleY = containerHeight / stage.height;
@@ -36,14 +45,10 @@ export default function AllStages() {
         return (
           <div
             key={stage.id}
+            className='flex items-center justify-center bg-white'
             style={{
               width: containerWidth,
               height: containerHeight,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              border: '1px solid #ccc',
-              background: '#f9f9f9',
             }}
           >
             <Stage
@@ -58,15 +63,7 @@ export default function AllStages() {
               }}
             >
               <Layer>
-                <Rect
-                  x={20}
-                  y={20}
-                  width={500}
-                  height={500}
-                  fill="lightblue"
-                  shadowBlur={5}
-                  draggable
-                />
+                
               </Layer>
             </Stage>
           </div>

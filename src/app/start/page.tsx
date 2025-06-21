@@ -515,32 +515,36 @@ export default function StartPage() {
             }
         }
 
-        if (validation) {
+        if (validation && widthValue != null && heightValue != null) {
+            const widthValueToSend = convertUnitDecimal(widthValue, selectedUnitValue as Units, "px" as Units)
+            const heightValueToSend = convertUnitDecimal(heightValue, selectedUnitValue as Units, "px" as Units)
             setPageFormatData({ 
                 newProject: true,
+                projectName: fileNameValue,
                 fileDimension: selectedFileDimension,
-                unit: selectedUnitValue,
-                width: widthValue,
-                height: heightValue,
+                width: widthValueToSend,
+                height: heightValueToSend,
+                visualWidth: visualWidthValue,
+                visualHeight: visualHeightValue,
              });
             router.push("/editor");
         }
     } 
    
     return (
-    <div className="w-full h-full flex">
+    <div id="wholeContainer" className="w-full h-full flex">
         {/* Setup Questions */}
-        <div onClick={() => router.push('/')} className="absolute z-[1] w-[3rem] sm:w-[3.5rem] lg:w-[4rem] h-[3rem] sm:h-[3.5rem] lg:h-[4rem] top-3 left-3 p-2 border-2 border-primary rounded-lg hover:shadow-[0_0_0_0.5rem_theme('colors.red')] transition-all duration-300 cursor-pointer">
-            <ArrowIcon className='w-full h-full'/>
+        <div onClick={() => router.push('/')} className="absolute bg-background z-[1] w-[3rem] sm:w-[3.5rem] lg:w-[4rem] h-[3rem] sm:h-[3.5rem] lg:h-[4rem] top-3 left-3 p-2 border-2 border-primary rounded-lg hover:shadow-[0_0_0_0.5rem_theme('colors.red')] transition-all duration-300 cursor-pointer">
+                <ArrowIcon className='w-full h-full'/>
         </div>
         {/* Setup Questions */}
         <div ref={firstQuestionDiv} className="absolute w-full h-full flex justify-center items-center">
             {/* First option: new paper or continue */}
             <div className="flex flex-col sm:flex-row w-[80%] sm:w-[65%] lg:w-[50%] h-[20%] sm:h-[30%] lg:h-[40%] m-4 gap-8">
-                <button ref={firstQuestionLeft} onClick={questionToCreatePaperTransition} className="createNewPaperButtonWrapper relative hover:shadow-[0_0_0_1rem_theme('colors.accent')] transition-all duration-300 ease-in-out border-4 border-primary rounded-lg w-full sm:h-1/2 sm:w-1/2 sm:h-full p-4 items-center justify-center text-center text-lg sm:text-xl lg:text-2xl flex items-center justify-center">
+                <button ref={firstQuestionLeft} onClick={questionToCreatePaperTransition} className="createNewPaperButtonWrapper bg-background relative hover:shadow-[0_0_0_1rem_theme('colors.accent')] transition-all duration-300 ease-in-out border-4 border-primary rounded-lg w-full sm:h-1/2 sm:w-1/2 sm:h-full p-4 items-center justify-center text-center text-lg sm:text-xl lg:text-2xl flex items-center justify-center">
                     Create New Paper
                 </button>
-                <button ref={firstQuestionRight} onClick={questionToUploadPaperTransition} className="uploadPaperButtonWrapper relative hover:shadow-[0_0_0_1rem_theme('colors.contrast')] transition-all duration-300 ease-in-out border-4 border-primary rounded-lg w-full sm:h-1/2 sm:w-1/2 sm:h-full p-4 items-center justify-center text-center text-lg sm:text-xl lg:text-2xl flex items-center justify-center">
+                <button ref={firstQuestionRight} onClick={questionToUploadPaperTransition} className="uploadPaperButtonWrapper bg-background relative hover:shadow-[0_0_0_1rem_theme('colors.contrast')] transition-all duration-300 ease-in-out border-4 border-primary rounded-lg w-full sm:h-1/2 sm:w-1/2 sm:h-full p-4 items-center justify-center text-center text-lg sm:text-xl lg:text-2xl flex items-center justify-center">
                     Upload a Paper
                 </button>
             </div>
@@ -548,7 +552,7 @@ export default function StartPage() {
         {/* Create paper page */}
         <div ref={createFormDiv} className="absolute hidden flex-col w-full h-full flex justify-center items-center">
             {/* First option: new paper or continue */}
-            <div className="flex flex-col w-[80%] sm:w-[65%] lg:w-[50%] m-2  border-4 border-primary rounded-lg justify-center items-center">
+            <div className="flex flex-col bg-background w-[80%] sm:w-[65%] lg:w-[50%] m-2  border-4 border-primary rounded-lg justify-center items-center">
                 <div className='flex flex-col p-8 gap-6'>
                     <p className='text-center text-primary w-full text-xl sm:text-2xl lg:text-3xl font-bold'>Create File</p>
                     <div className="inline-flex items-center space-x-4">
@@ -588,10 +592,10 @@ export default function StartPage() {
                 </div>
             </div>
             <div className='flex w-[80%] sm:w-[65%] lg:w-[50%] h-[8%] sm:h-[8%] lg:h-[10%]'>
-                <div onClick={createPaperToQuestionTransition} className="flex m-2 ml-0 p-2 border-4 border-primary rounded-lg justify-center items-center cursor-pointer hover:shadow-[0_0_0_0.5rem_theme('colors.contrast')] transition-all duration-300">
+                <div onClick={createPaperToQuestionTransition} className="flex bg-background m-2 ml-0 p-2 border-4 border-primary rounded-lg justify-center items-center cursor-pointer hover:shadow-[0_0_0_0.5rem_theme('colors.contrast')] transition-all duration-300">
                     <ArrowIcon className='w-full h-full'/>
                 </div>
-                <div onClick={createButtonPressed} className="flex flex-grow w-full m-2 mr-0 p-2 border-4 border-primary rounded-lg justify-center items-center cursor-pointer hover:shadow-[0_0_0_0.5rem_theme('colors.accent')] transition-all duration-300 ease-in-out">
+                <div onClick={createButtonPressed} className="flex flex-grow bg-background w-full m-2 mr-0 p-2 border-4 border-primary rounded-lg justify-center items-center cursor-pointer hover:shadow-[0_0_0_0.5rem_theme('colors.accent')] transition-all duration-300 ease-in-out">
                     <p className='text-primary text-center text-lg sm:text-1xl lg:text-2xl font-bold'>Create</p>
                 </div>
             </div>
@@ -600,7 +604,7 @@ export default function StartPage() {
         {/* Upload paper page */}
         <div ref={uploadPaperFormDiv} className="absolute hidden flex-col w-full h-full flex justify-center items-center">
             {/* First option: new paper or continue */}
-            <div className="flex flex-col w-[80%] sm:w-[65%] lg:w-[50%] m-2  border-4 border-primary rounded-lg justify-center items-center">
+            <div className="flex flex-col bg-background w-[80%] sm:w-[65%] lg:w-[50%] m-2  border-4 border-primary rounded-lg justify-center items-center">
                 <div className='flex flex-col p-8 gap-6'>
                     <p className='text-center text-primary w-full text-xl sm:text-2xl lg:text-3xl font-bold'>Upload File</p>
                     <p className='text-center text-primary w-full'>Continue editing your file by adding it bellow!</p>
@@ -629,10 +633,10 @@ export default function StartPage() {
                 </div>
             </div>
             <div className='flex w-[80%] sm:w-[65%] lg:w-[50%] h-[8%] sm:h-[8%] lg:h-[10%]'>
-                <div onClick={uploadPaperToQuestionTransition} className="flex m-2 ml-0 p-2 border-4 border-primary rounded-lg justify-center items-center cursor-pointer hover:shadow-[0_0_0_0.5rem_theme('colors.accent')] transition-all duration-300">
+                <div onClick={uploadPaperToQuestionTransition} className="flex bg-background m-2 ml-0 p-2 border-4 border-primary rounded-lg justify-center items-center cursor-pointer hover:shadow-[0_0_0_0.5rem_theme('colors.accent')] transition-all duration-300">
                     <ArrowIcon className='w-full h-full'/>
                 </div>
-                <div className="flex w-full m-2 mr-0 p-2 border-4 border-primary rounded-lg justify-center items-center cursor-pointer hover:shadow-[0_0_0_0.5rem_theme('colors.contrast')] transition-all duration-300 ease-in-out">
+                <div className="flex w-full bg-background m-2 mr-0 p-2 border-4 border-primary rounded-lg justify-center items-center cursor-pointer hover:shadow-[0_0_0_0.5rem_theme('colors.contrast')] transition-all duration-300 ease-in-out">
                     <p className='text-primary text-center text-lg sm:text-1xl lg:text-2xl font-bold'>Start</p>
                 </div>
             </div>

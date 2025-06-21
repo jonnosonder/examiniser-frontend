@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from 'next/navigation';
-import '../styles/landing.css';
-import Navbar from '../components/navbar';
+import '@/styles/landing.css';
+import Navbar from '@/components/navbar';
 
 export default function Home() {
   const router = useRouter();
@@ -57,7 +57,7 @@ export default function Home() {
               Create Exam Papers<br />
               <span id="heroKeywordtextSpan">Quick</span> and <span id="heroKeywordtextSpan">Easy</span><br />
               With the Help of <span id="heroAItextSpan">AI</span></h1>
-            <p id="heroP" className="text-primary sm:text-lg lg:text-xl">Some awesome text here talking about how amazing it is</p>
+            <p id="heroP" className="max-w-sm sm:max-w-md lg:max-w-xl text-primary sm:text-lg lg:text-xl break-words">An editor specialised in making question and exam papers. Easy to create and navigate, also with AI tools all for free!</p>
             <div id="heroButtonWrapper">
               <button className='startBtn mt-4 text-sm sm:text-base lg:text-lg' onClick={() => router.push('/start')}>Start Now</button>
             </div>

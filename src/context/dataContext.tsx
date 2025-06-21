@@ -5,10 +5,12 @@ import React, { createContext, useContext, useState, ReactNode } from "react";
 
 interface Data {
   newProject: boolean | null,
+  projectName: string | null,
   fileDimension: string | null,
-  unit: string | null,
   width: Decimal | null,
   height: Decimal | null,
+  visualWidth: string | null,
+  visualHeight: string | null,
 }
 
 interface DataContextType {
