@@ -1,13 +1,15 @@
 "use client";
 
 import useBeforeUnload from '@/components/useBeforeUnload';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Decimal from 'decimal.js';
 import { useData } from "@/context/dataContext";
 import AllStages from '@/components/allStages';
 import HoverExplainButton from '@/components/hoverExplainButton';
+import '@/styles/editor.css';
 
 import { addStage, addStageCopyPrevious, stagesLength } from '@/lib/stageStore';
+import QuestionCreator from '@/components/questionCreator';
 
 export default function EditorPage() {
     useBeforeUnload(true);
@@ -17,17 +19,50 @@ export default function EditorPage() {
 
     const { pageFormatData } = useData();
 
-    //const [cursorType, setCursorType] = useState<number>(0);
+    const [showQuestionCreator, setShowQuestionCreator] = useState(false);
+    const handleQuestionCreatorOpen = () => setShowQuestionCreator(true);
+    const handleQuestionCreatorClose = () => setShowQuestionCreator(false);
+
+    const cursorDivRef = useRef<HTMLDivElement>(null);
+    const [cursorType, setCursorType] = useState<number>(0);
+    const defualtCursorRef = useRef<HTMLButtonElement>(null);
+    const pageCursorRef = useRef<HTMLButtonElement>(null);
+
+    useEffect(() => {
+        const el = cursorDivRef.current;
+        if (!el) return;
+        
+        if (cursorType === 0) {
+            el.className = 'cursor-default';
+            el.style.cursor = '';
+            if (defualtCursorRef.current){
+                defualtCursorRef.current.classList.add('indented-button');
+            }
+            if (pageCursorRef.current){
+                pageCursorRef.current.classList.remove('indented-button');
+            }
+        } else if (cursorType === 1) {
+            el.className = '';
+            el.style.cursor = `url("data:image/svg+xml,%3Csvg%20clip-rule%3D%22evenodd%22%20fill-rule%3D%22evenodd%22%20stroke-linejoin%3D%22round%22%20stroke-miterlimit%3D%222%22%20viewBox%3D%220%200%2024%2024%22%20width%3D%2224%22%20height%3D%2224%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22m3%2017v3c0%20.621.52%201%201%201h3v-1.5h-2.5v-2.5zm8.5%204h-3.5v-1.5h3.5zm4.5%200h-3.5v-1.5h3.5zm5-4h-1.5v2.5h-2.5v1.5h3c.478%200%201-.379%201-1zm-1.5-1v-3.363h1.5v3.363zm-15-3.363v3.363h-1.5v-3.363zm15-1v-3.637h1.5v3.637zm-15-3.637v3.637h-1.5v-3.637zm12.5-5v1.5h2.5v2.5h1.5v-3c0-.478-.379-1-1-1zm-10%200h-3c-.62%200-1%20.519-1%201v3h1.5v-2.5h2.5zm4.5%201.5h-3.5v-1.5h3.5zm4.5%200h-3.5v-1.5h3.5z%22%20fill-rule%3D%22nonzero%22/%3E%3C/svg%3E") 12 12, auto`;
+            if (defualtCursorRef.current){
+                defualtCursorRef.current.classList.remove('indented-button');
+            }
+            if (pageCursorRef.current){
+                pageCursorRef.current.classList.add('indented-button');
+            }
+        }
+        
+    }, [cursorType])
 
     useEffect(() => {
         if (stagesLength() === 0){
             const width = pageFormatData?.width != null
                 ? Number(pageFormatData.width)
-                : Number(new Decimal(297).times(300).div(25.4));
+                : Number(new Decimal(210).times(300).div(25.4));
 
             const height = pageFormatData?.height != null
                 ? Number(pageFormatData.height)
-                : Number(new Decimal(420).times(300).div(25.4));
+                : Number(new Decimal(297).times(300).div(25.4));
 
             if (pageFormatData?.newProject != null && pageFormatData?.projectName != null ) {
                 setProjectNameValue(pageFormatData.projectName);
@@ -40,16 +75,6 @@ export default function EditorPage() {
             });
         }
     }, [pageFormatData]);
-
-    const buttons = [
-        { icon: 
-            <svg className='w-full h-full' clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m21 3.998c0-.478-.379-1-1-1h-16c-.62 0-1 .519-1 1v16c0 .621.52 1 1 1h16c.478 0 1-.379 1-1zm-16.5.5h15v15h-15zm6.75 6.752h-3.5c-.414 0-.75.336-.75.75s.336.75.75.75h3.5v3.5c0 .414.336.75.75.75s.75-.336.75-.75v-3.5h3.5c.414 0 .75-.336.75-.75s-.336-.75-.75-.75h-3.5v-3.5c0-.414-.336-.75-.75-.75s-.75.336-.75.75z" fillRule="nonzero"/></svg>
-            , label: 'Add Question' },
-        { icon: 
-            <svg className='w-full h-full' clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m11.25 6c.398 0 .75.352.75.75 0 .414-.336.75-.75.75-1.505 0-7.75 0-7.75 0v12h17v-8.749c0-.414.336-.75.75-.75s.75.336.75.75v9.249c0 .621-.522 1-1 1h-18c-.48 0-1-.379-1-1v-13c0-.481.38-1 1-1zm1.521 9.689 9.012-9.012c.133-.133.217-.329.217-.532 0-.179-.065-.363-.218-.515l-2.423-2.415c-.143-.143-.333-.215-.522-.215s-.378.072-.523.215l-9.027 8.996c-.442 1.371-1.158 3.586-1.264 3.952-.126.433.198.834.572.834.41 0 .696-.099 4.176-1.308zm-2.258-2.392 1.17 1.171c-.704.232-1.274.418-1.729.566zm.968-1.154 7.356-7.331 1.347 1.342-7.346 7.347z" fillRule="nonzero"/></svg>
-            , label: 'Edit Question' },
-        { icon: <p></p>, label: '' },
-    ];
 
     const newPageButtonHandler = () => {
         addStageCopyPrevious(`stage-${Date.now()}`);
@@ -65,11 +90,12 @@ export default function EditorPage() {
     }
 
     return (
-    <div className='cursor-default'>
+    <div ref={cursorDivRef} className='cursor-default'>
+        {showQuestionCreator && <QuestionCreator onClose={handleQuestionCreatorClose} />}
         <div className="flex flex-col w-full h-screen">
             <div className="flex h-10 border-b-1 border-primary">
                 <div className='flex m-2'>
-                    <input className='rounded-lg p-1 text-ellipsis overflow-hidden whitespace-nowrap' type="text" onChange={fileNameOnChangeHandler} onBlur={(e) => {e.target.setSelectionRange(0, 0);}} value={projectNameValue} placeholder='Project Name'></input>
+                    <input className='border-2 bg-background border-background rounded-lg p-1 text-ellipsis overflow-hidden whitespace-nowrap outline-none focus:border-black' type="text" onChange={fileNameOnChangeHandler} onBlur={(e) => {e.target.setSelectionRange(0, 0);}} value={projectNameValue} placeholder='Project Name'></input>
                 </div>
                 <div className='flex items-center justify-center border-r-2 border-l-2 border-primary '>
                     <HoverExplainButton
@@ -81,14 +107,16 @@ export default function EditorPage() {
 
                 <div className='flex items-center justify-center border-r-2 border-primary '>
                     <HoverExplainButton
+                    ref = {defualtCursorRef}
                     icon={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M4 0l16 12.279-6.951 1.17 4.325 8.817-3.596 1.734-4.35-8.879-5.428 4.702z"/></svg>}
                     explanation={'Selector'}
-                    onClick={newPageButtonHandler}
+                    onClick={() => setCursorType(0)}
                     />
                     <HoverExplainButton
-                    icon={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M24 12l-6-5v4h-5v-5h4l-5-6-5 6h4v5h-5v-4l-6 5 6 5v-4h5v5h-4l5 6 5-6h-4v-5h5v4z"/></svg>}
-                    explanation={'Selector'}
-                    onClick={newPageButtonHandler}
+                    ref = {pageCursorRef}
+                    icon={<svg clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m3 17v3c0 .621.52 1 1 1h3v-1.5h-2.5v-2.5zm8.5 4h-3.5v-1.5h3.5zm4.5 0h-3.5v-1.5h3.5zm5-4h-1.5v2.5h-2.5v1.5h3c.478 0 1-.379 1-1zm-1.5-1v-3.363h1.5v3.363zm-15-3.363v3.363h-1.5v-3.363zm15-1v-3.637h1.5v3.637zm-15-3.637v3.637h-1.5v-3.637zm12.5-5v1.5h2.5v2.5h1.5v-3c0-.478-.379-1-1-1zm-10 0h-3c-.62 0-1 .519-1 1v3h1.5v-2.5h2.5zm4.5 1.5h-3.5v-1.5h3.5zm4.5 0h-3.5v-1.5h3.5z" fillRule="nonzero"/></svg>}
+                    explanation={'Page Editor'}
+                    onClick={() => setCursorType(1)}
                     />
                 </div>
             </div>
@@ -114,15 +142,19 @@ export default function EditorPage() {
                         </button>
 
                         <nav className="flex-1 mt-4">
-                            {buttons.map(({ icon, label }) => (
-                            <button
-                                key={label}
-                                className="flex text-center items-center justify-center w-full p-3 focus:outline-none"
-                            >
-                                <span className="w-8 h-8 text-lg items-center justify-center">{icon}</span>
-                                {!actionWindow && <span className="ml-3">{label}</span>}
+                            <button onClick={handleQuestionCreatorOpen} className="flex text-center items-center justify-center w-full p-3 focus:outline-none">
+                                <div className="w-8 h-8 text-lg items-center justify-center">
+                                    <svg className='w-full h-full' clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m21 3.998c0-.478-.379-1-1-1h-16c-.62 0-1 .519-1 1v16c0 .621.52 1 1 1h16c.478 0 1-.379 1-1zm-16.5.5h15v15h-15zm6.75 6.752h-3.5c-.414 0-.75.336-.75.75s.336.75.75.75h3.5v3.5c0 .414.336.75.75.75s.75-.336.75-.75v-3.5h3.5c.414 0 .75-.336.75-.75s-.336-.75-.75-.75h-3.5v-3.5c0-.414-.336-.75-.75-.75s-.75.336-.75.75z" fillRule="nonzero"/></svg>
+                                </div>
+                                {!actionWindow && <span className="ml-3">Add Question</span>}
                             </button>
-                            ))}
+
+                            <button className="flex text-center items-center justify-center w-full p-3 focus:outline-none">
+                                <div className="w-8 h-8 text-lg items-center justify-center">
+                                    <svg className='w-full h-full' clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m11.25 6c.398 0 .75.352.75.75 0 .414-.336.75-.75.75-1.505 0-7.75 0-7.75 0v12h17v-8.749c0-.414.336-.75.75-.75s.75.336.75.75v9.249c0 .621-.522 1-1 1h-18c-.48 0-1-.379-1-1v-13c0-.481.38-1 1-1zm1.521 9.689 9.012-9.012c.133-.133.217-.329.217-.532 0-.179-.065-.363-.218-.515l-2.423-2.415c-.143-.143-.333-.215-.522-.215s-.378.072-.523.215l-9.027 8.996c-.442 1.371-1.158 3.586-1.264 3.952-.126.433.198.834.572.834.41 0 .696-.099 4.176-1.308zm-2.258-2.392 1.17 1.171c-.704.232-1.274.418-1.729.566zm.968-1.154 7.356-7.331 1.347 1.342-7.346 7.347z" fillRule="nonzero"/></svg>
+                                </div>
+                                {!actionWindow && <span className="ml-3">Edit Question</span>}
+                            </button>
                         </nav>
                     </div>
                 </div>

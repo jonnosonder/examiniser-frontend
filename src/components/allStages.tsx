@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { Stage, Layer, Rect } from 'react-konva';
+import { Stage, Layer } from 'react-konva';
 import { getStages, subscribe, maxWidthHeight } from '@/lib/stageStore';
 import "@/styles/allStages.css"
 
@@ -26,12 +26,12 @@ export default function AllStages() {
       const displayDimension = maxWidthHeight();
       const divContainer = stageContainerRef.current.getBoundingClientRect();
       const adjust = 20;
-      const scale = Math.min(divContainer.width / (displayDimension.maxWidth - adjust), divContainer.height / (displayDimension.maxHeight - adjust));
-      console.log(scale);
+      const scale = Math.min(divContainer.width / (displayDimension.maxWidth + adjust), divContainer.height / (displayDimension.maxHeight + adjust));
+      //console.log(scale);
       setContainerWidth(displayDimension.maxWidth * scale);
       setContainerHeight(displayDimension.maxHeight * scale);
-      console.log(displayDimension.maxWidth * scale);
-      console.log(displayDimension.maxHeight * scale);
+      //console.log(displayDimension.maxWidth * scale);
+      //console.log(displayDimension.maxHeight * scale);
     }
   }, [stages]);
 
@@ -43,29 +43,32 @@ export default function AllStages() {
         const scale = Math.min(scaleX, scaleY);
 
         return (
-          <div
-            key={stage.id}
-            className='flex items-center justify-center bg-white'
-            style={{
-              width: containerWidth,
-              height: containerHeight,
-            }}
-          >
-            <Stage
-              width={containerWidth}
-              height={containerHeight}
-              scaleX={scale}
-              scaleY={scale}
+          <div key={stage.id+"div"}>
+            <p key={stage.id+"p"} className='flex text-darkGrey text-xs text-left'>{stage.width}px x {stage.height}px</p>
+            <div
+              key={stage.id}
+              className='flex flex-col items-center justify-center bg-white'
               style={{
                 width: containerWidth,
                 height: containerHeight,
-                transformOrigin: 'top left',
               }}
             >
-              <Layer>
-                
-              </Layer>
-            </Stage>
+              <Stage
+                width={containerWidth}
+                height={containerHeight}
+                scaleX={scale}
+                scaleY={scale}
+                style={{
+                  width: containerWidth,
+                  height: containerHeight,
+                  transformOrigin: 'top left',
+                }}
+              >
+                <Layer>
+                  
+                </Layer>
+              </Stage>
+            </div>
           </div>
         );
       })}
