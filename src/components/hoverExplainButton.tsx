@@ -48,7 +48,7 @@ const HoverExplainButton = forwardRef<HTMLButtonElement, HoverExplainButtonProps
         </button>
         {showText && (
           <div className="absolute border-2 border-primary bg-background rounded-lg z-10">
-            <p className="text-primary p-1 text-xs md:text-sm">{explanation}</p>
+            <p className="flex text-primary p-1 text-xs md:text-sm whitespace-nowrap">{explanation}</p>
           </div>
         )}
       </div>
