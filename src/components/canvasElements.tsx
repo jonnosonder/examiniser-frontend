@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
-import { Rect, Circle, Text, Image, Transformer, Line } from 'react-konva';
+import { Rect, Ellipse, Text, Image, Transformer, Line } from 'react-konva';
 import Konva from 'konva';
 import useImage from 'use-image';
 import { ShapeData } from '@/lib/shapeData';
@@ -12,44 +12,40 @@ interface Props {
   isSelected: boolean;
   onSelect: () => void;
   onChange: (newAttrs: ShapeData) => void;
+  setDraggable: boolean;
 }
 
-export default function CanvasElements({ shape, isSelected, onSelect, onChange }: Props) {
-  const shapeRef = useRef<any>(null);
+export default function CanvasElements({ shape, isSelected, onSelect, onChange, setDraggable }: Props) {
+  const rectRef = useRef<Konva.Rect | null>(null);
+  const ovalRef = useRef<Konva.Ellipse | null>(null);
+  const triangleRef = useRef<Konva.Line | null>(null);
   const trRef = useRef<Konva.Transformer>(null);
   const [image] = useImage((shape.type === 'image' && shape.src) || '');
 
   useEffect(() => {
-    if (isSelected && trRef.current && shapeRef.current) {
-      trRef.current.nodes([shapeRef.current]);
-      trRef.current.getLayer()?.batchDraw();
+    if (shape.type == 'rect'){
+      if (isSelected && trRef.current && rectRef.current) {
+        trRef.current.nodes([rectRef.current]);
+        trRef.current.getLayer()?.batchDraw();
+      }
+    } else if (shape.type == 'oval'){
+      if (isSelected && trRef.current && ovalRef.current) {
+        trRef.current.nodes([ovalRef.current]);
+        trRef.current.getLayer()?.batchDraw();
+      }
+    } else if (shape.type == 'tri'){
+      if (isSelected && trRef.current && triangleRef.current) {
+        trRef.current.nodes([triangleRef.current]);
+        trRef.current.getLayer()?.batchDraw();
+      }
     }
   }, [isSelected]);
 
   const commonProps = {
-    ref: shapeRef,
-    draggable: true,
     onClick: onSelect,
     onTap: onSelect,
     onDragEnd: (e: any) => {
       onChange({ ...shape, x: e.target.x(), y: e.target.y() });
-    },
-    onTransformEnd: (e: any) => {
-      const node = shapeRef.current;
-      const scaleX = node.scaleX();
-      const scaleY = node.scaleY();
-      node.scaleX(1);
-      node.scaleY(1);
-
-      if (shape.type === 'rect' || shape.type === 'image') {
-        onChange({
-          ...shape,
-          x: node.x(),
-          y: node.y(),
-          width: Math.max(5, node.width() * scaleX),
-          height: Math.max(5, node.height() * scaleY),
-        } as ShapeData);
-      }
     },
   };
 
@@ -57,100 +53,80 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange }
     case 'rect':
       return (
         <>
-          <Rect {...shape} {...commonProps} />
+          <Rect {...shape} {...commonProps} ref={rectRef} draggable={setDraggable}
+          onTransformEnd={ () => {
+            const node = rectRef.current;
+            if (!node) return;
+            const scaleX = node.scaleX();
+            const scaleY = node.scaleY();
+            node.scaleX(1);
+            node.scaleY(1);
+
+              onChange({
+                ...shape,
+                x: node.x(),
+                y: node.y(),
+                width: Math.max(5, node.width() * scaleX),
+                height: Math.max(5, node.height() * scaleY),
+              } as ShapeData);
+            
+          }}
+          />
+          {isSelected && <Transformer ref={trRef} />}
+        </>
+      );
+    case 'oval':
+      return (
+        <>
+          <Ellipse {...shape} {...commonProps} ref={ovalRef} draggable={setDraggable}
+          onTransformEnd={ () => {
+            const node = ovalRef.current;
+            if (!node) return;
+            const scaleX = node.scaleX();
+            const scaleY = node.scaleY();
+            node.scaleX(1);
+            node.scaleY(1);
+
+              onChange({
+                ...shape,
+                x: node.x(),
+                y: node.y(),
+                radiusX: Math.max(5, node.width() * scaleX /2),
+                radiusY: Math.max(5, node.height() * scaleY /2),
+              } as ShapeData);
+            
+          }}
+          />
           {isSelected && <Transformer ref={trRef} />}
         </>
       );
     case 'tri':
+      const trianglePoints = [
+        0, Number(shape.height),      // bottom-left
+        Number(shape.width)/2 , 0,   // top-center
+        Number(shape.width), Number(shape.height)   // bottom-right
+      ];
       return (
         <>
-          <Triangle {...shape} {...commonProps} />
-          {isSelected && <Transformer ref={trRef} />}
-        </>
-      );
-    case 'circle':
-      return (
-        <>
-            <Circle
-                {...shape}
-                ref={shapeRef}
-                draggable
-                onClick={onSelect}
-                onTap={onSelect}
-                onDragEnd={(e) => {
-                onChange({
-                    ...shape,
-                    x: e.target.x(),
-                    y: e.target.y(),
-                });
-                }}
-                onTransformEnd={() => {
-                const node = shapeRef.current;
-                const scaleX = node.scaleX();
+          <Line {...shape} {...commonProps} points={trianglePoints} closed ref={triangleRef} draggable={setDraggable}
+          onTransformEnd={ () => {
+            const node = triangleRef.current;
+            if (!node) return;
+            const scaleX = node.scaleX();
+            const scaleY = node.scaleY();
+            node.scaleX(1);
+            node.scaleY(1);
 
-                // reset scale to avoid compounding
-                node.scaleX(1);
-                node.scaleY(1);
-
-                onChange({
-                    ...shape,
-                    x: node.x(),
-                    y: node.y(),
-                    radius: Math.max(5, shape.radius * scaleX),
-                });
-                }}
-            />
-            {isSelected && <Transformer ref={trRef} rotateEnabled={false} />}
-        </>
-      );
-    case 'text':
-        return (
-          <>
-            <Text
-              {...shape}
-              {...commonProps}
-              ref={shapeRef}
-              draggable
-              onTransform={() => {
-                const node = shapeRef.current;
-                if (!node) return;
-
-                const scaleX = node.scaleX();
-                const scaleY = node.scaleY();
-
-                // Update width/height live during transform
-                const newWidth = node.width() * scaleX;
-                const newHeight = node.height() * scaleY;
-
-                // Reset scale so it doesn't visually distort
-                node.scaleX(1);
-                node.scaleY(1);
-
-                // Update shape state live
-                onChange({
-                  ...shape,
-                  x: node.x(),
-                  y: node.y(),
-                  width: newWidth,
-                  height: newHeight,
-                });
-              }}
-              onTransformEnd={() => {
-                // Already handled live in `onTransform`, but still a good safety
-                const node = shapeRef.current;
-                if (!node) return;
-
-                node.scaleX(1);
-                node.scaleY(1);
-              }}
-            />
-            {isSelected && <Transformer ref={trRef} />}
-          </>
-        );
-    case 'image':
-      return (
-        <>
-          <Image image={image} {...shape} {...commonProps} />
+              onChange({
+                ...shape,
+                x: node.x(),
+                y: node.y(),
+                width: Math.max(5, node.width() * scaleX),
+                height: Math.max(5, node.height() * scaleY),
+              } as ShapeData);
+            
+          }}
+          />
           {isSelected && <Transformer ref={trRef} />}
         </>
       );

@@ -12,7 +12,7 @@ import { addStage, addStageCopyPrevious, stagesLength } from '@/lib/stageStore';
 import QuestionCreator from '@/components/questionCreator';
 
 export default function EditorPage() {
-    useBeforeUnload(true);
+    useBeforeUnload(false); //TEMP
 
     const [projectNameValue, setProjectNameValue] = useState<string>("");
     const [actionWindow, setActionWindow] = useState(false);
@@ -27,6 +27,16 @@ export default function EditorPage() {
     const [cursorType, setCursorType] = useState<number>(0);
     const defualtCursorRef = useRef<HTMLButtonElement>(null);
     const pageCursorRef = useRef<HTMLButtonElement>(null);
+
+    const [manualScaler, setManualScaler] = useState(1);
+
+    const manualScaleUpHandler = () => {
+        setManualScaler(manualScaler + 0.1);
+    }
+
+    const manualScaleDownHandler = () => {
+        setManualScaler(manualScaler - 0.1);
+    }
 
     useEffect(() => {
         const el = cursorDivRef.current;
@@ -94,35 +104,45 @@ export default function EditorPage() {
         {showQuestionCreator && <QuestionCreator onClose={handleQuestionCreatorClose} />}
         <div className="flex flex-col w-full h-screen">
             <div className="flex h-10 border-b-1 border-primary">
-                <div className='flex m-2'>
+                <div className='flex m-1'>
                     <input className='border-2 bg-background border-background rounded-lg p-1 text-ellipsis overflow-hidden whitespace-nowrap outline-none focus:border-black' type="text" onChange={fileNameOnChangeHandler} onBlur={(e) => {e.target.setSelectionRange(0, 0);}} value={projectNameValue} placeholder='Project Name'></input>
                 </div>
                 <div className='flex items-center justify-center border-r-2 border-l-2 border-primary '>
                     <HoverExplainButton
-                    icon={<svg clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m20 20h-15.25c-.414 0-.75.336-.75.75s.336.75.75.75h15.75c.53 0 1-.47 1-1v-15.75c0-.414-.336-.75-.75-.75s-.75.336-.75.75zm-1-17c0-.478-.379-1-1-1h-15c-.62 0-1 .519-1 1v15c0 .621.52 1 1 1h15c.478 0 1-.379 1-1zm-15.5.5h14v14h-14zm6.25 6.25h-3c-.414 0-.75.336-.75.75s.336.75.75.75h3v3c0 .414.336.75.75.75s.75-.336.75-.75v-3h3c.414 0 .75-.336.75-.75s-.336-.75-.75-.75h-3v-3c0-.414-.336-.75-.75-.75s-.75.336-.75.75z" fillRule="nonzero"/></svg>}
-                    explanation={'Add new page'}
-                    onClick={newPageButtonHandler}
+                        icon={<svg clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m20 20h-15.25c-.414 0-.75.336-.75.75s.336.75.75.75h15.75c.53 0 1-.47 1-1v-15.75c0-.414-.336-.75-.75-.75s-.75.336-.75.75zm-1-17c0-.478-.379-1-1-1h-15c-.62 0-1 .519-1 1v15c0 .621.52 1 1 1h15c.478 0 1-.379 1-1zm-15.5.5h14v14h-14zm6.25 6.25h-3c-.414 0-.75.336-.75.75s.336.75.75.75h3v3c0 .414.336.75.75.75s.75-.336.75-.75v-3h3c.414 0 .75-.336.75-.75s-.336-.75-.75-.75h-3v-3c0-.414-.336-.75-.75-.75s-.75.336-.75.75z" fillRule="nonzero"/></svg>}
+                        explanation={'Add new page'}
+                        onClick={newPageButtonHandler}
+                    />
+                    <HoverExplainButton
+                        icon={<svg clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m11 11h-7.25c-.414 0-.75.336-.75.75s.336.75.75.75h7.25v7.25c0 .414.336.75.75.75s.75-.336.75-.75v-7.25h7.25c.414 0 .75-.336.75-.75s-.336-.75-.75-.75h-7.25v-7.25c0-.414-.336-.75-.75-.75s-.75.336-.75.75z" fillRule="nonzero"/></svg>}
+                        explanation={'Zoom in'}
+                        onClick={manualScaleUpHandler}
+                    />
+                    <HoverExplainButton
+                        icon={<svg clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m21 11.75c0-.414-.336-.75-.75-.75h-16.5c-.414 0-.75.336-.75.75s.336.75.75.75h16.5c.414 0 .75-.336.75-.75z" fillRule="nonzero"/></svg>}
+                        explanation={'Zoom out'}
+                        onClick={manualScaleDownHandler}
                     />
                 </div>
 
                 <div className='flex items-center justify-center border-r-2 border-primary '>
                     <HoverExplainButton
-                    ref = {defualtCursorRef}
-                    icon={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M4 0l16 12.279-6.951 1.17 4.325 8.817-3.596 1.734-4.35-8.879-5.428 4.702z"/></svg>}
-                    explanation={'Selector'}
-                    onClick={() => setCursorType(0)}
+                        ref = {defualtCursorRef}
+                        icon={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M4 0l16 12.279-6.951 1.17 4.325 8.817-3.596 1.734-4.35-8.879-5.428 4.702z"/></svg>}
+                        explanation={'Selector'}
+                        onClick={() => setCursorType(0)}
                     />
                     <HoverExplainButton
-                    ref = {pageCursorRef}
-                    icon={<svg clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m3 17v3c0 .621.52 1 1 1h3v-1.5h-2.5v-2.5zm8.5 4h-3.5v-1.5h3.5zm4.5 0h-3.5v-1.5h3.5zm5-4h-1.5v2.5h-2.5v1.5h3c.478 0 1-.379 1-1zm-1.5-1v-3.363h1.5v3.363zm-15-3.363v3.363h-1.5v-3.363zm15-1v-3.637h1.5v3.637zm-15-3.637v3.637h-1.5v-3.637zm12.5-5v1.5h2.5v2.5h1.5v-3c0-.478-.379-1-1-1zm-10 0h-3c-.62 0-1 .519-1 1v3h1.5v-2.5h2.5zm4.5 1.5h-3.5v-1.5h3.5zm4.5 0h-3.5v-1.5h3.5z" fillRule="nonzero"/></svg>}
-                    explanation={'Page Editor'}
-                    onClick={() => setCursorType(1)}
+                        ref = {pageCursorRef}
+                        icon={<svg clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m3 17v3c0 .621.52 1 1 1h3v-1.5h-2.5v-2.5zm8.5 4h-3.5v-1.5h3.5zm4.5 0h-3.5v-1.5h3.5zm5-4h-1.5v2.5h-2.5v1.5h3c.478 0 1-.379 1-1zm-1.5-1v-3.363h1.5v3.363zm-15-3.363v3.363h-1.5v-3.363zm15-1v-3.637h1.5v3.637zm-15-3.637v3.637h-1.5v-3.637zm12.5-5v1.5h2.5v2.5h1.5v-3c0-.478-.379-1-1-1zm-10 0h-3c-.62 0-1 .519-1 1v3h1.5v-2.5h2.5zm4.5 1.5h-3.5v-1.5h3.5zm4.5 0h-3.5v-1.5h3.5z" fillRule="nonzero"/></svg>}
+                        explanation={'Page Editor'}
+                        onClick={() => setCursorType(1)}
                     />
                 </div>
             </div>
             <div className="flex-1 w-full flex overflow-hidden">
                 <div className="flex-1 bg-grey w-full flex items-center justify-center">
-                    <AllStages />
+                    <AllStages manualScaler={manualScaler}/>
                 </div>
                 <div className="h-full">
                     <div

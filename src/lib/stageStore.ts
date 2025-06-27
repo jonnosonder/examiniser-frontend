@@ -1,3 +1,5 @@
+import {ShapeData} from '@/lib/shapeData'
+
 
 export type StageData = {
   id: string;
@@ -6,11 +8,17 @@ export type StageData = {
 };
 
 let stages: StageData[] = [];
-let listeners: (() => void)[] = [];
+let stageListeners: (() => void)[] = [];
+let stageGroup: ShapeData[][] = [];
+let groupListeners: (() => void)[] = [];
 
 export function addStage(stage: StageData) {
   stages.push(stage);
-  listeners.forEach((fn) => fn());
+  stageListeners.forEach((fn) => fn());
+}
+
+export function getStageDimension(): { width: number; height: number } {
+  return {width: stages[0].width, height: stages[0].height}
 }
 
 export function addStageCopyPrevious(id: string) {
@@ -21,7 +29,7 @@ export function addStageCopyPrevious(id: string) {
             width: lastStage.width,
             height: lastStage.height,
         });
-        listeners.forEach((fn) => fn());
+        stageListeners.forEach((fn) => fn());
     }
 }
 
@@ -29,10 +37,10 @@ export function getStages(): StageData[] {
   return [...stages];
 }
 
-export function subscribe(listener: () => void) {
-  listeners.push(listener);
+export function subscribeStage(listener: () => void) {
+  stageListeners.push(listener);
   return () => {
-    listeners = listeners.filter((fn) => fn !== listener);
+    stageListeners = stageListeners.filter((fn) => fn !== listener);
   };
 }
 
@@ -54,4 +62,24 @@ export function maxWidthHeight() {
   }
   
   return {maxWidth, maxHeight};
+}
+
+export function getGroups(): ShapeData[][] {
+  return [...stageGroup];
+}
+
+export function deleteAllGroups() {
+    stageGroup = [];
+}
+
+export function addGroup(elements: ShapeData[]) {
+  stageGroup.push(elements);
+  groupListeners.forEach((fn) => fn());
+}
+
+export function subscribeGroup(listener: () => void) {
+  groupListeners.push(listener);
+  return () => {
+    groupListeners = groupListeners.filter((fn) => fn !== listener);
+  };
 }

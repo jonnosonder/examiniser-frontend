@@ -2,11 +2,12 @@
 
 import React from 'react';
 import { useEffect, useRef, useState } from 'react';
-import { Stage, Layer, Rect, Circle, Text, Image } from 'react-konva';
+import { Stage, Layer } from 'react-konva';
 //import useImage from 'use-image';
 import CanvasElements from '@/components/canvasElements'
 import CustomContextMenu from '@/components/customContextMenu';
 import { ShapeData } from '@/lib/shapeData';
+import { addGroup, getStageDimension } from '@/lib/stageStore';
 
 type QuestionCreatorProps = {
   onClose: () => void;
@@ -27,15 +28,18 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
 
     const handleSelect = (option: string) => {
         setSelectedOption(option);
+    };
 
-        if (option === "delete" && selectedId) {
+    useEffect(() => {
+        if (selectedOption === "delete" && selectedId) {
             setShapes((prev) => prev.filter((shape) => shape.id !== selectedId));
             setSelectedId(null);
         }
-    };
+    }, [selectedOption])
 
     const stageContainerRef = useRef<HTMLDivElement>(null);
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+    const [stageScale, setStageScale] = useState(1);
 
     const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -75,15 +79,16 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [selectedId]);
 
-    const [shapes, setShapes] = useState<ShapeData[]>([
-        { id: 'c1', type: 'circle', x: 200, y: 100, radius: 50, fill: 'blue' },
-        { id: 't1', type: 'text', x: 50, y: 200, text: 'Hello Konva!', width: 200, height: 200, fontSize: 24, frontColor: 'black', backColor: '' },
-        { id: 'i1', type: 'image', x: 300, y: 50, width: 100, height: 100, src: 'https://konvajs.org/assets/lion.png', fill: '' },
-    ]);
+    const [shapes, setShapes] = useState<ShapeData[]>([]);
 
     useEffect(() => {
         const updateSize = () => {
             if (stageContainerRef.current) {
+                const stageDimension = getStageDimension();
+                const scaleX = stageContainerRef.current.offsetWidth / stageDimension.width;
+                const scaleY = stageContainerRef.current.offsetHeight / stageDimension.height;
+                const scale = Math.max(scaleX, scaleY);
+                setStageScale(scale);
                 setDimensions({
                 width: stageContainerRef.current.offsetWidth,
                 height: stageContainerRef.current.offsetHeight,
@@ -105,11 +110,27 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
             text: 'Lorem ipsum',
             width: 200,
             height: 30,
+            rotate: 0,
             fontSize: 24,
-            frontColor: 'black',
-            backColor: ''
+            fill: 'black',
+            background: '',
+            stroke: 'red'
         };
         setShapes(prevShapes => [...prevShapes, newShape]);
+    }
+
+    const increaseFontSizeHandle = () => {
+        const shape = shapes.find(shape => shape.id === selectedId);
+        if (shape != undefined && shape.type == "text") {
+            shape.fontSize += 1;
+        }
+    }
+
+    const decreaseFontSizeHandle = () => {
+        const shape = shapes.find(shape => shape.id === selectedId);
+        if (shape != undefined && shape.type == "text" && shape.fontSize > 0) {
+            shape.fontSize -= 1;
+        }
     }
 
     const addSquareHandle = () => {
@@ -120,7 +141,9 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
             y: 20,
             width: 100,
             height: 100,
-            fill: 'black'
+            rotate: 0,
+            fill: 'black',
+            stroke: 'red'
         };
         setShapes(prevShapes => [...prevShapes, newShape]);
     }
@@ -128,11 +151,14 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
     const addCircleHandle = () => {
         const newShape: ShapeData = {
             id: 'c'+Date.now(),
-            type: 'circle',
+            type: 'oval',
             x: 50,
             y: 50,
-            radius: 40,
-            fill: 'black'
+            radiusX: 40,
+            radiusY: 40,
+            rotate: 0,
+            fill: 'black',
+            stroke: 'red'
         };
         setShapes(prevShapes => [...prevShapes, newShape]);
     }
@@ -145,9 +171,15 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
             y: 20,
             width: 100,
             height: 100,
-            fill: 'black'
+            rotate: 0,
+            fill: 'black',
+            stroke: 'red'
         };
         setShapes(prevShapes => [...prevShapes, newShape]);
+    }
+
+    const createHandler = () => {
+        addGroup(shapes);
     }
 
     return(
@@ -175,14 +207,14 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
                             </svg>
                         </button>
                         {/* Text Increase Font Size */}
-                        <button>  
+                        <button onClick={increaseFontSizeHandle}>  
                             <svg className='h-full' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M6.67406 6.4H17.3141V9.66H16.7941L16.2141 7.56C16.1741 7.4 16.1274 7.28667 16.0741 7.22C16.0341 7.14 15.9474 7.09333 15.8141 7.08C15.6807 7.05333 15.4541 7.04 15.1341 7.04H12.8741V18.38C12.8741 18.8467 12.8941 19.12 12.9341 19.2C12.9741 19.28 13.1007 19.3333 13.3141 19.36L14.4141 19.48V20H9.59406V19.48L10.6941 19.36C10.9074 19.3333 11.0341 19.28 11.0741 19.2C11.1141 19.12 11.1341 18.8467 11.1341 18.38V7.04H8.85406C8.5474 7.04 8.32073 7.05333 8.17406 7.08C8.04073 7.09333 7.9474 7.14 7.89406 7.22C7.85406 7.28667 7.81406 7.4 7.77406 7.56L7.19406 9.66H6.67406V6.4Z" fill="black"/>
                                 <path d="M23.1007 6.664L22.7047 6.808L20.9887 2.464L19.2607 6.808L18.9007 6.664L20.8327 1.84H21.1687L23.1007 6.664Z" fill="black"/>
                             </svg>
                         </button>
                         {/* Text Decrease Font Size */}
-                        <button>
+                        <button onClick={decreaseFontSizeHandle}>
                             <svg className='h-full' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M6.67406 6.4H17.3141V9.66H16.7941L16.2141 7.56C16.1741 7.4 16.1274 7.28667 16.0741 7.22C16.0341 7.14 15.9474 7.09333 15.8141 7.08C15.6807 7.05333 15.4541 7.04 15.1341 7.04H12.8741V18.38C12.8741 18.8467 12.8941 19.12 12.9341 19.2C12.9741 19.28 13.1007 19.3333 13.3141 19.36L14.4141 19.48V20H9.59406V19.48L10.6941 19.36C10.9074 19.3333 11.0341 19.28 11.0741 19.2C11.1141 19.12 11.1341 18.8467 11.1341 18.38V7.04H8.85406C8.5474 7.04 8.32073 7.05333 8.17406 7.08C8.04073 7.09333 7.9474 7.14 7.89406 7.22C7.85406 7.28667 7.81406 7.4 7.77406 7.56L7.19406 9.66H6.67406V6.4Z" fill="black"/>
                                 <path d="M18.8993 2.336L19.2953 2.192L21.0113 6.536L22.7393 2.192L23.0993 2.336L21.167 7.16H20.8313L18.8993 2.336Z" fill="black"/>
@@ -215,8 +247,8 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
                         </button>
                     </div>
                     <div>
-                        <div ref={stageContainerRef} className='w-[80vw]  h-[30vh]'>
-                            <Stage width={dimensions.width-2} height={dimensions.height-2} className='flex border-2 border-primary bg-white w-full h-full'
+                        <div ref={stageContainerRef} className='w-[80vw]  h-[60vh]'>
+                            <Stage width={dimensions.width} height={dimensions.height} scaleX={stageScale} scaleY={stageScale} className='flex border-2 border-primary bg-white w-full h-full overflow-y-auto overflow-x-hidden'
                             onMouseDown={(e) => {
                                 if (e.target === e.target.getStage()) {
                                 setSelectedId(null);
@@ -230,6 +262,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
                                             isSelected={shape.id === selectedId}
                                             onSelect={() => setSelectedId(shape.id)}
                                             onChange={updateShape}
+                                            setDraggable={true}
                                         />
                                     ))}
                                 </Layer>
@@ -237,9 +270,10 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
                         </div>
                     </div>
                     <div className='flex w-full mt-2 space-x-4'>
-                        <span className='w-full'></span>
                         <button onClick={() => {setShapes([]);}} className='px-4 py-2 border-2 border-darkRed rounded-full bg-red text-white'>Delete</button>
-                        <button className='px-4 py-2 border-2 border-primary rounded-full'>Create</button>
+                        <span className='w-full'></span>
+                        <button onClick={() => {setDimensions({width: dimensions.width, height: dimensions.height * 2})}} className='px-4 py-2 border-2 border-primary rounded-full text-primary whitespace-nowrap'>Add Space</button>
+                        <button onClick={() => {createHandler(); onClose();}} className='px-4 py-2 border-2 border-primary rounded-full'>Create</button>
                     </div>
                 </div>
             </div>
