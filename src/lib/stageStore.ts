@@ -5,12 +5,14 @@ export type StageData = {
   id: string;
   width: number;
   height: number;
+  background: string;
 };
 
 let stages: StageData[] = [];
 let stageListeners: (() => void)[] = [];
 let stageGroup: ShapeData[][] = [];
 let groupListeners: (() => void)[] = [];
+let marginValue: number = 300;
 
 export function addStage(stage: StageData) {
   stages.push(stage);
@@ -28,6 +30,7 @@ export function addStageCopyPrevious(id: string) {
             id: id,
             width: lastStage.width,
             height: lastStage.height,
+            background: lastStage.background,
         });
         stageListeners.forEach((fn) => fn());
     }
@@ -64,6 +67,8 @@ export function maxWidthHeight() {
   return {maxWidth, maxHeight};
 }
 
+//////////////////////////////////////////////////////////////
+
 export function getGroups(): ShapeData[][] {
   return [...stageGroup];
 }
@@ -82,4 +87,10 @@ export function subscribeGroup(listener: () => void) {
   return () => {
     groupListeners = groupListeners.filter((fn) => fn !== listener);
   };
+}
+
+//////////////////////////////////////////////////////////////
+
+export function getMarginValue(): number {
+  return marginValue;
 }

@@ -7,7 +7,7 @@ import { Stage, Layer } from 'react-konva';
 import CanvasElements from '@/components/canvasElements'
 import CustomContextMenu from '@/components/customContextMenu';
 import { ShapeData } from '@/lib/shapeData';
-import { addGroup, getStageDimension } from '@/lib/stageStore';
+import { addGroup, getMarginValue, getStageDimension } from '@/lib/stageStore';
 
 type QuestionCreatorProps = {
   onClose: () => void;
@@ -85,7 +85,8 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
         const updateSize = () => {
             if (stageContainerRef.current) {
                 const stageDimension = getStageDimension();
-                const scaleX = stageContainerRef.current.offsetWidth / stageDimension.width;
+                const marginVlaue = getMarginValue();
+                const scaleX = stageContainerRef.current.offsetWidth / (stageDimension.width - marginVlaue*2);
                 const scaleY = stageContainerRef.current.offsetHeight / stageDimension.height;
                 const scale = Math.max(scaleX, scaleY);
                 setStageScale(scale);
@@ -107,31 +108,39 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
             type: 'text',
             x: 20,
             y: 20,
-            text: 'Lorem ipsum',
-            width: 200,
+            text: 'Double Click to Edit!',
+            width: 300,
             height: 30,
             rotate: 0,
             fontSize: 24,
             fill: 'black',
             background: '',
-            stroke: 'red'
+            stroke: ''
         };
         setShapes(prevShapes => [...prevShapes, newShape]);
     }
 
     const increaseFontSizeHandle = () => {
-        const shape = shapes.find(shape => shape.id === selectedId);
-        if (shape != undefined && shape.type == "text") {
-            shape.fontSize += 1;
-        }
-    }
+        setShapes(prevShapes =>
+            prevShapes.map(shape => {
+            if (shape.id === selectedId && shape.type === 'text') {
+                return { ...shape, fontSize: shape.fontSize + 1 };
+            }
+            return shape;
+            })
+        );
+    };
 
     const decreaseFontSizeHandle = () => {
-        const shape = shapes.find(shape => shape.id === selectedId);
-        if (shape != undefined && shape.type == "text" && shape.fontSize > 0) {
-            shape.fontSize -= 1;
-        }
-    }
+        setShapes(prevShapes =>
+            prevShapes.map(shape => {
+            if (shape.id === selectedId && shape.type === 'text' && shape.fontSize > 1) {
+                return { ...shape, fontSize: shape.fontSize - 1 };
+            }
+            return shape;
+            })
+        );
+    };
 
     const addSquareHandle = () => {
         const newShape: ShapeData = {
@@ -156,6 +165,8 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
             y: 50,
             radiusX: 40,
             radiusY: 40,
+            width: 80,
+            height: 80,
             rotate: 0,
             fill: 'black',
             stroke: 'red'
@@ -247,7 +258,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
                         </button>
                     </div>
                     <div>
-                        <div ref={stageContainerRef} className='w-[80vw]  h-[60vh]'>
+                        <div ref={stageContainerRef} className='w-[85vw]  h-[55vh]'>
                             <Stage width={dimensions.width} height={dimensions.height} scaleX={stageScale} scaleY={stageScale} className='flex border-2 border-primary bg-white w-full h-full overflow-y-auto overflow-x-hidden'
                             onMouseDown={(e) => {
                                 if (e.target === e.target.getStage()) {
@@ -263,6 +274,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
                                             onSelect={() => setSelectedId(shape.id)}
                                             onChange={updateShape}
                                             setDraggable={true}
+                                            stageScale={stageScale}
                                         />
                                     ))}
                                 </Layer>

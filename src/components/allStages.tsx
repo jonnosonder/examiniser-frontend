@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { Stage, Layer, Group } from 'react-konva';
-import { getStages, getGroups, subscribeStage, subscribeGroup, maxWidthHeight } from '@/lib/stageStore';
+import { Stage, Layer, Group, Rect } from 'react-konva';
+import Konva from 'konva';
+import { getStages, getGroups, subscribeStage, subscribeGroup, maxWidthHeight, getMarginValue } from '@/lib/stageStore';
 import "@/styles/allStages.css"
 import CanvasElements from '@/components/canvasElements'
 
@@ -14,9 +15,12 @@ export default function AllStages({ manualScaler } : AllStagesProps) {
   const [stages, setStages] = useState(getStages());
   const [groups, setGroups] = useState(getGroups());
 
+  const wholeContainerRef = useRef<HTMLDivElement>(null);
   const stageContainerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
   const [containerHeight, setContainerHeight] = useState(0);
+
+  const [estimatedPage, setEstimatedPage] = useState(1);
   
   useEffect(() => {
     const unsubscribeStage = subscribeStage(() => {
@@ -39,11 +43,10 @@ export default function AllStages({ manualScaler } : AllStagesProps) {
     if (stageContainerRef.current) {
       const displayDimension = maxWidthHeight();
       const divContainer = stageContainerRef.current.getBoundingClientRect();
-      const adjust = 20;
 
       const scale = Math.min(
-        divContainer.width / (displayDimension.maxWidth + adjust),
-        divContainer.height / (displayDimension.maxHeight + adjust)
+        divContainer.width / (displayDimension.maxWidth),
+        divContainer.height / (displayDimension.maxHeight)
       );
 
       setContainerWidth(displayDimension.maxWidth * scale);
@@ -51,86 +54,117 @@ export default function AllStages({ manualScaler } : AllStagesProps) {
     }
   }, [stages]);
 
-  const calculateMargin = (width:number, height:number, percentage:number = 12.5) => {
-      const shortestSide = Math.min(width, height);
-      console.log(Math.round((shortestSide * percentage) / 100));
-      return Math.round((shortestSide * percentage) / 100);
-  }
+  useEffect(() => {
+    const handleScroll = () => {
+      if (stages.length === 0) {
+        setEstimatedPage(0);
+        return;
+      }
+      const el = wholeContainerRef.current;
+      if (!el) return;
 
+      const scrollTop = el.scrollTop;
+      const scrollHeight = el.scrollHeight;
+      const clientHeight = el.clientHeight;
+
+      const scrollValue = (scrollTop / (scrollHeight - clientHeight));
+      const estimatedPage = Math.min(Math.floor(scrollValue * stages.length)+1, stages.length);
+
+      setEstimatedPage(estimatedPage);
+    };
+
+    const el = wholeContainerRef.current;
+    if (el) el.addEventListener('scroll', handleScroll);
+
+    return () => {
+      if (el) el.removeEventListener('scroll', handleScroll);
+    };
+  }, [stages]);
+
+  const marginValue = getMarginValue();
   return (
-    <div ref={stageContainerRef} className='overflow-y-auto custom-scroll h-full w-full flex flex-col items-center justify-start space-y-4 p-4'>
+    <div ref={wholeContainerRef} className='overflow-y-auto custom-scroll h-full w-full flex flex-col items-center justify-start space-y-4 p-4'>
       {stages.map((stage) => {
         const scaleX = containerWidth / stage.width;
         const scaleY = containerHeight / stage.height;
         const scale = Math.min(scaleX, scaleY);
+        console.log(scale);
 
         return (
-          <div key={stage.id+"div"}>
-            <p key={stage.id+"p"} className='flex text-darkGrey text-xs text-left'>{stage.width}px x {stage.height}px</p>
-            <div
-              key={stage.id}
-              className='flex flex-col items-center justify-center bg-white'
-              style={{
-                width: containerWidth * manualScaler,
-                height: containerHeight * manualScaler,
-                transformOrigin: 'top left',
-              }}
-            >
+          <div key={stage.id+"wrap"} className='flex flex-col w-full h-full items-center justify-start'>
+          <p key={stage.id+"p"} className='flex text-darkGrey text-xs text-left'>{stage.width}px x {stage.height}px</p>
+          <div ref={stageContainerRef} key={stage.id+"div"} className='flex flex-col w-full h-full items-center justify-start'>
+              <div
+                className='flex'
+                style={{
+                  width: stage.width * scale * manualScaler,
+                  height: stage.height * scale * manualScaler,
+                  overflow: 'hidden',
+                  transformOrigin: 'top left',
+                }}
+              >
               <Stage
-                width={containerWidth * manualScaler}
-                height={containerHeight * manualScaler}
+                width={stage.width * scale * manualScaler}
+                height={stage.height * scale * manualScaler}
                 scaleX={scale * manualScaler}
                 scaleY={scale * manualScaler}
+                pixelRatio={300}
                 style={{
-                  width: containerWidth * manualScaler,
-                  height: containerHeight * manualScaler,
                   transformOrigin: 'top left',
                 }}
               >
                 <Layer>
+                  <Rect 
+                    x={0}
+                    y={0}
+                    width={stage.width}
+                    height={stage.height}
+                    fill={stage.background}
+                  />
                   {groups.map((group, i) => {
-                    /*
-                    const marginVlaue = calculateMargin(stage.width, stage.height);
-
                     let widestX = 0;
-                    let widesty = 0;
-                    group.map((element) => {
+                    let widestY = 0;
+
+                    group.forEach((element) => {
                       const x = element.x + element.width;
                       const y = element.y + element.height;
                       if (x > widestX) widestX = x;
-                      if (y > widesty) widesty = y;
-                    })
-                    
+                      if (y > widestY) widestY = y;
+                    });
+
                     const dragBoundFunc = (pos: { x: number; y: number }) => {
-                      const adjustedPos = {
-                        x: pos.x / scale,
-                        y: pos.y / scale
-                      };
-                      console.log(adjustedPos.x);
-                      console.log(adjustedPos.y);
-                      const minX = marginVlaue;
-                      const maxX = stage.width - marginVlaue - widestX;
-                      const minY = marginVlaue;
-                      const maxY = stage.height - marginVlaue - widesty;
+                      const scaled = scale * manualScaler;
 
-                      const bounded = {
-                        x: Math.max(minX, Math.min(adjustedPos.x, maxX)),
-                        y: Math.max(minY, Math.min(adjustedPos.y, maxY)),
-                      };
+                      // Convert from pixel space → logical stage space
+                      let x = pos.x / scaled;
+                      let y = pos.y / scaled;
+                      console.log({x, y});
 
+                      // Clamp to the stage bounds
+                      const minX = marginValue;
+                      const minY = marginValue;
+                      const maxX = stage.width - marginValue - widestX;
+                      const maxY = stage.height - marginValue - widestY;
+
+                      if (x < minX) x = minX;
+                      if (y < minY) y = minY;
+                      if (x > maxX) x = maxX;
+                      if (y > maxY) y = maxY;
+
+                      // Convert back to pixel space
                       return {
-                        x: bounded.x * scale,
-                        y: bounded.y * scale
+                        x: x * scaled,
+                        y: y * scaled,
                       };
                     };
-                    */
+
                     return (
                       <Group
                         key={i}
                         x={0}
                         y={0}
                         draggable
-                        //dragBoundFunc={dragBoundFunc}
+                        dragBoundFunc={dragBoundFunc}
                       >
                         {group.map((shape) => {
                           return(
@@ -141,6 +175,7 @@ export default function AllStages({ manualScaler } : AllStagesProps) {
                             onSelect={() => (null)}
                             onChange={() => (null)}
                             setDraggable={false}
+                            stageScale={scale}
                           />
                           );
                         })}
@@ -151,8 +186,13 @@ export default function AllStages({ manualScaler } : AllStagesProps) {
               </Stage>
             </div>
           </div>
+          </div>
         );
       })}
+    
+      <div className='absolute bg-gray-600 opacity-50 bottom-2 px-2 py-1'>
+        <p className='text-white'>{estimatedPage} / {stages.length}</p>
+      </div>
     </div>
   );
 }

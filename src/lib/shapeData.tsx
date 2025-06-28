@@ -2,8 +2,8 @@ type BaseShape = {
   id: string;
   x: number;
   y: number;
-  width?: number;
-  height?: number;
+  width: number;
+  height: number;
   rotate: number;
   fill: string;
   stroke: string;

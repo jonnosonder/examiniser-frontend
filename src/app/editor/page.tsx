@@ -82,6 +82,7 @@ export default function EditorPage() {
                 id: `stage-${Date.now()}`,
                 width: width,
                 height: height,
+                background: 'white',
             });
         }
     }, [pageFormatData]);
