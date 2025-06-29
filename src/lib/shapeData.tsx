@@ -7,6 +7,7 @@ type BaseShape = {
   rotate: number;
   fill: string;
   stroke: string;
+  strokeWeight: number;
 };
 
 export type ShapeData =

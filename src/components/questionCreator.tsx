@@ -8,6 +8,7 @@ import CanvasElements from '@/components/canvasElements'
 import CustomContextMenu from '@/components/customContextMenu';
 import { ShapeData } from '@/lib/shapeData';
 import { addGroup, getMarginValue, getStageDimension } from '@/lib/stageStore';
+import ColorSelectorSection from '@/components/colorSelectorSection';
 
 type QuestionCreatorProps = {
   onClose: () => void;
@@ -16,6 +17,24 @@ type QuestionCreatorProps = {
 const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
     const [contextMenu, setContextMenu] = useState({ x: 0, y: 0, show: false });
     const [selectedOption, setSelectedOption] = useState<string>('Nothing selected');
+
+    const [shapes, setShapes] = useState<ShapeData[]>([]);
+
+    const [displayColorSelector, setDisplayColorSelector] = useState<boolean>(false);
+    const toggleDisplayColorSelector = () => {setDisplayColorSelector(!displayColorSelector)}
+    const [selectedColorViaDisplay, setSelectedColorViaDisplay] = useState<string>("");
+
+    useEffect(() => {
+        if (selectedId) {
+            setShapes((prevShapes) =>
+                prevShapes.map((shape) =>
+                    shape.id === selectedId
+                        ? { ...shape, fill: selectedColorViaDisplay }
+                        : shape
+                )
+            );
+        }
+    }, [selectedColorViaDisplay])
 
     const handleContextMenu = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -79,20 +98,18 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [selectedId]);
 
-    const [shapes, setShapes] = useState<ShapeData[]>([]);
-
     useEffect(() => {
         const updateSize = () => {
             if (stageContainerRef.current) {
                 const stageDimension = getStageDimension();
                 const marginVlaue = getMarginValue();
                 const scaleX = stageContainerRef.current.offsetWidth / (stageDimension.width - marginVlaue*2);
-                const scaleY = stageContainerRef.current.offsetHeight / stageDimension.height;
+                const scaleY = stageContainerRef.current.offsetHeight / (stageDimension.height  - marginVlaue*2);
                 const scale = Math.max(scaleX, scaleY);
                 setStageScale(scale);
                 setDimensions({
-                width: stageContainerRef.current.offsetWidth,
-                height: stageContainerRef.current.offsetHeight,
+                    width: (stageDimension.width - marginVlaue*2),
+                    height: stageContainerRef.current.offsetHeight / scale -1,
                 });
             }
         };
@@ -115,7 +132,8 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
             fontSize: 24,
             fill: 'black',
             background: '',
-            stroke: ''
+            stroke: '',
+            strokeWeight: 1
         };
         setShapes(prevShapes => [...prevShapes, newShape]);
     }
@@ -152,7 +170,8 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
             height: 100,
             rotate: 0,
             fill: 'black',
-            stroke: 'red'
+            stroke: 'red',
+            strokeWeight: 1
         };
         setShapes(prevShapes => [...prevShapes, newShape]);
     }
@@ -169,7 +188,8 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
             height: 80,
             rotate: 0,
             fill: 'black',
-            stroke: 'red'
+            stroke: 'red',
+            strokeWeight: 1
         };
         setShapes(prevShapes => [...prevShapes, newShape]);
     }
@@ -184,12 +204,31 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
             height: 100,
             rotate: 0,
             fill: 'black',
-            stroke: 'red'
+            stroke: 'red',
+            strokeWeight: 1
         };
         setShapes(prevShapes => [...prevShapes, newShape]);
     }
 
     const createHandler = () => {
+        let minX = Infinity;
+        let minY = Infinity;
+
+        shapes.forEach(shape => {
+            if (shape.type === 'oval'){
+                minX = Math.min(minX, shape.x - shape.radiusX);
+                minY = Math.min(minY, shape.y - shape.radiusY);
+            } else {
+                minX = Math.min(minX, shape.x);
+                minY = Math.min(minY, shape.y);
+            }
+        });
+
+        shapes.forEach(shape => {
+            shape.x -= minX;
+            shape.y -= minY;
+        });
+
         addGroup(shapes);
     }
 
@@ -232,9 +271,14 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
                             </svg>
                         </button>
                         {/* Fill Colour */}
-                        <button className='w-10 h-full p-2'>
+                        <button onClick={toggleDisplayColorSelector} className='w-10 h-full p-2'>
                             <div ref={colourButtonDivRef} style={{background: 'black'}} className='w-full h-full border-2 border-primary text-white flex items-center justify-center'></div>
                         </button>
+                        {displayColorSelector && (
+                        <div className='absolute flex items-center justify-center left-[25vw]'>
+                            <ColorSelectorSection onClose={() => setDisplayColorSelector(false)} passColorValue={setSelectedColorViaDisplay}/>
+                        </div>
+                        )}
                         {/* Add Square */}
                         <button className='w-10 h-full' onClick={addSquareHandle}>
                             <svg className='h-full' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -257,16 +301,66 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
                             </svg>
                         </button>
                     </div>
-                    <div>
-                        <div ref={stageContainerRef} className='w-[85vw]  h-[55vh]'>
-                            <Stage width={dimensions.width} height={dimensions.height} scaleX={stageScale} scaleY={stageScale} className='flex border-2 border-primary bg-white w-full h-full overflow-y-auto overflow-x-hidden'
+                    <div ref={stageContainerRef} className='w-[85vw] h-[55vh] flex overflow-y-auto overflow-x-auto border-2 border-primary bg-white'>
+                        <div className='flex'
+                        style={{
+                        width: dimensions.width * stageScale,
+                        height: dimensions.height * stageScale,
+                        overflow: 'hidden',
+                        transformOrigin: 'top left',
+                        }}>
+                            <Stage width={dimensions.width} height={dimensions.height} scaleX={stageScale} scaleY={stageScale}
                             onMouseDown={(e) => {
                                 if (e.target === e.target.getStage()) {
                                 setSelectedId(null);
                                 }
-                            }}>
+                            }}
+                            pixelRatio={300}
+                            style={{
+                                transformOrigin: 'top left',
+                            }}
+                            >
                                 <Layer>
-                                    {shapes.map((shape) => (
+                                    {shapes.map((shape) => {
+                                        const dragBoundFunc = (pos: { x: number; y: number }) => {
+
+                                            // Convert from pixel space → logical stage space
+                                            let x = pos.x / stageScale;
+                                            let y = pos.y / stageScale;
+                                            //console.log({x, y});
+
+                                            // Clamp to the stage bounds
+                                            let minX: number;
+                                            let minY: number;
+                                            let maxX: number;
+                                            let maxY: number;
+
+                                            if (shape.type === "oval") {
+                                                minX = +shape.radiusX;
+                                                minY = +shape.radiusY;
+                                                maxX = dimensions.width - shape.radiusX;
+                                                maxY = dimensions.height - shape.radiusY;
+                                            } else {
+                                                minX = 0;
+                                                minY = 0;
+                                                maxX = dimensions.width - shape.width;
+                                                maxY = dimensions.height - shape.height;
+                                            }
+
+                                            if (x < minX) x = minX;
+                                            if (y < minY) y = minY;
+                                            if (x > maxX) x = maxX;
+                                            if (y > maxY) y = maxY;
+
+                                            // Convert back to pixel space
+                                            return {
+                                                x: x * stageScale,
+                                                y: y * stageScale,
+                                            };
+                                        };
+
+                                    
+                                    return (
                                         <CanvasElements
                                             key={shape.id}
                                             shape={shape}
@@ -275,8 +369,10 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
                                             onChange={updateShape}
                                             setDraggable={true}
                                             stageScale={stageScale}
+                                            dragBoundFunc={dragBoundFunc}
                                         />
-                                    ))}
+                                    );
+                                    })}
                                 </Layer>
                             </Stage>
                         </div>

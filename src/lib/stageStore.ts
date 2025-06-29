@@ -12,6 +12,7 @@ let stages: StageData[] = [];
 let stageListeners: (() => void)[] = [];
 let stageGroup: ShapeData[][] = [];
 let groupListeners: (() => void)[] = [];
+let viewMargin: boolean = false;
 let marginValue: number = 300;
 
 export function addStage(stage: StageData) {
@@ -25,7 +26,7 @@ export function getStageDimension(): { width: number; height: number } {
 
 export function addStageCopyPrevious(id: string) {
     const lastStage = stages.length > 0 ? stages[stages.length - 1] : null;
-    if (lastStage != null){
+    if (lastStage !== null){
         stages.push({
             id: id,
             width: lastStage.width,
@@ -93,4 +94,18 @@ export function subscribeGroup(listener: () => void) {
 
 export function getMarginValue(): number {
   return marginValue;
+}
+
+export function setMarginValue(newMarginValue: number) {
+  marginValue = newMarginValue;
+  stageListeners.forEach((fn) => fn());
+}
+
+export function getViewMargin(): boolean {
+  return viewMargin;
+}
+
+export function setViewMargin(newMarginStage: boolean) {
+  viewMargin = newMarginStage;
+  stageListeners.forEach((fn) => fn());
 }

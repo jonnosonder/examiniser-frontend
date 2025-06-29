@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import "reinvented-color-wheel/css/reinvented-color-wheel.min.css";
+
 @font-face {
   font-family: 'Nunito';
   src: url('/fonts/Nunito-VariableFont_wght.ttf') format('truetype');

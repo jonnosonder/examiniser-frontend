@@ -2,8 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { Stage, Layer, Group, Rect } from 'react-konva';
-import Konva from 'konva';
-import { getStages, getGroups, subscribeStage, subscribeGroup, maxWidthHeight, getMarginValue } from '@/lib/stageStore';
+import { getStages, getGroups, subscribeStage, subscribeGroup, maxWidthHeight, getMarginValue, getViewMargin } from '@/lib/stageStore';
 import "@/styles/allStages.css"
 import CanvasElements from '@/components/canvasElements'
 
@@ -82,6 +81,7 @@ export default function AllStages({ manualScaler } : AllStagesProps) {
   }, [stages]);
 
   const marginValue = getMarginValue();
+  const viewMargin = getViewMargin();
   return (
     <div ref={wholeContainerRef} className='overflow-y-auto custom-scroll h-full w-full flex flex-col items-center justify-start space-y-4 p-4'>
       {stages.map((stage) => {
@@ -92,7 +92,7 @@ export default function AllStages({ manualScaler } : AllStagesProps) {
 
         return (
           <div key={stage.id+"wrap"} className='flex flex-col w-full h-full items-center justify-start'>
-          <p key={stage.id+"p"} className='flex text-darkGrey text-xs text-left'>{stage.width}px x {stage.height}px</p>
+          <p key={stage.id+"p"} className='flex text-darkGrey text-[0.6rem] text-left'>{stage.width}px x {stage.height}px</p>
           <div ref={stageContainerRef} key={stage.id+"div"} className='flex flex-col w-full h-full items-center justify-start'>
               <div
                 className='flex'
@@ -121,13 +121,31 @@ export default function AllStages({ manualScaler } : AllStagesProps) {
                     height={stage.height}
                     fill={stage.background}
                   />
+                  { viewMargin && ( 
+                  <Rect 
+                    x={marginValue}
+                    y={marginValue}
+                    width={stage.width-(marginValue*2)}
+                    height={stage.height-(marginValue*2)}
+                    fill={"transparent"}
+                    stroke={"black"}
+                    strokeWidth={2}
+                  />
+                  )}
                   {groups.map((group, i) => {
                     let widestX = 0;
                     let widestY = 0;
 
                     group.forEach((element) => {
-                      const x = element.x + element.width;
-                      const y = element.y + element.height;
+                      let x: number;
+                      let y: number;
+                      if (element.type === "oval"){
+                        x = element.x + element.width/2;
+                        y = element.y + element.height/2;
+                      } else {
+                        x = element.x + element.width;
+                        y = element.y + element.height;
+                      }
                       if (x > widestX) widestX = x;
                       if (y > widestY) widestY = y;
                     });
@@ -138,7 +156,7 @@ export default function AllStages({ manualScaler } : AllStagesProps) {
                       // Convert from pixel space → logical stage space
                       let x = pos.x / scaled;
                       let y = pos.y / scaled;
-                      console.log({x, y});
+                      //console.log({x, y});
 
                       // Clamp to the stage bounds
                       const minX = marginValue;
@@ -161,8 +179,8 @@ export default function AllStages({ manualScaler } : AllStagesProps) {
                     return (
                       <Group
                         key={i}
-                        x={0}
-                        y={0}
+                        x={marginValue}
+                        y={marginValue}
                         draggable
                         dragBoundFunc={dragBoundFunc}
                       >

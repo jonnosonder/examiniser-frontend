@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Rect, Ellipse, Line, Text, Transformer } from 'react-konva';
 import Konva from 'konva';
 //import useImage from 'use-image';
@@ -14,9 +14,10 @@ interface Props {
   onChange: (newAttrs: ShapeData) => void;
   setDraggable: boolean;
   stageScale: number;
+  dragBoundFunc?: (pos: { x: number; y: number }) => { x: number; y: number };
 }
 
-export default function CanvasElements({ shape, isSelected, onSelect, onChange, setDraggable, stageScale }: Props) {
+export default function CanvasElements({ shape, isSelected, onSelect, onChange, setDraggable, stageScale, dragBoundFunc }: Props) {
   const rectRef = useRef<Konva.Rect | null>(null);
   const ovalRef = useRef<Konva.Ellipse | null>(null);
   const triangleRef = useRef<Konva.Line | null>(null);
@@ -51,6 +52,7 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
   const commonProps = {
     onClick: onSelect,
     onTap: onSelect,
+    dragBoundFunc: dragBoundFunc,
   };
 
   switch (shape.type) {
@@ -100,6 +102,8 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
                 y: node.y(),
                 radiusX: Math.max(5, node.width() * scaleX /2),
                 radiusY: Math.max(5, node.height() * scaleY /2),
+                width: Math.max(5, node.width() * scaleX),
+                height: Math.max(5, node.height() * scaleY),
               } as ShapeData);
             
           }}
