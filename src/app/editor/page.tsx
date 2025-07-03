@@ -79,11 +79,13 @@ export default function EditorPage() {
                 setProjectNameValue(pageFormatData.projectName);
             }
 
+            const backgroundColor = '#ffffff';
+
             addStage({
                 id: `stage-${Date.now()}`,
                 width: width,
                 height: height,
-                background: 'white',
+                background: backgroundColor,
             });
         }
     }, [pageFormatData]);

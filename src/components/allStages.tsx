@@ -5,6 +5,7 @@ import { Stage, Layer, Group, Rect } from 'react-konva';
 import { getStages, getGroups, subscribeStage, subscribeGroup, maxWidthHeight, getMarginValue, getViewMargin } from '@/lib/stageStore';
 import "@/styles/allStages.css"
 import CanvasElements from '@/components/canvasElements'
+import type Konva from 'konva';
 
 type AllStagesProps = {
   manualScaler: number;
@@ -80,6 +81,21 @@ export default function AllStages({ manualScaler } : AllStagesProps) {
     };
   }, [stages]);
 
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const stageRef = useRef<Konva.Stage | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const clickedOnKonva = stageRef.current?.getStage().content.contains(e.target as Node);
+      if (!clickedOnKonva) {
+        setSelectedId(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const marginValue = getMarginValue();
   const viewMargin = getViewMargin();
   return (
@@ -89,7 +105,7 @@ export default function AllStages({ manualScaler } : AllStagesProps) {
         const scaleY = containerHeight / stage.height;
         const scale = Math.min(scaleX, scaleY);
         console.log(scale);
-
+        console.log(stage.background);
         return (
           <div key={stage.id+"wrap"} className='flex flex-col w-full h-full items-center justify-start'>
           <p key={stage.id+"p"} className='flex text-darkGrey text-[0.6rem] text-left'>{stage.width}px x {stage.height}px</p>
@@ -112,6 +128,9 @@ export default function AllStages({ manualScaler } : AllStagesProps) {
                 style={{
                   transformOrigin: 'top left',
                 }}
+                ref={(node) => {
+                  stageRef.current = node?.getStage() || null;
+                }}
               >
                 <Layer>
                   <Rect 
@@ -119,7 +138,7 @@ export default function AllStages({ manualScaler } : AllStagesProps) {
                     y={0}
                     width={stage.width}
                     height={stage.height}
-                    fill={stage.background}
+                    fill={stage.background || '#ffffff'}
                   />
                   { viewMargin && ( 
                   <Rect 
@@ -171,7 +190,7 @@ export default function AllStages({ manualScaler } : AllStagesProps) {
 
                       // Convert back to pixel space
                       return {
-                        x: x * scaled,
+                        x: marginValue * scaled, //x * scaled,
                         y: y * scaled,
                       };
                     };
@@ -181,9 +200,33 @@ export default function AllStages({ manualScaler } : AllStagesProps) {
                         key={i}
                         x={marginValue}
                         y={marginValue}
-                        draggable
+                        width={stage.width - marginValue*2}
+                        height={widestY}
+                        draggable={true}
                         dragBoundFunc={dragBoundFunc}
-                      >
+                        listening={true}
+                        onClick={() => setSelectedId(i)}
+                        onTap={() => setSelectedId(i)}
+                      > 
+                        <Rect
+                          width={stage.width - marginValue * 2}
+                          height={widestY}
+                          dragBoundFunc={dragBoundFunc}
+                          fill="rgba(0,0,0,0)" // invisible but interactive
+                        />
+                        {i === selectedId && 
+                        <Rect
+                          x={-10}
+                          y={-10}
+                          width={stage.width - marginValue * 2 +10}
+                          height={widestY+10}
+                          stroke="black"
+                          strokeWidth={10}
+                          fillEnabled={false}
+                          cornerRadius={10}
+                          listening={false}
+                        />
+                        }
                         {group.map((shape) => {
                           return(
                           <CanvasElements
@@ -194,6 +237,7 @@ export default function AllStages({ manualScaler } : AllStagesProps) {
                             onChange={() => (null)}
                             setDraggable={false}
                             stageScale={scale}
+                            listening={false}
                           />
                           );
                         })}

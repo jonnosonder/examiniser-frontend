@@ -103,14 +103,14 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
             if (stageContainerRef.current) {
                 const stageDimension = getStageDimension();
                 const marginVlaue = getMarginValue();
-                const scaleX = stageContainerRef.current.offsetWidth / (stageDimension.width - marginVlaue*2);
-                const scaleY = stageContainerRef.current.offsetHeight / (stageDimension.height  - marginVlaue*2);
-                const scale = Math.max(scaleX, scaleY);
+                const scale = stageContainerRef.current.offsetWidth / (stageDimension.width - marginVlaue*2);
                 setStageScale(scale);
                 setDimensions({
                     width: (stageDimension.width - marginVlaue*2),
-                    height: stageContainerRef.current.offsetHeight / scale -1,
+                    height: (stageDimension.height - marginVlaue*2),
                 });
+                console.log("width: "+ ((stageDimension.width - marginVlaue*2) * scale));
+                console.log("height: "+ ((stageDimension.height - marginVlaue*2) * scale));
             }
         };
 
@@ -129,7 +129,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
             width: 300,
             height: 30,
             rotate: 0,
-            fontSize: 24,
+            fontSize: 12,
             fill: 'black',
             background: '',
             stroke: '',
@@ -142,7 +142,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
         setShapes(prevShapes =>
             prevShapes.map(shape => {
             if (shape.id === selectedId && shape.type === 'text') {
-                return { ...shape, fontSize: shape.fontSize + 1 };
+                return { ...shape, fontSize: (shape.fontSize + 1) / stageScale };
             }
             return shape;
             })
@@ -153,7 +153,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
         setShapes(prevShapes =>
             prevShapes.map(shape => {
             if (shape.id === selectedId && shape.type === 'text' && shape.fontSize > 1) {
-                return { ...shape, fontSize: shape.fontSize - 1 };
+                return { ...shape, fontSize: (shape.fontSize - 1) / stageScale };
             }
             return shape;
             })
@@ -211,6 +211,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
     }
 
     const createHandler = () => {
+        /*
         let minX = Infinity;
         let minY = Infinity;
 
@@ -228,7 +229,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
             shape.x -= minX;
             shape.y -= minY;
         });
-
+        */
         addGroup(shapes);
     }
 
@@ -301,23 +302,29 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
                             </svg>
                         </button>
                     </div>
-                    <div ref={stageContainerRef} className='w-[85vw] h-[55vh] flex overflow-y-auto overflow-x-auto border-2 border-primary bg-white'>
-                        <div className='flex'
-                        style={{
-                        width: dimensions.width * stageScale,
-                        height: dimensions.height * stageScale,
-                        overflow: 'hidden',
-                        transformOrigin: 'top left',
+                    <div ref={stageContainerRef} className='w-[85vw] h-[55vh] flex overflow-y-auto overflow-x-auto border-2 border-primary bg-white justify-start'>
+                        <div 
+                            className='flex'
+                            style={{
+                                width: dimensions.width * stageScale,
+                                height: dimensions.height * stageScale,
+                                overflow: 'hidden',
+                                transformOrigin: 'top left',
                         }}>
-                            <Stage width={dimensions.width} height={dimensions.height} scaleX={stageScale} scaleY={stageScale}
+                            <Stage 
+                            width={dimensions.width * stageScale} 
+                            height={dimensions.height * stageScale} 
+                            scaleX={stageScale}
+                            scaleY={stageScale}
+                            pixelRatio={300}
                             onMouseDown={(e) => {
                                 if (e.target === e.target.getStage()) {
                                 setSelectedId(null);
                                 }
                             }}
-                            pixelRatio={300}
                             style={{
                                 transformOrigin: 'top left',
+                                zIndex: '100',
                             }}
                             >
                                 <Layer>
@@ -370,6 +377,9 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
                                             setDraggable={true}
                                             stageScale={stageScale}
                                             dragBoundFunc={dragBoundFunc}
+                                            stageWidth={dimensions.width}
+                                            stageHeight={dimensions.height}
+                                            listening={true}
                                         />
                                     );
                                     })}

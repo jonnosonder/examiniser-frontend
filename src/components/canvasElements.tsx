@@ -15,9 +15,12 @@ interface Props {
   setDraggable: boolean;
   stageScale: number;
   dragBoundFunc?: (pos: { x: number; y: number }) => { x: number; y: number };
+  stageWidth?: number,
+  stageHeight?: number,
+  listening: boolean,
 }
 
-export default function CanvasElements({ shape, isSelected, onSelect, onChange, setDraggable, stageScale, dragBoundFunc }: Props) {
+export default function CanvasElements({ shape, isSelected, onSelect, onChange, setDraggable, stageScale, dragBoundFunc, stageWidth, stageHeight, listening }: Props) {
   const rectRef = useRef<Konva.Rect | null>(null);
   const ovalRef = useRef<Konva.Ellipse | null>(null);
   const triangleRef = useRef<Konva.Line | null>(null);
@@ -55,39 +58,61 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
     dragBoundFunc: dragBoundFunc,
   };
 
+  const anchorDragBoundFunc = (oldPos: { x: number; y: number }, newPos: { x: number; y: number }) => {
+    if (!stageWidth || !stageHeight || !stageScale) {
+      return { x: oldPos.x, y: oldPos.y };
+    }
+
+    // Convert newPos to logical (unscaled) coords
+    let x = newPos.x / stageScale;
+    let y = newPos.y / stageScale;
+
+    // Clamp inside stage bounds (logical coords)
+    x = Math.min(Math.max(x, 0), stageWidth);
+    y = Math.min(Math.max(y, 0), stageHeight);
+
+    // Convert back to scaled coords
+    return { x: x * stageScale, y: y * stageScale };
+  };
+
+  const handleTransformEnd = () => {
+    const node = rectRef.current;
+    if (!node) return;
+
+    const scaleX = node.scaleX();
+    const scaleY = node.scaleY();
+
+    node.scaleX(1);
+    node.scaleY(1);
+
+    onChange({
+      ...shape,
+      x: node.x(),
+      y: node.y(),
+      width: Math.max(5, node.width() * scaleX),
+      height: Math.max(5, node.height() * scaleY),
+    });
+  };
+
   switch (shape.type) {
     case 'rect':
       return (
         <>
-          <Rect {...shape} {...commonProps} ref={rectRef} draggable={setDraggable}
-          onTransformEnd={ () => {
-            const node = rectRef.current;
-            if (!node) return;
-            const scaleX = node.scaleX();
-            const scaleY = node.scaleY();
-            node.scaleX(1);
-            node.scaleY(1);
-
-              onChange({
-                ...shape,
-                x: node.x(),
-                y: node.y(),
-                width: Math.max(5, node.width() * scaleX),
-                height: Math.max(5, node.height() * scaleY),
-              } as ShapeData);
-            
-          }}
+          <Rect {...shape} {...commonProps} ref={rectRef} draggable={setDraggable} listening={listening}
           onDragEnd={ (e) => {
             onChange({ ...shape, x: e.target.x(), y: e.target.y() });
           }}
           />
-          {isSelected && <Transformer ref={trRef} />}
+          {isSelected && <Transformer ref={trRef} 
+          anchorDragBoundFunc={anchorDragBoundFunc}
+          onTransformEnd={handleTransformEnd}
+          />}
         </>
       );
     case 'oval':
       return (
         <>
-          <Ellipse {...shape} {...commonProps} ref={ovalRef} draggable={setDraggable}
+          <Ellipse {...shape} {...commonProps} ref={ovalRef} draggable={setDraggable} listening={listening}
           onTransformEnd={ () => {
             const node = ovalRef.current;
             if (!node) return;
@@ -111,7 +136,10 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
             onChange({ ...shape, x: e.target.x(), y: e.target.y() });
           }}
           />
-          {isSelected && <Transformer ref={trRef} />}
+          {isSelected && <Transformer ref={trRef} 
+          anchorDragBoundFunc={anchorDragBoundFunc}
+          onTransformEnd={handleTransformEnd}
+          />}
         </>
       );
     case 'tri':
@@ -122,7 +150,7 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
       ];
       return (
         <>
-          <Line {...shape} {...commonProps} points={trianglePoints} closed ref={triangleRef} draggable={setDraggable}
+          <Line {...shape} {...commonProps} points={trianglePoints} closed ref={triangleRef} draggable={setDraggable} listening={listening}
           onTransformEnd={ () => {
             const node = triangleRef.current;
             if (!node) return;
@@ -144,7 +172,10 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
             onChange({ ...shape, x: e.target.x(), y: e.target.y() });
           }}
           />
-          {isSelected && <Transformer ref={trRef} />}
+          {isSelected && <Transformer ref={trRef} 
+          anchorDragBoundFunc={anchorDragBoundFunc}
+          onTransformEnd={handleTransformEnd}
+          />}
         </>
       );
     case 'text':
@@ -175,7 +206,7 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
         input.style.left = `${areaPosition.x+1}px`;
         input.style.width = `${shape.width}px`;
         input.style.height = `${shape.height}px`;
-        input.style.fontSize = `${shape.fontSize}px`;
+        input.style.fontSize = `${shape.fontSize / stageScale}px`;
         input.style.fontFamily = textNode.fontFamily();
         input.style.border = '1px solid #ccc';
         input.style.padding = '0px';
@@ -218,7 +249,7 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
 
       return (
         <>
-          <Text {...shape} {...commonProps} ref={textRef} draggable={setDraggable} onDblClick={handleDoubleClick}
+          <Text {...shape} fontSize={shape.fontSize/stageScale} {...commonProps} ref={textRef} draggable={setDraggable} onDblClick={handleDoubleClick} listening={listening}
           onTransform={(e) => {
             const node = e.target;
             const scaleX = node.scaleX();
@@ -252,7 +283,10 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
             onChange({ ...shape, x: e.target.x(), y: e.target.y() });
           }}
           />
-          {isSelected && <Transformer ref={trRef} />}
+          {isSelected && <Transformer ref={trRef} 
+          anchorDragBoundFunc={anchorDragBoundFunc}
+          onTransformEnd={handleTransformEnd}
+          />}
         </>
       );
     default:

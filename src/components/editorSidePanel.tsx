@@ -1,8 +1,11 @@
-import { useState } from 'react';
-import { getMarginValue, getViewMargin, setMarginValue, setViewMargin } from '@/lib/stageStore';
+import { useEffect, useState } from 'react';
+import { getMarginValue, getViewMargin, setMarginValue, setViewMargin, getStagesBackground, setAllStagesBackground } from '@/lib/stageStore';
+import ColorSelectorSection from '@/components/colorSelectorSection';
 
 export default function EditorSidePanel() {
-
+    const [displayColorSelector, setDisplayColorSelector] = useState<boolean>(false);
+    const toggleDisplayColorSelector = () => {setDisplayColorSelector(!displayColorSelector)}
+    const [selectedBackgroundColor, setSelectedBackgroundColor] = useState<string>(getStagesBackground());
 
     const [viewMarginEditor, setViewMarginEditor] = useState(getViewMargin());
     const toggleViewMargin = () => {setViewMarginEditor(!viewMarginEditor); setViewMargin(!viewMarginEditor);};
@@ -20,6 +23,10 @@ export default function EditorSidePanel() {
         setMarginEditorVisual(value);
         setMarginValue(Number(value.replace(/[^0-9]/g, '')));
     }
+
+    useEffect(() => {
+        setAllStagesBackground(selectedBackgroundColor);
+    }, [selectedBackgroundColor])
 
     return (
         <div className='w-full h-full'>
@@ -46,7 +53,12 @@ export default function EditorSidePanel() {
                     }`}
                 >
                     <p className="text-sm">Background Colour</p>
-                    <button className='w-full h-5 border border-primary rounded-lg'></button>
+                    <button style={{background: selectedBackgroundColor}} className='w-full h-5 border border-primary rounded-lg' onClick={toggleDisplayColorSelector}></button>
+                    {displayColorSelector && (
+                        <div className='absolute flex items-center justify-center left-[25vw]'>
+                            <ColorSelectorSection onClose={() => setDisplayColorSelector(false)} passColorValue={setSelectedBackgroundColor}/>
+                        </div>
+                    )}
                 </div>
             </div>
 

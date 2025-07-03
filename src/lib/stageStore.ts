@@ -68,6 +68,20 @@ export function maxWidthHeight() {
   return {maxWidth, maxHeight};
 }
 
+export function getStagesBackground():string {
+  if (stages.length !== 0){
+    return stages[0].background;
+  }
+  return '';
+}
+
+export function setAllStagesBackground(newBackground:string) {
+  stages.forEach(stage => {
+    stage.background = newBackground;
+  });
+  stageListeners.forEach((fn) => fn());
+}
+
 //////////////////////////////////////////////////////////////
 
 export function getGroups(): ShapeData[][] {
