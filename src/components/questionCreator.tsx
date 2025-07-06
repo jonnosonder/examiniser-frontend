@@ -16,25 +16,40 @@ type QuestionCreatorProps = {
 
 const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
     const [contextMenu, setContextMenu] = useState({ x: 0, y: 0, show: false });
-    const [selectedOption, setSelectedOption] = useState<string>('Nothing selected');
+    const [selectedOption, setSelectedOption] = useState<string>('');
 
     const [shapes, setShapes] = useState<ShapeData[]>([]);
 
-    const [displayColorSelector, setDisplayColorSelector] = useState<boolean>(false);
-    const toggleDisplayColorSelector = () => {setDisplayColorSelector(!displayColorSelector)}
-    const [selectedColorViaDisplay, setSelectedColorViaDisplay] = useState<string>("");
+    const [selectedFillColorViaDisplay, setSelectedFillColorViaDisplay] = useState<string>("");
+    const [selectedStrokeColorViaDisplay, setSelectedStrokeColorViaDisplay] = useState<string>("");
+    const [displayFillColorSelector, setDisplayFillColorSelector] = useState<boolean>(false);
+    const toggleDisplayFillColorSelector = () => {setDisplayFillColorSelector(!displayFillColorSelector); if (!displayFillColorSelector && displayStrokeColorSelector) {setDisplayStrokeColorSelector(false);}}
+    const [displayStrokeColorSelector, setDisplayStrokeColorSelector] = useState<boolean>(false);
+    const toggleDisplayStrokeColorSelector = () => {setDisplayStrokeColorSelector(!displayStrokeColorSelector); if (!displayStrokeColorSelector && displayFillColorSelector) {setDisplayFillColorSelector(false);}}
 
     useEffect(() => {
         if (selectedId) {
             setShapes((prevShapes) =>
                 prevShapes.map((shape) =>
                     shape.id === selectedId
-                        ? { ...shape, fill: selectedColorViaDisplay }
+                        ? { ...shape, fill: selectedFillColorViaDisplay }
                         : shape
                 )
             );
         }
-    }, [selectedColorViaDisplay])
+    }, [selectedFillColorViaDisplay]);
+
+    useEffect(() => {
+        if (selectedId) {
+            setShapes((prevShapes) =>
+                prevShapes.map((shape) =>
+                    shape.id === selectedId
+                        ? { ...shape, stroke: selectedStrokeColorViaDisplay }
+                        : shape
+                )
+            );
+        }
+    }, [selectedStrokeColorViaDisplay]);
 
     const handleContextMenu = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -54,6 +69,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
             setShapes((prev) => prev.filter((shape) => shape.id !== selectedId));
             setSelectedId(null);
         }
+        setSelectedOption('');
     }, [selectedOption])
 
     const stageContainerRef = useRef<HTMLDivElement>(null);
@@ -61,14 +77,16 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
     const [stageScale, setStageScale] = useState(1);
 
     const [selectedId, setSelectedId] = useState<string | null>(null);
+    const [selectedShapeType, setSelectedShapeType] = useState<string | null>(null);
 
     const updateShape = (newAttrs: ShapeData) => {
         setShapes((prev) =>
-        prev.map((shape) => (shape.id === newAttrs.id ? newAttrs : shape))
+            prev.map((shape) => (shape.id === newAttrs.id ? newAttrs : shape))
         );
     };
 
-    const colourButtonDivRef = useRef<HTMLDivElement>(null);
+    const colourFillButtonDivRef = useRef<HTMLDivElement>(null);
+    const colourStrokeButtonDivRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -79,8 +97,17 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
         };
 
         const shape = shapes.find(shape => shape.id === selectedId);
-        if (shape != undefined && colourButtonDivRef.current && shape.fill) {
-            colourButtonDivRef.current.style.background = shape.fill;
+        if (shape){
+            setSelectedShapeType(shape.type);
+        } else {
+            setSelectedShapeType(null);
+        }
+        if (shape != undefined && colourFillButtonDivRef.current && shape.fill) {
+            colourFillButtonDivRef.current.style.background = shape.fill;
+        }
+
+        if (shape != undefined && colourStrokeButtonDivRef.current && shape.stroke) {
+            colourStrokeButtonDivRef.current.style.background = shape.stroke;
         }
 
         setShapes(prev => {
@@ -233,6 +260,19 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
         addGroup(shapes);
     }
 
+    const [editorXpositionValue, setEditorXpositionValue] = useState<number>(0);
+    const [editorYpositionValue, setEditorYpositionValue] = useState<number>(0);
+    const [editorWidthValue, setEditorWidthValue] = useState<number>(0);
+    const [editorHeightValue, setEditorHeightValue] = useState<number>(0);
+
+    const editorXpositionHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+
+        if (/^\d*$/.test(value)) {
+            setEditorXpositionValue(Number(value));
+        }
+    }
+
     return(
         <div onContextMenu={handleContextMenu}>
             <CustomContextMenu
@@ -257,27 +297,22 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
                                 <path d="M6.67406 6.4H17.3141V9.66H16.7941L16.2141 7.56C16.1741 7.4 16.1274 7.28667 16.0741 7.22C16.0341 7.14 15.9474 7.09333 15.8141 7.08C15.6807 7.05333 15.4541 7.04 15.1341 7.04H12.8741V18.38C12.8741 18.8467 12.8941 19.12 12.9341 19.2C12.9741 19.28 13.1007 19.3333 13.3141 19.36L14.4141 19.48V20H9.59406V19.48L10.6941 19.36C10.9074 19.3333 11.0341 19.28 11.0741 19.2C11.1141 19.12 11.1341 18.8467 11.1341 18.38V7.04H8.85406C8.5474 7.04 8.32073 7.05333 8.17406 7.08C8.04073 7.09333 7.9474 7.14 7.89406 7.22C7.85406 7.28667 7.81406 7.4 7.77406 7.56L7.19406 9.66H6.67406V6.4Z" fill="black"/>
                             </svg>
                         </button>
-                        {/* Text Increase Font Size */}
-                        <button onClick={increaseFontSizeHandle}>  
-                            <svg className='h-full' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M6.67406 6.4H17.3141V9.66H16.7941L16.2141 7.56C16.1741 7.4 16.1274 7.28667 16.0741 7.22C16.0341 7.14 15.9474 7.09333 15.8141 7.08C15.6807 7.05333 15.4541 7.04 15.1341 7.04H12.8741V18.38C12.8741 18.8467 12.8941 19.12 12.9341 19.2C12.9741 19.28 13.1007 19.3333 13.3141 19.36L14.4141 19.48V20H9.59406V19.48L10.6941 19.36C10.9074 19.3333 11.0341 19.28 11.0741 19.2C11.1141 19.12 11.1341 18.8467 11.1341 18.38V7.04H8.85406C8.5474 7.04 8.32073 7.05333 8.17406 7.08C8.04073 7.09333 7.9474 7.14 7.89406 7.22C7.85406 7.28667 7.81406 7.4 7.77406 7.56L7.19406 9.66H6.67406V6.4Z" fill="black"/>
-                                <path d="M23.1007 6.664L22.7047 6.808L20.9887 2.464L19.2607 6.808L18.9007 6.664L20.8327 1.84H21.1687L23.1007 6.664Z" fill="black"/>
-                            </svg>
-                        </button>
-                        {/* Text Decrease Font Size */}
-                        <button onClick={decreaseFontSizeHandle}>
-                            <svg className='h-full' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M6.67406 6.4H17.3141V9.66H16.7941L16.2141 7.56C16.1741 7.4 16.1274 7.28667 16.0741 7.22C16.0341 7.14 15.9474 7.09333 15.8141 7.08C15.6807 7.05333 15.4541 7.04 15.1341 7.04H12.8741V18.38C12.8741 18.8467 12.8941 19.12 12.9341 19.2C12.9741 19.28 13.1007 19.3333 13.3141 19.36L14.4141 19.48V20H9.59406V19.48L10.6941 19.36C10.9074 19.3333 11.0341 19.28 11.0741 19.2C11.1141 19.12 11.1341 18.8467 11.1341 18.38V7.04H8.85406C8.5474 7.04 8.32073 7.05333 8.17406 7.08C8.04073 7.09333 7.9474 7.14 7.89406 7.22C7.85406 7.28667 7.81406 7.4 7.77406 7.56L7.19406 9.66H6.67406V6.4Z" fill="black"/>
-                                <path d="M18.8993 2.336L19.2953 2.192L21.0113 6.536L22.7393 2.192L23.0993 2.336L21.167 7.16H20.8313L18.8993 2.336Z" fill="black"/>
-                            </svg>
-                        </button>
                         {/* Fill Colour */}
-                        <button onClick={toggleDisplayColorSelector} className='w-10 h-full p-2'>
-                            <div ref={colourButtonDivRef} style={{background: 'black'}} className='w-full h-full border-2 border-primary text-white flex items-center justify-center'></div>
+                        <button onClick={toggleDisplayFillColorSelector} className='w-10 h-full p-2'>
+                            <div ref={colourFillButtonDivRef} style={{background: 'black'}} className='w-full h-full border-2 border-primary text-white flex items-center justify-center'></div>
                         </button>
-                        {displayColorSelector && (
+                        {displayFillColorSelector && (
+                        <div className='absolute flex items-center justify-center left-[22vw]'>
+                            <ColorSelectorSection onClose={() => setDisplayFillColorSelector(false)} passColorValue={setSelectedFillColorViaDisplay} startingColor={selectedFillColorViaDisplay}/>
+                        </div>
+                        )}
+                        {/* Stroke Colour */}
+                        <button onClick={toggleDisplayStrokeColorSelector} className='w-10 h-full p-2'>
+                            <div ref={colourStrokeButtonDivRef} style={{background: 'black'}} className='w-full h-1 border border-primary rounded-full text-white flex items-center justify-center'></div>
+                        </button>
+                        {displayStrokeColorSelector && (
                         <div className='absolute flex items-center justify-center left-[25vw]'>
-                            <ColorSelectorSection onClose={() => setDisplayColorSelector(false)} passColorValue={setSelectedColorViaDisplay}/>
+                            <ColorSelectorSection onClose={() => setDisplayStrokeColorSelector(false)} passColorValue={setSelectedStrokeColorViaDisplay} startingColor={selectedStrokeColorViaDisplay}/>
                         </div>
                         )}
                         {/* Add Square */}
@@ -301,6 +336,48 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
                                 <path d="M19.7949 18.5H4.20508L12 4.99902L19.7949 18.5Z" stroke="black"/>
                             </svg>
                         </button>
+
+                        
+                        
+
+                        {/* Number Inputs */}
+                        {selectedShapeType && (
+                            <>
+                            {/* Divider for Number Inputs Section */}
+                            <div className='w-[1px] h-full bg-primary rounded-full mx-2'/>
+
+                            {/* X position */}
+                            <div className='h-full flex'>
+                                <p className='h-full'>x:</p>
+                                <input className='h-full' value={editorXpositionValue} onChange={editorXpositionHandler} type='number'></input>
+                            </div>
+
+                            {/* Divider for Shape Specific Features*/}
+                            <div className='w-[1px] h-full bg-primary rounded-full mx-2'/>
+                            </>
+                            
+                        )}
+
+                        {/* Text Aditional Features */}
+                        {selectedShapeType === "text" && (
+                            <>  
+                            {/* Text Increase Font Size */}
+                            <button onClick={increaseFontSizeHandle}>  
+                                <svg className='h-full' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M6.67406 6.4H17.3141V9.66H16.7941L16.2141 7.56C16.1741 7.4 16.1274 7.28667 16.0741 7.22C16.0341 7.14 15.9474 7.09333 15.8141 7.08C15.6807 7.05333 15.4541 7.04 15.1341 7.04H12.8741V18.38C12.8741 18.8467 12.8941 19.12 12.9341 19.2C12.9741 19.28 13.1007 19.3333 13.3141 19.36L14.4141 19.48V20H9.59406V19.48L10.6941 19.36C10.9074 19.3333 11.0341 19.28 11.0741 19.2C11.1141 19.12 11.1341 18.8467 11.1341 18.38V7.04H8.85406C8.5474 7.04 8.32073 7.05333 8.17406 7.08C8.04073 7.09333 7.9474 7.14 7.89406 7.22C7.85406 7.28667 7.81406 7.4 7.77406 7.56L7.19406 9.66H6.67406V6.4Z" fill="black"/>
+                                    <path d="M23.1007 6.664L22.7047 6.808L20.9887 2.464L19.2607 6.808L18.9007 6.664L20.8327 1.84H21.1687L23.1007 6.664Z" fill="black"/>
+                                </svg>
+                            </button>
+                            {/* Text Decrease Font Size */}
+                            <button onClick={decreaseFontSizeHandle}>
+                                <svg className='h-full' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M6.67406 6.4H17.3141V9.66H16.7941L16.2141 7.56C16.1741 7.4 16.1274 7.28667 16.0741 7.22C16.0341 7.14 15.9474 7.09333 15.8141 7.08C15.6807 7.05333 15.4541 7.04 15.1341 7.04H12.8741V18.38C12.8741 18.8467 12.8941 19.12 12.9341 19.2C12.9741 19.28 13.1007 19.3333 13.3141 19.36L14.4141 19.48V20H9.59406V19.48L10.6941 19.36C10.9074 19.3333 11.0341 19.28 11.0741 19.2C11.1141 19.12 11.1341 18.8467 11.1341 18.38V7.04H8.85406C8.5474 7.04 8.32073 7.05333 8.17406 7.08C8.04073 7.09333 7.9474 7.14 7.89406 7.22C7.85406 7.28667 7.81406 7.4 7.77406 7.56L7.19406 9.66H6.67406V6.4Z" fill="black"/>
+                                    <path d="M18.8993 2.336L19.2953 2.192L21.0113 6.536L22.7393 2.192L23.0993 2.336L21.167 7.16H20.8313L18.8993 2.336Z" fill="black"/>
+                                </svg>
+                            </button>
+                            </>
+                        )}
+
                     </div>
                     <div ref={stageContainerRef} className='w-[85vw] h-[55vh] flex overflow-y-auto overflow-x-auto border-2 border-primary bg-white justify-start'>
                         <div 

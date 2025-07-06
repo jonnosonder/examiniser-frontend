@@ -7,9 +7,10 @@ import 'reinvented-color-wheel/css/reinvented-color-wheel.min.css';
 type ColorSelectorSectionProps = {
   onClose: () => void;
   passColorValue: React.Dispatch<React.SetStateAction<string>>;
+  startingColor: string;
 };
 
-const ColorSelectorSection: React.FC<ColorSelectorSectionProps> = ({ onClose, passColorValue}) => {
+const ColorSelectorSection: React.FC<ColorSelectorSectionProps> = ({ onClose, passColorValue, startingColor }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [selectedColor, setSelectedColor] = useState('#ff0000');
   const colorWheelRef = useRef<ReinventedColorWheel | null>(null);
@@ -23,7 +24,7 @@ const ColorSelectorSection: React.FC<ColorSelectorSectionProps> = ({ onClose, pa
       wheelThickness: 20,
       handleDiameter: 20,
       wheelReflectsSaturation: true,
-      hsv: [0, 100, 100],
+      hex: startingColor,
     });
 
     colorWheelRef.current = wheel;

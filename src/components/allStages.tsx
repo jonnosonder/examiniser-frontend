@@ -104,8 +104,6 @@ export default function AllStages({ manualScaler } : AllStagesProps) {
         const scaleX = containerWidth / stage.width;
         const scaleY = containerHeight / stage.height;
         const scale = Math.min(scaleX, scaleY);
-        console.log(scale);
-        console.log(stage.background);
         return (
           <div key={stage.id+"wrap"} className='flex flex-col w-full h-full items-center justify-start'>
           <p key={stage.id+"p"} className='flex text-darkGrey text-[0.6rem] text-left'>{stage.width}px x {stage.height}px</p>
@@ -216,11 +214,11 @@ export default function AllStages({ manualScaler } : AllStagesProps) {
                         />
                         {i === selectedId && 
                         <Rect
-                          x={-10}
-                          y={-10}
+                          x={-5}
+                          y={-5}
                           width={stage.width - marginValue * 2 +10}
                           height={widestY+10}
-                          stroke="black"
+                          stroke={'#F57C22'}
                           strokeWidth={10}
                           fillEnabled={false}
                           cornerRadius={10}
