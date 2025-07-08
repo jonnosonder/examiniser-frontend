@@ -5,6 +5,7 @@ import { Rect, Ellipse, Line, Text, Transformer } from 'react-konva';
 import Konva from 'konva';
 //import useImage from 'use-image';
 import { ShapeData } from '@/lib/shapeData';
+import { KonvaEventObject } from 'konva/lib/Node';
 
 
 interface Props {
@@ -18,9 +19,10 @@ interface Props {
   stageWidth?: number,
   stageHeight?: number,
   listening: boolean,
+  onDragMove?: (e: KonvaEventObject<MouseEvent>) => void;
 }
 
-export default function CanvasElements({ shape, isSelected, onSelect, onChange, setDraggable, stageScale, dragBoundFunc, stageWidth, stageHeight, listening }: Props) {
+export default function CanvasElements({ shape, isSelected, onSelect, onChange, setDraggable, stageScale, dragBoundFunc, stageWidth, stageHeight, listening, onDragMove }: Props) {
   const rectRef = useRef<Konva.Rect | null>(null);
   const ovalRef = useRef<Konva.Ellipse | null>(null);
   const triangleRef = useRef<Konva.Line | null>(null);
@@ -89,8 +91,8 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
       ...shape,
       x: node.x(),
       y: node.y(),
-      width: Math.max(5, node.width() * scaleX),
-      height: Math.max(5, node.height() * scaleY),
+      width: Math.round((Math.max(5, node.width() * scaleX) + Number.EPSILON) * 100000) / 100000,
+      height: Math.round((Math.max(5, node.height() * scaleY) + Number.EPSILON) * 100000) / 100000,
     });
   };
 
@@ -98,21 +100,37 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
     case 'rect':
       return (
         <>
-          <Rect {...shape} {...commonProps} ref={rectRef} draggable={setDraggable} listening={listening}
+          <Rect {...shape} {...commonProps} ref={rectRef} draggable={setDraggable} onDragMove={(e) => onDragMove?.(e)} listening={listening}
           onDragEnd={ (e) => {
-            onChange({ ...shape, x: e.target.x(), y: e.target.y() });
+            onChange({ ...shape, x: Math.round((e.target.x() + Number.EPSILON) * 100000) / 100000, y: Math.round((e.target.y() + Number.EPSILON) * 100000) / 100000 });
+          }}
+          onTransformEnd={ () => {
+            const node = rectRef.current;
+            if (!node) return;
+            const scaleX = node.scaleX();
+            const scaleY = node.scaleY();
+            node.scaleX(1);
+            node.scaleY(1);
+
+              onChange({
+                ...shape,
+                x: node.x(),
+                y: node.y(),
+                width: Math.round((Math.max(5, node.width() * scaleX) + Number.EPSILON) * 100000) / 100000,
+                height: Math.round((Math.max(5, node.height() * scaleY) + Number.EPSILON) * 100000) / 100000,
+              } as ShapeData);
+            
           }}
           />
           {isSelected && <Transformer ref={trRef} 
           anchorDragBoundFunc={anchorDragBoundFunc}
-          onTransformEnd={handleTransformEnd}
           />}
         </>
       );
     case 'oval':
       return (
         <>
-          <Ellipse {...shape} {...commonProps} ref={ovalRef} draggable={setDraggable} listening={listening}
+          <Ellipse {...shape} {...commonProps} ref={ovalRef} draggable={setDraggable} onDragMove={(e) => onDragMove?.(e)} listening={listening}
           onTransformEnd={ () => {
             const node = ovalRef.current;
             if (!node) return;
@@ -127,18 +145,17 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
                 y: node.y(),
                 radiusX: Math.max(5, node.width() * scaleX /2),
                 radiusY: Math.max(5, node.height() * scaleY /2),
-                width: Math.max(5, node.width() * scaleX),
-                height: Math.max(5, node.height() * scaleY),
+                width: Math.round((Math.max(5, node.width() * scaleX) + Number.EPSILON) * 100000) / 100000,
+                height: Math.round((Math.max(5, node.height() * scaleY) + Number.EPSILON) * 100000) / 100000,
               } as ShapeData);
             
           }}
           onDragEnd={ (e) => {
-            onChange({ ...shape, x: e.target.x(), y: e.target.y() });
+            onChange({ ...shape, x: Math.round((e.target.x() + Number.EPSILON) * 100000) / 100000, y: Math.round((e.target.y() + Number.EPSILON) * 100000) / 100000 });
           }}
           />
           {isSelected && <Transformer ref={trRef} 
           anchorDragBoundFunc={anchorDragBoundFunc}
-          onTransformEnd={handleTransformEnd}
           />}
         </>
       );
@@ -150,7 +167,7 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
       ];
       return (
         <>
-          <Line {...shape} {...commonProps} points={trianglePoints} closed ref={triangleRef} draggable={setDraggable} listening={listening}
+          <Line {...shape} {...commonProps} points={trianglePoints} closed ref={triangleRef} draggable={setDraggable} onDragMove={(e) => onDragMove?.(e)} listening={listening}
           onTransformEnd={ () => {
             const node = triangleRef.current;
             if (!node) return;
@@ -163,18 +180,17 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
                 ...shape,
                 x: node.x(),
                 y: node.y(),
-                width: Math.max(5, node.width() * scaleX),
-                height: Math.max(5, node.height() * scaleY),
+                width: Math.round((Math.max(5, node.width() * scaleX) + Number.EPSILON) * 100000) / 100000,
+                height: Math.round((Math.max(5, node.height() * scaleY) + Number.EPSILON) * 100000) / 100000,
               } as ShapeData);
             
           }}
           onDragEnd={ (e) => {
-            onChange({ ...shape, x: e.target.x(), y: e.target.y() });
+            onChange({ ...shape, x: Math.round((e.target.x() + Number.EPSILON) * 100000) / 100000, y: Math.round((e.target.y() + Number.EPSILON) * 100000) / 100000 });
           }}
           />
           {isSelected && <Transformer ref={trRef} 
           anchorDragBoundFunc={anchorDragBoundFunc}
-          onTransformEnd={handleTransformEnd}
           />}
         </>
       );
@@ -249,7 +265,7 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
 
       return (
         <>
-          <Text {...shape} fontSize={shape.fontSize/stageScale} {...commonProps} ref={textRef} draggable={setDraggable} onDblClick={handleDoubleClick} listening={listening}
+          <Text {...shape} fontSize={shape.fontSize/stageScale} {...commonProps} ref={textRef} draggable={setDraggable} onDragMove={(e) => onDragMove?.(e)} onDblClick={handleDoubleClick} listening={listening}
           onTransform={(e) => {
             const node = e.target;
             const scaleX = node.scaleX();
@@ -274,18 +290,17 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
                 ...shape,
                 x: node.x(),
                 y: node.y(),
-                width: Math.max(5, node.width() * scaleX),
-                height: Math.max(5, node.height() * scaleY),
+                width: Math.round((Math.max(5, node.width() * scaleX) + Number.EPSILON) * 100000) / 100000,
+                height: Math.round((Math.max(5, node.height() * scaleY) + Number.EPSILON) * 100000) / 100000,
               } as ShapeData);
             
           }}
           onDragEnd={ (e) => {
-            onChange({ ...shape, x: e.target.x(), y: e.target.y() });
+            onChange({ ...shape, x: Math.round((e.target.x() + Number.EPSILON) * 100000) / 100000, y: Math.round((e.target.y() + Number.EPSILON) * 100000) / 100000 });
           }}
           />
           {isSelected && <Transformer ref={trRef} 
           anchorDragBoundFunc={anchorDragBoundFunc}
-          onTransformEnd={handleTransformEnd}
           />}
         </>
       );

@@ -9,6 +9,7 @@ import CustomContextMenu from '@/components/customContextMenu';
 import { ShapeData } from '@/lib/shapeData';
 import { addGroup, getMarginValue, getStageDimension } from '@/lib/stageStore';
 import ColorSelectorSection from '@/components/colorSelectorSection';
+import { KonvaEventObject } from 'konva/lib/Node';
 
 type QuestionCreatorProps = {
   onClose: () => void;
@@ -78,6 +79,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
 
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [selectedShapeType, setSelectedShapeType] = useState<string | null>(null);
+    const [isAnInputActive, setIsAnInputActive] = useState<boolean>(false);
 
     const updateShape = (newAttrs: ShapeData) => {
         setShapes((prev) =>
@@ -90,7 +92,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-        if (e.key === 'Delete' && selectedId) {
+        if (e.key === 'Delete' && selectedId && !isAnInputActive) {
             setShapes((prev) => prev.filter((shape) => shape.id !== selectedId));
             setSelectedId(null);
         }
@@ -99,6 +101,15 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
         const shape = shapes.find(shape => shape.id === selectedId);
         if (shape){
             setSelectedShapeType(shape.type);
+            setEditorXpositionValue(shape.x);
+            setEditorYpositionValue(shape.y);
+            if (shape.type !== "oval"){
+                setEditorWidthValue(shape.width);
+                setEditorHeightValue(shape.height);
+            } else {
+                setEditorWidthValue(shape.radiusX);
+                setEditorHeightValue(shape.radiusY);
+            }
         } else {
             setSelectedShapeType(null);
         }
@@ -270,7 +281,72 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
 
         if (/^\d*$/.test(value)) {
             setEditorXpositionValue(Number(value));
+            setShapes(prevShapes =>
+                prevShapes.map(shape => {
+                if (shape.id === selectedId) {
+                    return { ...shape, x: Number(value) };
+                }
+                return shape;
+                })
+            );
         }
+    }
+
+    const editorYpositionHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+
+        if (/^\d*$/.test(value)) {
+            setEditorYpositionValue(Number(value));
+            setShapes(prevShapes =>
+                prevShapes.map(shape => {
+                if (shape.id === selectedId) {
+                    return { ...shape, y: Number(value) };
+                }
+                return shape;
+                })
+            );
+        }
+    }
+
+    const editorWidthValueHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+
+        if (/^\d*$/.test(value)) {
+            setEditorWidthValue(Number(value));
+            setShapes(prevShapes =>
+                prevShapes.map(shape => {
+                if (shape.id === selectedId && shape.type !== "oval") {
+                    return { ...shape, width: Number(value) };
+                } else if (shape.id === selectedId && shape.type === "oval") {
+                    return { ...shape, radiusX: Number(value), width: Number(value)*2 };
+                }
+                return shape;
+                })
+            );
+        }
+    }
+
+    const editorHeightValueHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+
+        if (/^\d*$/.test(value)) {
+            setEditorHeightValue(Number(value));
+            setShapes(prevShapes =>
+                prevShapes.map(shape => {
+                if (shape.id === selectedId && shape.type !== "oval") {
+                    return { ...shape, height: Number(value) };
+                } else if (shape.id === selectedId && shape.type === "oval") {
+                    return { ...shape, radiusY: Number(value), height: Number(value)*2 };
+                }
+                return shape;
+                })
+            );
+        }
+    }
+
+    const editorShapeOnDragHandler = (e: KonvaEventObject<MouseEvent>) => {
+        setEditorXpositionValue(Math.round((e.target.x() + Number.EPSILON) * 100000) / 100000);
+        setEditorYpositionValue(Math.round((e.target.y() + Number.EPSILON) * 100000) / 100000);
     }
 
     return(
@@ -336,8 +412,6 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
                                 <path d="M19.7949 18.5H4.20508L12 4.99902L19.7949 18.5Z" stroke="black"/>
                             </svg>
                         </button>
-
-                        
                         
 
                         {/* Number Inputs */}
@@ -347,9 +421,35 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
                             <div className='w-[1px] h-full bg-primary rounded-full mx-2'/>
 
                             {/* X position */}
-                            <div className='h-full flex'>
-                                <p className='h-full'>x:</p>
-                                <input className='h-full' value={editorXpositionValue} onChange={editorXpositionHandler} type='number'></input>
+                            <div className='h-full inline'>
+                                <p className='inline-flex mx-2'>x:</p>
+                                <input className='h-full w-20' value={editorXpositionValue} onChange={editorXpositionHandler} type='number' onFocus={() => setIsAnInputActive(true)} onBlur={() => setIsAnInputActive(false)}></input>
+                            </div>
+
+                            {/* Y position */}
+                            <div className='h-full inline'>
+                                <p className='inline-flex mx-2'>y:</p>
+                                <input className='h-full w-20' value={editorYpositionValue} onChange={editorYpositionHandler} type='number' onFocus={() => setIsAnInputActive(true)} onBlur={() => setIsAnInputActive(false)}></input>
+                            </div>
+
+                            {/* Width position */}
+                            <div className='h-full inline'>
+                                {selectedShapeType !== "oval" ? (
+                                    <p className='inline-flex mx-2'>Width:</p>
+                                ) : (
+                                    <p className='inline-flex mx-2'>Radius X:</p>
+                                )}
+                                <input className='h-full w-20' value={editorWidthValue} onChange={editorWidthValueHandler} type='number' onFocus={() => setIsAnInputActive(true)} onBlur={() => setIsAnInputActive(false)}></input>
+                            </div>
+
+                            {/* Height position */}
+                            <div className='h-full inline'>
+                                {selectedShapeType !== "oval" ? (
+                                    <p className='inline-flex mx-2'>Height:</p>
+                                ) : (
+                                    <p className='inline-flex mx-2'>Radius Y:</p>
+                                )}
+                                <input className='h-full w-20' value={editorHeightValue} onChange={editorHeightValueHandler} type='number' onFocus={() => setIsAnInputActive(true)} onBlur={() => setIsAnInputActive(false)}></input>
                             </div>
 
                             {/* Divider for Shape Specific Features*/}
@@ -431,10 +531,22 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
                                                 maxY = dimensions.height - shape.height;
                                             }
 
-                                            if (x < minX) x = minX;
-                                            if (y < minY) y = minY;
-                                            if (x > maxX) x = maxX;
-                                            if (y > maxY) y = maxY;
+                                            if (x < minX) {
+                                                x = minX;
+                                                setEditorXpositionValue(x);
+                                            }
+                                            if (y < minY) {
+                                                y = minY;
+                                                setEditorYpositionValue(y);
+                                            }
+                                            if (x > maxX) {
+                                                x = maxX;
+                                                setEditorXpositionValue(x);
+                                            }
+                                            if (y > maxY) {
+                                                y = maxY;
+                                                setEditorYpositionValue(y);
+                                            }
 
                                             // Convert back to pixel space
                                             return {
@@ -457,6 +569,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
                                             stageWidth={dimensions.width}
                                             stageHeight={dimensions.height}
                                             listening={true}
+                                            onDragMove={editorShapeOnDragHandler}
                                         />
                                     );
                                     })}
