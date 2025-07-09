@@ -8,8 +8,9 @@ import AllStages from '@/components/allStages';
 import HoverExplainButton from '@/components/hoverExplainButton';
 import '@/styles/editor.css';
 
-import { addStage, addStageCopyPrevious, stagesLength } from '@/lib/stageStore';
+import { addStage, addStageCopyPrevious, getGroups, stagesLength } from '@/lib/stageStore';
 import QuestionCreator from '@/components/questionCreator';
+import { ShapeData } from '@/lib/shapeData';
 import EditorSidePanel from '@/components/editorSidePanel';
 
 export default function EditorPage() {
@@ -20,7 +21,13 @@ export default function EditorPage() {
 
     const { pageFormatData } = useData();
 
-    const [showQuestionCreator, setShowQuestionCreator] = useState(false);
+    const [selectedQuestionId, setSelectedQuestionId] = useState<number | null>(null);
+    const editButtonRef = useRef(null);
+    const ignoreSelectionArray: React.RefObject<HTMLElement | null>[] = [editButtonRef];
+
+    const [showQuestionCreator, setShowQuestionCreator] = useState<boolean>(false);
+    const [newQuestionCreating, setNewQuestionCreating] = useState<boolean>(false);
+    const [questionCreatorShapes, setQuestionCreatorShapes] = useState<ShapeData[]>([]);
     const handleQuestionCreatorOpen = () => setShowQuestionCreator(true);
     const handleQuestionCreatorClose = () => setShowQuestionCreator(false);
 
@@ -103,9 +110,24 @@ export default function EditorPage() {
         setProjectNameValue(sanitizedValue);
     }
 
+    const createQuestionButtonHandler = () => {
+        setQuestionCreatorShapes([]);
+        setNewQuestionCreating(true);
+        handleQuestionCreatorOpen();
+    }
+
+    const editQuestionButtonHandler = () => {
+        if (selectedQuestionId !== null){
+            setNewQuestionCreating(false);
+            const groups = getGroups();
+            setQuestionCreatorShapes(groups[selectedQuestionId]);
+            handleQuestionCreatorOpen();
+        }
+    }
+
     return (
     <div ref={cursorDivRef} className='cursor-default'>
-        {showQuestionCreator && <QuestionCreator onClose={handleQuestionCreatorClose} />}
+        {showQuestionCreator && <QuestionCreator onClose={handleQuestionCreatorClose} newQuestionCreating={newQuestionCreating} shapes={questionCreatorShapes} setShapes={setQuestionCreatorShapes} />}
         <div className="flex flex-col w-full h-screen">
             <div className="flex h-10 border-b-1 border-primary">
                 <div className='flex m-1'>
@@ -149,7 +171,7 @@ export default function EditorPage() {
                     <EditorSidePanel />
                 </div>
                 <div className="flex-1 bg-grey w-full flex items-center justify-center">
-                    <AllStages manualScaler={manualScaler}/>
+                    <AllStages manualScaler={manualScaler} selectedId={selectedQuestionId} setSelectedId={setSelectedQuestionId} ignoreSelectionArray={ignoreSelectionArray}/>
                 </div>
                 <div className="h-full">
                     <div
@@ -169,14 +191,14 @@ export default function EditorPage() {
                         </button>
 
                         <nav className="flex-1 mt-4">
-                            <button onClick={handleQuestionCreatorOpen} className="flex text-center items-center justify-center w-full p-3 focus:outline-none">
+                            <button onClick={createQuestionButtonHandler} className="flex text-center items-center justify-center w-full p-3 focus:outline-none">
                                 <div className="w-8 h-8 text-lg items-center justify-center">
                                     <svg className='w-full h-full' clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m21 3.998c0-.478-.379-1-1-1h-16c-.62 0-1 .519-1 1v16c0 .621.52 1 1 1h16c.478 0 1-.379 1-1zm-16.5.5h15v15h-15zm6.75 6.752h-3.5c-.414 0-.75.336-.75.75s.336.75.75.75h3.5v3.5c0 .414.336.75.75.75s.75-.336.75-.75v-3.5h3.5c.414 0 .75-.336.75-.75s-.336-.75-.75-.75h-3.5v-3.5c0-.414-.336-.75-.75-.75s-.75.336-.75.75z" fillRule="nonzero"/></svg>
                                 </div>
                                 {actionWindow && <span className="ml-3">Add Question</span>}
                             </button>
 
-                            <button className="flex text-center items-center justify-center w-full p-3 focus:outline-none">
+                            <button ref={editButtonRef} onClick={editQuestionButtonHandler} className="flex text-center items-center justify-center w-full p-3 focus:outline-none">
                                 <div className="w-8 h-8 text-lg items-center justify-center">
                                     <svg className='w-full h-full' clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m11.25 6c.398 0 .75.352.75.75 0 .414-.336.75-.75.75-1.505 0-7.75 0-7.75 0v12h17v-8.749c0-.414.336-.75.75-.75s.75.336.75.75v9.249c0 .621-.522 1-1 1h-18c-.48 0-1-.379-1-1v-13c0-.481.38-1 1-1zm1.521 9.689 9.012-9.012c.133-.133.217-.329.217-.532 0-.179-.065-.363-.218-.515l-2.423-2.415c-.143-.143-.333-.215-.522-.215s-.378.072-.523.215l-9.027 8.996c-.442 1.371-1.158 3.586-1.264 3.952-.126.433.198.834.572.834.41 0 .696-.099 4.176-1.308zm-2.258-2.392 1.17 1.171c-.704.232-1.274.418-1.729.566zm.968-1.154 7.356-7.331 1.347 1.342-7.346 7.347z" fillRule="nonzero"/></svg>
                                 </div>

@@ -12,12 +12,13 @@
   "dependencies": {
     "canvas": "^3.1.0",
     "decimal.js": "^10.5.0",
-    "konva": "^9.3.20",
+    "jspdf": "^3.0.1",
+    "konva": "^9.3.22",
     "next": "^15.3.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-dropzone": "^14.3.8",
-    "react-konva": "^19.0.6",
+    "react-konva": "^19.0.7",
     "reinvented-color-wheel": "^0.4.0",
     "use-image": "^1.1.4"
   },

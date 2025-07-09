@@ -1,0 +1,65 @@
+import React, { useRef } from "react";
+import { Stage, Layer, Rect } from "react-konva";
+import { jsPDF } from "jspdf";
+
+// Types for Konva
+interface StageRefProps {
+  width: number;
+  height: number;
+  node: Konva.Stage | null;
+}
+
+const App: React.FC = () => {
+  const stageRef = useRef<Konva.Stage | null>(null);
+
+  // Function to handle export to PDF with the stage already at 300 DPI
+  const exportToPDF = () => {
+    if (!stageRef.current) return;
+
+    // Get the data URL from the stage (stage is already 300 DPI)
+    const dataUrl = stageRef.current.toDataURL({
+      mimeType: "image/jpeg", // You can choose "image/png" if preferred
+    });
+
+    // Create a PDF instance
+    const doc = new jsPDF();
+
+    // Get the width and height of the stage at 300 DPI
+    const width = stageRef.current.width();
+    const height = stageRef.current.height();
+
+    // Add the image to the PDF, no scaling needed
+    doc.addImage(dataUrl, "JPEG", 10, 10, width, height); // Directly use stage's dimensions
+
+    // Save the PDF
+    doc.save("konva-stage-300dpi.pdf");
+  };
+
+  return (
+    <div>
+      <button onClick={exportToPDF}>Export to PDF (300 DPI)</button>
+      <Stage width={window.innerWidth} height={window.innerHeight} ref={stageRef}>
+        <Layer>
+          <Rect
+            x={40}
+            y={40}
+            width={100}
+            height={100}
+            fill="red"
+            draggable
+          />
+          <Rect
+            x={200}
+            y={40}
+            width={100}
+            height={100}
+            fill="blue"
+            draggable
+          />
+        </Layer>
+      </Stage>
+    </div>
+  );
+};
+
+export default App;

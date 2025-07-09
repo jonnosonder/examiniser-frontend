@@ -13,13 +13,14 @@ import { KonvaEventObject } from 'konva/lib/Node';
 
 type QuestionCreatorProps = {
   onClose: () => void;
+  newQuestionCreating: boolean;
+  shapes: ShapeData[];
+  setShapes: React.Dispatch<React.SetStateAction<ShapeData[]>>;
 };
 
-const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
+const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionCreating, shapes, setShapes }) => {
     const [contextMenu, setContextMenu] = useState({ x: 0, y: 0, show: false });
     const [selectedOption, setSelectedOption] = useState<string>('');
-
-    const [shapes, setShapes] = useState<ShapeData[]>([]);
 
     const [selectedFillColorViaDisplay, setSelectedFillColorViaDisplay] = useState<string>("");
     const [selectedStrokeColorViaDisplay, setSelectedStrokeColorViaDisplay] = useState<string>("");
@@ -110,6 +111,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
                 setEditorWidthValue(shape.radiusX);
                 setEditorHeightValue(shape.radiusY);
             }
+            setEditorRotateValue(shape.rotate);
         } else {
             setSelectedShapeType(null);
         }
@@ -174,6 +176,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
             strokeWeight: 1
         };
         setShapes(prevShapes => [...prevShapes, newShape]);
+        setSelectedId(newShape.id);
     }
 
     const increaseFontSizeHandle = () => {
@@ -212,6 +215,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
             strokeWeight: 1
         };
         setShapes(prevShapes => [...prevShapes, newShape]);
+        setSelectedId(newShape.id);
     }
 
     const addCircleHandle = () => {
@@ -230,6 +234,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
             strokeWeight: 1
         };
         setShapes(prevShapes => [...prevShapes, newShape]);
+        setSelectedId(newShape.id);
     }
 
     const addTriangleHandle = () => {
@@ -246,6 +251,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
             strokeWeight: 1
         };
         setShapes(prevShapes => [...prevShapes, newShape]);
+        setSelectedId(newShape.id);
     }
 
     const createHandler = () => {
@@ -275,6 +281,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
     const [editorYpositionValue, setEditorYpositionValue] = useState<number>(0);
     const [editorWidthValue, setEditorWidthValue] = useState<number>(0);
     const [editorHeightValue, setEditorHeightValue] = useState<number>(0);
+    const [editorRotateValue, setEditorRotateValue] = useState<number>(0);
 
     const editorXpositionHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
@@ -344,9 +351,40 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
         }
     }
 
+    const editorRotateValueHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+
+        if (/^\d*$/.test(value)) {
+            setEditorRotateValue(Number(value));
+            setShapes(prevShapes =>
+                prevShapes.map(shape => {
+                if (shape.id === selectedId) {
+                    return { ...shape, rotate: Number(value) };
+                }
+                return shape;
+                })
+            );
+        }
+    }
+
     const editorShapeOnDragHandler = (e: KonvaEventObject<MouseEvent>) => {
         setEditorXpositionValue(Math.round((e.target.x() + Number.EPSILON) * 100000) / 100000);
         setEditorYpositionValue(Math.round((e.target.y() + Number.EPSILON) * 100000) / 100000);
+    }
+
+    const editorShapeOnTranformHandler = (e: KonvaEventObject<Event>) => {
+        const node = e.target;
+        const newWidth = Math.max(5, node.width() * node.scaleX());
+        const newHeight = Math.max(5, node.height() * node.scaleY());
+        const newRotation = node.rotation();
+        if (selectedShapeType !== "oval"){
+            setEditorWidthValue(Math.round((newWidth + Number.EPSILON) * 100000) / 100000);
+            setEditorHeightValue(Math.round((newHeight + Number.EPSILON) * 100000) / 100000);
+        } else {
+            setEditorWidthValue(Math.round((newWidth + Number.EPSILON) * 100000) / 200000);
+            setEditorHeightValue(Math.round((newHeight + Number.EPSILON) * 100000) / 200000);
+        }
+        setEditorRotateValue(newRotation);
     }
 
     return(
@@ -373,24 +411,6 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
                                 <path d="M6.67406 6.4H17.3141V9.66H16.7941L16.2141 7.56C16.1741 7.4 16.1274 7.28667 16.0741 7.22C16.0341 7.14 15.9474 7.09333 15.8141 7.08C15.6807 7.05333 15.4541 7.04 15.1341 7.04H12.8741V18.38C12.8741 18.8467 12.8941 19.12 12.9341 19.2C12.9741 19.28 13.1007 19.3333 13.3141 19.36L14.4141 19.48V20H9.59406V19.48L10.6941 19.36C10.9074 19.3333 11.0341 19.28 11.0741 19.2C11.1141 19.12 11.1341 18.8467 11.1341 18.38V7.04H8.85406C8.5474 7.04 8.32073 7.05333 8.17406 7.08C8.04073 7.09333 7.9474 7.14 7.89406 7.22C7.85406 7.28667 7.81406 7.4 7.77406 7.56L7.19406 9.66H6.67406V6.4Z" fill="black"/>
                             </svg>
                         </button>
-                        {/* Fill Colour */}
-                        <button onClick={toggleDisplayFillColorSelector} className='w-10 h-full p-2'>
-                            <div ref={colourFillButtonDivRef} style={{background: 'black'}} className='w-full h-full border-2 border-primary text-white flex items-center justify-center'></div>
-                        </button>
-                        {displayFillColorSelector && (
-                        <div className='absolute flex items-center justify-center left-[22vw]'>
-                            <ColorSelectorSection onClose={() => setDisplayFillColorSelector(false)} passColorValue={setSelectedFillColorViaDisplay} startingColor={selectedFillColorViaDisplay}/>
-                        </div>
-                        )}
-                        {/* Stroke Colour */}
-                        <button onClick={toggleDisplayStrokeColorSelector} className='w-10 h-full p-2'>
-                            <div ref={colourStrokeButtonDivRef} style={{background: 'black'}} className='w-full h-1 border border-primary rounded-full text-white flex items-center justify-center'></div>
-                        </button>
-                        {displayStrokeColorSelector && (
-                        <div className='absolute flex items-center justify-center left-[25vw]'>
-                            <ColorSelectorSection onClose={() => setDisplayStrokeColorSelector(false)} passColorValue={setSelectedStrokeColorViaDisplay} startingColor={selectedStrokeColorViaDisplay}/>
-                        </div>
-                        )}
                         {/* Add Square */}
                         <button className='w-10 h-full' onClick={addSquareHandle}>
                             <svg className='h-full' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -412,7 +432,24 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
                                 <path d="M19.7949 18.5H4.20508L12 4.99902L19.7949 18.5Z" stroke="black"/>
                             </svg>
                         </button>
-                        
+                        {/* Fill Colour */}
+                        <button onClick={toggleDisplayFillColorSelector} className='w-10 h-full p-2'>
+                            <div ref={colourFillButtonDivRef} style={{background: 'black'}} className='w-full h-full border-2 border-primary text-white flex items-center justify-center'></div>
+                        </button>
+                        {displayFillColorSelector && (
+                        <div className='absolute flex items-center justify-center left-[22vw]'>
+                            <ColorSelectorSection onClose={() => setDisplayFillColorSelector(false)} passColorValue={setSelectedFillColorViaDisplay} startingColor={selectedFillColorViaDisplay}/>
+                        </div>
+                        )}
+                        {/* Stroke Colour */}
+                        <button onClick={toggleDisplayStrokeColorSelector} className='w-10 h-full p-2'>
+                            <div ref={colourStrokeButtonDivRef} style={{background: 'black'}} className='w-full h-1 border border-primary rounded-full text-white flex items-center justify-center'></div>
+                        </button>
+                        {displayStrokeColorSelector && (
+                        <div className='absolute flex items-center justify-center left-[25vw]'>
+                            <ColorSelectorSection onClose={() => setDisplayStrokeColorSelector(false)} passColorValue={setSelectedStrokeColorViaDisplay} startingColor={selectedStrokeColorViaDisplay}/>
+                        </div>
+                        )}
 
                         {/* Number Inputs */}
                         {selectedShapeType && (
@@ -452,10 +489,15 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
                                 <input className='h-full w-20' value={editorHeightValue} onChange={editorHeightValueHandler} type='number' onFocus={() => setIsAnInputActive(true)} onBlur={() => setIsAnInputActive(false)}></input>
                             </div>
 
+                            {/* Rotation Value */}
+                            <div className='h-full inline'>
+                                <p className='inline-flex mx-2'>Rotate:</p>
+                                <input className='h-full w-20' value={editorRotateValue} onChange={editorRotateValueHandler} type='number' onFocus={() => setIsAnInputActive(true)} onBlur={() => setIsAnInputActive(false)}></input>
+                            </div>
+
                             {/* Divider for Shape Specific Features*/}
                             <div className='w-[1px] h-full bg-primary rounded-full mx-2'/>
                             </>
-                            
                         )}
 
                         {/* Text Aditional Features */}
@@ -569,7 +611,8 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
                                             stageWidth={dimensions.width}
                                             stageHeight={dimensions.height}
                                             listening={true}
-                                            onDragMove={editorShapeOnDragHandler}
+                                            onDragMoveUpdates={editorShapeOnDragHandler}
+                                            onTransformUpdates={editorShapeOnTranformHandler}
                                         />
                                     );
                                     })}
@@ -579,9 +622,11 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose }) => {
                     </div>
                     <div className='flex w-full mt-2 space-x-4'>
                         <button onClick={() => {setShapes([]);}} className='px-4 py-2 border-2 border-darkRed rounded-full bg-red text-white'>Delete</button>
-                        <span className='w-full'></span>
+                        <span className='flex w-full'></span>
                         <button onClick={() => {setDimensions({width: dimensions.width, height: dimensions.height * 2})}} className='px-4 py-2 border-2 border-primary rounded-full text-primary whitespace-nowrap'>Add Space</button>
-                        <button onClick={() => {createHandler(); onClose();}} className='px-4 py-2 border-2 border-primary rounded-full'>Create</button>
+                        <button onClick={() => {createHandler(); onClose();}} className='px-4 py-2 border-2 border-primary rounded-full whitespace-nowrap'>
+                            {newQuestionCreating ? "Create" : "Set Edit"}
+                        </button>
                     </div>
                 </div>
             </div>

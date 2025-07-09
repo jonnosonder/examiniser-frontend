@@ -5,13 +5,15 @@ import { Stage, Layer, Group, Rect } from 'react-konva';
 import { getStages, getGroups, subscribeStage, subscribeGroup, maxWidthHeight, getMarginValue, getViewMargin } from '@/lib/stageStore';
 import "@/styles/allStages.css"
 import CanvasElements from '@/components/canvasElements'
-import type Konva from 'konva';
 
 type AllStagesProps = {
   manualScaler: number;
+  selectedId: number | null;
+  setSelectedId: React.Dispatch<React.SetStateAction<number | null>>;
+  ignoreSelectionArray: React.RefObject<HTMLElement | null>[];
 };
 
-export default function AllStages({ manualScaler } : AllStagesProps) {
+export default function AllStages({ manualScaler, selectedId, setSelectedId, ignoreSelectionArray } : AllStagesProps) {
   const [stages, setStages] = useState(getStages());
   const [groups, setGroups] = useState(getGroups());
 
@@ -81,13 +83,16 @@ export default function AllStages({ manualScaler } : AllStagesProps) {
     };
   }, [stages]);
 
-  const [selectedId, setSelectedId] = useState<number | null>(null);
-  const stageRef = useRef<Konva.Stage | null>(null);
-
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      const clickedOnKonva = stageRef.current?.getStage().content.contains(e.target as Node);
-      if (!clickedOnKonva) {
+      let toSetNull = true
+      ignoreSelectionArray.forEach(element => {
+        if (element.current && element.current.contains(e.target as Node)) {
+          toSetNull = false;
+          return;
+        }
+      });
+      if (toSetNull) {
         setSelectedId(null);
       }
     };
@@ -125,9 +130,6 @@ export default function AllStages({ manualScaler } : AllStagesProps) {
                 pixelRatio={300}
                 style={{
                   transformOrigin: 'top left',
-                }}
-                ref={(node) => {
-                  stageRef.current = node?.getStage() || null;
                 }}
               >
                 <Layer>
