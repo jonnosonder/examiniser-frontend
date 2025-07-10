@@ -1,10 +1,12 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, RefObject, useMemo } from 'react';
 import { Stage, Layer, Group, Rect } from 'react-konva';
+import React from "react";
 import { getStages, getGroups, subscribeStage, subscribeGroup, maxWidthHeight, getMarginValue, getViewMargin } from '@/lib/stageStore';
 import "@/styles/allStages.css"
 import CanvasElements from '@/components/canvasElements'
+import Konva from 'konva';
 
 type AllStagesProps = {
   manualScaler: number;
@@ -103,6 +105,19 @@ export default function AllStages({ manualScaler, selectedId, setSelectedId, ign
 
   const marginValue = getMarginValue();
   const viewMargin = getViewMargin();
+  
+  const stageRefs = useRef<React.RefObject<Konva.Stage | null>[]>([]);
+
+  // Ensure the array has the right length:
+  while (stageRefs.current.length < stages.length) {
+    stageRefs.current.push(React.createRef<Konva.Stage | null>());
+  }
+
+  // Now assign refs:
+  stages.forEach((stage, stageIndex) => {
+    stage.stageRef = stageRefs.current[stageIndex];
+  });
+
   return (
     <div ref={wholeContainerRef} className='overflow-y-auto custom-scroll h-full w-full flex flex-col items-center justify-start space-y-4 p-4'>
       {stages.map((stage) => {
@@ -123,14 +138,15 @@ export default function AllStages({ manualScaler, selectedId, setSelectedId, ign
                 }}
               >
               <Stage
-                width={stage.width * scale * manualScaler}
-                height={stage.height * scale * manualScaler}
+                width={stage.width}
+                height={stage.height}
                 scaleX={scale * manualScaler}
                 scaleY={scale * manualScaler}
                 pixelRatio={300}
                 style={{
                   transformOrigin: 'top left',
                 }}
+                ref={stage.stageRef}
               >
                 <Layer>
                   <Rect 

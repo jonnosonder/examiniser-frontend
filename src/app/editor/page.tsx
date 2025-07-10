@@ -8,13 +8,16 @@ import AllStages from '@/components/allStages';
 import HoverExplainButton from '@/components/hoverExplainButton';
 import '@/styles/editor.css';
 
-import { addStage, addStageCopyPrevious, getGroups, stagesLength } from '@/lib/stageStore';
+import { addStage, addStageCopyPrevious, getGroups, getStages, stagesLength } from '@/lib/stageStore';
 import QuestionCreator from '@/components/questionCreator';
 import { ShapeData } from '@/lib/shapeData';
 import EditorSidePanel from '@/components/editorSidePanel';
 
+import { jsPDF } from "jspdf";
+import Konva from 'konva';
+
 export default function EditorPage() {
-    useBeforeUnload(false); //TEMP
+    useBeforeUnload(false); //TEMP change to true
 
     const [projectNameValue, setProjectNameValue] = useState<string>("");
     const [actionWindow, setActionWindow] = useState(true);
@@ -125,6 +128,60 @@ export default function EditorPage() {
         }
     }
 
+    const exportToPDF = () => {
+        const stages = getStages();
+
+        const firstPageWidth = stages[0].width;
+        const firstPageHeight = stages[0].height;
+        const doc = new jsPDF({
+            unit: 'px',
+            userUnit: 1,
+            format: [firstPageWidth, firstPageHeight],
+        });
+        console.log(firstPageWidth);
+        console.log(firstPageHeight);
+        
+        stages.forEach((stage, stageIndex) => {
+            console.log(stage.stageRef);
+            if (stage.stageRef && stage.stageRef.current){
+                console.log("adding");
+                const width = stage.stageRef.current.width();
+                const height = stage.stageRef.current.height();
+
+                // Get the layer (first layer in this case)
+                const layer = stage.stageRef.current.getChildren()[0];
+
+                // Ensure the layer is fully rendered
+                layer.batchDraw();
+
+                const stageScale = stage.stageRef.current.scale();
+
+                // Convert the layer to a high-res data URL at 300 DPI
+                const dataUrl = layer.toDataURL({
+                    mimeType: "image/jpeg",
+                    quality: 1, // Highest quality
+                    pixelRatio: 300/72,
+                });
+
+                if (stageIndex !== 0) {
+                    doc.addPage(); 
+                }
+
+                
+
+                doc.addImage(dataUrl, "JPEG", 0, 0, width / stageScale.x, height / stageScale.y);
+                console.log(width);
+                console.log(height);
+            }
+        });
+        
+        // Save the resulting PDF
+        doc.save("konva-stage-300dpi.pdf");
+    };
+
+
+
+
     return (
     <div ref={cursorDivRef} className='cursor-default'>
         {showQuestionCreator && <QuestionCreator onClose={handleQuestionCreatorClose} newQuestionCreating={newQuestionCreating} shapes={questionCreatorShapes} setShapes={setQuestionCreatorShapes} />}
@@ -165,13 +222,18 @@ export default function EditorPage() {
                         onClick={() => setCursorType(1)}
                     />
                 </div>
+                <div className='flex m-2'>
+                    <button className='h-full' onClick={exportToPDF}>
+                        Export
+                    </button>
+                </div>
             </div>
             <div className="flex-1 w-full flex overflow-hidden">
                 <div className='h-full w-[12rem]'>
                     <EditorSidePanel />
                 </div>
                 <div className="flex-1 bg-grey w-full flex items-center justify-center">
-                    <AllStages manualScaler={manualScaler} selectedId={selectedQuestionId} setSelectedId={setSelectedQuestionId} ignoreSelectionArray={ignoreSelectionArray}/>
+                    <AllStages manualScaler={manualScaler} selectedId={selectedQuestionId} setSelectedId={setSelectedQuestionId} ignoreSelectionArray={ignoreSelectionArray} />
                 </div>
                 <div className="h-full">
                     <div

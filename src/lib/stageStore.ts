@@ -1,11 +1,12 @@
 import {ShapeData} from '@/lib/shapeData'
-
+import Konva from 'konva';
 
 export type StageData = {
   id: string;
   width: number;
   height: number;
   background: string;
+  stageRef?: React.RefObject<Konva.Stage | null>;
 };
 
 let stages: StageData[] = [];
