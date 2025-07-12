@@ -7,7 +7,7 @@ import { Stage, Layer } from 'react-konva';
 import CanvasElements from '@/components/canvasElements'
 import CustomContextMenu from '@/components/customContextMenu';
 import { ShapeData } from '@/lib/shapeData';
-import { addGroup, getMarginValue, getStageDimension } from '@/lib/stageStore';
+import { addGroup, getGlobalStageScale, getMarginValue, getStageDimension, setGroup } from '@/lib/stageStore';
 import ColorSelectorSection from '@/components/colorSelectorSection';
 import { KonvaEventObject } from 'konva/lib/Node';
 
@@ -16,9 +16,10 @@ type QuestionCreatorProps = {
   newQuestionCreating: boolean;
   shapes: ShapeData[];
   setShapes: React.Dispatch<React.SetStateAction<ShapeData[]>>;
+  questionEditingID: number | null;
 };
 
-const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionCreating, shapes, setShapes }) => {
+const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionCreating, shapes, setShapes, questionEditingID }) => {
     const [contextMenu, setContextMenu] = useState({ x: 0, y: 0, show: false });
     const [selectedOption, setSelectedOption] = useState<string>('');
 
@@ -77,6 +78,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
     const stageContainerRef = useRef<HTMLDivElement>(null);
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
     const [stageScale, setStageScale] = useState(1);
+    const [fontScale, setFontScale] = useState(1);
 
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [selectedShapeType, setSelectedShapeType] = useState<string | null>(null);
@@ -143,14 +145,15 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
             if (stageContainerRef.current) {
                 const stageDimension = getStageDimension();
                 const marginVlaue = getMarginValue();
-                const scale = stageContainerRef.current.offsetWidth / (stageDimension.width - marginVlaue*2);
-                setStageScale(scale);
+                const scaleClac = stageContainerRef.current.offsetWidth / (stageDimension.width - marginVlaue*2);
+                setStageScale(scaleClac);
+                setFontScale(getGlobalStageScale());
                 setDimensions({
                     width: (stageDimension.width - marginVlaue*2),
                     height: (stageDimension.height - marginVlaue*2),
                 });
-                console.log("width: "+ ((stageDimension.width - marginVlaue*2) * scale));
-                console.log("height: "+ ((stageDimension.height - marginVlaue*2) * scale));
+                console.log("width: "+ ((stageDimension.width - marginVlaue*2) * scaleClac));
+                console.log("height: "+ ((stageDimension.height - marginVlaue*2) * scaleClac));
             }
         };
 
@@ -274,7 +277,13 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
             shape.y -= minY;
         });
         */
-        addGroup(shapes);
+        if (newQuestionCreating) {
+            addGroup(shapes);
+        } else {
+            if (questionEditingID !== null) {
+                setGroup(shapes, questionEditingID);
+            }
+        }
     }
 
     const [editorXpositionValue, setEditorXpositionValue] = useState<number>(0);
@@ -607,6 +616,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                                             onChange={updateShape}
                                             setDraggable={true}
                                             stageScale={stageScale}
+                                            fontScale={fontScale}
                                             dragBoundFunc={dragBoundFunc}
                                             stageWidth={dimensions.width}
                                             stageHeight={dimensions.height}

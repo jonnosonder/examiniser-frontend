@@ -59,7 +59,9 @@ export default function Home() {
               With the Help of <span id="heroAItextSpan">AI</span></h1>
             <p id="heroP" className="max-w-sm sm:max-w-md lg:max-w-xl text-primary sm:text-lg lg:text-xl break-words">An editor specialised in making question and exam papers. Easy to create and navigate, also with AI tools all for free!</p>
             <div id="heroButtonWrapper">
-              <button className='startBtn mt-4 text-sm sm:text-base lg:text-lg' onClick={() => router.push('/start')}>Start Now</button>
+              <button className="mt-4 px-5 py-2 text-sm sm:text-base lg:text-lg hover:shadow-[0_0_0_0.6rem_theme('colors.accent')] transition-all duration-300 ease-in-out border-2 border-primary rounded-lg" onClick={() => router.push('/start')}>
+                Start Now
+              </button>
             </div>
           </div>
         </div>

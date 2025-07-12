@@ -152,23 +152,6 @@
   }
 }
 
-.startBtn {
-  will-change: transform;
-  color: var(--primary);
-  padding: 10px 20px;
-  border-radius: 10px;
-  border: 3px solid var(--primary);
-  background: transparent;
-  box-shadow: 3px 3px var(--primary);
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.startBtn:hover {
-  box-shadow: none;
-  transform: translate(2px, 2px);
-}
-
 #heroKeywordtextSpan {
   background: linear-gradient(135deg, var(--background) 0%, var(--contrast) 15%);
   -webkit-background-clip: text;

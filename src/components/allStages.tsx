@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState, useRef, RefObject, useMemo } from 'react';
+import { useEffect, useState, useRef} from 'react';
 import { Stage, Layer, Group, Rect } from 'react-konva';
 import React from "react";
-import { getStages, getGroups, subscribeStage, subscribeGroup, maxWidthHeight, getMarginValue, getViewMargin } from '@/lib/stageStore';
+import { getStages, getGroups, subscribeStage, subscribeGroup, maxWidthHeight, getMarginValue, getViewMargin, setGlobalStageScale } from '@/lib/stageStore';
 import "@/styles/allStages.css"
 import CanvasElements from '@/components/canvasElements'
 import Konva from 'konva';
@@ -108,15 +108,15 @@ export default function AllStages({ manualScaler, selectedId, setSelectedId, ign
   
   const stageRefs = useRef<React.RefObject<Konva.Stage | null>[]>([]);
 
-  // Ensure the array has the right length:
   while (stageRefs.current.length < stages.length) {
     stageRefs.current.push(React.createRef<Konva.Stage | null>());
   }
 
-  // Now assign refs:
   stages.forEach((stage, stageIndex) => {
     stage.stageRef = stageRefs.current[stageIndex];
   });
+
+  
 
   return (
     <div ref={wholeContainerRef} className='overflow-y-auto custom-scroll h-full w-full flex flex-col items-center justify-start space-y-4 p-4'>
@@ -124,6 +124,7 @@ export default function AllStages({ manualScaler, selectedId, setSelectedId, ign
         const scaleX = containerWidth / stage.width;
         const scaleY = containerHeight / stage.height;
         const scale = Math.min(scaleX, scaleY);
+        setGlobalStageScale(scale);
         return (
           <div key={stage.id+"wrap"} className='flex flex-col w-full h-full items-center justify-start'>
           <p key={stage.id+"p"} className='flex text-darkGrey text-[0.6rem] text-left'>{stage.width}px x {stage.height}px</p>
@@ -253,6 +254,7 @@ export default function AllStages({ manualScaler, selectedId, setSelectedId, ign
                             onChange={() => (null)}
                             setDraggable={false}
                             stageScale={scale}
+                            fontScale={scale}
                             listening={false}
                           />
                           );

@@ -14,7 +14,6 @@ import { ShapeData } from '@/lib/shapeData';
 import EditorSidePanel from '@/components/editorSidePanel';
 
 import { jsPDF } from "jspdf";
-import Konva from 'konva';
 
 export default function EditorPage() {
     useBeforeUnload(false); //TEMP change to true
@@ -31,6 +30,7 @@ export default function EditorPage() {
     const [showQuestionCreator, setShowQuestionCreator] = useState<boolean>(false);
     const [newQuestionCreating, setNewQuestionCreating] = useState<boolean>(false);
     const [questionCreatorShapes, setQuestionCreatorShapes] = useState<ShapeData[]>([]);
+    const [questionEditingID, setQuestionEditingID] = useState<number | null>(null);
     const handleQuestionCreatorOpen = () => setShowQuestionCreator(true);
     const handleQuestionCreatorClose = () => setShowQuestionCreator(false);
 
@@ -123,19 +123,21 @@ export default function EditorPage() {
         if (selectedQuestionId !== null){
             setNewQuestionCreating(false);
             const groups = getGroups();
+            setQuestionEditingID(selectedQuestionId)
             setQuestionCreatorShapes(groups[selectedQuestionId]);
             handleQuestionCreatorOpen();
         }
     }
 
+    const pxTommScaler = 25.4/300;
+
     const exportToPDF = () => {
         const stages = getStages();
 
-        const firstPageWidth = stages[0].width;
-        const firstPageHeight = stages[0].height;
+        const firstPageWidth = stages[0].width * pxTommScaler;
+        const firstPageHeight = stages[0].height * pxTommScaler;
         const doc = new jsPDF({
-            unit: 'px',
-            userUnit: 1,
+            unit: 'mm',
             format: [firstPageWidth, firstPageHeight],
         });
         console.log(firstPageWidth);
@@ -145,8 +147,8 @@ export default function EditorPage() {
             console.log(stage.stageRef);
             if (stage.stageRef && stage.stageRef.current){
                 console.log("adding");
-                const width = stage.stageRef.current.width();
-                const height = stage.stageRef.current.height();
+                const width = stage.stageRef.current.width() * pxTommScaler;
+                const height = stage.stageRef.current.height() * pxTommScaler;
 
                 // Get the layer (first layer in this case)
                 const layer = stage.stageRef.current.getChildren()[0];
@@ -159,19 +161,17 @@ export default function EditorPage() {
                 // Convert the layer to a high-res data URL at 300 DPI
                 const dataUrl = layer.toDataURL({
                     mimeType: "image/jpeg",
-                    quality: 1, // Highest quality
+                    quality: 1,
                     pixelRatio: 300/72,
                 });
 
                 if (stageIndex !== 0) {
                     doc.addPage(); 
                 }
-
                 
-
                 doc.addImage(dataUrl, "JPEG", 0, 0, width / stageScale.x, height / stageScale.y);
-                console.log(width);
-                console.log(height);
+                console.log(width / stageScale.x,);
+                console.log(height / stageScale.y);
             }
         });
         
@@ -180,11 +180,9 @@ export default function EditorPage() {
     };
 
 
-
-
     return (
     <div ref={cursorDivRef} className='cursor-default'>
-        {showQuestionCreator && <QuestionCreator onClose={handleQuestionCreatorClose} newQuestionCreating={newQuestionCreating} shapes={questionCreatorShapes} setShapes={setQuestionCreatorShapes} />}
+        {showQuestionCreator && <QuestionCreator onClose={handleQuestionCreatorClose} newQuestionCreating={newQuestionCreating} shapes={questionCreatorShapes} setShapes={setQuestionCreatorShapes} questionEditingID={questionEditingID}/>}
         <div className="flex flex-col w-full h-screen">
             <div className="flex h-10 border-b-1 border-primary">
                 <div className='flex m-1'>

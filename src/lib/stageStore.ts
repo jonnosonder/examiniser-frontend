@@ -15,6 +15,7 @@ let stageGroup: ShapeData[][] = [];
 let groupListeners: (() => void)[] = [];
 let viewMargin: boolean = false;
 let marginValue: number = 300;
+let globalStageScale: number;
 
 export function addStage(stage: StageData) {
   stages.push(stage);
@@ -98,6 +99,11 @@ export function addGroup(elements: ShapeData[]) {
   groupListeners.forEach((fn) => fn());
 }
 
+export function setGroup(newShape: ShapeData[], index: number) {
+  stageGroup[index] = newShape;
+  groupListeners.forEach((fn) => fn());
+}
+
 export function subscribeGroup(listener: () => void) {
   groupListeners.push(listener);
   return () => {
@@ -123,4 +129,14 @@ export function getViewMargin(): boolean {
 export function setViewMargin(newMarginStage: boolean) {
   viewMargin = newMarginStage;
   stageListeners.forEach((fn) => fn());
+}
+
+//////////////////////////////////////////////////////////////
+
+export function setGlobalStageScale(newStageScale: number) {
+  globalStageScale = newStageScale;
+}
+
+export function getGlobalStageScale(): number {
+  return globalStageScale;
 }
