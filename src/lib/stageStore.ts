@@ -9,9 +9,15 @@ export type StageData = {
   stageRef?: React.RefObject<Konva.Stage | null>;
 };
 
+export type stageGroupInfoData = {
+  widestX: number;
+  widestY: number;
+};
+
 let stages: StageData[] = [];
 let stageListeners: (() => void)[] = [];
 let stageGroup: ShapeData[][] = [];
+let stageGroupInfo: stageGroupInfoData[] = [];
 let groupListeners: (() => void)[] = [];
 let viewMargin: boolean = false;
 let marginValue: number = 300;
@@ -109,6 +115,19 @@ export function subscribeGroup(listener: () => void) {
   return () => {
     groupListeners = groupListeners.filter((fn) => fn !== listener);
   };
+}
+
+
+export function getGroupInfo(): stageGroupInfoData[] {
+  return [...stageGroupInfo]
+}
+
+export function addGroupInfo(newStageGroupInfo: stageGroupInfoData) {
+  stageGroupInfo.push(newStageGroupInfo);
+}
+
+export function setGroupInfo(newStageGroupInfo: stageGroupInfoData, index: number) {
+  stageGroupInfo[index] = newStageGroupInfo;
 }
 
 //////////////////////////////////////////////////////////////

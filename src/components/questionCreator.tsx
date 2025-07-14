@@ -7,7 +7,7 @@ import { Stage, Layer } from 'react-konva';
 import CanvasElements from '@/components/canvasElements'
 import CustomContextMenu from '@/components/customContextMenu';
 import { ShapeData } from '@/lib/shapeData';
-import { addGroup, getGlobalStageScale, getMarginValue, getStageDimension, setGroup } from '@/lib/stageStore';
+import { addGroup, addGroupInfo, getGlobalStageScale, getMarginValue, getStageDimension, setGroup, setGroupInfo } from '@/lib/stageStore';
 import ColorSelectorSection from '@/components/colorSelectorSection';
 import { KonvaEventObject } from 'konva/lib/Node';
 
@@ -113,7 +113,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                 setEditorWidthValue(shape.radiusX);
                 setEditorHeightValue(shape.radiusY);
             }
-            setEditorRotateValue(shape.rotate);
+            setEditorRotateValue(shape.rotation);
         } else {
             setSelectedShapeType(null);
         }
@@ -171,7 +171,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
             text: 'Double Click to Edit!',
             width: 300,
             height: 30,
-            rotate: 0,
+            rotation: 0,
             fontSize: 12,
             fill: 'black',
             background: '',
@@ -212,7 +212,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
             y: 20,
             width: 100,
             height: 100,
-            rotate: 0,
+            rotation: 0,
             fill: 'black',
             stroke: 'red',
             strokeWeight: 1
@@ -231,7 +231,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
             radiusY: 40,
             width: 80,
             height: 80,
-            rotate: 0,
+            rotation: 0,
             fill: 'black',
             stroke: 'red',
             strokeWeight: 1
@@ -248,7 +248,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
             y: 20,
             width: 100,
             height: 100,
-            rotate: 0,
+            rotation: 0,
             fill: 'black',
             stroke: 'red',
             strokeWeight: 1
@@ -277,10 +277,30 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
             shape.y -= minY;
         });
         */
+
+        let widestX = 0;
+        let widestY = 0;
+
+        shapes.forEach((element) => {
+            let x: number;
+            let y: number;
+            if (element.type === "oval"){
+                x = element.x + element.width/2;
+                y = element.y + element.height/2;
+            } else {
+                x = element.x + element.width;
+                y = element.y + element.height;
+            }
+            if (x > widestX) widestX = x;
+            if (y > widestY) widestY = y;
+        });
+
         if (newQuestionCreating) {
+            addGroupInfo({widestX, widestY});
             addGroup(shapes);
         } else {
             if (questionEditingID !== null) {
+                setGroupInfo({widestX, widestY}, questionEditingID);
                 setGroup(shapes, questionEditingID);
             }
         }
@@ -364,11 +384,11 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
         const value = e.target.value;
 
         if (/^\d*$/.test(value)) {
-            setEditorRotateValue(Number(value));
+            setEditorRotateValue(Math.round((Number(value) + Number.EPSILON) * 100000) / 100000);
             setShapes(prevShapes =>
                 prevShapes.map(shape => {
                 if (shape.id === selectedId) {
-                    return { ...shape, rotate: Number(value) };
+                    return { ...shape, rotation: Number(value) };
                 }
                 return shape;
                 })

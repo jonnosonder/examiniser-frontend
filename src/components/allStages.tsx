@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef} from 'react';
 import { Stage, Layer, Group, Rect } from 'react-konva';
 import React from "react";
-import { getStages, getGroups, subscribeStage, subscribeGroup, maxWidthHeight, getMarginValue, getViewMargin, setGlobalStageScale } from '@/lib/stageStore';
+import { getStages, getGroups, subscribeStage, subscribeGroup, maxWidthHeight, getMarginValue, getViewMargin, setGlobalStageScale, getGroupInfo } from '@/lib/stageStore';
 import "@/styles/allStages.css"
 import CanvasElements from '@/components/canvasElements'
 import Konva from 'konva';
@@ -116,8 +116,9 @@ export default function AllStages({ manualScaler, selectedId, setSelectedId, ign
     stage.stageRef = stageRefs.current[stageIndex];
   });
 
-  
+  const groupInfo = getGroupInfo();
 
+  let groupIndexToDraw = 0;
   return (
     <div ref={wholeContainerRef} className='overflow-y-auto custom-scroll h-full w-full flex flex-col items-center justify-start space-y-4 p-4'>
       {stages.map((stage) => {
@@ -125,6 +126,23 @@ export default function AllStages({ manualScaler, selectedId, setSelectedId, ign
         const scaleY = containerHeight / stage.height;
         const scale = Math.min(scaleX, scaleY);
         setGlobalStageScale(scale);
+
+        const maxYSpace = stage.height - (marginValue*2);
+        let spaceTakenOnPage = 0;
+        let x = 0;
+        while (groupIndexToDraw+x < groups.length) {
+          if (spaceTakenOnPage + groupInfo[groupIndexToDraw + x].widestY < maxYSpace) {
+            spaceTakenOnPage += groupInfo[groupIndexToDraw + x].widestY;
+            x += 1;
+          } else {
+            break;
+          }
+        }
+
+        const selectedPageGroups = groups.slice(groupIndexToDraw, x+groupIndexToDraw);
+        groupIndexToDraw += x;
+
+        let groupPositionY = 0;
         return (
           <div key={stage.id+"wrap"} className='flex flex-col w-full h-full items-center justify-start'>
           <p key={stage.id+"p"} className='flex text-darkGrey text-[0.6rem] text-left'>{stage.width}px x {stage.height}px</p>
@@ -168,23 +186,7 @@ export default function AllStages({ manualScaler, selectedId, setSelectedId, ign
                     strokeWidth={2}
                   />
                   )}
-                  {groups.map((group, i) => {
-                    let widestX = 0;
-                    let widestY = 0;
-
-                    group.forEach((element) => {
-                      let x: number;
-                      let y: number;
-                      if (element.type === "oval"){
-                        x = element.x + element.width/2;
-                        y = element.y + element.height/2;
-                      } else {
-                        x = element.x + element.width;
-                        y = element.y + element.height;
-                      }
-                      if (x > widestX) widestX = x;
-                      if (y > widestY) widestY = y;
-                    });
+                  {selectedPageGroups.map((group, i) => {
 
                     const dragBoundFunc = (pos: { x: number; y: number }) => {
                       const scaled = scale * manualScaler;
@@ -197,8 +199,8 @@ export default function AllStages({ manualScaler, selectedId, setSelectedId, ign
                       // Clamp to the stage bounds
                       const minX = marginValue;
                       const minY = marginValue;
-                      const maxX = stage.width - marginValue - widestX;
-                      const maxY = stage.height - marginValue - widestY;
+                      const maxX = stage.width - marginValue - groupInfo[i].widestX;
+                      const maxY = stage.height - marginValue - groupInfo[i].widestY;
 
                       if (x < minX) x = minX;
                       if (y < minY) y = minY;
@@ -212,13 +214,17 @@ export default function AllStages({ manualScaler, selectedId, setSelectedId, ign
                       };
                     };
 
+                    if (i !== 0) {
+                      groupPositionY += groupInfo[i-1].widestY;
+                    }
+
                     return (
                       <Group
                         key={i}
                         x={marginValue}
-                        y={marginValue}
+                        y={marginValue + groupPositionY}
                         width={stage.width - marginValue*2}
-                        height={widestY}
+                        height={groupInfo[i].widestY}
                         draggable={true}
                         dragBoundFunc={dragBoundFunc}
                         listening={true}
@@ -227,7 +233,7 @@ export default function AllStages({ manualScaler, selectedId, setSelectedId, ign
                       > 
                         <Rect
                           width={stage.width - marginValue * 2}
-                          height={widestY}
+                          height={groupInfo[i].widestY}
                           dragBoundFunc={dragBoundFunc}
                           fill="rgba(0,0,0,0)" // invisible but interactive
                         />
@@ -236,7 +242,7 @@ export default function AllStages({ manualScaler, selectedId, setSelectedId, ign
                           x={-5}
                           y={-5}
                           width={stage.width - marginValue * 2 +10}
-                          height={widestY+10}
+                          height={groupInfo[i].widestY+10}
                           stroke={'#F57C22'}
                           strokeWidth={10}
                           fillEnabled={false}

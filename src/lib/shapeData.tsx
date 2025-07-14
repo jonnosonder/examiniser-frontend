@@ -4,7 +4,7 @@ type BaseShape = {
   y: number;
   width: number;
   height: number;
-  rotate: number;
+  rotation: number;
   fill: string;
   stroke: string;
   strokeWeight: number;

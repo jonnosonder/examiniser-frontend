@@ -11,17 +11,21 @@ import '@/styles/editor.css';
 import { addStage, addStageCopyPrevious, getGroups, getStages, stagesLength } from '@/lib/stageStore';
 import QuestionCreator from '@/components/questionCreator';
 import { ShapeData } from '@/lib/shapeData';
+import SidePreview from '@/components/sidePreview';
 import EditorSidePanel from '@/components/editorSidePanel';
-
-import { jsPDF } from "jspdf";
+import ExportPage from '@/components/exportPage';
 
 export default function EditorPage() {
     useBeforeUnload(false); //TEMP change to true
+
+    const [showExportPage, setShowExportPage] = useState<boolean>(false);
 
     const [projectNameValue, setProjectNameValue] = useState<string>("");
     const [actionWindow, setActionWindow] = useState(true);
 
     const { pageFormatData } = useData();
+
+    const [leftSidePanelToggle, setLeftSidePanelToggle] = useState<boolean>(true);
 
     const [selectedQuestionId, setSelectedQuestionId] = useState<number | null>(null);
     const editButtonRef = useRef(null);
@@ -129,57 +133,6 @@ export default function EditorPage() {
         }
     }
 
-    const pxTommScaler = 25.4/300;
-
-    const exportToPDF = () => {
-        const stages = getStages();
-
-        const firstPageWidth = stages[0].width * pxTommScaler;
-        const firstPageHeight = stages[0].height * pxTommScaler;
-        const doc = new jsPDF({
-            unit: 'mm',
-            format: [firstPageWidth, firstPageHeight],
-        });
-        console.log(firstPageWidth);
-        console.log(firstPageHeight);
-        
-        stages.forEach((stage, stageIndex) => {
-            console.log(stage.stageRef);
-            if (stage.stageRef && stage.stageRef.current){
-                console.log("adding");
-                const width = stage.stageRef.current.width() * pxTommScaler;
-                const height = stage.stageRef.current.height() * pxTommScaler;
-
-                // Get the layer (first layer in this case)
-                const layer = stage.stageRef.current.getChildren()[0];
-
-                // Ensure the layer is fully rendered
-                layer.batchDraw();
-
-                const stageScale = stage.stageRef.current.scale();
-
-                // Convert the layer to a high-res data URL at 300 DPI
-                const dataUrl = layer.toDataURL({
-                    mimeType: "image/jpeg",
-                    quality: 1,
-                    pixelRatio: 300/72,
-                });
-
-                if (stageIndex !== 0) {
-                    doc.addPage(); 
-                }
-                
-                doc.addImage(dataUrl, "JPEG", 0, 0, width / stageScale.x, height / stageScale.y);
-                console.log(width / stageScale.x,);
-                console.log(height / stageScale.y);
-            }
-        });
-        
-        // Save the resulting PDF
-        doc.save("konva-stage-300dpi.pdf");
-    };
-
-
     return (
     <div ref={cursorDivRef} className='cursor-default'>
         {showQuestionCreator && <QuestionCreator onClose={handleQuestionCreatorClose} newQuestionCreating={newQuestionCreating} shapes={questionCreatorShapes} setShapes={setQuestionCreatorShapes} questionEditingID={questionEditingID}/>}
@@ -221,14 +174,34 @@ export default function EditorPage() {
                     />
                 </div>
                 <div className='flex m-2'>
-                    <button className='h-full' onClick={exportToPDF}>
+                    <button className='h-full' onClick={() => setShowExportPage(true)}>
                         Export
                     </button>
+                    {showExportPage && (<ExportPage onClose={() => setShowExportPage(false)}/>)}
                 </div>
             </div>
             <div className="flex-1 w-full flex overflow-hidden">
                 <div className='h-full w-[12rem]'>
-                    <EditorSidePanel />
+                    <div className='flex w-full'>
+                        <button className='flex flex-col flex-1 p-1 border border-grey text-center items-center justify-center' onClick={() => setLeftSidePanelToggle(true)}>
+                            Preview
+                            <div className={`flex w-full justify-center`}>
+                                <div className={`mx-2 ${leftSidePanelToggle ? 'w-full' : 'w-0'} bg-accent h-1 rounded-full transition-all duration-300`}></div>
+                            </div>
+                        </button>
+                        <button className='flex flex-col flex-1 p-1 border border-grey text-center items-center justify-center' onClick={() => setLeftSidePanelToggle(false)}>
+                            Editor
+                            <div className={`flex w-full justify-center`}>
+                                <div className={`flex mx-2 ${!leftSidePanelToggle ? 'w-full' : 'w-0'} bg-contrast h-1 rounded-full transition-all duration-300`}></div>
+                            </div>
+                        </button>
+                    </div>
+                    {leftSidePanelToggle ? (
+                        <SidePreview />
+                    ) : (
+                        <EditorSidePanel />
+                    )}
+                    
                 </div>
                 <div className="flex-1 bg-grey w-full flex items-center justify-center">
                     <AllStages manualScaler={manualScaler} selectedId={selectedQuestionId} setSelectedId={setSelectedQuestionId} ignoreSelectionArray={ignoreSelectionArray} />

@@ -62,6 +62,11 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
     dragBoundFunc: dragBoundFunc,
   };
 
+  const transformerCommonProps = {
+    rotationSnaps: [0, 45, 90, 135, 180, 225, 270, 315],
+    rotationSnapTolerance: 6,
+  }
+
   const anchorDragBoundFunc = (oldPos: { x: number; y: number }, newPos: { x: number; y: number }) => {
     if (!stageWidth || !stageHeight || !stageScale) {
       return { x: oldPos.x, y: oldPos.y };
@@ -104,7 +109,7 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
             
           }}
           />
-          {isSelected && <Transformer ref={trRef} 
+          {isSelected && <Transformer {...transformerCommonProps} ref={trRef} 
           anchorDragBoundFunc={anchorDragBoundFunc}
           onTransform={(e) => onTransformUpdates?.(e)}
           />}
@@ -136,7 +141,7 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
             onChange({ ...shape, x: Math.round((e.target.x() + Number.EPSILON) * 100000) / 100000, y: Math.round((e.target.y() + Number.EPSILON) * 100000) / 100000 });
           }}
           />
-          {isSelected && <Transformer ref={trRef} 
+          {isSelected && <Transformer {...transformerCommonProps} ref={trRef} 
           anchorDragBoundFunc={anchorDragBoundFunc}
           onTransform={(e) => onTransformUpdates?.(e)}
           />}
@@ -171,7 +176,7 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
             onChange({ ...shape, x: Math.round((e.target.x() + Number.EPSILON) * 100000) / 100000, y: Math.round((e.target.y() + Number.EPSILON) * 100000) / 100000 });
           }}
           />
-          {isSelected && <Transformer ref={trRef} 
+          {isSelected && <Transformer {...transformerCommonProps} ref={trRef} 
           anchorDragBoundFunc={anchorDragBoundFunc}
           onTransform={(e) => onTransformUpdates?.(e)}
           />}
@@ -281,7 +286,7 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
             onChange({ ...shape, x: Math.round((e.target.x() + Number.EPSILON) * 100000) / 100000, y: Math.round((e.target.y() + Number.EPSILON) * 100000) / 100000 });
           }}
           />
-          {isSelected && <Transformer ref={trRef} 
+          {isSelected && <Transformer {...transformerCommonProps} ref={trRef} 
           anchorDragBoundFunc={anchorDragBoundFunc}
           onTransform={(e) => onTransformUpdates?.(e)}
           />}
