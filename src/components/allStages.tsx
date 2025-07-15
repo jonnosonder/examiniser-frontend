@@ -9,13 +9,14 @@ import CanvasElements from '@/components/canvasElements'
 import Konva from 'konva';
 
 type AllStagesProps = {
-  manualScaler: number;
-  selectedId: number | null;
-  setSelectedId: React.Dispatch<React.SetStateAction<number | null>>;
-  ignoreSelectionArray: React.RefObject<HTMLElement | null>[];
+  manualScaler?: number;
+  selectedId?: number | null;
+  setSelectedId?: React.Dispatch<React.SetStateAction<number | null>>;
+  ignoreSelectionArray?: React.RefObject<HTMLElement | null>[];
+  previewStyle: boolean;
 };
 
-export default function AllStages({ manualScaler, selectedId, setSelectedId, ignoreSelectionArray } : AllStagesProps) {
+export default function AllStages({ manualScaler=1, selectedId=null, setSelectedId, ignoreSelectionArray, previewStyle } : AllStagesProps) {
   const [stages, setStages] = useState(getStages());
   const [groups, setGroups] = useState(getGroups());
 
@@ -86,21 +87,23 @@ export default function AllStages({ manualScaler, selectedId, setSelectedId, ign
   }, [stages]);
 
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      let toSetNull = true
-      ignoreSelectionArray.forEach(element => {
-        if (element.current && element.current.contains(e.target as Node)) {
-          toSetNull = false;
-          return;
+    if (!previewStyle && ignoreSelectionArray && setSelectedId) {
+      const handleClickOutside = (e: MouseEvent) => {
+        let toSetNull = true
+        ignoreSelectionArray.forEach(element => {
+          if (element.current && element.current.contains(e.target as Node)) {
+            toSetNull = false;
+            return;
+          }
+        });
+        if (toSetNull) {
+          setSelectedId(null);
         }
-      });
-      if (toSetNull) {
-        setSelectedId(null);
-      }
-    };
+      };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
   }, []);
 
   const marginValue = getMarginValue();
@@ -116,12 +119,27 @@ export default function AllStages({ manualScaler, selectedId, setSelectedId, ign
     stage.stageRef = stageRefs.current[stageIndex];
   });
 
+  let previewPageOnClickHanlder: ((pageNumber: number) => void) | undefined;
+  
+  if (previewStyle) {
+    previewPageOnClickHanlder = (pageNumber: number) => {
+      const container = document.getElementById('wholeStageContainerScroller');
+      const element = document.getElementById('stageDivSelect'+pageNumber);
+      if (element && container) {
+        element.scrollIntoView({
+          behavior: 'smooth',  // Smooth scroll animation
+          block: 'start',      // Align to the top of the container
+        });
+      }
+    }
+  }
+
   const groupInfo = getGroupInfo();
 
   let groupIndexToDraw = 0;
   return (
-    <div ref={wholeContainerRef} className='overflow-y-auto custom-scroll h-full w-full flex flex-col items-center justify-start space-y-4 p-4'>
-      {stages.map((stage) => {
+    <div ref={wholeContainerRef} className='overflow-y-auto custom-scroll h-full w-full flex flex-col items-center justify-start space-y-4 p-4' id={!previewStyle ? `wholeStageContainerScroller` : ''}>
+      {stages.map((stage, pageNumber) => {
         const scaleX = containerWidth / stage.width;
         const scaleY = containerHeight / stage.height;
         const scale = Math.min(scaleX, scaleY);
@@ -144,15 +162,16 @@ export default function AllStages({ manualScaler, selectedId, setSelectedId, ign
 
         let groupPositionY = 0;
         return (
-          <div key={stage.id+"wrap"} className='flex flex-col w-full h-full items-center justify-start'>
-          <p key={stage.id+"p"} className='flex text-darkGrey text-[0.6rem] text-left'>{stage.width}px x {stage.height}px</p>
-          <div ref={stageContainerRef} key={stage.id+"div"} className='flex flex-col w-full h-full items-center justify-start'>
+          <div key={stage.id+"wrap"} className='flex flex-col w-full h-full items-center justify-start' id={!previewStyle ? `stageDivSelect${pageNumber}` : ''}>
+          {!previewStyle && (
+            <p key={stage.id+"p"} className='flex text-darkGrey text-[0.6rem] text-left'>{stage.width}px x {stage.height}px</p>
+          )}
+          <div ref={stageContainerRef} key={stage.id+"div"} onClick={(e) => previewPageOnClickHanlder?.(pageNumber)} className='flex flex-col w-full h-full items-center justify-start'>
               <div
-                className='flex'
+                className={`flex ${previewStyle && `border border-primary rounded-sm transition-shadow duration-300 hover:shadow-[0_0_0_0.2rem_theme('colors.contrast')]`} overflow-hidden`}
                 style={{
                   width: stage.width * scale * manualScaler,
                   height: stage.height * scale * manualScaler,
-                  overflow: 'hidden',
                   transformOrigin: 'top left',
                 }}
               >
@@ -175,7 +194,7 @@ export default function AllStages({ manualScaler, selectedId, setSelectedId, ign
                     height={stage.height}
                     fill={stage.background || '#ffffff'}
                   />
-                  { viewMargin && ( 
+                  { (viewMargin && !previewStyle) && ( 
                   <Rect 
                     x={marginValue}
                     y={marginValue}
@@ -187,32 +206,35 @@ export default function AllStages({ manualScaler, selectedId, setSelectedId, ign
                   />
                   )}
                   {selectedPageGroups.map((group, i) => {
+                    
+                    let dragBoundFunc: ((pos: { x: number; y: number }) => { x: number; y: number }) | undefined;
+                    if (!previewStyle) {
+                      dragBoundFunc = (pos: { x: number; y: number }) => {
+                        const scaled = scale * manualScaler;
 
-                    const dragBoundFunc = (pos: { x: number; y: number }) => {
-                      const scaled = scale * manualScaler;
+                        // Convert from pixel space → logical stage space
+                        let x = pos.x / scaled;
+                        let y = pos.y / scaled;
+                        //console.log({x, y});
 
-                      // Convert from pixel space → logical stage space
-                      let x = pos.x / scaled;
-                      let y = pos.y / scaled;
-                      //console.log({x, y});
+                        // Clamp to the stage bounds
+                        const minX = marginValue;
+                        const minY = marginValue;
+                        const maxX = stage.width - marginValue - groupInfo[i].widestX;
+                        const maxY = stage.height - marginValue - groupInfo[i].widestY;
 
-                      // Clamp to the stage bounds
-                      const minX = marginValue;
-                      const minY = marginValue;
-                      const maxX = stage.width - marginValue - groupInfo[i].widestX;
-                      const maxY = stage.height - marginValue - groupInfo[i].widestY;
+                        if (x < minX) x = minX;
+                        if (y < minY) y = minY;
+                        if (x > maxX) x = maxX;
+                        if (y > maxY) y = maxY;
 
-                      if (x < minX) x = minX;
-                      if (y < minY) y = minY;
-                      if (x > maxX) x = maxX;
-                      if (y > maxY) y = maxY;
-
-                      // Convert back to pixel space
-                      return {
-                        x: marginValue * scaled, //x * scaled,
-                        y: y * scaled,
+                        // Convert back to pixel space
+                        return {
+                          x: marginValue * scaled, //x * scaled,
+                          y: y * scaled,
+                        };
                       };
-                    };
+                    }
 
                     if (i !== 0) {
                       groupPositionY += groupInfo[i-1].widestY;
@@ -225,16 +247,16 @@ export default function AllStages({ manualScaler, selectedId, setSelectedId, ign
                         y={marginValue + groupPositionY}
                         width={stage.width - marginValue*2}
                         height={groupInfo[i].widestY}
-                        draggable={true}
-                        dragBoundFunc={dragBoundFunc}
-                        listening={true}
-                        onClick={() => setSelectedId(i)}
-                        onTap={() => setSelectedId(i)}
+                        draggable={!previewStyle}
+                        dragBoundFunc={!previewStyle ? dragBoundFunc : undefined}
+                        listening={!previewStyle}
+                        onClick={() => setSelectedId?.(i)}
+                        onTap={() => setSelectedId?.(i)}
                       > 
                         <Rect
                           width={stage.width - marginValue * 2}
                           height={groupInfo[i].widestY}
-                          dragBoundFunc={dragBoundFunc}
+                          dragBoundFunc={!previewStyle ? dragBoundFunc : undefined}
                           fill="rgba(0,0,0,0)" // invisible but interactive
                         />
                         {i === selectedId && 
@@ -271,14 +293,19 @@ export default function AllStages({ manualScaler, selectedId, setSelectedId, ign
                 </Layer>
               </Stage>
             </div>
+            {previewStyle && (
+              <p key={stage.id+"previewPageNumber"} className='flex text-primary text-[0.8rem] text-left'>{pageNumber+1}</p>
+            )}
           </div>
           </div>
         );
       })}
-    
-      <div className='absolute bg-gray-600 opacity-50 bottom-2 px-2 py-1'>
-        <p className='text-white'>{estimatedPage} / {stages.length}</p>
-      </div>
+
+      {!previewStyle && (
+        <div className='absolute bg-gray-600 opacity-50 bottom-2 px-2 py-1'>
+          <p className='text-white'>{estimatedPage} / {stages.length}</p>
+        </div>
+      )}
     </div>
   );
 }

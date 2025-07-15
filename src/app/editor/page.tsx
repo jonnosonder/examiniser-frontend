@@ -11,7 +11,6 @@ import '@/styles/editor.css';
 import { addStage, addStageCopyPrevious, getGroups, getStages, stagesLength } from '@/lib/stageStore';
 import QuestionCreator from '@/components/questionCreator';
 import { ShapeData } from '@/lib/shapeData';
-import SidePreview from '@/components/sidePreview';
 import EditorSidePanel from '@/components/editorSidePanel';
 import ExportPage from '@/components/exportPage';
 
@@ -177,11 +176,11 @@ export default function EditorPage() {
                     <button className='h-full' onClick={() => setShowExportPage(true)}>
                         Export
                     </button>
-                    {showExportPage && (<ExportPage onClose={() => setShowExportPage(false)}/>)}
+                    {showExportPage && (<ExportPage onClose={() => setShowExportPage(false)} exportFileName={projectNameValue}/>)}
                 </div>
             </div>
             <div className="flex-1 w-full flex overflow-hidden">
-                <div className='h-full w-[12rem]'>
+                <div className='flex flex-col h-full w-[12rem]'>
                     <div className='flex w-full'>
                         <button className='flex flex-col flex-1 p-1 border border-grey text-center items-center justify-center' onClick={() => setLeftSidePanelToggle(true)}>
                             Preview
@@ -196,15 +195,16 @@ export default function EditorPage() {
                             </div>
                         </button>
                     </div>
+                    <div className='flex w-full h-full items-start justify-start overflow-y-auto'>
                     {leftSidePanelToggle ? (
-                        <SidePreview />
+                        <AllStages previewStyle={true}/>
                     ) : (
                         <EditorSidePanel />
                     )}
-                    
+                    </div>
                 </div>
                 <div className="flex-1 bg-grey w-full flex items-center justify-center">
-                    <AllStages manualScaler={manualScaler} selectedId={selectedQuestionId} setSelectedId={setSelectedQuestionId} ignoreSelectionArray={ignoreSelectionArray} />
+                    <AllStages manualScaler={manualScaler} selectedId={selectedQuestionId} setSelectedId={setSelectedQuestionId} ignoreSelectionArray={ignoreSelectionArray} previewStyle={false}/>
                 </div>
                 <div className="h-full">
                     <div

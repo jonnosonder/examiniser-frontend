@@ -6,11 +6,14 @@ import { jsPDF } from "jspdf";
 
 type ExportPageProps = {
   onClose: () => void;
+  exportFileName: string;
 };
 
-const ExportPage: React.FC<ExportPageProps> = ({ onClose }) => {
+const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
 
-  const [qualityValue, setQualityValue] = useState<number>(1);
+  const [fileName, setFileName] = useState<string>(exportFileName);
+
+  const [qualityValue, setQualityValue] = useState<number>(100);
   const qualitySteps = [1, 10, 25, 50, 75, 100];
 
   const pxTommScaler = 25.4/300;
@@ -60,10 +63,14 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose }) => {
     });
     
     // Save the resulting PDF
-    doc.save("konva-stage-300dpi.pdf");
+    doc.save(fileName+".pdf");
   };
 
-  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    
+  }
+
+  const handleQualitySliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const index = parseInt(e.target.value, 10);
     setQualityValue(qualitySteps[index]);
   };
@@ -78,17 +85,20 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose }) => {
             </button>
           </div>
           <div className='flex flex-col items-center justify-center w-full h-full'>
+            <div className="flex flex-row w-full items-center justify-center p-4">
+              <p className='p-2'>File Name: </p>
+              <input value={fileName} onChange={handleFileNameChange} className="w-full max-w-[15rem] border-2 border-primary rounded px-2 py-1 transition-shadow duration-300 focus:shadow-[0_0_0_0.4rem_theme('colors.accent')] focus:outline-none" placeholder='Maths Exam' type="text"></input>
+            </div>
             <div className="flex flex-col w-full items-center justify-center">
               <p className='flex text-center'>Export Quality</p>
               <p className='flex text-center'>{qualityValue}%</p>
               <input
-                id="quality-slider"
                 type="range"
                 min={0}
                 max={qualitySteps.length - 1}
                 step={1}
                 value={qualitySteps.indexOf(qualityValue)}
-                onChange={handleSliderChange}
+                onChange={handleQualitySliderChange}
                 className="flex w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb"
               />
               <div className="flex w-full justify-between text-sm text-gray-500 mt-2 px-2">
