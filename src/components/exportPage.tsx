@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getStages } from '@/lib/stageStore';
 import { jsPDF } from "jspdf";
 
@@ -13,8 +13,47 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
 
   const [fileName, setFileName] = useState<string>(exportFileName);
 
-  const [qualityValue, setQualityValue] = useState<number>(100);
-  const qualitySteps = [1, 10, 25, 50, 75, 100];
+  const [qualityValue, setQualityValue] = useState<string>("high");
+  const qualityMap: Record<string, number> = {
+    high: 1,
+    medium: 0.5,
+    low: 0.01,
+  };
+  const qualityCompression: Record<string, number> = {
+    high: 5,
+    medium: 5,
+    low: 0.09,
+  };
+  
+
+  const stages = getStages();
+
+  const calculateFileSizeVlaue = () => {
+    let value = 0;
+    stages.forEach((stage) => {
+      value += (stage.width * stage.height * 3);
+    })
+    return value;
+  }
+
+  const baseFileSizeValue = calculateFileSizeVlaue();
+
+  function formatFileSize(bytes: number): string {
+    if (bytes === 0) return '0 Bytes';
+
+    const units = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    const k = 1024;
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    const size = parseFloat((bytes / Math.pow(k, i)).toFixed(2));
+
+    return `${size} ${units[i]}`;
+  }
+
+  const [estimatedFileSize, setEstimatedFileSize] = useState<string>(formatFileSize(baseFileSizeValue));
+
+  useEffect(() => {
+    setEstimatedFileSize(formatFileSize(baseFileSizeValue * qualityMap[qualityValue] / qualityCompression[qualityValue]));
+  }, [qualityValue])
 
   const pxTommScaler = 25.4/300;
 
@@ -27,8 +66,9 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
         unit: 'mm',
         format: [firstPageWidth, firstPageHeight],
     });
-    console.log(firstPageWidth);
-    console.log(firstPageHeight);
+
+    const quality = qualityMap[qualityValue];
+    console.log(quality);
     
     stages.forEach((stage, stageIndex) => {
         console.log(stage.stageRef);
@@ -48,7 +88,7 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
             // Convert the layer to a high-res data URL at 300 DPI
             const dataUrl = layer.toDataURL({
                 mimeType: "image/jpeg",
-                quality: qualityValue/100,
+                quality: quality,
                 pixelRatio: 300/72,
             });
 
@@ -63,55 +103,53 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
     });
     
     // Save the resulting PDF
-    doc.save(fileName+".pdf");
+    if (fileName !== "") {
+      doc.save(fileName+".pdf");
+    } else {
+      doc.save("Examiniser.pdf");
+    }
   };
 
   const handleFileNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    
+    setFileName(e.target.value.replace(/[<>:"/\\|?*\x00-\x1F]/g, ''));
   }
 
-  const handleQualitySliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const index = parseInt(e.target.value, 10);
-    setQualityValue(qualitySteps[index]);
-  };
+  const handleQualityDropDownChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setQualityValue(e.target.value);
+  }
 
   return (
       <div className="absolute flex z-10 w-screen h-screen bg-opacity-50 backdrop-blur-sm items-center justify-center left-0 top-0">
-        <div className="flex flex-col w-1/2 h-1/2 bg-background border-2 border-primary space-y-5 p-2 rounded-lg">
+        <div className="flex flex-col h-1/2 bg-background border-2 border-primary space-y-5 p-2 rounded-lg">
           <div className='flex w-full items-center justify-between'>
-            <h2 className=" p-2 text-xl font-semibold m-0 ">Export to File</h2>
+            <h2 className=" p-2 text-2xl font-semibold m-0 ">Export to File</h2>
             <button className='p-2 m-0 ' onClick={onClose}>
               <svg className='w-6 h-6' clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m12 10.93 5.719-5.72c.146-.146.339-.219.531-.219.404 0 .75.324.75.749 0 .193-.073.385-.219.532l-5.72 5.719 5.719 5.719c.147.147.22.339.22.531 0 .427-.349.75-.75.75-.192 0-.385-.073-.531-.219l-5.719-5.719-5.719 5.719c-.146.146-.339.219-.531.219-.401 0-.75-.323-.75-.75 0-.192.073-.384.22-.531l5.719-5.719-5.72-5.719c-.146-.147-.219-.339-.219-.532 0-.425.346-.749.75-.749.192 0 .385.073.531.219z"/></svg>
             </button>
           </div>
-          <div className='flex flex-col items-center justify-center w-full h-full'>
-            <div className="flex flex-row w-full items-center justify-center p-4">
-              <p className='p-2'>File Name: </p>
-              <input value={fileName} onChange={handleFileNameChange} className="w-full max-w-[15rem] border-2 border-primary rounded px-2 py-1 transition-shadow duration-300 focus:shadow-[0_0_0_0.4rem_theme('colors.accent')] focus:outline-none" placeholder='Maths Exam' type="text"></input>
-            </div>
-            <div className="flex flex-col w-full items-center justify-center">
-              <p className='flex text-center'>Export Quality</p>
-              <p className='flex text-center'>{qualityValue}%</p>
-              <input
-                type="range"
-                min={0}
-                max={qualitySteps.length - 1}
-                step={1}
-                value={qualitySteps.indexOf(qualityValue)}
-                onChange={handleQualitySliderChange}
-                className="flex w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb"
-              />
-              <div className="flex w-full justify-between text-sm text-gray-500 mt-2 px-2">
-                {qualitySteps.map((step) => (
-                  <span key={step}>{step}%</span>
-                ))}
+          <div className='flex flex-col px-10 items-center justify-center w-full h-full'>
+            <div className='flex flex-col space-y-4'>
+              <div className="flex flex-row w-full items-center">
+                <p className='p-2 whitespace-nowrap'>File Name: </p>
+                <input value={fileName} onChange={handleFileNameChange} className="w-full max-w-[15rem] border-2 border-primary rounded px-2 py-1 transition-shadow duration-300 focus:shadow-[0_0_0_0.4rem_theme('colors.accent')] focus:outline-none" placeholder='Maths Exam' type="text"></input>
+              </div>
+              <div className="flex flex-row w-full items-center">
+                <p className='flex text-center p-2 pr-7'>Quality: </p>
+                <select value={qualityValue} onChange={handleQualityDropDownChange} id="fileDimensionDropBox" className="border-2 border-primary rounded p-2 bg-background cursor-pointer transition-shadow duration-300 focus:shadow-[0_0_0_0.4rem_theme('colors.accent')] focus:outline-none">
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
+              </div>
+              <div className="flex flex-row w-full items-center">
+                <p className='p-2'>Estimated Size: </p>
+                <p className=''>{estimatedFileSize}</p>
               </div>
             </div>
-           
           </div>
           <div className="flex w-full items-center justify-center justify-between">
               <span className='flex'></span>
-              <button className='border border-primary rounded-lg py-1 px-2' onClick={exportToPDF}>Export</button>
+              <button className='border border-primary text-primary text-lg rounded-lg py-2 px-4' onClick={exportToPDF}>Export</button>
           </div>
         </div>
       </div>

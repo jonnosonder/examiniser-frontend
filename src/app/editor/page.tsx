@@ -8,7 +8,7 @@ import AllStages from '@/components/allStages';
 import HoverExplainButton from '@/components/hoverExplainButton';
 import '@/styles/editor.css';
 
-import { addStage, addStageCopyPrevious, getGroups, getStages, stagesLength } from '@/lib/stageStore';
+import { addStage, addStageCopyPrevious, getGroups, stagesLength } from '@/lib/stageStore';
 import QuestionCreator from '@/components/questionCreator';
 import { ShapeData } from '@/lib/shapeData';
 import EditorSidePanel from '@/components/editorSidePanel';

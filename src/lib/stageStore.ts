@@ -17,7 +17,7 @@ export type stageGroupInfoData = {
 let stages: StageData[] = [];
 let stageListeners: (() => void)[] = [];
 let stageGroup: ShapeData[][] = [];
-let stageGroupInfo: stageGroupInfoData[] = [];
+const stageGroupInfo: stageGroupInfoData[] = [];
 let groupListeners: (() => void)[] = [];
 let viewMargin: boolean = false;
 let marginValue: number = 300;

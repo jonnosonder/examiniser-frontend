@@ -166,7 +166,7 @@ export default function AllStages({ manualScaler=1, selectedId=null, setSelected
           {!previewStyle && (
             <p key={stage.id+"p"} className='flex text-darkGrey text-[0.6rem] text-left'>{stage.width}px x {stage.height}px</p>
           )}
-          <div ref={stageContainerRef} key={stage.id+"div"} onClick={(e) => previewPageOnClickHanlder?.(pageNumber)} className='flex flex-col w-full h-full items-center justify-start'>
+          <div ref={stageContainerRef} key={stage.id+"div"} onClick={() => previewPageOnClickHanlder?.(pageNumber)} className='flex flex-col w-full h-full items-center justify-start'>
               <div
                 className={`flex ${previewStyle && `border border-primary rounded-sm transition-shadow duration-300 hover:shadow-[0_0_0_0.2rem_theme('colors.contrast')]`} overflow-hidden`}
                 style={{
