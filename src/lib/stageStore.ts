@@ -12,23 +12,24 @@ export type StageData = {
 export type stageGroupInfoData = {
   widestX: number;
   widestY: number;
+  x: number;
+  y: number;
 };
 
 
 let stages: StageData[] = [];
 let stageListeners: (() => void)[] = [];
-let stageGroup: ShapeData[][] = [];
-const stageGroupInfo: stageGroupInfoData[] = [];
-let groupListeners: (() => void)[] = [];
 let viewMargin: boolean = false;
 let marginValue: number = 300;
 let globalStageScale: number;
-let questionLayout: boolean = false;
-let pageElements: ShapeData[][] = []
+const pageElements: ShapeData[][][] = [];
+const pageElementsInfo: stageGroupInfoData[][] = [];
+let estimatedPage: number = 0;
 
 export function addStage(stage: StageData) {
   stages.push(stage);
   pageElements.push([]);
+  pageElementsInfo.push([]);
   stageListeners.forEach((fn) => fn());
 }
 
@@ -96,46 +97,6 @@ export function setAllStagesBackground(newBackground:string) {
 
 //////////////////////////////////////////////////////////////
 
-export function getGroups(): ShapeData[][] {
-  return [...stageGroup];
-}
-
-export function deleteAllGroups() {
-    stageGroup = [];
-}
-
-export function addGroup(elements: ShapeData[]) {
-  stageGroup.push(elements);
-  groupListeners.forEach((fn) => fn());
-}
-
-export function setGroup(newShape: ShapeData[], index: number) {
-  stageGroup[index] = newShape;
-  groupListeners.forEach((fn) => fn());
-}
-
-export function subscribeGroup(listener: () => void) {
-  groupListeners.push(listener);
-  return () => {
-    groupListeners = groupListeners.filter((fn) => fn !== listener);
-  };
-}
-
-
-export function getGroupInfo(): stageGroupInfoData[] {
-  return [...stageGroupInfo]
-}
-
-export function addGroupInfo(newStageGroupInfo: stageGroupInfoData) {
-  stageGroupInfo.push(newStageGroupInfo);
-}
-
-export function setGroupInfo(newStageGroupInfo: stageGroupInfoData, index: number) {
-  stageGroupInfo[index] = newStageGroupInfo;
-}
-
-//////////////////////////////////////////////////////////////
-
 export function getMarginValue(): number {
   return marginValue;
 }
@@ -166,21 +127,45 @@ export function getGlobalStageScale(): number {
 
 //////////////////////////////////////////////////////////////
 
-export function getQuestionLayout(): boolean {
-  return questionLayout;
+export function getPageElements(): ShapeData[][][] {
+  return [...pageElements];
 }
 
-export function setQuestionLayout(newquestionLayout: boolean) {
-  questionLayout = newquestionLayout;
+export function addPageElement(newShape: ShapeData[], page:number) {
+  pageElements[page].push(newShape);
+  stageListeners.forEach((fn) => fn());
+}
+
+export function setPageElement(newShape: ShapeData[], page: number, groupID: number) {
+  pageElements[page][groupID] = newShape;
   stageListeners.forEach((fn) => fn());
 }
 
 //////////////////////////////////////////////////////////////
 
-export function getPageElements(): ShapeData[][] {
-  return [...pageElements];
+export function getPageElementsInfo(): stageGroupInfoData[][] {
+  return [...pageElementsInfo]
 }
 
-export function addPageElement(newShape: ShapeData, page:number) {
-  pageElements[page].push(newShape);
+export function getSpecificPageElementsInfo(page: number, groupID: number): stageGroupInfoData {
+  return pageElementsInfo[page][groupID];
+}
+
+export function addPageElementsInfo(newStageGroupInfo: stageGroupInfoData, page:number) {
+  pageElementsInfo[page].push(newStageGroupInfo);
+}
+
+export function setPageElementsInfo(newStageGroupInfo: stageGroupInfoData, page: number, groupID: number) {
+  pageElementsInfo[page][groupID] = newStageGroupInfo;
+  stageListeners.forEach((fn) => fn());
+}
+
+//////////////////////////////////////////////////////////////
+
+export function getEstimatedPage():number {
+  return estimatedPage;
+}
+
+export function setEstimatedPage(page: number) {
+  estimatedPage = page
 }

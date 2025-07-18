@@ -1,4 +1,3 @@
-import { Image } from "canvas";
 
 type BaseShape = {
   id: string;

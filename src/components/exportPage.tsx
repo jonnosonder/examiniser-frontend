@@ -149,7 +149,7 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
           </div>
           <div className="flex w-full items-center justify-center justify-between">
               <span className='flex'></span>
-              <button className='border border-primary text-primary text-lg rounded-lg py-2 px-4' onClick={exportToPDF}>Export</button>
+              <button className='border-2 border-primary text-primary text-lg rounded-lg py-2 px-4' onClick={exportToPDF}>Export</button>
           </div>
         </div>
       </div>

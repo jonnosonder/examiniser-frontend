@@ -7,7 +7,7 @@ import { Stage, Layer } from 'react-konva';
 import CanvasElements from '@/components/canvasElements'
 import CustomContextMenu from '@/components/customContextMenu';
 import { ShapeData } from '@/lib/shapeData';
-import { addGroup, addGroupInfo, getGlobalStageScale, getMarginValue, getStageDimension, setGroup, setGroupInfo } from '@/lib/stageStore';
+import { addPageElement, addPageElementsInfo, getEstimatedPage, getGlobalStageScale, getMarginValue, getSpecificPageElementsInfo, getStageDimension, setPageElement, setPageElementsInfo } from '@/lib/stageStore';
 import ColorSelectorSection from '@/components/colorSelectorSection';
 import { KonvaEventObject } from 'konva/lib/Node';
 
@@ -16,7 +16,12 @@ type QuestionCreatorProps = {
   newQuestionCreating: boolean;
   shapes: ShapeData[];
   setShapes: React.Dispatch<React.SetStateAction<ShapeData[]>>;
-  questionEditingID: number | null;
+  questionEditingID: questionEditingIDType;
+};
+
+type questionEditingIDType = {
+  groupID: number | null;
+  page: number | null;
 };
 
 const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionCreating, shapes, setShapes, questionEditingID }) => {
@@ -296,12 +301,15 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
         });
 
         if (newQuestionCreating) {
-            addGroupInfo({widestX, widestY});
-            addGroup(shapes);
+            const pageOn = getEstimatedPage();
+            addPageElementsInfo({widestX, widestY, x:0, y:0}, pageOn);
+            addPageElement(shapes, pageOn);
+            console.log(shapes);
         } else {
-            if (questionEditingID !== null) {
-                setGroupInfo({widestX, widestY}, questionEditingID);
-                setGroup(shapes, questionEditingID);
+            if (questionEditingID.page !== null && questionEditingID.groupID !== null) {
+                const previousGroupInfo = getSpecificPageElementsInfo(questionEditingID.page, questionEditingID.groupID);
+                setPageElementsInfo({widestX, widestY, x:previousGroupInfo.x, y:previousGroupInfo.y}, questionEditingID.page, questionEditingID.groupID);
+                setPageElement(shapes, questionEditingID.page, questionEditingID.groupID);
             }
         }
     }

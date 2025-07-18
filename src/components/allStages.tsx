@@ -3,29 +3,35 @@
 import { useEffect, useState, useRef} from 'react';
 import { Stage, Layer, Group, Rect } from 'react-konva';
 import React from "react";
-import { getStages, getGroups, subscribeStage, subscribeGroup, maxWidthHeight, getMarginValue, getViewMargin, setGlobalStageScale, getGroupInfo, getGlobalStageScale } from '@/lib/stageStore';
+import { getStages, subscribeStage, maxWidthHeight, getMarginValue, getViewMargin, setGlobalStageScale, getGlobalStageScale, getPageElements, getPageElementsInfo, getEstimatedPage, setEstimatedPage, setPageElementsInfo } from '@/lib/stageStore';
 import "@/styles/allStages.css"
 import CanvasElements from '@/components/canvasElements'
 import Konva from 'konva';
 
 type AllStagesProps = {
   manualScaler?: number;
-  selectedId?: number | null;
-  setSelectedId?: React.Dispatch<React.SetStateAction<number | null>>;
+  selectedId?: setSelectedIdType;
+  setSelectedId?: React.Dispatch<React.SetStateAction<setSelectedIdType>>;
   ignoreSelectionArray?: React.RefObject<HTMLElement | null>[];
   previewStyle: boolean;
 };
 
-export default function AllStages({ manualScaler=1, selectedId=null, setSelectedId, ignoreSelectionArray, previewStyle } : AllStagesProps) {
+type setSelectedIdType = {
+  groupID: number | null;
+  page: number | null;
+};
+
+export default function AllStages({ manualScaler=1, selectedId={groupID: null, page: null}, setSelectedId, ignoreSelectionArray, previewStyle } : AllStagesProps) {
   const [stages, setStages] = useState(getStages());
-  const [groups, setGroups] = useState(getGroups());
+  const pageElements = getPageElements();
+  const pageElementsInfo = getPageElementsInfo();
 
   const wholeContainerRef = useRef<HTMLDivElement>(null);
   const stageContainerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
   const [containerHeight, setContainerHeight] = useState(0);
 
-  const [estimatedPage, setEstimatedPage] = useState(1);
+  let [stageEstimatedPage, setStageEstimatedPage] = useState(getEstimatedPage());
   
   useEffect(() => {
     const unsubscribeStage = subscribeStage(() => {
@@ -33,14 +39,6 @@ export default function AllStages({ manualScaler=1, selectedId=null, setSelected
     });
     return () => unsubscribeStage();
   }, []);
-
-  useEffect(() => {
-    const unsubscribeShape = subscribeGroup(() => {
-      setGroups(getGroups());
-    });
-    return () => unsubscribeShape();
-  }, []);
-
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -60,30 +58,33 @@ export default function AllStages({ manualScaler=1, selectedId=null, setSelected
   }, [stages]);
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (stages.length === 0) {
-        setEstimatedPage(0);
-        return;
-      }
+    if (!previewStyle) {
+      const handleScroll = () => {
+        if (stages.length === 0) {
+          setStageEstimatedPage(0);
+          setEstimatedPage(0);
+          return;
+        }
+        const el = wholeContainerRef.current;
+        if (!el) return;
+
+        const scrollTop = el.scrollTop;
+        const scrollHeight = el.scrollHeight;
+        const clientHeight = el.clientHeight;
+
+        const scrollValue = (scrollTop / (scrollHeight - clientHeight));
+        const estimatedPageCal = Math.min(Math.floor(scrollValue * stages.length), stages.length-1);
+        setStageEstimatedPage(estimatedPageCal);
+        setEstimatedPage(estimatedPageCal);
+      };
+
       const el = wholeContainerRef.current;
-      if (!el) return;
+      if (el) el.addEventListener('scroll', handleScroll);
 
-      const scrollTop = el.scrollTop;
-      const scrollHeight = el.scrollHeight;
-      const clientHeight = el.clientHeight;
-
-      const scrollValue = (scrollTop / (scrollHeight - clientHeight));
-      const estimatedPage = Math.min(Math.floor(scrollValue * stages.length)+1, stages.length);
-
-      setEstimatedPage(estimatedPage);
-    };
-
-    const el = wholeContainerRef.current;
-    if (el) el.addEventListener('scroll', handleScroll);
-
-    return () => {
-      if (el) el.removeEventListener('scroll', handleScroll);
-    };
+      return () => {
+        if (el) el.removeEventListener('scroll', handleScroll);
+      };
+    }
   }, [stages]);
 
   useEffect(() => {
@@ -97,7 +98,7 @@ export default function AllStages({ manualScaler=1, selectedId=null, setSelected
           }
         });
         if (toSetNull) {
-          setSelectedId(null);
+          setSelectedId({groupID: null, page: null});
         }
       };
 
@@ -134,10 +135,8 @@ export default function AllStages({ manualScaler=1, selectedId=null, setSelected
     }
   }
 
-  const groupInfo = getGroupInfo();
   const previewFontScale = getGlobalStageScale();
 
-  let groupIndexToDraw = 0;
   return (
     <div ref={wholeContainerRef} className='overflow-y-auto custom-scroll h-full w-full flex flex-col items-center justify-start space-y-4 p-4' id={!previewStyle ? `wholeStageContainerScroller` : ''}>
       {stages.map((stage, pageNumber) => {
@@ -148,22 +147,13 @@ export default function AllStages({ manualScaler=1, selectedId=null, setSelected
           setGlobalStageScale(scale);
         }
 
-        const maxYSpace = stage.height - (marginValue*2);
-        let spaceTakenOnPage = 0;
-        let x = 0;
-        while (groupIndexToDraw+x < groups.length) {
-          if (spaceTakenOnPage + groupInfo[groupIndexToDraw + x].widestY < maxYSpace) {
-            spaceTakenOnPage += groupInfo[groupIndexToDraw + x].widestY;
-            x += 1;
-          } else {
-            break;
-          }
+        console.log(pageElements);
+        let aPagesElements = pageElements.slice(pageNumber, pageNumber+1)[0];
+        console.log(aPagesElements);
+        if (!aPagesElements) {
+          aPagesElements = [];
         }
 
-        const selectedPageGroups = groups.slice(groupIndexToDraw, x+groupIndexToDraw);
-        groupIndexToDraw += x;
-
-        let groupPositionY = 0;
         return (
           <div key={stage.id+"wrap"} className='flex flex-col w-full h-full items-center justify-start' id={!previewStyle ? `stageDivSelect${pageNumber}` : ''}>
           {!previewStyle && (
@@ -208,68 +198,63 @@ export default function AllStages({ manualScaler=1, selectedId=null, setSelected
                     strokeWidth={2}
                   />
                   )}
-                  {selectedPageGroups.map((group, i) => {
+                  { aPagesElements.map((group, i) => {
                     
                     let dragBoundFunc: ((pos: { x: number; y: number }) => { x: number; y: number }) | undefined;
                     if (!previewStyle) {
                       dragBoundFunc = (pos: { x: number; y: number }) => {
                         const scaled = scale * manualScaler;
 
-                        // Convert from pixel space → logical stage space
                         let x = pos.x / scaled;
                         let y = pos.y / scaled;
-                        //console.log({x, y});
 
-                        // Clamp to the stage bounds
-                        const minX = marginValue;
-                        const minY = marginValue;
-                        const maxX = stage.width - marginValue - groupInfo[i].widestX;
-                        const maxY = stage.height - marginValue - groupInfo[i].widestY;
+                        const minX = 0;
+                        const minY = 0;
+                        const maxX = stage.width - pageElementsInfo[pageNumber][i].widestX;
+                        const maxY = stage.height - pageElementsInfo[pageNumber][i].widestY;
 
                         if (x < minX) x = minX;
                         if (y < minY) y = minY;
                         if (x > maxX) x = maxX;
                         if (y > maxY) y = maxY;
 
-                        // Convert back to pixel space
                         return {
-                          x: marginValue * scaled, //x * scaled,
+                          x: x * scaled,
                           y: y * scaled,
                         };
                       };
                     }
 
-                    if (i !== 0) {
-                      groupPositionY += groupInfo[i-1].widestY;
-                    }
-
                     return (
                       <Group
                         key={i}
-                        x={marginValue}
-                        y={marginValue + groupPositionY}
-                        width={stage.width - marginValue*2}
-                        height={groupInfo[i].widestY}
+                        x={pageElementsInfo[pageNumber][i].x}
+                        y={pageElementsInfo[pageNumber][i].y}
+                        width={pageElementsInfo[pageNumber][i].widestX}
+                        height={pageElementsInfo[pageNumber][i].widestY}
                         draggable={!previewStyle}
                         dragBoundFunc={!previewStyle ? dragBoundFunc : undefined}
                         listening={!previewStyle}
-                        onClick={() => setSelectedId?.(i)}
-                        onTap={() => setSelectedId?.(i)}
+                        onClick={() => setSelectedId?.({groupID: i, page: pageNumber})}
+                        onTap={() => setSelectedId?.({groupID: i, page: pageNumber})}
+                        onDragEnd={ (e) => {
+                          setPageElementsInfo({ ...pageElementsInfo[pageNumber][i], x: Math.round((e.target.x() + Number.EPSILON) * 100000) / 100000, y: Math.round((e.target.y() + Number.EPSILON) * 100000) / 100000 }, pageNumber, i);
+                        }}
                       > 
                         <Rect
-                          width={stage.width - marginValue * 2}
-                          height={groupInfo[i].widestY}
+                          width={pageElementsInfo[pageNumber][i].widestX}
+                          height={pageElementsInfo[pageNumber][i].widestY}
                           dragBoundFunc={!previewStyle ? dragBoundFunc : undefined}
                           fill="rgba(0,0,0,0)" // invisible but interactive
                         />
-                        {i === selectedId && 
+                        {i === selectedId.groupID && pageNumber === selectedId.page && 
                         <Rect
-                          x={-5}
-                          y={-5}
-                          width={stage.width - marginValue * 2 +10}
-                          height={groupInfo[i].widestY+10}
+                          x={0}
+                          y={0}
+                          width={pageElementsInfo[pageNumber][i].widestX}
+                          height={pageElementsInfo[pageNumber][i].widestY}
                           stroke={'#F57C22'}
-                          strokeWidth={10}
+                          strokeWidth={20}
                           fillEnabled={false}
                           cornerRadius={10}
                           listening={false}
@@ -306,7 +291,7 @@ export default function AllStages({ manualScaler=1, selectedId=null, setSelected
 
       {!previewStyle && (
         <div className='absolute bg-gray-600 opacity-50 bottom-2 px-2 py-1'>
-          <p className='text-white'>{estimatedPage} / {stages.length}</p>
+          <p className='text-white'>{stageEstimatedPage+1} / {stages.length}</p>
         </div>
       )}
     </div>

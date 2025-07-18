@@ -15,11 +15,6 @@ const paperSizes = {
     { unit: "cm", width: new Decimal(29.7), height: new Decimal(42.0) },
     { unit: "in", width: new Decimal(11.69), height: new Decimal(16.54) },
     { 
-      unit: "pt", 
-      width: new Decimal(297).times(72).div(25.4),
-      height: new Decimal(420).times(72).div(25.4) 
-    },
-    { 
       unit: "px", 
       width: new Decimal(297).times(300).div(25.4),
       height: new Decimal(420).times(300).div(25.4) 
@@ -30,11 +25,6 @@ const paperSizes = {
     { unit: "cm", width: new Decimal(21.0), height: new Decimal(29.7) },
     { unit: "in", width: new Decimal(8.27), height: new Decimal(11.69) },
     { 
-      unit: "pt", 
-      width: new Decimal(210).times(72).div(25.4),
-      height: new Decimal(297).times(72).div(25.4) 
-    },
-    { 
       unit: "px", 
       width: new Decimal(210).times(300).div(25.4),
       height: new Decimal(297).times(300).div(25.4) 
@@ -44,11 +34,6 @@ const paperSizes = {
     { unit: "mm", width: new Decimal(148), height: new Decimal(210) },
     { unit: "cm", width: new Decimal(14.8), height: new Decimal(21.0) },
     { unit: "in", width: new Decimal(5.83), height: new Decimal(8.27) },
-    { 
-      unit: "pt", 
-      width: new Decimal(148).times(72).div(25.4),
-      height: new Decimal(210).times(72).div(25.4) 
-    },
     { 
       unit: "px", 
       width: new Decimal(148).times(300).div(25.4),
@@ -61,7 +46,7 @@ const paperSizes = {
 type PaperSizeKey = keyof typeof paperSizes;
 type Unit = (typeof paperSizes)[PaperSizeKey][number]['unit'];
 
-type Units = 'px' | 'in' | 'cm' | 'mm' | 'pt';
+type Units = 'px' | 'in' | 'cm' | 'mm';
 const conversionToPx: Record<string, Decimal> = {
   px: new Decimal(1),
   in: new Decimal(300),
@@ -137,14 +122,22 @@ export default function StartPage() {
             const newWidth = convertUnitDecimal(widthValue, selectedUnitValue as Units, selectedValue as Units)
             if (newWidth !== null){
                 setWidthValue(newWidth);
-                setVisualWidthValue(parseFloat(newWidth.toFixed(3)) + selectedValue);
+                if (selectedValue === "px" as Units){
+                    setVisualWidthValue(Math.round(Number(newWidth.toFixed(3))) + selectedValue);
+                } else {
+                    setVisualWidthValue(parseFloat(newWidth.toFixed(3)) + selectedValue);
+                }
             }
         }
         if (heightValue !== null) {
             const newHeight = convertUnitDecimal(heightValue, selectedUnitValue as Units, selectedValue as Units)
             if (newHeight !== null){
                 setHeightValue(newHeight);
-                setVisualHeightValue(parseFloat(newHeight.toFixed(3)) + selectedValue);
+                if (selectedValue === "px" as Units){
+                    setVisualHeightValue(Math.round(Number(newHeight.toFixed(3))) + selectedValue);
+                } else {
+                    setVisualHeightValue(parseFloat(newHeight.toFixed(3)) + selectedValue);
+                }
             }
         }
     }
@@ -156,12 +149,20 @@ export default function StartPage() {
             const width = getPaperWidth(selectedValue as PaperSizeKey, selectedUnitValue as Unit);
             if (width !== null) {
                 setWidthValue(width as Decimal);
-                setVisualWidthValue(width.toString()+selectedUnitValue);
+                if (selectedUnitValue === "px" as Unit){
+                    setVisualWidthValue(Math.round(Number(width)).toString()+selectedUnitValue);
+                } else {
+                    setVisualWidthValue(width.toString()+selectedUnitValue);
+                }
             }
             const height = getPaperHeight(selectedValue as PaperSizeKey, selectedUnitValue as Unit);
             if (height !== null) {
                 setHeightValue(height as Decimal);
-                setVisualHeightValue(height.toString()+selectedUnitValue);
+                if (selectedUnitValue === "px" as Unit){
+                    setVisualHeightValue(Math.round(Number(height)).toString()+selectedUnitValue);
+                } else {
+                    setVisualHeightValue(height.toString()+selectedUnitValue);
+                }
             }
             setSelectedFileDimension(selectedValue);
         }
@@ -172,7 +173,7 @@ export default function StartPage() {
         currentUnit: Units,
         targetUnit: Units
         ): Decimal | null {
-        const validUnits: Units[] = ['px', 'in', 'cm', 'mm', 'pt'];
+        const validUnits: Units[] = ['px', 'in', 'cm', 'mm'];
 
         if (validUnits.includes(currentUnit) && !validUnits.includes(targetUnit)) {
             return null;
@@ -576,7 +577,6 @@ export default function StartPage() {
                             <option value="in">in</option>
                             <option value="cm">cm</option>
                             <option value="mm">mm</option>
-                            <option value="pt">pt</option>
                         </select>
                     </div>
                     <div className='inline-flex items-center space-x-4'>

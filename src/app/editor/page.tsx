@@ -2,13 +2,12 @@
 
 import useBeforeUnload from '@/components/useBeforeUnload';
 import { useState, useEffect, useRef } from 'react';
-import Decimal from 'decimal.js';
 import { useData } from "@/context/dataContext";
 import AllStages from '@/components/allStages';
 import HoverExplainButton from '@/components/hoverExplainButton';
 import '@/styles/editor.css';
 
-import { addPageElement, addStage, addStageCopyPrevious, getGroups, stagesLength } from '@/lib/stageStore';
+import { addPageElement, addPageElementsInfo, addStage, addStageCopyPrevious, deleteAllStages, getPageElements, stagesLength } from '@/lib/stageStore';
 import QuestionCreator from '@/components/questionCreator';
 import { ShapeData } from '@/lib/shapeData';
 import EditorSidePanel from '@/components/editorSidePanel';
@@ -16,7 +15,8 @@ import ExportPage from '@/components/exportPage';
 import { useFileStore } from '@/store/useFileStore';
 
 import * as pdfjsLib from 'pdfjs-dist';
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@5.3.93/build/pdf.min.mjs';
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@5.3.93/build/pdf.worker.mjs`;
+
 
 export default function EditorPage() {
     useBeforeUnload(false); //TEMP change to true
@@ -28,18 +28,23 @@ export default function EditorPage() {
 
     const { pageFormatData } = useData();
     const fileUploaded = useFileStore((state) => state.file);
-    const [attamptedToUploadFile, setAttamptedToUploadFile] = useState<boolean>(false);
 
     const [leftSidePanelToggle, setLeftSidePanelToggle] = useState<boolean>(true);
 
-    const [selectedQuestionId, setSelectedQuestionId] = useState<number | null>(null);
+    const [selectedQuestionId, setSelectedQuestionId] = useState<{ groupID: number | null; page: number | null }>({
+        groupID: null,
+        page: null,
+    });
     const editButtonRef = useRef(null);
     const ignoreSelectionArray: React.RefObject<HTMLElement | null>[] = [editButtonRef];
 
     const [showQuestionCreator, setShowQuestionCreator] = useState<boolean>(false);
     const [newQuestionCreating, setNewQuestionCreating] = useState<boolean>(false);
     const [questionCreatorShapes, setQuestionCreatorShapes] = useState<ShapeData[]>([]);
-    const [questionEditingID, setQuestionEditingID] = useState<number | null>(null);
+    const [questionEditingID, setQuestionEditingID] = useState<{ groupID: number | null; page: number | null }>({
+        groupID: null,
+        page: null,
+    });
     const handleQuestionCreatorOpen = () => setShowQuestionCreator(true);
     const handleQuestionCreatorClose = () => setShowQuestionCreator(false);
 
@@ -91,14 +96,12 @@ export default function EditorPage() {
             }
             console.log("DEFAULT ADD PAGE");
             const width = pageFormatData?.width != null
-                ? Number(pageFormatData.width)
-                : Number(new Decimal(210).times(300).div(25.4));
+                ? Math.round(Number(pageFormatData.width))
+                : Number(2480);
 
             const height = pageFormatData?.height != null
-                ? Number(pageFormatData.height)
-                : Number(new Decimal(297).times(300).div(25.4));
-
-            
+                ? Math.round(Number(pageFormatData.height))
+                : Number(3508);
 
             const backgroundColor = '#ffffff';
 
@@ -112,172 +115,99 @@ export default function EditorPage() {
         }
     }, [pageFormatData]);
 
-    function fileToBase64(file: File): Promise<string> {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-
-            reader.onload = () => {
-            const result = reader.result;
-            if (typeof result === "string") {
-                // result is a data URL like "data:<mime>;base64,....."
-                // We extract the base64 part after the comma
-                const base64 = result.split(",")[1];
-                resolve(base64);
-            } else {
-                reject(new Error("FileReader result is not a string"));
-            }
-            };
-
-            reader.onerror = () => {
-            reject(new Error("Failed to read file"));
-            };
-
-            reader.readAsDataURL(file);
-        });
-    }
-
-    const loadFileUploadedToStage = async () => {
-        if (!fileUploaded) return;
-
-        setProjectNameValue(fileUploaded.name);
-
-        const filedata_base64 = await fileToBase64(fileUploaded);
-        console.log('Base64 conversion complete, length:', filedata_base64.length);
-        
-        const requestPayload = {
-            filedata_base64: "dGVzdA=="//filedata_base64
-        };
-        
-        let recievedData;
-
+    const renderPdf = async (file: File) => {
         try {
+            console.log(file);
+            // Start the loading task to load the PDF document
+            const loadingTask = pdfjsLib.getDocument(URL.createObjectURL(file));
+            console.log('got loadingTask');
 
-            const res = await fetch("http://127.0.0.1:9000/", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.parse(JSON.stringify(requestPayload))
-            });
+            // Wait for the loading task to finish and get the PDF
+            const pdf = await loadingTask.promise;
+            console.log('got pdf');
 
-            recievedData = await res.json();
-            console.log("Done");
-            console.log(recievedData);
-            console.log(recievedData.message);
-            console.log(recievedData.images_base64);
-        } catch (err) {
-            console.log("ERROR ADDING A PAGE");
-            console.error(err);
-            const width = pageFormatData?.width != null
-                ? Number(pageFormatData.width)
-                : Number(new Decimal(210).times(300).div(25.4));
+            deleteAllStages();
 
-            const height = pageFormatData?.height != null
-                ? Number(pageFormatData.height)
-                : Number(new Decimal(297).times(300).div(25.4));
+            const scale = 300 / 72;
 
-            const backgroundColor = '#ffffff';
-            if (stagesLength() === 0) {
+            // Get the first page of the PDF
+            for (let pageNum = 0; pageNum < pdf.numPages; pageNum++){
+                console.log('getting page one');
+                const page = await pdf.getPage(pageNum + 1);
+                console.log('have page '+pageNum);
+
+                
+                const viewport = page.getViewport({ scale });
+
+                // Prepare canvas using PDF page dimensions
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                if (!context) {
+                    console.error('Failed to get canvas context');
+                    return;  // No need to reject, we just return
+                }
+
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                // Assuming `addStage` is a function that you use to add the rendered canvas to your app
                 addStage({
-                    id: `stage-${Date.now()}`,
-                    width: width,
-                    height: height,
-                    background: backgroundColor,
+                    id: `stage-${Date.now()}-1`,
+                    width: canvas.width,
+                    height: canvas.height,
+                    background: 'white',
                 });
-            }
-        }
 
-        if (recievedData && recievedData.images_base64) {
-            console.log("ADDING PAGES");
-            recievedData.images_base64.forEach((base64:string, pageNum:number) => {
-                const img = new Image();
-                img.src = `data:image/JPEG;base64,${base64}`;
-                img.onload = () => {
-                    addStage({
-                        id: `stage-${Date.now()}${pageNum}`,
-                        width: img.width,
-                        height: img.height,
-                        background: 'white',
-                    });
-                    const newImageShape: ShapeData = {
-                        id: 'c'+Date.now(),
-                        type: 'image',
-                        x: 0,
-                        y: 0,
-                        width: img.width,
-                        height: img.height,
-                        rotation: 0,
-                        fill: 'black',
-                        stroke: 'red',
-                        strokeWeight: 1,
-                        image: img
-                    };
-
-                    addPageElement(newImageShape, pageNum);
+                // Render PDF page into canvas context
+                const renderContext = {
+                    canvasContext: context,
+                    viewport: viewport,
                 };
-            });
+
+                // Render the page and wait for the rendering to complete
+                await page.render(renderContext).promise;
+
+                const img = new Image();
+                img.src = canvas.toDataURL("image/JPEG");
+                console.log(img.src);
+
+                // Wait for the image to load (optional)
+                await new Promise((res) => {
+                    img.onload = res;
+                });
+
+                const newImageShape: ShapeData = {
+                    id: 'i'+Date.now(),
+                    type: 'image',
+                    x: 0,
+                    y: 0,
+                    width: viewport.width,
+                    height: viewport.height,
+                    rotation: 0,
+                    fill: '',
+                    stroke: '',
+                    strokeWeight: 0,
+                    image: img
+                };
+
+                console.log(img);
+
+                addPageElementsInfo({widestX: img.width, widestY: img.height, x:0, y:0}, pageNum);
+                addPageElement([newImageShape], pageNum);
+                console.log(newImageShape);
+                //addPageElement(newImageShape, 0);
+
+                console.log('Page rendered');
+            }
+        } catch (error) {
+            console.error('Error rendering PDF:', error);
         }
-    }
+    };
 
     useEffect(() => {
         if (fileUploaded && fileUploaded.name.endsWith('.pdf')) {
             console.log("converting pdf to images");
-            const renderPdf = (file: File) => {
-                // Start the loading task to load the PDF document
-                const loadingTask = pdfjsLib.getDocument(URL.createObjectURL(file));
-                console.log('got loadingTask');
-
-                // Promise chain for handling the loading of the document and rendering
-                loadingTask.promise
-                    .then((pdf) => {
-                    console.log('got pdf');
-
-                    // Get the first page
-                    console.log('getting page one');
-                    return pdf.getPage(1);
-                    })
-                    .then((page) => {
-                    console.log('have page 1');
-
-                    const scale = 1.5;
-                    const viewport = page.getViewport({ scale });
-
-                    // Prepare canvas using PDF page dimensions
-                    const canvas = document.createElement('canvas');
-                    const context = canvas.getContext('2d');
-                    if (!context) {
-                        console.error('Failed to get canvas context');
-                        return Promise.reject('Failed to get canvas context');
-                    }
-
-                    canvas.height = viewport.height;
-                    canvas.width = viewport.width;
-
-                    // Assuming `addStage` is a function that you use to add the rendered canvas to your app
-                    addStage({
-                        id: `stage-${Date.now()}-1`,
-                        width: canvas.width,
-                        height: canvas.height,
-                        background: 'white',
-                    });
-
-                    // Render PDF page into canvas context
-                    const renderContext = {
-                        canvasContext: context,
-                        viewport: viewport,
-                    };
-
-                    // Render the page
-                    return page.render(renderContext).promise;
-                    })
-                    .then(() => {
-                    console.log('Page rendered');
-                    })
-                    .catch((error) => {
-                    console.error('Error rendering PDF:', error);
-                    });
-                };
-
+            setProjectNameValue(fileUploaded.name);
             renderPdf(fileUploaded);
         }
     }, [])
@@ -303,11 +233,13 @@ export default function EditorPage() {
     }
 
     const editQuestionButtonHandler = () => {
-        if (selectedQuestionId !== null){
+        console.log(selectedQuestionId.page);
+        console.log(selectedQuestionId.groupID);
+        if (selectedQuestionId.page !== null && selectedQuestionId.groupID !== null){
             setNewQuestionCreating(false);
-            const groups = getGroups();
-            setQuestionEditingID(selectedQuestionId)
-            setQuestionCreatorShapes(groups[selectedQuestionId]);
+            const pageElements = getPageElements();
+            setQuestionEditingID({groupID: selectedQuestionId.groupID, page: selectedQuestionId.page})
+            setQuestionCreatorShapes(pageElements[selectedQuestionId.page][selectedQuestionId.groupID]);
             handleQuestionCreatorOpen();
         }
     }

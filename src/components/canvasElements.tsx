@@ -6,6 +6,7 @@ import Konva from 'konva';
 //import useImage from 'use-image';
 import { ShapeData } from '@/lib/shapeData';
 import { KonvaEventObject } from 'konva/lib/Node';
+import { Image as KonvaImage } from "react-konva";
 
 
 interface Props {
@@ -29,6 +30,7 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
   const ovalRef = useRef<Konva.Ellipse | null>(null);
   const triangleRef = useRef<Konva.Line | null>(null);
   const textRef = useRef<Konva.Text | null>(null);
+  const imageRef = useRef<Konva.Image | null>(null);
   const trRef = useRef<Konva.Transformer>(null);
   //const [image] = useImage((shape.type === 'image' && shape.src) || '');
 
@@ -51,6 +53,11 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
     } else if (shape.type == 'text'){
       if (isSelected && trRef.current && textRef.current) {
         trRef.current.nodes([textRef.current]);
+        trRef.current.getLayer()?.batchDraw();
+      }
+    } else if (shape.type == 'image'){
+      if (isSelected && trRef.current && imageRef.current) {
+        trRef.current.nodes([imageRef.current]);
         trRef.current.getLayer()?.batchDraw();
       }
     }
@@ -284,6 +291,37 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
           }}
           onDragEnd={ (e) => {
             onChange({ ...shape, x: Math.round((e.target.x() + Number.EPSILON) * 100000) / 100000, y: Math.round((e.target.y() + Number.EPSILON) * 100000) / 100000 });
+          }}
+          />
+          {isSelected && <Transformer {...transformerCommonProps} ref={trRef} 
+          anchorDragBoundFunc={anchorDragBoundFunc}
+          onTransform={(e) => onTransformUpdates?.(e)}
+          />}
+        </>
+      );
+    case 'image':
+      console.log("DRAWING IMAGE");
+      return (
+        <>
+          <KonvaImage {...shape} {...commonProps} ref={imageRef} draggable={setDraggable} onDragMove={(e) => onDragMoveUpdates?.(e)} listening={listening}
+          onDragEnd={ (e) => {
+            onChange({ ...shape, x: Math.round((e.target.x() + Number.EPSILON) * 100000) / 100000, y: Math.round((e.target.y() + Number.EPSILON) * 100000) / 100000 });
+          }}
+          onTransformEnd={ () => {
+            const node = rectRef.current;
+            if (!node) return;
+            const scaleX = node.scaleX();
+            const scaleY = node.scaleY();
+            node.scaleX(1);
+            node.scaleY(1);
+
+              onChange({
+                ...shape,
+                width: Math.round((Math.max(5, node.width() * scaleX) + Number.EPSILON) * 100000) / 100000,
+                height: Math.round((Math.max(5, node.height() * scaleY) + Number.EPSILON) * 100000) / 100000,
+                rotate: Math.round((node.rotation()  + Number.EPSILON) * 100000) / 100000,
+              } as ShapeData);
+            
           }}
           />
           {isSelected && <Transformer {...transformerCommonProps} ref={trRef} 
