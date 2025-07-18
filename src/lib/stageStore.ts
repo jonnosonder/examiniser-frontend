@@ -14,6 +14,7 @@ export type stageGroupInfoData = {
   widestY: number;
 };
 
+
 let stages: StageData[] = [];
 let stageListeners: (() => void)[] = [];
 let stageGroup: ShapeData[][] = [];
@@ -22,9 +23,12 @@ let groupListeners: (() => void)[] = [];
 let viewMargin: boolean = false;
 let marginValue: number = 300;
 let globalStageScale: number;
+let questionLayout: boolean = false;
+let pageElements: ShapeData[][] = []
 
 export function addStage(stage: StageData) {
   stages.push(stage);
+  pageElements.push([]);
   stageListeners.forEach((fn) => fn());
 }
 
@@ -158,4 +162,25 @@ export function setGlobalStageScale(newStageScale: number) {
 
 export function getGlobalStageScale(): number {
   return globalStageScale;
+}
+
+//////////////////////////////////////////////////////////////
+
+export function getQuestionLayout(): boolean {
+  return questionLayout;
+}
+
+export function setQuestionLayout(newquestionLayout: boolean) {
+  questionLayout = newquestionLayout;
+  stageListeners.forEach((fn) => fn());
+}
+
+//////////////////////////////////////////////////////////////
+
+export function getPageElements(): ShapeData[][] {
+  return [...pageElements];
+}
+
+export function addPageElement(newShape: ShapeData, page:number) {
+  pageElements[page].push(newShape);
 }

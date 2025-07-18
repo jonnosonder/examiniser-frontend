@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import Decimal from 'decimal.js';
 import { useDropzone } from 'react-dropzone';
 import { useData } from "@/context/dataContext";
+import { useFileStore } from '@/store/useFileStore';
 
 const paperSizes = {
   A3: [
@@ -83,6 +84,7 @@ export default function StartPage() {
     const { setPageFormatData } = useData();
 
     const router = useRouter();
+    const setFileStore = useFileStore((state) => state.setFile);
 
     const [fileNameValue, setFileNameValue] = useState('');
     const [selectedFileDimension, setSelectedFileDimension] = useState("Custom");
@@ -103,6 +105,7 @@ export default function StartPage() {
     const onDrop = (acceptedFiles: File[]) => {
         const uploadedFile = acceptedFiles[0];
         setFile(uploadedFile);
+        setFileStore(uploadedFile);
     };
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
@@ -592,12 +595,12 @@ export default function StartPage() {
                 </div>
             </div>
             <div className='flex w-[80%] sm:w-[65%] lg:w-[50%] h-[8%] sm:h-[8%] lg:h-[10%]'>
-                <div onClick={createPaperToQuestionTransition} className="flex bg-background m-2 ml-0 p-2 border-4 border-primary rounded-lg justify-center items-center cursor-pointer hover:shadow-[0_0_0_0.5rem_theme('colors.contrast')] transition-all duration-300">
+                <button onClick={createPaperToQuestionTransition} className="flex bg-background m-2 ml-0 p-2 border-4 border-primary rounded-lg justify-center items-center cursor-pointer hover:shadow-[0_0_0_0.5rem_theme('colors.contrast')] transition-all duration-300">
                     <ArrowIcon className='w-full h-full'/>
-                </div>
-                <div onClick={createButtonPressed} className="flex flex-grow bg-background w-full m-2 mr-0 p-2 border-4 border-primary rounded-lg justify-center items-center cursor-pointer hover:shadow-[0_0_0_0.5rem_theme('colors.accent')] transition-all duration-300 ease-in-out">
+                </button>
+                <button onClick={createButtonPressed} className="flex flex-grow bg-background w-full m-2 mr-0 p-2 border-4 border-primary rounded-lg justify-center items-center cursor-pointer hover:shadow-[0_0_0_0.5rem_theme('colors.accent')] transition-all duration-300 ease-in-out">
                     <p className='text-primary text-center text-lg sm:text-1xl lg:text-2xl font-bold'>Create</p>
-                </div>
+                </button>
             </div>
         </div>
 
@@ -633,12 +636,12 @@ export default function StartPage() {
                 </div>
             </div>
             <div className='flex w-[80%] sm:w-[65%] lg:w-[50%] h-[8%] sm:h-[8%] lg:h-[10%]'>
-                <div onClick={uploadPaperToQuestionTransition} className="flex bg-background m-2 ml-0 p-2 border-4 border-primary rounded-lg justify-center items-center cursor-pointer hover:shadow-[0_0_0_0.5rem_theme('colors.accent')] transition-all duration-300">
+                <button onClick={uploadPaperToQuestionTransition} className="flex bg-background m-2 ml-0 p-2 border-4 border-primary rounded-lg justify-center items-center cursor-pointer hover:shadow-[0_0_0_0.5rem_theme('colors.accent')] transition-all duration-300">
                     <ArrowIcon className='w-full h-full'/>
-                </div>
-                <div className="flex w-full bg-background m-2 mr-0 p-2 border-4 border-primary rounded-lg justify-center items-center cursor-pointer hover:shadow-[0_0_0_0.5rem_theme('colors.contrast')] transition-all duration-300 ease-in-out">
+                </button>
+                <button onClick={() => router.push("/editor")} className="flex w-full bg-background m-2 mr-0 p-2 border-4 border-primary rounded-lg justify-center items-center cursor-pointer hover:shadow-[0_0_0_0.5rem_theme('colors.contrast')] transition-all duration-300 ease-in-out">
                     <p className='text-primary text-center text-lg sm:text-1xl lg:text-2xl font-bold'>Start</p>
-                </div>
+                </button>
             </div>
         </div>
     </div>

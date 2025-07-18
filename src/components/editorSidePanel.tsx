@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getMarginValue, getViewMargin, setMarginValue, setViewMargin, getStagesBackground, setAllStagesBackground } from '@/lib/stageStore';
+import { getMarginValue, getViewMargin, setMarginValue, setViewMargin, getStagesBackground, setAllStagesBackground, getQuestionLayout } from '@/lib/stageStore';
 import ColorSelectorSection from '@/components/colorSelectorSection';
 
 export default function EditorSidePanel() {
@@ -10,6 +10,9 @@ export default function EditorSidePanel() {
     const [viewMarginEditor, setViewMarginEditor] = useState(getViewMargin());
     const toggleViewMargin = () => {setViewMarginEditor(!viewMarginEditor); setViewMargin(!viewMarginEditor);};
     const [marginEditorVisual, setMarginEditorVisual] = useState<string>(String(getMarginValue()));
+
+    const [questionLayoutEditor, setQuestionLayoutEditor] = useState(getQuestionLayout());
+    const toggleQuestionLayoutEditor = () => {setQuestionLayoutEditor(!questionLayoutEditor); setQuestionLayoutEditor(!questionLayoutEditor)};
 
     const [editPanelIndex, setEditPanelIndex] = useState<number | null>(-1);
     
@@ -115,8 +118,10 @@ export default function EditorSidePanel() {
                     editPanelIndex === 3 ? 'm-2' : 'max-h-0 p-0 border-0'
                     }`}
                 >   
-                    <p className="text-sm">Question Order</p>
-                    
+                    <p className="text-sm">Question Layout</p>
+                    <button onClick={toggleQuestionLayoutEditor}>
+                         {questionLayoutEditor ? 'Free' : 'Rows only'}
+                    </button>
                 </div>
             </div>
         </div>

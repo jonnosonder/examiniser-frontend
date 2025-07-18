@@ -8,11 +8,15 @@ import AllStages from '@/components/allStages';
 import HoverExplainButton from '@/components/hoverExplainButton';
 import '@/styles/editor.css';
 
-import { addStage, addStageCopyPrevious, getGroups, stagesLength } from '@/lib/stageStore';
+import { addPageElement, addStage, addStageCopyPrevious, getGroups, stagesLength } from '@/lib/stageStore';
 import QuestionCreator from '@/components/questionCreator';
 import { ShapeData } from '@/lib/shapeData';
 import EditorSidePanel from '@/components/editorSidePanel';
 import ExportPage from '@/components/exportPage';
+import { useFileStore } from '@/store/useFileStore';
+
+import * as pdfjsLib from 'pdfjs-dist';
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@5.3.93/build/pdf.min.mjs';
 
 export default function EditorPage() {
     useBeforeUnload(false); //TEMP change to true
@@ -23,6 +27,8 @@ export default function EditorPage() {
     const [actionWindow, setActionWindow] = useState(true);
 
     const { pageFormatData } = useData();
+    const fileUploaded = useFileStore((state) => state.file);
+    const [attamptedToUploadFile, setAttamptedToUploadFile] = useState<boolean>(false);
 
     const [leftSidePanelToggle, setLeftSidePanelToggle] = useState<boolean>(true);
 
@@ -79,7 +85,11 @@ export default function EditorPage() {
     }, [cursorType])
 
     useEffect(() => {
-        if (stagesLength() === 0){
+        if (stagesLength() === 0 && !fileUploaded){
+            if (pageFormatData?.newProject != null && pageFormatData?.projectName != null ) {
+                setProjectNameValue(pageFormatData.projectName);
+            }
+            console.log("DEFAULT ADD PAGE");
             const width = pageFormatData?.width != null
                 ? Number(pageFormatData.width)
                 : Number(new Decimal(210).times(300).div(25.4));
@@ -88,9 +98,7 @@ export default function EditorPage() {
                 ? Number(pageFormatData.height)
                 : Number(new Decimal(297).times(300).div(25.4));
 
-            if (pageFormatData?.newProject != null && pageFormatData?.projectName != null ) {
-                setProjectNameValue(pageFormatData.projectName);
-            }
+            
 
             const backgroundColor = '#ffffff';
 
@@ -100,8 +108,180 @@ export default function EditorPage() {
                 height: height,
                 background: backgroundColor,
             });
+            
         }
     }, [pageFormatData]);
+
+    function fileToBase64(file: File): Promise<string> {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+
+            reader.onload = () => {
+            const result = reader.result;
+            if (typeof result === "string") {
+                // result is a data URL like "data:<mime>;base64,....."
+                // We extract the base64 part after the comma
+                const base64 = result.split(",")[1];
+                resolve(base64);
+            } else {
+                reject(new Error("FileReader result is not a string"));
+            }
+            };
+
+            reader.onerror = () => {
+            reject(new Error("Failed to read file"));
+            };
+
+            reader.readAsDataURL(file);
+        });
+    }
+
+    const loadFileUploadedToStage = async () => {
+        if (!fileUploaded) return;
+
+        setProjectNameValue(fileUploaded.name);
+
+        const filedata_base64 = await fileToBase64(fileUploaded);
+        console.log('Base64 conversion complete, length:', filedata_base64.length);
+        
+        const requestPayload = {
+            filedata_base64: "dGVzdA=="//filedata_base64
+        };
+        
+        let recievedData;
+
+        try {
+
+            const res = await fetch("http://127.0.0.1:9000/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.parse(JSON.stringify(requestPayload))
+            });
+
+            recievedData = await res.json();
+            console.log("Done");
+            console.log(recievedData);
+            console.log(recievedData.message);
+            console.log(recievedData.images_base64);
+        } catch (err) {
+            console.log("ERROR ADDING A PAGE");
+            console.error(err);
+            const width = pageFormatData?.width != null
+                ? Number(pageFormatData.width)
+                : Number(new Decimal(210).times(300).div(25.4));
+
+            const height = pageFormatData?.height != null
+                ? Number(pageFormatData.height)
+                : Number(new Decimal(297).times(300).div(25.4));
+
+            const backgroundColor = '#ffffff';
+            if (stagesLength() === 0) {
+                addStage({
+                    id: `stage-${Date.now()}`,
+                    width: width,
+                    height: height,
+                    background: backgroundColor,
+                });
+            }
+        }
+
+        if (recievedData && recievedData.images_base64) {
+            console.log("ADDING PAGES");
+            recievedData.images_base64.forEach((base64:string, pageNum:number) => {
+                const img = new Image();
+                img.src = `data:image/JPEG;base64,${base64}`;
+                img.onload = () => {
+                    addStage({
+                        id: `stage-${Date.now()}${pageNum}`,
+                        width: img.width,
+                        height: img.height,
+                        background: 'white',
+                    });
+                    const newImageShape: ShapeData = {
+                        id: 'c'+Date.now(),
+                        type: 'image',
+                        x: 0,
+                        y: 0,
+                        width: img.width,
+                        height: img.height,
+                        rotation: 0,
+                        fill: 'black',
+                        stroke: 'red',
+                        strokeWeight: 1,
+                        image: img
+                    };
+
+                    addPageElement(newImageShape, pageNum);
+                };
+            });
+        }
+    }
+
+    useEffect(() => {
+        if (fileUploaded && fileUploaded.name.endsWith('.pdf')) {
+            console.log("converting pdf to images");
+            const renderPdf = (file: File) => {
+                // Start the loading task to load the PDF document
+                const loadingTask = pdfjsLib.getDocument(URL.createObjectURL(file));
+                console.log('got loadingTask');
+
+                // Promise chain for handling the loading of the document and rendering
+                loadingTask.promise
+                    .then((pdf) => {
+                    console.log('got pdf');
+
+                    // Get the first page
+                    console.log('getting page one');
+                    return pdf.getPage(1);
+                    })
+                    .then((page) => {
+                    console.log('have page 1');
+
+                    const scale = 1.5;
+                    const viewport = page.getViewport({ scale });
+
+                    // Prepare canvas using PDF page dimensions
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    if (!context) {
+                        console.error('Failed to get canvas context');
+                        return Promise.reject('Failed to get canvas context');
+                    }
+
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+
+                    // Assuming `addStage` is a function that you use to add the rendered canvas to your app
+                    addStage({
+                        id: `stage-${Date.now()}-1`,
+                        width: canvas.width,
+                        height: canvas.height,
+                        background: 'white',
+                    });
+
+                    // Render PDF page into canvas context
+                    const renderContext = {
+                        canvasContext: context,
+                        viewport: viewport,
+                    };
+
+                    // Render the page
+                    return page.render(renderContext).promise;
+                    })
+                    .then(() => {
+                    console.log('Page rendered');
+                    })
+                    .catch((error) => {
+                    console.error('Error rendering PDF:', error);
+                    });
+                };
+
+            renderPdf(fileUploaded);
+        }
+    }, [])
+
 
     const newPageButtonHandler = () => {
         addStageCopyPrevious(`stage-${Date.now()}`);

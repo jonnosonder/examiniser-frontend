@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef} from 'react';
 import { Stage, Layer, Group, Rect } from 'react-konva';
 import React from "react";
-import { getStages, getGroups, subscribeStage, subscribeGroup, maxWidthHeight, getMarginValue, getViewMargin, setGlobalStageScale, getGroupInfo } from '@/lib/stageStore';
+import { getStages, getGroups, subscribeStage, subscribeGroup, maxWidthHeight, getMarginValue, getViewMargin, setGlobalStageScale, getGroupInfo, getGlobalStageScale } from '@/lib/stageStore';
 import "@/styles/allStages.css"
 import CanvasElements from '@/components/canvasElements'
 import Konva from 'konva';
@@ -135,6 +135,7 @@ export default function AllStages({ manualScaler=1, selectedId=null, setSelected
   }
 
   const groupInfo = getGroupInfo();
+  const previewFontScale = getGlobalStageScale();
 
   let groupIndexToDraw = 0;
   return (
@@ -143,7 +144,9 @@ export default function AllStages({ manualScaler=1, selectedId=null, setSelected
         const scaleX = containerWidth / stage.width;
         const scaleY = containerHeight / stage.height;
         const scale = Math.min(scaleX, scaleY);
-        setGlobalStageScale(scale);
+        if (!previewStyle) {
+          setGlobalStageScale(scale);
+        }
 
         const maxYSpace = stage.height - (marginValue*2);
         let spaceTakenOnPage = 0;
@@ -282,7 +285,7 @@ export default function AllStages({ manualScaler=1, selectedId=null, setSelected
                             onChange={() => (null)}
                             setDraggable={false}
                             stageScale={scale}
-                            fontScale={scale}
+                            fontScale={previewStyle ? previewFontScale : scale}
                             listening={false}
                           />
                           );
