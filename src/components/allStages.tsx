@@ -149,7 +149,6 @@ export default function AllStages({ manualScaler=1, selectedId={groupID: null, p
 
         console.log(pageElements);
         let aPagesElements = pageElements.slice(pageNumber, pageNumber+1)[0];
-        console.log(aPagesElements);
         if (!aPagesElements) {
           aPagesElements = [];
         }

@@ -7,7 +7,7 @@ import AllStages from '@/components/allStages';
 import HoverExplainButton from '@/components/hoverExplainButton';
 import '@/styles/editor.css';
 
-import { addPageElement, addPageElementsInfo, addStage, addStageCopyPrevious, deleteAllStages, getPageElements, stagesLength } from '@/lib/stageStore';
+import { addPageElement, addPageElementsInfo, addStage, addStageCopyPrevious, deleteAllStages, getEstimatedPage, getPageElements, stagesLength } from '@/lib/stageStore';
 import QuestionCreator from '@/components/questionCreator';
 import { ShapeData } from '@/lib/shapeData';
 import EditorSidePanel from '@/components/editorSidePanel';
@@ -60,7 +60,9 @@ export default function EditorPage() {
     }
 
     const manualScaleDownHandler = () => {
-        setManualScaler(manualScaler - 0.1);
+        if (manualScaler > 0.2) {
+            setManualScaler(manualScaler - 0.1);
+        }
     }
 
     useEffect(() => {
@@ -244,6 +246,83 @@ export default function EditorPage() {
         }
     }
 
+    const addTextToPageButtonHandler = () => {
+        const pageToAddIt = getEstimatedPage();
+        const newText: ShapeData = {
+            id: 't'+Date.now(),
+            type: 'text',
+            x: 0,
+            y: 0,
+            text: 'Double Click to Edit!',
+            width: 570,
+            height: 60,
+            rotation: 0,
+            fontSize: 12,
+            fill: 'black',
+            background: '',
+            stroke: '',
+            strokeWeight: 1
+        };
+        addPageElementsInfo({widestX: newText.width, widestY: newText.height, x:0, y:0}, pageToAddIt);
+        addPageElement([newText], pageToAddIt);
+    }
+
+    const addSquareToPageButtonHandler = () => {
+        const pageToAddIt = getEstimatedPage();
+        const newSquare: ShapeData = {
+            id: 'r'+Date.now(),
+            type: 'rect',
+            x: 0,
+            y: 0,
+            width: 100,
+            height: 100,
+            rotation: 0,
+            fill: 'black',
+            stroke: 'red',
+            strokeWeight: 1
+        };
+        addPageElementsInfo({widestX: newSquare.width, widestY: newSquare.height, x:0, y:0}, pageToAddIt);
+        addPageElement([newSquare], pageToAddIt);
+    }
+
+    const addCircleToPageButtonHandler = () => {
+        const pageToAddIt = getEstimatedPage();
+        const newCircle: ShapeData = {
+            id: 'c'+Date.now(),
+            type: 'oval',
+            x: 40,
+            y: 40,
+            radiusX: 40,
+            radiusY: 40,
+            width: 80,
+            height: 80,
+            rotation: 0,
+            fill: 'black',
+            stroke: 'red',
+            strokeWeight: 1
+        };
+        addPageElementsInfo({widestX: newCircle.width, widestY: newCircle.height, x:0, y:0}, pageToAddIt);
+        addPageElement([newCircle], pageToAddIt);
+    }
+    
+    const addTriangleToPageButtonHandler = () => {
+        const pageToAddIt = getEstimatedPage();
+        const newCircle: ShapeData = {
+            id: 't'+Date.now(),
+            type: 'tri',
+            x: 0,
+            y: 0,
+            width: 100,
+            height: 100,
+            rotation: 0,
+            fill: 'black',
+            stroke: 'red',
+            strokeWeight: 1
+        };
+        addPageElementsInfo({widestX: newCircle.width, widestY: newCircle.height, x:0, y:0}, pageToAddIt);
+        addPageElement([newCircle], pageToAddIt);
+    }
+
     return (
     <div ref={cursorDivRef} className='cursor-default'>
         {showQuestionCreator && <QuestionCreator onClose={handleQuestionCreatorClose} newQuestionCreating={newQuestionCreating} shapes={questionCreatorShapes} setShapes={setQuestionCreatorShapes} questionEditingID={questionEditingID}/>}
@@ -263,6 +342,7 @@ export default function EditorPage() {
                         explanation={'Zoom in'}
                         onClick={manualScaleUpHandler}
                     />
+                    <p onClick={() => setManualScaler(1)} className='flex h-full text-center justify-center items-center'>{Math.round(manualScaler*100)}%</p>
                     <HoverExplainButton
                         icon={<svg clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m21 11.75c0-.414-.336-.75-.75-.75h-16.5c-.414 0-.75.336-.75.75s.336.75.75.75h16.5c.414 0 .75-.336.75-.75z" fillRule="nonzero"/></svg>}
                         explanation={'Zoom out'}
@@ -282,6 +362,28 @@ export default function EditorPage() {
                         icon={<svg clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m3 17v3c0 .621.52 1 1 1h3v-1.5h-2.5v-2.5zm8.5 4h-3.5v-1.5h3.5zm4.5 0h-3.5v-1.5h3.5zm5-4h-1.5v2.5h-2.5v1.5h3c.478 0 1-.379 1-1zm-1.5-1v-3.363h1.5v3.363zm-15-3.363v3.363h-1.5v-3.363zm15-1v-3.637h1.5v3.637zm-15-3.637v3.637h-1.5v-3.637zm12.5-5v1.5h2.5v2.5h1.5v-3c0-.478-.379-1-1-1zm-10 0h-3c-.62 0-1 .519-1 1v3h1.5v-2.5h2.5zm4.5 1.5h-3.5v-1.5h3.5zm4.5 0h-3.5v-1.5h3.5z" fillRule="nonzero"/></svg>}
                         explanation={'Page Editor'}
                         onClick={() => setCursorType(1)}
+                    />
+                </div>
+                <div className='flex items-center justify-center border-r-2 border-primary '>
+                    <HoverExplainButton
+                        icon={<svg className='h-full' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.67406 6.4H17.3141V9.66H16.7941L16.2141 7.56C16.1741 7.4 16.1274 7.28667 16.0741 7.22C16.0341 7.14 15.9474 7.09333 15.8141 7.08C15.6807 7.05333 15.4541 7.04 15.1341 7.04H12.8741V18.38C12.8741 18.8467 12.8941 19.12 12.9341 19.2C12.9741 19.28 13.1007 19.3333 13.3141 19.36L14.4141 19.48V20H9.59406V19.48L10.6941 19.36C10.9074 19.3333 11.0341 19.28 11.0741 19.2C11.1141 19.12 11.1341 18.8467 11.1341 18.38V7.04H8.85406C8.5474 7.04 8.32073 7.05333 8.17406 7.08C8.04073 7.09333 7.9474 7.14 7.89406 7.22C7.85406 7.28667 7.81406 7.4 7.77406 7.56L7.19406 9.66H6.67406V6.4Z" fill="black"/></svg>}
+                        explanation={'Add Text'}
+                        onClick={addTextToPageButtonHandler}
+                    />
+                    <HoverExplainButton
+                        icon={<svg className='h-full' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="5.5" y="5.5" width="13" height="13" rx="0.5" stroke="black"/><path d="M23.4847 3.196H21.2047V5.524H20.7847V3.196H18.5167V2.8H20.7847V0.46H21.2047V2.8H23.4847V3.196Z" fill="black"/></svg>}
+                        explanation={'Add Square'}
+                        onClick={addSquareToPageButtonHandler}
+                    />
+                    <HoverExplainButton
+                        icon={<svg className='h-full' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M23.4847 3.196H21.2047V5.524H20.7847V3.196H18.5167V2.8H20.7847V0.46H21.2047V2.8H23.4847V3.196Z" fill="black"/><circle cx="12" cy="12" r="6.5" stroke="black"/></svg>}
+                        explanation={'Add Circle'}
+                        onClick={addCircleToPageButtonHandler}
+                    />
+                    <HoverExplainButton
+                        icon={<svg className='h-full' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M23.4847 3.196H21.2047V5.524H20.7847V3.196H18.5167V2.8H20.7847V0.46H21.2047V2.8H23.4847V3.196Z" fill="black"/><path d="M19.7949 18.5H4.20508L12 4.99902L19.7949 18.5Z" stroke="black"/></svg>}
+                        explanation={'Add Triangle'}
+                        onClick={addTriangleToPageButtonHandler}
                     />
                 </div>
                 <div className='flex m-2'>

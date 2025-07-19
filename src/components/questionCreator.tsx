@@ -149,16 +149,15 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
         const updateSize = () => {
             if (stageContainerRef.current) {
                 const stageDimension = getStageDimension();
-                const marginVlaue = getMarginValue();
-                const scaleClac = stageContainerRef.current.offsetWidth / (stageDimension.width - marginVlaue*2);
+                const scaleClac = stageContainerRef.current.offsetWidth / stageDimension.width;
                 setStageScale(scaleClac);
                 setFontScale(getGlobalStageScale());
                 setDimensions({
-                    width: (stageDimension.width - marginVlaue*2),
-                    height: (stageDimension.height - marginVlaue*2),
+                    width: stageDimension.width,
+                    height: stageDimension.height,
                 });
-                console.log("width: "+ ((stageDimension.width - marginVlaue*2) * scaleClac));
-                console.log("height: "+ ((stageDimension.height - marginVlaue*2) * scaleClac));
+                console.log("width: "+ (stageDimension.width * scaleClac));
+                console.log("height: "+ (stageDimension.height * scaleClac));
             }
         };
 
@@ -174,8 +173,8 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
             x: 20,
             y: 20,
             text: 'Double Click to Edit!',
-            width: 300,
-            height: 30,
+            width: 570,
+            height: 60,
             rotation: 0,
             fontSize: 12,
             fill: 'black',
@@ -191,7 +190,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
         setShapes(prevShapes =>
             prevShapes.map(shape => {
             if (shape.id === selectedId && shape.type === 'text') {
-                return { ...shape, fontSize: (shape.fontSize + 1) / stageScale };
+                return { ...shape, fontSize: (shape.fontSize + 1) };
             }
             return shape;
             })
@@ -202,7 +201,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
         setShapes(prevShapes =>
             prevShapes.map(shape => {
             if (shape.id === selectedId && shape.type === 'text' && shape.fontSize > 1) {
-                return { ...shape, fontSize: (shape.fontSize - 1) / stageScale };
+                return { ...shape, fontSize: (shape.fontSize - 1) };
             }
             return shape;
             })
@@ -455,7 +454,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                                 <path d="M23.4847 3.196H21.2047V5.524H20.7847V3.196H18.5167V2.8H20.7847V0.46H21.2047V2.8H23.4847V3.196Z" fill="black"/>
                             </svg>
                         </button>
-                        {/* Add Square */}
+                        {/* Add Circle */}
                         <button className='w-10 h-full' onClick={addCircleHandle}>
                             <svg className='h-full' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M23.4847 3.196H21.2047V5.524H20.7847V3.196H18.5167V2.8H20.7847V0.46H21.2047V2.8H23.4847V3.196Z" fill="black"/>

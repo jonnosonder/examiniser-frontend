@@ -46,6 +46,8 @@ export function addStageCopyPrevious(id: string) {
             height: lastStage.height,
             background: lastStage.background,
         });
+        pageElements.push([]);
+        pageElementsInfo.push([]);
         stageListeners.forEach((fn) => fn());
     }
 }
