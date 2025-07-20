@@ -14,6 +14,7 @@ type AllStagesProps = {
   setSelectedId?: React.Dispatch<React.SetStateAction<setSelectedIdType>>;
   ignoreSelectionArray?: React.RefObject<HTMLElement | null>[];
   previewStyle: boolean;
+  editQuestionButtonHandler?: (passedPage?: number, passedGroupID?: number) => void;
 };
 
 type setSelectedIdType = {
@@ -21,7 +22,7 @@ type setSelectedIdType = {
   page: number | null;
 };
 
-export default function AllStages({ manualScaler=1, selectedId={groupID: null, page: null}, setSelectedId, ignoreSelectionArray, previewStyle } : AllStagesProps) {
+export default function AllStages({ manualScaler=1, selectedId={groupID: null, page: null}, setSelectedId, ignoreSelectionArray, previewStyle, editQuestionButtonHandler } : AllStagesProps) {
   const [stages, setStages] = useState(getStages());
   const pageElements = getPageElements();
   const pageElementsInfo = getPageElementsInfo();
@@ -236,9 +237,12 @@ export default function AllStages({ manualScaler=1, selectedId={groupID: null, p
                         listening={!previewStyle}
                         onClick={() => setSelectedId?.({groupID: i, page: pageNumber})}
                         onTap={() => setSelectedId?.({groupID: i, page: pageNumber})}
+                        onDblClick={() => {!previewStyle && editQuestionButtonHandler?.(pageNumber, i)}}
+                        onDblTap={() => {!previewStyle && editQuestionButtonHandler?.(pageNumber, i)}}
                         onDragEnd={ (e) => {
                           setPageElementsInfo({ ...pageElementsInfo[pageNumber][i], x: Math.round((e.target.x() + Number.EPSILON) * 100000) / 100000, y: Math.round((e.target.y() + Number.EPSILON) * 100000) / 100000 }, pageNumber, i);
                         }}
+
                       > 
                         <Rect
                           width={pageElementsInfo[pageNumber][i].widestX}

@@ -23,8 +23,9 @@ const ColorSelectorSection: React.FC<ColorSelectorSectionProps> = ({ onClose, pa
       wheelDiameter: 200,
       wheelThickness: 20,
       handleDiameter: 20,
-      wheelReflectsSaturation: true,
+      wheelReflectsSaturation: false,
       hex: startingColor,
+      
     });
 
     colorWheelRef.current = wheel;

@@ -260,7 +260,7 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
 
       return (
         <>
-          <Text {...shape} fontSize={shape.fontSize / fontScale} {...commonProps} ref={textRef} draggable={setDraggable} onDragMove={(e) => onDragMoveUpdates?.(e)} onDblClick={handleDoubleClick} listening={listening}
+          <Text {...shape} fontSize={shape.fontSize / fontScale} {...commonProps} ref={textRef} draggable={setDraggable} onDragMove={(e) => onDragMoveUpdates?.(e)} onDblClick={handleDoubleClick} onDblTap={handleDoubleClick} listening={listening}
           onTransform={(e) => {
             const node = e.target;
             const scaleX = node.scaleX();

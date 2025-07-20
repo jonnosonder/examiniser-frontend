@@ -13,13 +13,17 @@ import { ShapeData } from '@/lib/shapeData';
 import EditorSidePanel from '@/components/editorSidePanel';
 import ExportPage from '@/components/exportPage';
 import { useFileStore } from '@/store/useFileStore';
+import { NotificationProvider } from '@/context/notificationContext';
 
 import * as pdfjsLib from 'pdfjs-dist';
+import { useNotification } from '@/context/notificationContext';
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@5.3.93/build/pdf.worker.mjs`;
 
 
-export default function EditorPage() {
+function EditorPage() {
     useBeforeUnload(false); //TEMP change to true
+
+    const { notify } = useNotification();
 
     const [showExportPage, setShowExportPage] = useState<boolean>(false);
 
@@ -234,15 +238,25 @@ export default function EditorPage() {
         handleQuestionCreatorOpen();
     }
 
-    const editQuestionButtonHandler = () => {
-        console.log(selectedQuestionId.page);
-        console.log(selectedQuestionId.groupID);
+    const editQuestionButtonHandler = (passedPage?: number, passedGroupID?:number) => {
+        console.log(passedPage, passedGroupID);
+        if (passedPage !== undefined && passedGroupID  !== undefined) {
+            setNewQuestionCreating(false);
+            const pageElements = getPageElements();
+            setQuestionEditingID({groupID: passedGroupID, page: passedPage})
+            setQuestionCreatorShapes(pageElements[passedPage][passedGroupID]);
+            handleQuestionCreatorOpen();
+            return;
+        }
+
         if (selectedQuestionId.page !== null && selectedQuestionId.groupID !== null){
             setNewQuestionCreating(false);
             const pageElements = getPageElements();
             setQuestionEditingID({groupID: selectedQuestionId.groupID, page: selectedQuestionId.page})
             setQuestionCreatorShapes(pageElements[selectedQuestionId.page][selectedQuestionId.groupID]);
             handleQuestionCreatorOpen();
+        } else {
+            notify('info', 'Please select an element');
         }
     }
 
@@ -338,15 +352,15 @@ export default function EditorPage() {
                         onClick={newPageButtonHandler}
                     />
                     <HoverExplainButton
-                        icon={<svg clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m11 11h-7.25c-.414 0-.75.336-.75.75s.336.75.75.75h7.25v7.25c0 .414.336.75.75.75s.75-.336.75-.75v-7.25h7.25c.414 0 .75-.336.75-.75s-.336-.75-.75-.75h-7.25v-7.25c0-.414-.336-.75-.75-.75s-.75.336-.75.75z" fillRule="nonzero"/></svg>}
-                        explanation={'Zoom in'}
-                        onClick={manualScaleUpHandler}
-                    />
-                    <p onClick={() => setManualScaler(1)} className='flex h-full text-center justify-center items-center'>{Math.round(manualScaler*100)}%</p>
-                    <HoverExplainButton
                         icon={<svg clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m21 11.75c0-.414-.336-.75-.75-.75h-16.5c-.414 0-.75.336-.75.75s.336.75.75.75h16.5c.414 0 .75-.336.75-.75z" fillRule="nonzero"/></svg>}
                         explanation={'Zoom out'}
                         onClick={manualScaleDownHandler}
+                    />
+                    <p onClick={() => setManualScaler(1)} className='flex h-full text-center justify-center items-center'>{Math.round(manualScaler*100)}%</p>
+                    <HoverExplainButton
+                        icon={<svg clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m11 11h-7.25c-.414 0-.75.336-.75.75s.336.75.75.75h7.25v7.25c0 .414.336.75.75.75s.75-.336.75-.75v-7.25h7.25c.414 0 .75-.336.75-.75s-.336-.75-.75-.75h-7.25v-7.25c0-.414-.336-.75-.75-.75s-.75.336-.75.75z" fillRule="nonzero"/></svg>}
+                        explanation={'Zoom in'}
+                        onClick={manualScaleUpHandler}
                     />
                 </div>
 
@@ -418,7 +432,7 @@ export default function EditorPage() {
                     </div>
                 </div>
                 <div className="flex-1 bg-grey w-full flex items-center justify-center">
-                    <AllStages manualScaler={manualScaler} selectedId={selectedQuestionId} setSelectedId={setSelectedQuestionId} ignoreSelectionArray={ignoreSelectionArray} previewStyle={false}/>
+                    <AllStages manualScaler={manualScaler} selectedId={selectedQuestionId} setSelectedId={setSelectedQuestionId} ignoreSelectionArray={ignoreSelectionArray} previewStyle={false} editQuestionButtonHandler={editQuestionButtonHandler}/>
                 </div>
                 <div className="h-full">
                     <div
@@ -445,7 +459,7 @@ export default function EditorPage() {
                                 {actionWindow && <span className="ml-3">Add Question</span>}
                             </button>
 
-                            <button ref={editButtonRef} onClick={editQuestionButtonHandler} className="flex text-center items-center justify-center w-full p-3 focus:outline-none">
+                            <button ref={editButtonRef} onClick={() => editQuestionButtonHandler()} className="flex text-center items-center justify-center w-full p-3 focus:outline-none">
                                 <div className="w-8 h-8 text-lg items-center justify-center">
                                     <svg className='w-full h-full' clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m11.25 6c.398 0 .75.352.75.75 0 .414-.336.75-.75.75-1.505 0-7.75 0-7.75 0v12h17v-8.749c0-.414.336-.75.75-.75s.75.336.75.75v9.249c0 .621-.522 1-1 1h-18c-.48 0-1-.379-1-1v-13c0-.481.38-1 1-1zm1.521 9.689 9.012-9.012c.133-.133.217-.329.217-.532 0-.179-.065-.363-.218-.515l-2.423-2.415c-.143-.143-.333-.215-.522-.215s-.378.072-.523.215l-9.027 8.996c-.442 1.371-1.158 3.586-1.264 3.952-.126.433.198.834.572.834.41 0 .696-.099 4.176-1.308zm-2.258-2.392 1.17 1.171c-.704.232-1.274.418-1.729.566zm.968-1.154 7.356-7.331 1.347 1.342-7.346 7.347z" fillRule="nonzero"/></svg>
                                 </div>
@@ -459,3 +473,11 @@ export default function EditorPage() {
     </div>
     );
 }
+
+const PageWithProvider = () => (
+  <NotificationProvider>
+    <EditorPage />
+  </NotificationProvider>
+);
+
+export default PageWithProvider;

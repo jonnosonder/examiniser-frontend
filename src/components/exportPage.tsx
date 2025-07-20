@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { getStages } from '@/lib/stageStore';
 import { jsPDF } from "jspdf";
+import Advert from './advert';
 
 type ExportPageProps = {
   onClose: () => void;
@@ -151,6 +152,9 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
               <span className='flex'></span>
               <button className='border-2 border-primary text-primary text-lg rounded-lg py-2 px-4' onClick={exportToPDF}>Export</button>
           </div>
+        </div>
+        <div className='absolute bottom-2 w-full max-h-[18%] z-10000'>
+          <Advert slot="1234567890" />
         </div>
       </div>
   );

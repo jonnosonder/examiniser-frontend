@@ -10,6 +10,7 @@ import { ShapeData } from '@/lib/shapeData';
 import { addPageElement, addPageElementsInfo, getEstimatedPage, getGlobalStageScale, getMarginValue, getSpecificPageElementsInfo, getStageDimension, setPageElement, setPageElementsInfo } from '@/lib/stageStore';
 import ColorSelectorSection from '@/components/colorSelectorSection';
 import { KonvaEventObject } from 'konva/lib/Node';
+import Advert from './advert';
 
 type QuestionCreatorProps = {
   onClose: () => void;
@@ -665,6 +666,9 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                             {newQuestionCreating ? "Create" : "Set Edit"}
                         </button>
                     </div>
+                </div>
+                <div className='absolute bottom-2 w-full max-h-[10%] z-10000'>
+                    <Advert slot="1234567890" />
                 </div>
             </div>
         </div>
