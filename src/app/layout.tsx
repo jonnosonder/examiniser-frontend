@@ -2,9 +2,7 @@ import type { Metadata } from "next";
 import '../styles/globals.css';
 import '../styles/colors.css';
 import { DataProvider } from "../context/dataContext";
-import Script from 'next/script'
-
-
+// import Script from 'next/script'
 
 export const metadata: Metadata = {
   title: "Examiniser",
@@ -30,7 +28,6 @@ export default function RootLayout({
       ></script>
       <body>
         <DataProvider>{children}</DataProvider>
-        
       </body>
     </html>
   );

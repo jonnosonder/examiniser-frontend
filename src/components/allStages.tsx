@@ -155,13 +155,13 @@ export default function AllStages({ manualScaler=1, selectedId={groupID: null, p
         }
 
         return (
-          <div key={stage.id+"wrap"} className='flex flex-col w-full h-full items-center justify-start' id={!previewStyle ? `stageDivSelect${pageNumber}` : ''}>
+          <div key={stage.id+"wrap"} className='flex flex-col flex-shrink-1 w-full h-full items-center justify-start' id={!previewStyle ? `stageDivSelect${pageNumber}` : ''}>
           {!previewStyle && (
             <p key={stage.id+"p"} className='flex text-darkGrey text-[0.6rem] text-left'>{stage.width}px x {stage.height}px</p>
           )}
           <div ref={stageContainerRef} key={stage.id+"div"} onClick={() => previewPageOnClickHanlder?.(pageNumber)} className='flex flex-col w-full h-full items-center justify-start'>
               <div
-                className={`flex ${previewStyle && `border border-primary rounded-sm transition-shadow duration-300 hover:shadow-[0_0_0_0.2rem_theme('colors.contrast')]`} overflow-hidden`}
+                className={`flex flex-shrink-0 ${previewStyle && `border border-primary rounded-sm transition-shadow duration-300 hover:shadow-[0_0_0_0.2rem_theme('colors.contrast')]`} overflow-hidden`}
                 style={{
                   width: stage.width * scale * manualScaler,
                   height: stage.height * scale * manualScaler,

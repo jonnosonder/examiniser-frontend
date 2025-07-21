@@ -138,8 +138,18 @@ export function addPageElement(newShape: ShapeData[], page:number) {
   stageListeners.forEach((fn) => fn());
 }
 
+export function duplicatePageElement(page: number, groupID: number) {
+  pageElements[page].push(pageElements[page][groupID]);
+  stageListeners.forEach((fn) => fn());
+}
+
 export function setPageElement(newShape: ShapeData[], page: number, groupID: number) {
   pageElements[page][groupID] = newShape;
+  stageListeners.forEach((fn) => fn());
+}
+
+export function deletePageElement(page: number, groupID: number) {
+  pageElements[page].splice(groupID, 1);
   stageListeners.forEach((fn) => fn());
 }
 
@@ -157,9 +167,22 @@ export function addPageElementsInfo(newStageGroupInfo: stageGroupInfoData, page:
   pageElementsInfo[page].push(newStageGroupInfo);
 }
 
+export function duplicatePageElementsInfo(page: number, groupID: number) {
+  const original = pageElementsInfo[page][groupID];
+  const copy = { ...original }; // shallow clone
+  copy.x = 0;
+  copy.y = 0;
+
+  pageElementsInfo[page].push(copy);
+}
+
 export function setPageElementsInfo(newStageGroupInfo: stageGroupInfoData, page: number, groupID: number) {
   pageElementsInfo[page][groupID] = newStageGroupInfo;
   stageListeners.forEach((fn) => fn());
+}
+
+export function deletePageElementInfo(page: number, groupID: number) {
+  pageElementsInfo[page].splice(groupID, 1);
 }
 
 //////////////////////////////////////////////////////////////

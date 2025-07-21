@@ -12,7 +12,7 @@ type ColorSelectorSectionProps = {
 
 const ColorSelectorSection: React.FC<ColorSelectorSectionProps> = ({ onClose, passColorValue, startingColor }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [selectedColor, setSelectedColor] = useState('#ff0000');
+  const [selectedColor, setSelectedColor] = useState(startingColor);
   const colorWheelRef = useRef<ReinventedColorWheel | null>(null);
 
   useEffect(() => {

@@ -13,6 +13,7 @@ type BaseShape = {
 
 export type ShapeData =
   | (BaseShape & { type: 'rect'; })
+  | (BaseShape & { type: 'line'; dash: number[];})
   | (BaseShape & { type: 'tri'; })
   | (BaseShape & { type: 'oval'; radiusX: number; radiusY: number; })
   | (BaseShape & { type: 'text'; text: string; fontSize: number; background: string; })

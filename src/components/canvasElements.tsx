@@ -95,9 +95,9 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
     case 'rect':
       return (
         <>
-          <Rect {...shape} {...commonProps} ref={rectRef} draggable={setDraggable} onDragMove={(e) => onDragMoveUpdates?.(e)} listening={listening}
+          <Rect {...shape} {...commonProps} ref={rectRef} draggable={setDraggable} onDragMove={(e) => {onDragMoveUpdates?.(e); onSelect()}} listening={listening}
           onDragEnd={ (e) => {
-            onChange({ ...shape, x: Math.round((e.target.x() + Number.EPSILON) * 100000) / 100000, y: Math.round((e.target.y() + Number.EPSILON) * 100000) / 100000 });
+            onChange({ ...shape, x: Math.round((e.target.x() + Number.EPSILON) * 10000) / 10000, y: Math.round((e.target.y() + Number.EPSILON) * 10000) / 10000 });
           }}
           onTransformEnd={ () => {
             const node = rectRef.current;
@@ -109,9 +109,9 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
 
               onChange({
                 ...shape,
-                width: Math.round((Math.max(5, node.width() * scaleX) + Number.EPSILON) * 100000) / 100000,
-                height: Math.round((Math.max(5, node.height() * scaleY) + Number.EPSILON) * 100000) / 100000,
-                rotate: Math.round((node.rotation()  + Number.EPSILON) * 100000) / 100000,
+                width: Math.round((Math.max(5, node.width() * scaleX) + Number.EPSILON) * 10000) / 10000,
+                height: Math.round((Math.max(5, node.height() * scaleY) + Number.EPSILON) * 10000) / 10000,
+                rotation: Math.round((node.rotation()  + Number.EPSILON) * 10000) / 10000,
               } as ShapeData);
             
           }}
@@ -125,7 +125,7 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
     case 'oval':
       return (
         <>
-          <Ellipse {...shape} {...commonProps} ref={ovalRef} draggable={setDraggable} onDragMove={(e) => onDragMoveUpdates?.(e)} listening={listening}
+          <Ellipse {...shape} {...commonProps} ref={ovalRef} draggable={setDraggable} onDragMove={(e) => {onDragMoveUpdates?.(e); onSelect()}} listening={listening}
           onTransformEnd={ () => {
             const node = ovalRef.current;
             if (!node) return;
@@ -138,14 +138,14 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
                 ...shape,
                 radiusX: Math.max(5, node.width() * scaleX /2),
                 radiusY: Math.max(5, node.height() * scaleY /2),
-                width: Math.round((Math.max(5, node.width() * scaleX) + Number.EPSILON) * 100000) / 100000,
-                height: Math.round((Math.max(5, node.height() * scaleY) + Number.EPSILON) * 100000) / 100000,
-                rotate: Math.round((node.rotation()  + Number.EPSILON) * 100000) / 100000,
+                width: Math.round((Math.max(5, node.width() * scaleX) + Number.EPSILON) * 10000) / 10000,
+                height: Math.round((Math.max(5, node.height() * scaleY) + Number.EPSILON) * 10000) / 10000,
+                rotation: Math.round((node.rotation()  + Number.EPSILON) * 10000) / 10000,
               } as ShapeData);
             
           }}
           onDragEnd={ (e) => {
-            onChange({ ...shape, x: Math.round((e.target.x() + Number.EPSILON) * 100000) / 100000, y: Math.round((e.target.y() + Number.EPSILON) * 100000) / 100000 });
+            onChange({ ...shape, x: Math.round((e.target.x() + Number.EPSILON) * 10000) / 10000, y: Math.round((e.target.y() + Number.EPSILON) * 10000) / 10000 });
           }}
           />
           {isSelected && <Transformer {...transformerCommonProps} ref={trRef} 
@@ -162,7 +162,7 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
       ];
       return (
         <>
-          <Line {...shape} {...commonProps} points={trianglePoints} closed ref={triangleRef} draggable={setDraggable} onDragMove={(e) => onDragMoveUpdates?.(e)} listening={listening}
+          <Line {...shape} {...commonProps} points={trianglePoints} closed ref={triangleRef} draggable={setDraggable} onDragMove={(e) => {onDragMoveUpdates?.(e); onSelect()}} listening={listening}
           onTransformEnd={ () => {
             const node = triangleRef.current;
             if (!node) return;
@@ -173,14 +173,14 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
 
               onChange({
                 ...shape,
-                width: Math.round((Math.max(5, node.width() * scaleX) + Number.EPSILON) * 100000) / 100000,
-                height: Math.round((Math.max(5, node.height() * scaleY) + Number.EPSILON) * 100000) / 100000,
-                rotate: Math.round((node.rotation()  + Number.EPSILON) * 100000) / 100000,
+                width: Math.round((Math.max(5, node.width() * scaleX) + Number.EPSILON) * 10000) / 10000,
+                height: Math.round((Math.max(5, node.height() * scaleY) + Number.EPSILON) * 10000) / 10000,
+                rotation: Math.round((node.rotation()  + Number.EPSILON) * 10000) / 10000,
               } as ShapeData);
             
           }}
           onDragEnd={ (e) => {
-            onChange({ ...shape, x: Math.round((e.target.x() + Number.EPSILON) * 100000) / 100000, y: Math.round((e.target.y() + Number.EPSILON) * 100000) / 100000 });
+            onChange({ ...shape, x: Math.round((e.target.x() + Number.EPSILON) * 10000) / 10000, y: Math.round((e.target.y() + Number.EPSILON) * 10000) / 10000 });
           }}
           />
           {isSelected && <Transformer {...transformerCommonProps} ref={trRef} 
@@ -260,7 +260,7 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
 
       return (
         <>
-          <Text {...shape} fontSize={shape.fontSize / fontScale} {...commonProps} ref={textRef} draggable={setDraggable} onDragMove={(e) => onDragMoveUpdates?.(e)} onDblClick={handleDoubleClick} onDblTap={handleDoubleClick} listening={listening}
+          <Text {...shape} fontSize={shape.fontSize / fontScale} {...commonProps} ref={textRef} draggable={setDraggable} onDragMove={(e) => {onDragMoveUpdates?.(e); onSelect()}} onDblClick={handleDoubleClick} onDblTap={handleDoubleClick} listening={listening}
           onTransform={(e) => {
             const node = e.target;
             const scaleX = node.scaleX();
@@ -283,14 +283,14 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
 
               onChange({
                 ...shape,
-                width: Math.round((Math.max(5, node.width() * scaleX) + Number.EPSILON) * 100000) / 100000,
-                height: Math.round((Math.max(5, node.height() * scaleY) + Number.EPSILON) * 100000) / 100000,
-                rotate: Math.round((node.rotation()  + Number.EPSILON) * 100000) / 100000,
+                width: Math.round((Math.max(5, node.width() * scaleX) + Number.EPSILON) * 10000) / 10000,
+                height: Math.round((Math.max(5, node.height() * scaleY) + Number.EPSILON) * 10000) / 10000,
+                rotation: Math.round((node.rotation()  + Number.EPSILON) * 10000) / 10000,
               } as ShapeData);
             
           }}
           onDragEnd={ (e) => {
-            onChange({ ...shape, x: Math.round((e.target.x() + Number.EPSILON) * 100000) / 100000, y: Math.round((e.target.y() + Number.EPSILON) * 100000) / 100000 });
+            onChange({ ...shape, x: Math.round((e.target.x() + Number.EPSILON) * 10000) / 10000, y: Math.round((e.target.y() + Number.EPSILON) * 10000) / 10000 });
           }}
           />
           {isSelected && <Transformer {...transformerCommonProps} ref={trRef} 
@@ -303,9 +303,9 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
       console.log("DRAWING IMAGE");
       return (
         <>
-          <KonvaImage {...shape} {...commonProps} ref={imageRef} draggable={setDraggable} onDragMove={(e) => onDragMoveUpdates?.(e)} listening={listening}
+          <KonvaImage {...shape} {...commonProps} ref={imageRef} draggable={setDraggable} onDragMove={(e) => {onDragMoveUpdates?.(e); onSelect()}} listening={listening}
           onDragEnd={ (e) => {
-            onChange({ ...shape, x: Math.round((e.target.x() + Number.EPSILON) * 100000) / 100000, y: Math.round((e.target.y() + Number.EPSILON) * 100000) / 100000 });
+            onChange({ ...shape, x: Math.round((e.target.x() + Number.EPSILON) * 10000) / 10000, y: Math.round((e.target.y() + Number.EPSILON) * 10000) / 10000 });
           }}
           onTransformEnd={ () => {
             const node = rectRef.current;
@@ -317,9 +317,9 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
 
               onChange({
                 ...shape,
-                width: Math.round((Math.max(5, node.width() * scaleX) + Number.EPSILON) * 100000) / 100000,
-                height: Math.round((Math.max(5, node.height() * scaleY) + Number.EPSILON) * 100000) / 100000,
-                rotate: Math.round((node.rotation()  + Number.EPSILON) * 100000) / 100000,
+                width: Math.round((Math.max(5, node.width() * scaleX) + Number.EPSILON) * 10000) / 10000,
+                height: Math.round((Math.max(5, node.height() * scaleY) + Number.EPSILON) * 10000) / 10000,
+                rotation: Math.round((node.rotation()  + Number.EPSILON) * 10000) / 10000,
               } as ShapeData);
             
           }}
