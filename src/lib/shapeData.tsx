@@ -8,13 +8,12 @@ type BaseShape = {
   rotation: number;
   fill: string;
   stroke: string;
-  strokeWeight: number;
+  strokeWidth: number;
 };
 
 export type ShapeData =
-  | (BaseShape & { type: 'rect'; })
-  | (BaseShape & { type: 'line'; dash: number[];})
+  | (BaseShape & { type: 'rect'; cornerRadius: number;})
   | (BaseShape & { type: 'tri'; })
-  | (BaseShape & { type: 'oval'; radiusX: number; radiusY: number; })
-  | (BaseShape & { type: 'text'; text: string; fontSize: number; background: string; })
-  | (BaseShape & { type: 'image'; image: HTMLImageElement; });
+  | ({ id: string; type: 'oval'; x: number; y: number; radiusX: number; radiusY: number; rotation: number; fill: string; stroke: string; strokeWidth: number;})
+  | (BaseShape & { type: 'text'; text: string; fontSize: number; background: string; align: string; })
+  | (BaseShape & { type: 'image'; image: HTMLImageElement; cornerRadius: number;});

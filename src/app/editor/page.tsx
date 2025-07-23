@@ -193,8 +193,9 @@ function EditorPage() {
                     rotation: 0,
                     fill: '',
                     stroke: '',
-                    strokeWeight: 0,
-                    image: img
+                    strokeWidth: 0,
+                    image: img,
+                    cornerRadius: 0,
                 };
 
                 console.log(img);
@@ -284,7 +285,8 @@ function EditorPage() {
             fill: 'black',
             background: '',
             stroke: '',
-            strokeWeight: 1
+            strokeWidth: 1,
+            align: "left"
         };
         addPageElementsInfo({widestX: newText.width, widestY: newText.height, x:0, y:0}, pageToAddIt);
         addPageElement([newText], pageToAddIt);
@@ -302,7 +304,8 @@ function EditorPage() {
             rotation: 0,
             fill: 'black',
             stroke: 'red',
-            strokeWeight: 1
+            strokeWidth: 1,
+            cornerRadius: 10,
         };
         addPageElementsInfo({widestX: newSquare.width, widestY: newSquare.height, x:0, y:0}, pageToAddIt);
         addPageElement([newSquare], pageToAddIt);
@@ -317,14 +320,12 @@ function EditorPage() {
             y: 40,
             radiusX: 40,
             radiusY: 40,
-            width: 80,
-            height: 80,
             rotation: 0,
             fill: 'black',
             stroke: 'red',
-            strokeWeight: 1
+            strokeWidth: 1
         };
-        addPageElementsInfo({widestX: newCircle.width, widestY: newCircle.height, x:0, y:0}, pageToAddIt);
+        addPageElementsInfo({widestX: newCircle.radiusX*2, widestY: newCircle.radiusY*2, x:0, y:0}, pageToAddIt);
         addPageElement([newCircle], pageToAddIt);
     }
     
@@ -340,7 +341,7 @@ function EditorPage() {
             rotation: 0,
             fill: 'black',
             stroke: 'red',
-            strokeWeight: 1
+            strokeWidth: 1
         };
         addPageElementsInfo({widestX: newCircle.width, widestY: newCircle.height, x:0, y:0}, pageToAddIt);
         addPageElement([newCircle], pageToAddIt);

@@ -32,7 +32,7 @@ export default function AllStages({ manualScaler=1, selectedId={groupID: null, p
   const [containerWidth, setContainerWidth] = useState(0);
   const [containerHeight, setContainerHeight] = useState(0);
 
-  let [stageEstimatedPage, setStageEstimatedPage] = useState(getEstimatedPage());
+  const [stageEstimatedPage, setStageEstimatedPage] = useState(getEstimatedPage());
   
   useEffect(() => {
     const unsubscribeStage = subscribeStage(() => {
@@ -237,8 +237,8 @@ export default function AllStages({ manualScaler=1, selectedId={groupID: null, p
                         listening={!previewStyle}
                         onClick={() => setSelectedId?.({groupID: i, page: pageNumber})}
                         onTap={() => setSelectedId?.({groupID: i, page: pageNumber})}
-                        onDblClick={() => {!previewStyle && editQuestionButtonHandler?.(pageNumber, i)}}
-                        onDblTap={() => {!previewStyle && editQuestionButtonHandler?.(pageNumber, i)}}
+                        onDblClick={() => {!previewStyle ? editQuestionButtonHandler?.(pageNumber, i) : undefined}}
+                        onDblTap={() => {!previewStyle ? editQuestionButtonHandler?.(pageNumber, i) : undefined}}
                         onDragEnd={ (e) => {
                           setPageElementsInfo({ ...pageElementsInfo[pageNumber][i], x: Math.round((e.target.x() + Number.EPSILON) * 100000) / 100000, y: Math.round((e.target.y() + Number.EPSILON) * 100000) / 100000 }, pageNumber, i);
                         }}

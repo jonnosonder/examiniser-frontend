@@ -300,7 +300,6 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
         </>
       );
     case 'image':
-      console.log("DRAWING IMAGE");
       return (
         <>
           <KonvaImage {...shape} {...commonProps} ref={imageRef} draggable={setDraggable} onDragMove={(e) => {onDragMoveUpdates?.(e); onSelect()}} listening={listening}
