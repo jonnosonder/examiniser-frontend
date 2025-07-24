@@ -19,6 +19,7 @@ export type stageGroupInfoData = {
 
 let stages: StageData[] = [];
 let stageListeners: (() => void)[] = [];
+let previewStageListeners: (() => void)[] = [];
 let viewMargin: boolean = false;
 let marginValue: number = 300;
 let globalStageScale: number;
@@ -26,11 +27,40 @@ const pageElements: ShapeData[][][] = [];
 const pageElementsInfo: stageGroupInfoData[][] = [];
 let estimatedPage: number = 0;
 
+export function RENDER_PAGE() {
+  console.log("Call to render");
+  stageListeners.forEach((fn) => fn());
+  previewStageListeners.forEach((fn) => fn());
+}
+
+export function RENDER_MAIN() {
+  console.log("Call to render");
+  stageListeners.forEach((fn) => fn());
+}
+
+export function RENDER_PREVIEW() {
+  console.log("Call to render");
+  previewStageListeners.forEach((fn) => fn());
+}
+
+export function subscribeStage(listener: () => void) {
+  stageListeners.push(listener);
+  return () => {
+    stageListeners = stageListeners.filter((fn) => fn !== listener);
+  };
+}
+
+export function subscribePreviewStage(listener: () => void) {
+  previewStageListeners.push(listener);
+  return () => {
+    previewStageListeners = previewStageListeners.filter((fn) => fn !== listener);
+  };
+}
+
 export function addStage(stage: StageData) {
   stages.push(stage);
   pageElements.push([]);
   pageElementsInfo.push([]);
-  stageListeners.forEach((fn) => fn());
 }
 
 export function getStageDimension(): { width: number; height: number } {
@@ -48,19 +78,11 @@ export function addStageCopyPrevious(id: string) {
         });
         pageElements.push([]);
         pageElementsInfo.push([]);
-        stageListeners.forEach((fn) => fn());
     }
 }
 
 export function getStages(): StageData[] {
   return [...stages];
-}
-
-export function subscribeStage(listener: () => void) {
-  stageListeners.push(listener);
-  return () => {
-    stageListeners = stageListeners.filter((fn) => fn !== listener);
-  };
 }
 
 export function deleteAllStages() {
@@ -94,7 +116,6 @@ export function setAllStagesBackground(newBackground:string) {
   stages.forEach(stage => {
     stage.background = newBackground;
   });
-  stageListeners.forEach((fn) => fn());
 }
 
 //////////////////////////////////////////////////////////////
@@ -105,7 +126,6 @@ export function getMarginValue(): number {
 
 export function setMarginValue(newMarginValue: number) {
   marginValue = newMarginValue;
-  stageListeners.forEach((fn) => fn());
 }
 
 export function getViewMargin(): boolean {
@@ -114,7 +134,6 @@ export function getViewMargin(): boolean {
 
 export function setViewMargin(newMarginStage: boolean) {
   viewMargin = newMarginStage;
-  stageListeners.forEach((fn) => fn());
 }
 
 //////////////////////////////////////////////////////////////
@@ -135,28 +154,24 @@ export function getPageElements(): ShapeData[][][] {
 
 export function addPageElement(newShape: ShapeData[], page:number) {
   pageElements[page].push(newShape);
-  stageListeners.forEach((fn) => fn());
 }
 
 export function duplicatePageElement(page: number, groupID: number) {
   pageElements[page].push(pageElements[page][groupID]);
-  stageListeners.forEach((fn) => fn());
 }
 
 export function setPageElement(newShape: ShapeData[], page: number, groupID: number) {
   pageElements[page][groupID] = newShape;
-  stageListeners.forEach((fn) => fn());
 }
 
 export function deletePageElement(page: number, groupID: number) {
   pageElements[page].splice(groupID, 1);
-  stageListeners.forEach((fn) => fn());
 }
 
 //////////////////////////////////////////////////////////////
 
 export function getPageElementsInfo(): stageGroupInfoData[][] {
-  return [...pageElementsInfo]
+  return [...pageElementsInfo];
 }
 
 export function getSpecificPageElementsInfo(page: number, groupID: number): stageGroupInfoData {
@@ -174,11 +189,11 @@ export function duplicatePageElementsInfo(page: number, groupID: number) {
   copy.y = 0;
 
   pageElementsInfo[page].push(copy);
+  console.log(pageElementsInfo);
 }
 
 export function setPageElementsInfo(newStageGroupInfo: stageGroupInfoData, page: number, groupID: number) {
   pageElementsInfo[page][groupID] = newStageGroupInfo;
-  stageListeners.forEach((fn) => fn());
 }
 
 export function deletePageElementInfo(page: number, groupID: number) {

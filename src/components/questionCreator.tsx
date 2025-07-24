@@ -11,6 +11,7 @@ import { addPageElement, addPageElementsInfo, deletePageElement, deletePageEleme
 import ColorSelectorSection from '@/components/colorSelectorSection';
 import { KonvaEventObject } from 'konva/lib/Node';
 import Advert from './advert';
+import '@/styles/QuestionCreator.css'
 
 type QuestionCreatorProps = {
   onClose: () => void;
@@ -31,10 +32,14 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
 
     const [selectedFillColorViaDisplay, setSelectedFillColorViaDisplay] = useState<string>("");
     const [selectedStrokeColorViaDisplay, setSelectedStrokeColorViaDisplay] = useState<string>("");
+    const [selectedShadowColorViaDisplay, setSelectedShadowColorViaDisplay] = useState<string>("");
     const [displayFillColorSelector, setDisplayFillColorSelector] = useState<boolean>(false);
-    const toggleDisplayFillColorSelector = () => {setDisplayFillColorSelector(!displayFillColorSelector); if (!displayFillColorSelector && displayStrokeColorSelector) {setDisplayStrokeColorSelector(false);}}
+    const toggleDisplayFillColorSelector = () => {setDisplayFillColorSelector(!displayFillColorSelector); if (!displayFillColorSelector && (displayStrokeColorSelector || displayShadowColorSelector)) {setDisplayStrokeColorSelector(false); setDisplayShadowColorSelector(false);}}
     const [displayStrokeColorSelector, setDisplayStrokeColorSelector] = useState<boolean>(false);
-    const toggleDisplayStrokeColorSelector = () => {setDisplayStrokeColorSelector(!displayStrokeColorSelector); if (!displayStrokeColorSelector && displayFillColorSelector) {setDisplayFillColorSelector(false);}}
+    const toggleDisplayStrokeColorSelector = () => {setDisplayStrokeColorSelector(!displayStrokeColorSelector); if (!displayStrokeColorSelector && (displayFillColorSelector || displayShadowColorSelector)) {setDisplayFillColorSelector(false); setDisplayShadowColorSelector(false);}}
+    const [displayShadowColorSelector, setDisplayShadowColorSelector] = useState<boolean>(false);
+    const toggleDisplayShadowColorSelector = () => {setDisplayShadowColorSelector(!displayShadowColorSelector); if (!displayShadowColorSelector && (displayFillColorSelector || displayStrokeColorSelector)) {setDisplayFillColorSelector(false); setDisplayStrokeColorSelector(false);}}
+
 
     const [parameterPanelIndex, setParameterPanelIndex] = useState<Set<number>>(new Set([1]));
     const toggleParameterPanelSection = (index:number) => {
@@ -76,6 +81,18 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
         }
     }, [selectedStrokeColorViaDisplay]);
 
+    useEffect(() => {
+        if (selectedId) {
+            setShapes((prevShapes) =>
+                prevShapes.map((shape) =>
+                    shape.id === selectedId
+                        ? { ...shape, shadowColor: selectedShadowColorViaDisplay }
+                        : shape
+                )
+            );
+        }
+    }, [selectedShadowColorViaDisplay]);
+
     const handleContextMenu = (e: React.MouseEvent) => {
         e.preventDefault();
         setContextMenu({ x: e.pageX, y: e.pageY, show: true });
@@ -114,6 +131,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
 
     const colourFillButtonDivRef = useRef<HTMLDivElement>(null);
     const colourStrokeButtonDivRef = useRef<HTMLDivElement>(null);
+    const colourShadowButtonDivRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -142,18 +160,20 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                 setEditorHeightValue(String(shape.radiusY));
             }
             setEditorRotateValue(String(shape.rotation));
-            if (shape.type === "rect") {
+            if (shape.type === "rect" || shape.type === "image") {
                 setEditorCornerRadiusValue(String(shape.cornerRadius));
             } else {
                 setEditorCornerRadiusValue("0");
             }
             setEditorStrokeWeightValue(String(shape.strokeWidth));
+            setEditorShadowBlurValue(String(shape.shadowBlur));
             if (shape.type === "text") {
                 setEditorTextSizeValue(String(shape.fontSize));
                 setEditorTextAlignValue(String(shape.align));
             }
             setSelectedFillColorViaDisplay(shape.fill);
             setSelectedStrokeColorViaDisplay(shape.stroke);
+            setSelectedShadowColorViaDisplay(shape.shadowColor);
         } else {
             setSelectedShapeType(null);
             setEditorXpositionValue("0");
@@ -165,6 +185,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
             setEditorStrokeWeightValue("0");
             setEditorTextSizeValue("0");
             setEditorTextAlignValue("");
+            setEditorShadowBlurValue("0");
         }
         if (shape != undefined && colourFillButtonDivRef.current && shape.fill) {
             colourFillButtonDivRef.current.style.background = shape.fill;
@@ -172,6 +193,10 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
 
         if (shape != undefined && colourStrokeButtonDivRef.current && shape.stroke) {
             colourStrokeButtonDivRef.current.style.background = shape.stroke;
+        }
+
+        if (shape != undefined && colourShadowButtonDivRef.current && shape.shadowColor) {
+            colourShadowButtonDivRef.current.style.background = shape.shadowColor;
         }
 
         setShapes(prev => {
@@ -222,39 +247,13 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
             background: '',
             stroke: 'black',
             strokeWidth: 1,
-            align: "left"
+            align: "left",
+            shadowColor: "black",
+            shadowBlur: 0,
         };
         setShapes(prevShapes => [...prevShapes, newShape]);
         setSelectedId(newShape.id);
     }
-
-    const increaseFontSizeHandle = () => {
-        setEditorTextSizeValue(String(Number(editorTextSizeValue) + 1));
-
-        setShapes(prevShapes =>
-            prevShapes.map(shape => {
-            if (shape.id === selectedId && shape.type === 'text') {
-                return { ...shape, fontSize: (shape.fontSize + 1) };
-            }
-            return shape;
-            })
-        );
-    };
-
-    const decreaseFontSizeHandle = () => {
-        if (Number(editorTextSizeValue) > 1) {
-            setEditorTextSizeValue(String(Number(editorTextSizeValue) - 1));
-        }
-
-        setShapes(prevShapes =>
-            prevShapes.map(shape => {
-            if (shape.id === selectedId && shape.type === 'text' && shape.fontSize > 1) {
-                return { ...shape, fontSize: (shape.fontSize - 1) };
-            }
-            return shape;
-            })
-        );
-    };
 
     const addSquareHandle = () => {
         const newShape: ShapeData = {
@@ -269,6 +268,8 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
             stroke: 'red',
             strokeWidth: 1,
             cornerRadius: 10,
+            shadowColor: "black",
+            shadowBlur: 0,
         };
         setShapes(prevShapes => [...prevShapes, newShape]);
         setSelectedId(newShape.id);
@@ -285,7 +286,9 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
             rotation: 0,
             fill: 'black',
             stroke: 'red',
-            strokeWidth: 1
+            strokeWidth: 1,
+            shadowColor: "black",
+            shadowBlur: 0,
         };
         setShapes(prevShapes => [...prevShapes, newShape]);
         setSelectedId(newShape.id);
@@ -302,7 +305,9 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
             rotation: 0,
             fill: 'black',
             stroke: 'red',
-            strokeWidth: 1
+            strokeWidth: 1,
+            shadowColor: "black",
+            shadowBlur: 0,
         };
         setShapes(prevShapes => [...prevShapes, newShape]);
         setSelectedId(newShape.id);
@@ -386,6 +391,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
     const [editorRotateValue, setEditorRotateValue] = useState<string>("0");
     const [editorCornerRadiusValue, setEditorCornerRadiusValue] = useState<string>("0");
     const [editorStrokeWeightValue, setEditorStrokeWeightValue] = useState<string>("0");
+    const [editorShadowBlurValue, setEditorShadowBlurValue] = useState<string>("0");
     const [editorTextSizeValue, setEditorTextSizeValue] = useState<string>("0");
     const [editorTextAlignValue, setEditorTextAlignValue] = useState<string>("left");
 
@@ -577,6 +583,33 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
         }
     }
 
+    const editorShadowBlurValueHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+
+        if (/^\d*\.?\d*$/.test(value)) {
+            if (value === "") {
+                setEditorShadowBlurValue("");
+            } else {
+                const roundedValue = Math.trunc((Number(value) + Number.EPSILON) * 10000) / 10000;
+                if (value.endsWith(".")) {
+                    setEditorShadowBlurValue(String(roundedValue)+".");
+                } else {
+                    setEditorShadowBlurValue(String(roundedValue));
+                }
+            
+                setShapes(prevShapes =>
+                    prevShapes.map(shape => {
+                    if (shape.id === selectedId) {
+                        return { ...shape, shadowBlur: roundedValue };
+                    }
+                    return shape;
+                    })
+                );
+            }
+        }
+    }
+    
+
     const editorTextSizeValueHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
 
@@ -584,6 +617,9 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
             if (value === "") {
                 setEditorTextSizeValue("");
             } else {
+                if (Number(value) <= 0) {
+                    return;
+                }
                 const roundedValue = Math.trunc((Number(value) + Number.EPSILON) * 10000) / 10000;
                 if (value.endsWith(".")) {
                     setEditorTextSizeValue(String(roundedValue)+".");
@@ -656,8 +692,8 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                 onSelect={handleSelect}
             />
             <div className='absolute flex z-10 w-screen h-screen bg-opacity-50 backdrop-blur-sm items-center justify-center'>
-                <div className='flex w-full items-center justify-center space-x-2 h-3/4'>
-                    <div className='bg-background rounded-lg p-2 border-2 border-primary rounded-xl w-[75vw] h-full'>
+                <div className='flex w-full items-center justify-center h-3/4'>
+                    <div className='bg-background rounded-lg p-2 m-2 border-2 border-primary rounded-xl w-[75vw] h-full'>
                         <div className='flex justify-between items-center justify-center'>
                             <h3 className='text-lg'>Question Creator Editor</h3>
                             <button onClick={onClose} className='w-6 h-6'>
@@ -777,13 +813,11 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                                                 isSelected={shape.id === selectedId}
                                                 onSelect={() => setSelectedId(shape.id)}
                                                 onChange={updateShape}
-                                                setDraggable={true}
                                                 stageScale={stageScale}
                                                 fontScale={fontScale}
                                                 dragBoundFunc={dragBoundFunc}
                                                 stageWidth={dimensions.width}
                                                 stageHeight={dimensions.height}
-                                                listening={true}
                                                 onDragMoveUpdates={editorShapeOnDragHandler}
                                                 onTransformUpdates={editorShapeOnTranformHandler}
                                             />
@@ -802,7 +836,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                             </button>
                         </div>
                     </div>
-                    <div className='bg-background rounded-lg p-2 border-2 border-primary rounded-xl w-[20vw] h-full'>
+                    <div className='bg-background rounded-lg p-2 m-2 border-2 border-primary rounded-xl w-[20rem] h-full'>
                         <h3 className='text-center text-primary text-lg'>Parameters</h3>
                         
                         {/* Default Parameters */}
@@ -827,7 +861,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                                 className={`flex flex-col overflow-hidden transition-all duration-400 ease-linear space-y-2 ${
                                 checkParameterPanelSection(1) ? 'm-2' : 'max-h-0 p-0 border-0'
                                 }`}
-                            >
+                            >       
                                 <div className='flex w-full flex-row items-center justify-center'>
                                     <div className='flex flex-col space-y-2 items-start justify-center p-2'>
                                         <p className='text-primary'>x</p>
@@ -876,12 +910,13 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                                 checkParameterPanelSection(2) ? 'm-2' : 'max-h-0 p-0 border-0'
                                 }`}
                             >
-                                <div className='flex w-full flex-row items-center justify-center'>
-                                    <div className='flex flex-col items-left justify-center h-20'>
+                                <div className='flex w-full flex-row items-center justify-center h-30'>
+                                    <div className='flex flex-col items-left justify-center'>
                                         <p className='p-2 text-start'>Fill</p>
                                         <p className='p-2 text-start'>Stroke</p>
+                                        <p className='p-2 text-start'>Shadow</p>
                                     </div>
-                                    <div className='flex flex-col items-center justify-center h-20'>
+                                    <div className='flex flex-col items-center justify-center'>
                                         {/* Fill Colour */}
                                         <button onClick={toggleDisplayFillColorSelector} className='w-16 h-10 p-2'>
                                             <div ref={colourFillButtonDivRef} style={{background: selectedFillColorViaDisplay || 'white'}} className='w-full h-full border border-primary flex items-center justify-center rounded-sm'></div>
@@ -900,16 +935,28 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                                             <ColorSelectorSection onClose={() => setDisplayStrokeColorSelector(false)} passColorValue={setSelectedStrokeColorViaDisplay} startingColor={selectedStrokeColorViaDisplay}/>
                                         </div>
                                         )}
+                                        {/* Shadow Colour */}
+                                        <button onClick={toggleDisplayShadowColorSelector} className='w-16 h-10 p-2'>
+                                            <div ref={colourShadowButtonDivRef} style={{background: selectedShadowColorViaDisplay || 'black'}} className='w-full h-full border border-primary flex items-center justify-center rounded-sm'></div>
+                                        </button>
+                                        {displayShadowColorSelector && (
+                                        <div className='absolute flex items-center justify-center left-[25vw]'>
+                                            <ColorSelectorSection onClose={() => setDisplayShadowColorSelector(false)} passColorValue={setSelectedShadowColorViaDisplay} startingColor={selectedShadowColorViaDisplay}/>
+                                        </div>
+                                        )}
                                     </div>
                                     <div className='flex flex-col items-left justify-center'>
                                         <p className='p-2 text-start'>Belve</p>
                                         <p className='p-2 text-start'>Weight</p>
+                                        <p className='p-2 text-start'>Blur</p>
                                     </div>
-                                    <div className='flex flex-col items-center justify-center space-y-2'>
+                                    <div className="flex flex-col items-left justify-center">
                                         {/* Belve Weight */}
-                                        <input className='flex w-16 rounded-sm border border-primary px-1' value={editorCornerRadiusValue} onChange={editorCornerRadiusValueHandler}></input>
+                                        <input className='w-12 rounded-sm border border-primary px-1 m-2' value={editorCornerRadiusValue} onChange={editorCornerRadiusValueHandler}></input>
                                         {/* Stroke Weight */}
-                                        <input className='flex w-16 rounded-sm border border-primary px-1' value={editorStrokeWeightValue} onChange={editorStrokeWeightValueHandler}></input>
+                                        <input className='w-12 rounded-sm border border-primary px-1 m-2' value={editorStrokeWeightValue} onChange={editorStrokeWeightValueHandler}></input>
+                                        {/* Blur Weight */}
+                                        <input className='w-12 rounded-sm border border-primary px-1 m-2' value={editorShadowBlurValue} onChange={editorShadowBlurValueHandler}></input>
                                     </div>
                                 </div>
                             </div>
@@ -969,13 +1016,13 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                                         </div>
                                         <div className='flex w-full h-10 flex-row items-center justify-center space-x-2'>
                                             <p>Align</p>
-                                            <button onClick={() => editorTextAlignHanlder("left")} className={`w-10 transition-all duration-200 ease-in-out ${editorTextAlignValue === "left" && "[box-shadow:inset_4px_4px_10px_#bcbcbc,inset_-4px_-4px_10px_#ffffff]"}`}>
+                                            <button onClick={() => editorTextAlignHanlder("left")} className={`number-input w-10 transition-all duration-200 ease-in-out ${editorTextAlignValue === "left" && "[box-shadow:inset_4px_4px_10px_#bcbcbc,inset_-4px_-4px_10px_#ffffff]"}`}>
                                                 <svg clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m17 17.75c0-.414-.336-.75-.75-.75h-13.5c-.414 0-.75.336-.75.75s.336.75.75.75h13.5c.414 0 .75-.336.75-.75zm5-4c0-.414-.336-.75-.75-.75h-18.5c-.414 0-.75.336-.75.75s.336.75.75.75h18.5c.414 0 .75-.336.75-.75zm-9-4c0-.414-.336-.75-.75-.75h-9.5c-.414 0-.75.336-.75.75s.336.75.75.75h9.5c.414 0 .75-.336.75-.75zm7-4c0-.414-.336-.75-.75-.75h-16.5c-.414 0-.75.336-.75.75s.336.75.75.75h16.5c.414 0 .75-.336.75-.75z" fillRule="nonzero"/></svg>
                                             </button>
-                                            <button onClick={() => editorTextAlignHanlder("center")} className={`w-10 transition-all duration-200 ease-in-out ${editorTextAlignValue === "center" && "[box-shadow:inset_4px_4px_10px_#bcbcbc,inset_-4px_-4px_10px_#ffffff]"}`}>
+                                            <button onClick={() => editorTextAlignHanlder("center")} className={`number-input w-10 transition-all duration-200 ease-in-out ${editorTextAlignValue === "center" && "[box-shadow:inset_4px_4px_10px_#bcbcbc,inset_-4px_-4px_10px_#ffffff]"}`}>
                                                 <svg clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m6 17.75c0-.414.336-.75.75-.75h10.5c.414 0 .75.336.75.75s-.336.75-.75.75h-10.5c-.414 0-.75-.336-.75-.75zm-4-4c0-.414.336-.75.75-.75h18.5c.414 0 .75.336.75.75s-.336.75-.75.75h-18.5c-.414 0-.75-.336-.75-.75zm0-4c0-.414.336-.75.75-.75h18.5c.414 0 .75.336.75.75s-.336.75-.75.75h-18.5c-.414 0-.75-.336-.75-.75zm4-4c0-.414.336-.75.75-.75h10.5c.414 0 .75.336.75.75s-.336.75-.75.75h-10.5c-.414 0-.75-.336-.75-.75z" fillRule="nonzero"/></svg>
                                             </button>
-                                            <button onClick={() => editorTextAlignHanlder("right")} className={`w-10 transition-all duration-200 ease-in-out ${editorTextAlignValue === "right" && "[box-shadow:inset_4px_4px_10px_#bcbcbc,inset_-4px_-4px_10px_#ffffff]"}`}>
+                                            <button onClick={() => editorTextAlignHanlder("right")} className={`number-input w-10 transition-all duration-200 ease-in-out ${editorTextAlignValue === "right" && "[box-shadow:inset_4px_4px_10px_#bcbcbc,inset_-4px_-4px_10px_#ffffff]"}`}>
                                                 <svg clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m7 17.75c0-.414.336-.75.75-.75h13.5c.414 0 .75.336.75.75s-.336.75-.75.75h-13.5c-.414 0-.75-.336-.75-.75zm-5-4c0-.414.336-.75.75-.75h18.5c.414 0 .75.336.75.75s-.336.75-.75.75h-18.5c-.414 0-.75-.336-.75-.75zm9-4c0-.414.336-.75.75-.75h9.5c.414 0 .75.336.75.75s-.336.75-.75.75h-9.5c-.414 0-.75-.336-.75-.75zm-7-4c0-.414.336-.75.75-.75h16.5c.414 0 .75.336.75.75s-.336.75-.75.75h-16.5c-.414 0-.75-.336-.75-.75z" fillRule="nonzero"/></svg>
                                             </button>
                                         </div>

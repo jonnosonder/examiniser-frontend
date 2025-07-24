@@ -3,10 +3,11 @@
 import { useEffect, useState, useRef} from 'react';
 import { Stage, Layer, Group, Rect } from 'react-konva';
 import React from "react";
-import { getStages, subscribeStage, maxWidthHeight, getMarginValue, getViewMargin, setGlobalStageScale, getGlobalStageScale, getPageElements, getPageElementsInfo, getEstimatedPage, setEstimatedPage, setPageElementsInfo } from '@/lib/stageStore';
+import { getStages, subscribeStage, maxWidthHeight, getMarginValue, getViewMargin, setGlobalStageScale, getGlobalStageScale, getPageElements, getPageElementsInfo, getEstimatedPage, setEstimatedPage, setPageElementsInfo, subscribePreviewStage, RENDER_PREVIEW } from '@/lib/stageStore';
 import "@/styles/allStages.css"
-import CanvasElements from '@/components/canvasElements'
 import Konva from 'konva';
+import DrawElement from './drawElement';
+import { ShapeData } from '@/lib/shapeData';
 
 type AllStagesProps = {
   manualScaler?: number;
@@ -22,7 +23,7 @@ type setSelectedIdType = {
   page: number | null;
 };
 
-export default function AllStages({ manualScaler=1, selectedId={groupID: null, page: null}, setSelectedId, ignoreSelectionArray, previewStyle, editQuestionButtonHandler } : AllStagesProps) {
+const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, setSelectedId, ignoreSelectionArray, previewStyle, editQuestionButtonHandler } : AllStagesProps) => {
   const [stages, setStages] = useState(getStages());
   const pageElements = getPageElements();
   const pageElementsInfo = getPageElementsInfo();
@@ -35,11 +36,25 @@ export default function AllStages({ manualScaler=1, selectedId={groupID: null, p
   const [stageEstimatedPage, setStageEstimatedPage] = useState(getEstimatedPage());
   
   useEffect(() => {
-    const unsubscribeStage = subscribeStage(() => {
-      setStages(getStages());
-    });
-    return () => unsubscribeStage();
+    if (previewStyle) {
+      const unsubscribeStage = subscribePreviewStage(() => {
+        console.log('Preview update triggered');
+        setStages(getStages());
+      });
+      return () => unsubscribeStage();
+    }
   }, []);
+
+  useEffect(() => {
+    if (!previewStyle) {
+      const unsubscribeStage = subscribeStage(() => {
+        console.log('Stage update triggered');
+        setStages(getStages());
+      });
+      return () => unsubscribeStage();
+    }
+  }, []);
+  
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -91,23 +106,25 @@ export default function AllStages({ manualScaler=1, selectedId={groupID: null, p
   useEffect(() => {
     if (!previewStyle && ignoreSelectionArray && setSelectedId) {
       const handleClickOutside = (e: MouseEvent) => {
-        let toSetNull = true
-        ignoreSelectionArray.forEach(element => {
-          if (element.current && element.current.contains(e.target as Node)) {
-            toSetNull = false;
-            return;
+        if (selectedId.groupID !== null) {
+          let toSetNull = true
+          ignoreSelectionArray.forEach(element => {
+            if (element.current && element.current.contains(e.target as Node)) {
+              toSetNull = false;
+              return;
+            }
+          });
+          if (toSetNull) {
+            setSelectedId({groupID: null, page: null});
           }
-        });
-        if (toSetNull) {
-          setSelectedId({groupID: null, page: null});
         }
       };
 
       document.addEventListener('mousedown', handleClickOutside);
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
-  }, []);
-
+  }, [selectedId]);
+  
   const marginValue = getMarginValue();
   const viewMargin = getViewMargin();
   
@@ -148,7 +165,7 @@ export default function AllStages({ manualScaler=1, selectedId={groupID: null, p
           setGlobalStageScale(scale);
         }
 
-        console.log(pageElements);
+        console.log(`Rending Page ${pageNumber+1}#\nstages: Length: ${stages.length}`);
         let aPagesElements = pageElements.slice(pageNumber, pageNumber+1)[0];
         if (!aPagesElements) {
           aPagesElements = [];
@@ -173,7 +190,7 @@ export default function AllStages({ manualScaler=1, selectedId={groupID: null, p
                 height={stage.height}
                 scaleX={scale * manualScaler}
                 scaleY={scale * manualScaler}
-                pixelRatio={300}
+                pixelRatio={1}
                 style={{
                   transformOrigin: 'top left',
                 }}
@@ -199,25 +216,27 @@ export default function AllStages({ manualScaler=1, selectedId={groupID: null, p
                   />
                   )}
                   { aPagesElements.map((group, i) => {
-                    
+                    const focusGroup = pageElementsInfo[pageNumber][i];
+                    console.log(`GROUP ${i}`);
                     let dragBoundFunc: ((pos: { x: number; y: number }) => { x: number; y: number }) | undefined;
                     if (!previewStyle) {
                       dragBoundFunc = (pos: { x: number; y: number }) => {
                         const scaled = scale * manualScaler;
+                        const inverseScale = 1 / scaled;
 
-                        let x = pos.x / scaled;
-                        let y = pos.y / scaled;
+                        let x = pos.x * inverseScale;
+                        let y = pos.y * inverseScale;
 
-                        const minX = 0;
-                        const minY = 0;
-                        const maxX = stage.width - pageElementsInfo[pageNumber][i].widestX;
-                        const maxY = stage.height - pageElementsInfo[pageNumber][i].widestY;
+                        const { width: stageWidth, height: stageHeight } = stage;
+                        const elementInfo = focusGroup;
 
-                        if (x < minX) x = minX;
-                        if (y < minY) y = minY;
-                        if (x > maxX) x = maxX;
-                        if (y > maxY) y = maxY;
+                        const maxX = stageWidth - elementInfo.widestX;
+                        const maxY = stageHeight - elementInfo.widestY;
 
+                        x = Math.max(0, Math.min(x, maxX));
+                        y = Math.max(0, Math.min(y, maxY));
+
+                        // Return in scaled space
                         return {
                           x: x * scaled,
                           y: y * scaled,
@@ -225,56 +244,56 @@ export default function AllStages({ manualScaler=1, selectedId={groupID: null, p
                       };
                     }
 
+                    const onClickHandler = () => {
+                      setSelectedId?.({groupID: i, page: pageNumber})
+                    } 
+
                     return (
                       <Group
-                        key={i}
-                        x={pageElementsInfo[pageNumber][i].x}
-                        y={pageElementsInfo[pageNumber][i].y}
-                        width={pageElementsInfo[pageNumber][i].widestX}
-                        height={pageElementsInfo[pageNumber][i].widestY}
+                        key={i + (i * pageNumber+1)}
+                        x={focusGroup.x}
+                        y={focusGroup.y}
+                        width={focusGroup.widestX}
+                        height={focusGroup.widestY}
                         draggable={!previewStyle}
                         dragBoundFunc={!previewStyle ? dragBoundFunc : undefined}
                         listening={!previewStyle}
-                        onClick={() => setSelectedId?.({groupID: i, page: pageNumber})}
-                        onTap={() => setSelectedId?.({groupID: i, page: pageNumber})}
-                        onDblClick={() => {!previewStyle ? editQuestionButtonHandler?.(pageNumber, i) : undefined}}
-                        onDblTap={() => {!previewStyle ? editQuestionButtonHandler?.(pageNumber, i) : undefined}}
+                        onClick={onClickHandler}
+                        onTap={onClickHandler}
+                        onDblClick={() => !previewStyle ? editQuestionButtonHandler?.(pageNumber, i) : undefined}
+                        onDblTap={() => !previewStyle ? editQuestionButtonHandler?.(pageNumber, i) : undefined}
                         onDragEnd={ (e) => {
-                          setPageElementsInfo({ ...pageElementsInfo[pageNumber][i], x: Math.round((e.target.x() + Number.EPSILON) * 100000) / 100000, y: Math.round((e.target.y() + Number.EPSILON) * 100000) / 100000 }, pageNumber, i);
+                          setPageElementsInfo({ ...focusGroup, x: Math.round((e.target.x() + Number.EPSILON) * 100000) / 100000, y: Math.round((e.target.y() + Number.EPSILON) * 100000) / 100000 }, pageNumber, i);
+                          RENDER_PREVIEW();
                         }}
-
                       > 
-                        <Rect
-                          width={pageElementsInfo[pageNumber][i].widestX}
-                          height={pageElementsInfo[pageNumber][i].widestY}
-                          dragBoundFunc={!previewStyle ? dragBoundFunc : undefined}
-                          fill="rgba(0,0,0,0)" // invisible but interactive
-                        />
-                        {i === selectedId.groupID && pageNumber === selectedId.page && 
                         <Rect
                           x={0}
                           y={0}
-                          width={pageElementsInfo[pageNumber][i].widestX}
-                          height={pageElementsInfo[pageNumber][i].widestY}
-                          stroke={'#F57C22'}
-                          strokeWidth={20}
-                          fillEnabled={false}
-                          cornerRadius={10}
-                          listening={false}
+                          width={focusGroup.widestX}
+                          height={focusGroup.widestY}
+                          fill="rgba(0,0,0,0)" // invisible but interactive
                         />
+                        {i === selectedId.groupID && pageNumber === selectedId.page && 
+                          <Rect
+                            x={-10}
+                            y={-10}
+                            width={focusGroup.widestX+20}
+                            height={focusGroup.widestY+20}
+                            stroke={'#F57C22'}
+                            strokeWidth={20}
+                            fillEnabled={false}
+                            listening={false}
+                            cornerRadius={10}
+                          />
                         }
-                        {group.map((shape) => {
+                        {group.map((shape, x) => {
+                          console.log(`DRAW ${x}`);
                           return(
-                          <CanvasElements
+                          <DrawElement
                             key={shape.id}
                             shape={shape}
-                            isSelected={false}
-                            onSelect={() => (null)}
-                            onChange={() => (null)}
-                            setDraggable={false}
-                            stageScale={scale}
                             fontScale={previewStyle ? previewFontScale : scale}
-                            listening={false}
                           />
                           );
                         })}
@@ -300,3 +319,5 @@ export default function AllStages({ manualScaler=1, selectedId={groupID: null, p
     </div>
   );
 }
+
+export default React.memo(AllStages);

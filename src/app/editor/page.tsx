@@ -7,7 +7,7 @@ import AllStages from '@/components/allStages';
 import HoverExplainButton from '@/components/hoverExplainButton';
 import '@/styles/editor.css';
 
-import { addPageElement, addPageElementsInfo, addStage, addStageCopyPrevious, deleteAllStages, duplicatePageElement, duplicatePageElementsInfo, getEstimatedPage, getPageElements, stagesLength } from '@/lib/stageStore';
+import { addPageElement, addPageElementsInfo, addStage, addStageCopyPrevious, deleteAllStages, duplicatePageElement, duplicatePageElementsInfo, getEstimatedPage, getPageElements, RENDER_PAGE, stagesLength } from '@/lib/stageStore';
 import QuestionCreator from '@/components/questionCreator';
 import { ShapeData } from '@/lib/shapeData';
 import EditorSidePanel from '@/components/editorSidePanel';
@@ -118,7 +118,7 @@ function EditorPage() {
                 height: height,
                 background: backgroundColor,
             });
-            
+            RENDER_PAGE();            
         }
     }, [pageFormatData]);
 
@@ -196,6 +196,8 @@ function EditorPage() {
                     strokeWidth: 0,
                     image: img,
                     cornerRadius: 0,
+                    shadowColor: "black",
+                    shadowBlur: 0,
                 };
 
                 console.log(img);
@@ -217,12 +219,14 @@ function EditorPage() {
             console.log("converting pdf to images");
             setProjectNameValue(fileUploaded.name);
             renderPdf(fileUploaded);
+            RENDER_PAGE();
         }
     }, [])
 
 
     const newPageButtonHandler = () => {
         addStageCopyPrevious(`stage-${Date.now()}`);
+        RENDER_PAGE()
     }
 
     const fileNameOnChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -263,8 +267,9 @@ function EditorPage() {
 
     const duplicateQuestionButtonHandler = () => {
         if (selectedQuestionId.page !== null && selectedQuestionId.groupID !== null){
-            duplicatePageElementsInfo(selectedQuestionId.groupID, selectedQuestionId.page);
-            duplicatePageElement(selectedQuestionId.groupID, selectedQuestionId.page);
+            duplicatePageElementsInfo(selectedQuestionId.page, selectedQuestionId.groupID);
+            duplicatePageElement(selectedQuestionId.page, selectedQuestionId.groupID);
+            RENDER_PAGE();
         } else {
             notify('info', 'Please select an element');
         }
@@ -286,10 +291,13 @@ function EditorPage() {
             background: '',
             stroke: '',
             strokeWidth: 1,
-            align: "left"
+            align: "left",
+            shadowColor: "black",
+            shadowBlur: 0,
         };
         addPageElementsInfo({widestX: newText.width, widestY: newText.height, x:0, y:0}, pageToAddIt);
         addPageElement([newText], pageToAddIt);
+        RENDER_PAGE();
     }
 
     const addSquareToPageButtonHandler = () => {
@@ -306,9 +314,12 @@ function EditorPage() {
             stroke: 'red',
             strokeWidth: 1,
             cornerRadius: 10,
+            shadowColor: "black",
+            shadowBlur: 0,
         };
         addPageElementsInfo({widestX: newSquare.width, widestY: newSquare.height, x:0, y:0}, pageToAddIt);
         addPageElement([newSquare], pageToAddIt);
+        RENDER_PAGE();
     }
 
     const addCircleToPageButtonHandler = () => {
@@ -323,10 +334,13 @@ function EditorPage() {
             rotation: 0,
             fill: 'black',
             stroke: 'red',
-            strokeWidth: 1
+            strokeWidth: 1,
+            shadowColor: "black",
+            shadowBlur: 0,
         };
         addPageElementsInfo({widestX: newCircle.radiusX*2, widestY: newCircle.radiusY*2, x:0, y:0}, pageToAddIt);
         addPageElement([newCircle], pageToAddIt);
+        RENDER_PAGE();
     }
     
     const addTriangleToPageButtonHandler = () => {
@@ -341,10 +355,13 @@ function EditorPage() {
             rotation: 0,
             fill: 'black',
             stroke: 'red',
-            strokeWidth: 1
+            strokeWidth: 1,
+            shadowColor: "black",
+            shadowBlur: 0,
         };
         addPageElementsInfo({widestX: newCircle.width, widestY: newCircle.height, x:0, y:0}, pageToAddIt);
         addPageElement([newCircle], pageToAddIt);
+        RENDER_PAGE();
     }
 
     return (

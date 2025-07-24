@@ -14,18 +14,16 @@ interface Props {
   isSelected: boolean;
   onSelect: () => void;
   onChange: (newAttrs: ShapeData) => void;
-  setDraggable: boolean;
   stageScale: number;
   fontScale: number;
   dragBoundFunc?: (pos: { x: number; y: number }) => { x: number; y: number };
   stageWidth?: number,
   stageHeight?: number,
-  listening: boolean,
   onDragMoveUpdates?: (e: KonvaEventObject<MouseEvent>) => void;
   onTransformUpdates?: (e: KonvaEventObject<Event>) => void;
 }
 
-export default function CanvasElements({ shape, isSelected, onSelect, onChange, setDraggable, stageScale, fontScale, dragBoundFunc, stageWidth, stageHeight, listening, onDragMoveUpdates, onTransformUpdates }: Props) {
+export default function CanvasElements({ shape, isSelected, onSelect, onChange, stageScale, fontScale, dragBoundFunc, stageWidth, stageHeight, onDragMoveUpdates, onTransformUpdates }: Props) {
   const rectRef = useRef<Konva.Rect | null>(null);
   const ovalRef = useRef<Konva.Ellipse | null>(null);
   const triangleRef = useRef<Konva.Line | null>(null);
@@ -95,7 +93,7 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
     case 'rect':
       return (
         <>
-          <Rect {...shape} {...commonProps} ref={rectRef} draggable={setDraggable} onDragMove={(e) => {onDragMoveUpdates?.(e); onSelect()}} listening={listening}
+          <Rect {...shape} {...commonProps} ref={rectRef} onDragMove={(e) => {onDragMoveUpdates?.(e); onSelect()}} draggable={true}
           onDragEnd={ (e) => {
             onChange({ ...shape, x: Math.round((e.target.x() + Number.EPSILON) * 10000) / 10000, y: Math.round((e.target.y() + Number.EPSILON) * 10000) / 10000 });
           }}
@@ -125,7 +123,7 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
     case 'oval':
       return (
         <>
-          <Ellipse {...shape} {...commonProps} ref={ovalRef} draggable={setDraggable} onDragMove={(e) => {onDragMoveUpdates?.(e); onSelect()}} listening={listening}
+          <Ellipse {...shape} {...commonProps} ref={ovalRef}  onDragMove={(e) => {onDragMoveUpdates?.(e); onSelect()}} draggable={true}
           onTransformEnd={ () => {
             const node = ovalRef.current;
             if (!node) return;
@@ -162,7 +160,7 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
       ];
       return (
         <>
-          <Line {...shape} {...commonProps} points={trianglePoints} closed ref={triangleRef} draggable={setDraggable} onDragMove={(e) => {onDragMoveUpdates?.(e); onSelect()}} listening={listening}
+          <Line {...shape} {...commonProps} points={trianglePoints} closed ref={triangleRef}  onDragMove={(e) => {onDragMoveUpdates?.(e); onSelect()}} draggable={true}
           onTransformEnd={ () => {
             const node = triangleRef.current;
             if (!node) return;
@@ -260,7 +258,7 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
 
       return (
         <>
-          <Text {...shape} fontSize={shape.fontSize / fontScale} {...commonProps} ref={textRef} draggable={setDraggable} onDragMove={(e) => {onDragMoveUpdates?.(e); onSelect()}} onDblClick={handleDoubleClick} onDblTap={handleDoubleClick} listening={listening}
+          <Text {...shape} fontSize={shape.fontSize / fontScale} {...commonProps} ref={textRef} draggable={true} onDragMove={(e) => {onDragMoveUpdates?.(e); onSelect()}} onDblClick={handleDoubleClick} onDblTap={handleDoubleClick} 
           onTransform={(e) => {
             const node = e.target;
             const scaleX = node.scaleX();
@@ -302,7 +300,7 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
     case 'image':
       return (
         <>
-          <KonvaImage {...shape} {...commonProps} ref={imageRef} draggable={setDraggable} onDragMove={(e) => {onDragMoveUpdates?.(e); onSelect()}} listening={listening}
+          <KonvaImage {...shape} {...commonProps} ref={imageRef}  onDragMove={(e) => {onDragMoveUpdates?.(e); onSelect()}} draggable={true}
           onDragEnd={ (e) => {
             onChange({ ...shape, x: Math.round((e.target.x() + Number.EPSILON) * 10000) / 10000, y: Math.round((e.target.y() + Number.EPSILON) * 10000) / 10000 });
           }}
