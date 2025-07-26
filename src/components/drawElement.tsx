@@ -16,7 +16,7 @@ export default function DrawElement({ shape, fontScale }: Props) {
   switch (shape.type) {
     case 'rect':
       return (
-        <Rect {...shape} listening={false} />
+        <Rect {...shape} cornerRadius={shape.cornerRadius/100 * Math.min(shape.width * 0.5, shape.height * 0.5)} listening={false} />
       );
     case 'oval':
       return (
@@ -28,7 +28,7 @@ export default function DrawElement({ shape, fontScale }: Props) {
         [Number(shape.width)/2 , 0],
         [Number(shape.width), Number(shape.height)]
       ];
-      const pathData_trianglePoints = CreateRoundedPolygonPath(trianglePoints, shape.cornerRadius);
+      const pathData_trianglePoints = CreateRoundedPolygonPath(trianglePoints, shape.cornerRadius/100 * Math.min(shape.width * 0.5, Math.sqrt(Math.pow(shape.height, 2) + Math.pow(shape.width * 0.5, 2))));
       return (
           <Path {...shape} data={pathData_trianglePoints} closed listening={false}/>
       );
@@ -38,7 +38,7 @@ export default function DrawElement({ shape, fontScale }: Props) {
         [0 , 0],
         [Number(shape.width), Number(shape.height)]
       ];
-      const pathData_rightAngleTrianglePoints = CreateRoundedPolygonPath(rightAngleTrianglePoints, shape.cornerRadius);
+      const pathData_rightAngleTrianglePoints = CreateRoundedPolygonPath(rightAngleTrianglePoints, shape.cornerRadius/100 * Math.min(shape.width * 0.5, shape.height * 0.5));
       return (
           <Path {...shape} data={pathData_rightAngleTrianglePoints} closed listening={false}/>
       );

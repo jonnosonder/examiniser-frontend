@@ -3,11 +3,12 @@
 import { useEffect, useState, useRef} from 'react';
 import { Stage, Layer, Group, Rect } from 'react-konva';
 import React from "react";
-import { getStages, subscribeStage, maxWidthHeight, getMarginValue, getViewMargin, setGlobalStageScale, getGlobalStageScale, getPageElements, getPageElementsInfo, getEstimatedPage, setEstimatedPage, setPageElementsInfo, subscribePreviewStage, RENDER_PREVIEW } from '@/lib/stageStore';
+import { getStages, subscribeStage, maxWidthHeight, getMarginValue, getViewMargin, setGlobalStageScale, getGlobalStageScale, getPageElements, getPageElementsInfo, getEstimatedPage, setEstimatedPage, setPageElementsInfo, subscribePreviewStage, RENDER_PREVIEW, deletePageElement, deletePageElementInfo, changePageOfElement, changePageOfElementInfo, RENDER_PAGE } from '@/lib/stageStore';
 import "@/styles/allStages.css"
 import Konva from 'konva';
 import DrawElement from './drawElement';
 import { ShapeData } from '@/lib/shapeData';
+import { useNotification } from '@/context/notificationContext';
 
 type AllStagesProps = {
   manualScaler?: number;
@@ -34,6 +35,17 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
   const [containerHeight, setContainerHeight] = useState(0);
 
   const [stageEstimatedPage, setStageEstimatedPage] = useState(getEstimatedPage());
+
+  const [showSelectButtons, setShowSelectButtons] = useState(false);
+  const [selectButtonPosition, setSelectButtonPosition] = useState({ x: 0, y: 0 });
+
+  const { notify } = useNotification();
+
+  useEffect(() => {
+    if (selectedId.groupID === null || selectedId.page === null) {
+      setShowSelectButtons(false);
+    }
+  }, [selectedId])
   
   useEffect(() => {
     if (previewStyle) {
@@ -103,20 +115,21 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
     }
   }, [stages]);
 
+  const selectButtonsDivRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (!previewStyle && ignoreSelectionArray && setSelectedId) {
       const handleClickOutside = (e: MouseEvent) => {
         if (selectedId.groupID !== null) {
-          let toSetNull = true
           ignoreSelectionArray.forEach(element => {
             if (element.current && element.current.contains(e.target as Node)) {
-              toSetNull = false;
               return;
             }
           });
-          if (toSetNull) {
-            setSelectedId({groupID: null, page: null});
+          if (selectButtonsDivRef.current && selectButtonsDivRef.current.contains(e.target as Node)) {
+            return;
           }
+          setSelectedId({groupID: null, page: null});
         }
       };
 
@@ -157,6 +170,37 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
 
   const round4 = (num: number) => Math.round((num + Number.EPSILON) * 10000) / 10000;
 
+  const selectButtonDeleteHandler = () => {
+    if (selectedId.page !== null && selectedId.groupID !== null) {
+      deletePageElement(selectedId.page, selectedId.groupID);
+      deletePageElementInfo(selectedId.page, selectedId.groupID);
+    }
+    setSelectedId?.({groupID: null, page: null});
+    RENDER_PREVIEW();
+  }
+
+  const selectButtonMoveDownElementHandler = () => {
+    if (selectedId.page !== null && selectedId.groupID !== null && selectedId.page < stages.length-1) {
+      changePageOfElement(selectedId.page, selectedId.groupID, selectedId.page+1);
+      changePageOfElementInfo(selectedId.page, selectedId.groupID, selectedId.page+1);
+      setSelectedId?.({groupID: selectedId.groupID, page: selectedId.page+1});
+      RENDER_PAGE();
+    } else {
+      notify('info', 'No page bellow');
+    }
+  }
+
+  const selectButtonMoveUpElementHandler = () => {
+    if (selectedId.page !== null && selectedId.groupID !== null && selectedId.page > 0) {
+      changePageOfElement(selectedId.page, selectedId.groupID, selectedId.page-1);
+      changePageOfElementInfo(selectedId.page, selectedId.groupID, selectedId.page-1);
+      setSelectedId?.({groupID: selectedId.groupID, page: selectedId.page-1});
+      RENDER_PAGE();
+    } else {
+      notify('info', 'No page above');
+    }
+  }
+
   return (
     <div ref={wholeContainerRef} className='overflow-y-auto custom-scroll h-full w-full flex flex-col items-center justify-start space-y-4 p-4' id={!previewStyle ? `wholeStageContainerScroller` : ''}>
       {stages.map((stage, pageNumber) => {
@@ -180,7 +224,7 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
           )}
           <div ref={stageContainerRef} key={stage.id+"div"} onClick={() => previewPageOnClickHanlder?.(pageNumber)} className='flex flex-col w-full h-full items-center justify-start'>
               <div
-                className={`flex flex-shrink-0 ${previewStyle && `border border-primary rounded-sm transition-shadow duration-300 hover:shadow-[0_0_0_0.2rem_theme('colors.contrast')]`} overflow-hidden`}
+                className={`flex flex-shrink-0 relative  ${previewStyle && `border border-primary rounded-sm transition-shadow duration-300 hover:shadow-[0_0_0_0.2rem_theme('colors.contrast')]`} overflow-hidden`}
                 style={{
                   width: stage.width * scale * manualScaler,
                   height: stage.height * scale * manualScaler,
@@ -247,10 +291,18 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
 
                     const onClickHandler = () => {
                       setSelectedId?.({groupID: i, page: pageNumber})
+                      setSelectButtonPosition({
+                        x: (focusGroup.x + focusGroup.widestX) * scale,
+                        y: (focusGroup.y + focusGroup.widestY) * scale,
+                      });
+                      console.log((focusGroup.x + focusGroup.widestX) * scale);
+                      console.log((focusGroup.y + focusGroup.widestY) * scale);
+                      setShowSelectButtons(true);
                     } 
 
                     const onDbClickHandler = () => {
                       editQuestionButtonHandler?.(pageNumber, i)
+                      setShowSelectButtons(false);
                     } 
 
                     return (
@@ -268,7 +320,13 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
                         onDblClick={onDbClickHandler}
                         onDblTap={onDbClickHandler}
                         onDragEnd={ (e) => {
-                          setPageElementsInfo({ ...focusGroup, x: round4(e.target.x()), y: round4(e.target.y()) }, pageNumber, i);
+                          const newX = round4(e.target.x());
+                          const newY = round4(e.target.y());
+                          setPageElementsInfo({ ...focusGroup, x: newX, y: newY }, pageNumber, i);
+                          setSelectButtonPosition({
+                            x: newX * scale,
+                            y: newY * scale,
+                          });
                           RENDER_PREVIEW();
                         }}
                       > 
@@ -307,6 +365,26 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
                   })}
                 </Layer>
               </Stage>
+              {!previewStyle && showSelectButtons && selectedId.page === pageNumber && (
+                <div 
+                  className={`absolute flex bg-background rounded-sm border border-primary items-center justify-center z-10`}
+                  style={{
+                    top: selectButtonPosition.y + 5,
+                    left: selectButtonPosition.x + 5
+                  }}
+                  ref={selectButtonsDivRef}
+                >
+                  <button onClick={selectButtonMoveDownElementHandler} className='w-5 h-5 items-center justify-center p-1'>
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.9106 21.8211L3.07236 4.14472C3.03912 4.07823 3.08747 4 3.1618 4H20.8382C20.9125 4 20.9609 4.07823 20.9276 4.14472L12.0894 21.8211C12.0526 21.8948 11.9474 21.8948 11.9106 21.8211Z" fill="black" stroke="black" strokeWidth="2"/></svg>
+                  </button>
+                  <button onClick={selectButtonMoveUpElementHandler} className='w-5 h-5 items-center justify-center p-1'>
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.0894 3.17889L20.9276 20.8553C20.9609 20.9218 20.9125 21 20.8382 21L3.1618 21C3.08747 21 3.03912 20.9218 3.07236 20.8553L11.9106 3.17889C11.9474 3.10518 12.0526 3.10518 12.0894 3.17889Z" fill="black" stroke="black" strokeWidth="2"/></svg>
+                  </button>
+                  <button onClick={selectButtonDeleteHandler} className='w-5 h-5 items-center justify-center'>
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 20L20 4M4 4L20 20" stroke="black" strokeWidth="1.5"/></svg>
+                  </button>
+                </div>
+              )}
             </div>
             {previewStyle && (
               <p key={stage.id+"previewPageNumber"} className='flex text-primary text-[0.8rem] text-left'>{pageNumber+1}</p>

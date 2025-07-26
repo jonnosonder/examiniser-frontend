@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getMarginValue, getViewMargin, setMarginValue, setViewMargin, getStagesBackground, setAllStagesBackground } from '@/lib/stageStore';
+import { getMarginValue, getViewMargin, setMarginValue, setViewMargin, getStagesBackground, setAllStagesBackground, RENDER_MAIN } from '@/lib/stageStore';
 import ColorSelectorSection from '@/components/colorSelectorSection';
 
 export default function EditorSidePanel() {
@@ -8,7 +8,7 @@ export default function EditorSidePanel() {
     const [selectedBackgroundColor, setSelectedBackgroundColor] = useState<string>(getStagesBackground());
 
     const [viewMarginEditor, setViewMarginEditor] = useState(getViewMargin());
-    const toggleViewMargin = () => {setViewMarginEditor(!viewMarginEditor); setViewMargin(!viewMarginEditor);};
+    const toggleViewMargin = () => {setViewMarginEditor(!viewMarginEditor); setViewMargin(!viewMarginEditor); RENDER_MAIN();};
     const [marginEditorVisual, setMarginEditorVisual] = useState<string>(String(getMarginValue()));
 
     const [editPanelIndex, setEditPanelIndex] = useState<number | null>(-1);
@@ -26,6 +26,7 @@ export default function EditorSidePanel() {
 
     useEffect(() => {
         setAllStagesBackground(selectedBackgroundColor);
+        RENDER_MAIN();
     }, [selectedBackgroundColor])
 
     return (

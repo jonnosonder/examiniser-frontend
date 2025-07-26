@@ -168,6 +168,12 @@ export function deletePageElement(page: number, groupID: number) {
   pageElements[page].splice(groupID, 1);
 }
 
+export function changePageOfElement(page: number, groupID: number, newPage: number) {
+  const arrayToMove = pageElements[page][groupID];
+  pageElements[page].splice(groupID, 1);
+  pageElements[newPage].push(arrayToMove);
+}
+
 //////////////////////////////////////////////////////////////
 
 export function getPageElementsInfo(): stageGroupInfoData[][] {
@@ -198,6 +204,12 @@ export function setPageElementsInfo(newStageGroupInfo: stageGroupInfoData, page:
 
 export function deletePageElementInfo(page: number, groupID: number) {
   pageElementsInfo[page].splice(groupID, 1);
+}
+
+export function changePageOfElementInfo(page: number, groupID: number, newPage: number) {
+  const arrayToMove = pageElementsInfo[page][groupID];
+  pageElementsInfo[page].splice(groupID, 1);
+  pageElementsInfo[newPage].push(arrayToMove);
 }
 
 //////////////////////////////////////////////////////////////

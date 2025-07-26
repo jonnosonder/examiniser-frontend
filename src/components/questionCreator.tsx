@@ -414,6 +414,14 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                 setEditorXpositionValue("");
             } else if (Number(value) === 0) {
                 setEditorXpositionValue(value);
+                setShapes(prevShapes =>
+                    prevShapes.map(shape => {
+                    if (shape.id === selectedId) {
+                        return { ...shape, x: 0 };
+                    }
+                    return shape;
+                    })
+                );
             } else {
                 const roundedValue = Math.trunc((Number(value) + Number.EPSILON) * 10000) / 10000;
                 if (value.endsWith(".")) {
@@ -442,6 +450,14 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                 setEditorYpositionValue("");
             } else if (Number(value) === 0) {
                 setEditorYpositionValue(value);
+                setShapes(prevShapes =>
+                    prevShapes.map(shape => {
+                    if (shape.id === selectedId) {
+                        return { ...shape, y: 0 };
+                    }
+                    return shape;
+                    })
+                );
             } else {
                 const roundedValue = Math.trunc((Number(value) + Number.EPSILON) * 10000) / 10000;
                 if (value.endsWith(".")) {
@@ -470,6 +486,16 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                 setEditorWidthValue("");
             } else if (Number(value) === 0) {
                 setEditorWidthValue(value);
+                setShapes(prevShapes =>
+                    prevShapes.map(shape => {
+                    if (shape.id === selectedId && shape.type !== "oval") {
+                        return { ...shape, width: 0 };
+                    } else if (shape.id === selectedId && shape.type === "oval") {
+                        return { ...shape, radiusX: 0, width: 0 };
+                    }
+                    return shape;
+                    })
+                );
             } else {
                 const roundedValue = Math.trunc((Number(value) + Number.EPSILON) * 10000) / 10000;
                 if (value.endsWith(".")) {
@@ -500,6 +526,16 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                 setEditorHeightValue("");
             } else if (Number(value) === 0) {
                 setEditorHeightValue(value);
+                setShapes(prevShapes =>
+                    prevShapes.map(shape => {
+                    if (shape.id === selectedId && shape.type !== "oval") {
+                        return { ...shape, height: 0 };
+                    } else if (shape.id === selectedId && shape.type === "oval") {
+                        return { ...shape, radiusX: 0, height: 0 };
+                    }
+                    return shape;
+                    })
+                );
             } else {
                 const roundedValue = Math.trunc((Number(value) + Number.EPSILON) * 10000) / 10000;
                 if (value.endsWith(".")) {
@@ -530,6 +566,14 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                 setEditorRotateValue("");
             } else if (Number(value) === 0) {
                 setEditorRotateValue(value);
+                setShapes(prevShapes =>
+                    prevShapes.map(shape => {
+                    if (shape.id === selectedId) {
+                        return { ...shape, rotation: 0 };
+                    }
+                    return shape;
+                    })
+                );
             } else {
                 const roundedValue = Math.trunc((Number(value) + Number.EPSILON) * 10000) / 10000;
                 if (value.endsWith(".")) {
@@ -559,8 +603,16 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                     setEditorCornerRadiusValue("");
                 } else if (Number(value) === 0) {
                     setEditorCornerRadiusValue(value);
+                    setShapes(prevShapes =>
+                        prevShapes.map(shape => {
+                        if (shape.id === selectedId) {
+                            return { ...shape, cornerRadius: 0 };
+                        }
+                        return shape;
+                        })
+                    );
                 } else {
-                    const roundedValue = Math.trunc((Number(value) + Number.EPSILON) * 10000) / 10000;
+                    const roundedValue = Math.min(Math.trunc((Number(value) + Number.EPSILON) * 10000) / 10000, 100);
                     if (value.endsWith(".")) {
                         setEditorCornerRadiusValue(String(roundedValue)+".");
                     } else {
@@ -588,6 +640,14 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                 setEditorStrokeWeightValue("");
             } else if (Number(value) === 0) {
                 setEditorStrokeWeightValue(value);
+                setShapes(prevShapes =>
+                    prevShapes.map(shape => {
+                    if (shape.id === selectedId) {
+                        return { ...shape, strokeWidth: 0 };
+                    }
+                    return shape;
+                    })
+                );
             } else {
                 const roundedValue = Math.trunc((Number(value) + Number.EPSILON) * 10000) / 10000;
                 if (value.endsWith(".")) {
@@ -616,6 +676,14 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                 setEditorTextSizeValue("");
             } else if (Number(value) === 0) {
                 setEditorTextSizeValue(value);
+                setShapes(prevShapes =>
+                    prevShapes.map(shape => {
+                    if (shape.id === selectedId) {
+                        return { ...shape, fontSize: 0 };
+                    }
+                    return shape;
+                    })
+                );
             } else {
                 if (Number(value) <= 0) {
                     return;
@@ -948,7 +1016,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                                         )}
                                     </div>
                                     <div className='flex flex-col items-left justify-center'>
-                                        <p className='p-2 text-start'>Belve</p>
+                                        <p className='p-2 text-start'>Belve (%)</p>
                                         <p className='p-2 text-start'>Weight</p>
                                     </div>
                                     <div className="flex flex-col items-left justify-center">

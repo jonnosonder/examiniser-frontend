@@ -109,7 +109,7 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
     case 'rect':
       return (
         <>
-          <Rect {...shape} {...commonProps} ref={rectRef} onDragMove={(e) => {onDragMoveUpdates?.(e); onSelect()}} draggable={true}
+          <Rect {...shape} {...commonProps} cornerRadius={shape.cornerRadius/100 * Math.min(shape.width * 0.5, shape.height * 0.5)} ref={rectRef} onDragMove={(e) => {onDragMoveUpdates?.(e); onSelect()}} draggable={true}
           onDragEnd={ (e) => {
             onChange({ ...shape, x: round4(e.target.x()), y: round4(e.target.y()) });
           }}
@@ -174,7 +174,7 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
         [Number(shape.width)/2 , 0],
         [Number(shape.width), Number(shape.height)]
       ];
-      const pathData_trianglePoints = CreateRoundedPolygonPath(trianglePoints, shape.cornerRadius);
+      const pathData_trianglePoints = CreateRoundedPolygonPath(trianglePoints, shape.cornerRadius/100 * Math.min(shape.width * 0.5, Math.sqrt(Math.pow(shape.height, 2) + Math.pow(shape.width * 0.5, 2))));
       return (
         <>
           <Path {...shape} {...commonProps} data={pathData_trianglePoints} closed ref={triangleRef}  onDragMove={(e) => {onDragMoveUpdates?.(e); onSelect()}} draggable={true}
@@ -210,7 +210,7 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
         [0 , 0],
         [Number(shape.width), Number(shape.height)]
       ];
-      const pathData_rightAngleTrianglePoints = CreateRoundedPolygonPath(rightAngleTrianglePoints, shape.cornerRadius);
+      const pathData_rightAngleTrianglePoints = CreateRoundedPolygonPath(rightAngleTrianglePoints, shape.cornerRadius/100 * Math.min(shape.width * 0.5, shape.height * 0.5));
       return (
         <>
           <Path {...shape} {...commonProps} data={pathData_rightAngleTrianglePoints} closed ref={rightAngleTriangleRef}  onDragMove={(e) => {onDragMoveUpdates?.(e); onSelect()}} draggable={true}
