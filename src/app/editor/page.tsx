@@ -17,6 +17,7 @@ import { NotificationProvider } from '@/context/notificationContext';
 
 import * as pdfjsLib from 'pdfjs-dist';
 import { useNotification } from '@/context/notificationContext';
+import AddShapeDropDown from '@/components/addShapeDropDown';
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@5.3.93/build/pdf.worker.mjs`;
 
 
@@ -196,8 +197,6 @@ function EditorPage() {
                     strokeWidth: 0,
                     image: img,
                     cornerRadius: 0,
-                    shadowColor: "black",
-                    shadowBlur: 0,
                 };
 
                 console.log(img);
@@ -292,75 +291,9 @@ function EditorPage() {
             stroke: '',
             strokeWidth: 1,
             align: "left",
-            shadowColor: "black",
-            shadowBlur: 0,
         };
         addPageElementsInfo({widestX: newText.width, widestY: newText.height, x:0, y:0}, pageToAddIt);
         addPageElement([newText], pageToAddIt);
-        RENDER_PAGE();
-    }
-
-    const addSquareToPageButtonHandler = () => {
-        const pageToAddIt = getEstimatedPage();
-        const newSquare: ShapeData = {
-            id: 'r'+Date.now(),
-            type: 'rect',
-            x: 0,
-            y: 0,
-            width: 100,
-            height: 100,
-            rotation: 0,
-            fill: 'black',
-            stroke: 'red',
-            strokeWidth: 1,
-            cornerRadius: 10,
-            shadowColor: "black",
-            shadowBlur: 0,
-        };
-        addPageElementsInfo({widestX: newSquare.width, widestY: newSquare.height, x:0, y:0}, pageToAddIt);
-        addPageElement([newSquare], pageToAddIt);
-        RENDER_PAGE();
-    }
-
-    const addCircleToPageButtonHandler = () => {
-        const pageToAddIt = getEstimatedPage();
-        const newCircle: ShapeData = {
-            id: 'c'+Date.now(),
-            type: 'oval',
-            x: 40,
-            y: 40,
-            radiusX: 40,
-            radiusY: 40,
-            rotation: 0,
-            fill: 'black',
-            stroke: 'red',
-            strokeWidth: 1,
-            shadowColor: "black",
-            shadowBlur: 0,
-        };
-        addPageElementsInfo({widestX: newCircle.radiusX*2, widestY: newCircle.radiusY*2, x:0, y:0}, pageToAddIt);
-        addPageElement([newCircle], pageToAddIt);
-        RENDER_PAGE();
-    }
-    
-    const addTriangleToPageButtonHandler = () => {
-        const pageToAddIt = getEstimatedPage();
-        const newCircle: ShapeData = {
-            id: 't'+Date.now(),
-            type: 'tri',
-            x: 0,
-            y: 0,
-            width: 100,
-            height: 100,
-            rotation: 0,
-            fill: 'black',
-            stroke: 'red',
-            strokeWidth: 1,
-            shadowColor: "black",
-            shadowBlur: 0,
-        };
-        addPageElementsInfo({widestX: newCircle.width, widestY: newCircle.height, x:0, y:0}, pageToAddIt);
-        addPageElement([newCircle], pageToAddIt);
         RENDER_PAGE();
     }
 
@@ -411,6 +344,10 @@ function EditorPage() {
                         explanation={'Add Text'}
                         onClick={addTextToPageButtonHandler}
                     />
+
+                    <AddShapeDropDown />
+
+                    {/*
                     <HoverExplainButton
                         icon={<svg className='h-full' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="5.5" y="5.5" width="13" height="13" rx="0.5" stroke="black"/><path d="M23.4847 3.196H21.2047V5.524H20.7847V3.196H18.5167V2.8H20.7847V0.46H21.2047V2.8H23.4847V3.196Z" fill="black"/></svg>}
                         explanation={'Add Square'}
@@ -426,6 +363,13 @@ function EditorPage() {
                         explanation={'Add Triangle'}
                         onClick={addTriangleToPageButtonHandler}
                     />
+                    <HoverExplainButton
+                        icon={<svg className='h-full' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M23.4847 3.196H21.2047V5.524H20.7847V3.196H18.5167V2.8H20.7847V0.46H21.2047V2.8H23.4847V3.196Z" fill="black"/><path d="M11.5254 5.31168C11.6136 5.12084 11.7984 5 12 5C12.2023 5 12.3864 5.12084 12.4746 5.31168C13.1564 6.78389 14.3296 9.32011 14.3296 9.32011C14.3296 9.32011 16.9973 9.70621 18.545 9.93095C18.8271 9.97147 19 10.2227 19 10.4814C19 10.6214 18.9496 10.7636 18.8383 10.8763C17.7113 12.0096 15.7709 13.9644 15.7709 13.9644C15.7709 13.9644 16.2448 16.7401 16.5192 18.3501C16.5773 18.6905 16.3267 19 15.9998 19C15.9144 19 15.829 18.9786 15.7513 18.9344C14.3737 18.1622 12 16.8337 12 16.8337C12 16.8337 9.6263 18.1622 8.2487 18.9344C8.171 18.9786 8.0849 19 7.9995 19C7.674 19 7.422 18.6898 7.4808 18.3501C7.7559 16.7401 8.2298 13.9644 8.2298 13.9644C8.2298 13.9644 6.2887 12.0096 5.1624 10.8763C5.0504 10.7636 5 10.6214 5 10.4821C5 10.2227 5.1743 9.97074 5.4557 9.93095C7.0034 9.70621 9.6704 9.32011 9.6704 9.32011C9.6704 9.32011 10.8443 6.78389 11.5254 5.31168ZM12 6.80968L10.3473 10.3406L6.6751 10.8704L9.3687 13.5547L8.7051 17.4268L12 15.5811L15.2949 17.4268L14.6292 13.5687L17.3249 10.8704L13.6051 10.3134L12 6.80968Z" fill="black"/></svg>}
+                        explanation={'Add Star'}
+                        onClick={addStarToPageButtonHandler}
+                    />
+                    */}
+                    
                 </div>
                 <div className='flex m-2'>
                     <button className='h-full' onClick={() => setShowExportPage(true)}>

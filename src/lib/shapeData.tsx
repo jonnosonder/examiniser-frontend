@@ -9,13 +9,23 @@ type BaseShape = {
   fill: string;
   stroke: string;
   strokeWidth: number;
-  shadowColor: string;
-  shadowBlur: number;
 };
 
+type Basics = {
+  id: string;
+  x: number;
+  y: number;
+  rotation: number;
+  fill: string;
+  stroke: string;
+  strokeWidth: number;
+}
+
 export type ShapeData =
-  | (BaseShape & { type: 'rect'; cornerRadius: number;})
-  | (BaseShape & { type: 'tri'; })
-  | ({ id: string; type: 'oval'; x: number; y: number; radiusX: number; radiusY: number; rotation: number; fill: string; stroke: string; strokeWidth: number; shadowColor: string; shadowBlur: number; })
+  | (BaseShape & { type: 'rect'; cornerRadius: number; })
+  | (BaseShape & { type: 'tri'; cornerRadius: number; })
+  | (BaseShape & { type: 'rightAngleTri'; cornerRadius: number; })
+  | (Basics & { type: 'oval'; radiusX: number; radiusY: number; })
   | (BaseShape & { type: 'text'; text: string; fontSize: number; background: string; align: string; })
-  | (BaseShape & { type: 'image'; image: HTMLImageElement; cornerRadius: number;});
+  | (BaseShape & { type: 'image'; image: HTMLImageElement; cornerRadius: number; })
+  | (Basics & { type: 'star'; numPoints: number; width: number; height: number; });

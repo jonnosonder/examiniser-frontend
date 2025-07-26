@@ -155,6 +155,8 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
 
   const previewFontScale = getGlobalStageScale();
 
+  const round4 = (num: number) => Math.round((num + Number.EPSILON) * 10000) / 10000;
+
   return (
     <div ref={wholeContainerRef} className='overflow-y-auto custom-scroll h-full w-full flex flex-col items-center justify-start space-y-4 p-4' id={!previewStyle ? `wholeStageContainerScroller` : ''}>
       {stages.map((stage, pageNumber) => {
@@ -165,7 +167,7 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
           setGlobalStageScale(scale);
         }
 
-        console.log(`Rending Page ${pageNumber+1}#\nstages: Length: ${stages.length}`);
+        console.log(`Rending Page ${pageNumber+1}#`);
         let aPagesElements = pageElements.slice(pageNumber, pageNumber+1)[0];
         if (!aPagesElements) {
           aPagesElements = [];
@@ -217,7 +219,6 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
                   )}
                   { aPagesElements.map((group, i) => {
                     const focusGroup = pageElementsInfo[pageNumber][i];
-                    console.log(`GROUP ${i}`);
                     let dragBoundFunc: ((pos: { x: number; y: number }) => { x: number; y: number }) | undefined;
                     if (!previewStyle) {
                       dragBoundFunc = (pos: { x: number; y: number }) => {
@@ -248,6 +249,10 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
                       setSelectedId?.({groupID: i, page: pageNumber})
                     } 
 
+                    const onDbClickHandler = () => {
+                      editQuestionButtonHandler?.(pageNumber, i)
+                    } 
+
                     return (
                       <Group
                         key={i + (i * pageNumber+1)}
@@ -260,10 +265,10 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
                         listening={!previewStyle}
                         onClick={onClickHandler}
                         onTap={onClickHandler}
-                        onDblClick={() => !previewStyle ? editQuestionButtonHandler?.(pageNumber, i) : undefined}
-                        onDblTap={() => !previewStyle ? editQuestionButtonHandler?.(pageNumber, i) : undefined}
+                        onDblClick={onDbClickHandler}
+                        onDblTap={onDbClickHandler}
                         onDragEnd={ (e) => {
-                          setPageElementsInfo({ ...focusGroup, x: Math.round((e.target.x() + Number.EPSILON) * 100000) / 100000, y: Math.round((e.target.y() + Number.EPSILON) * 100000) / 100000 }, pageNumber, i);
+                          setPageElementsInfo({ ...focusGroup, x: round4(e.target.x()), y: round4(e.target.y()) }, pageNumber, i);
                           RENDER_PREVIEW();
                         }}
                       > 
@@ -273,6 +278,7 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
                           width={focusGroup.widestX}
                           height={focusGroup.widestY}
                           fill="rgba(0,0,0,0)" // invisible but interactive
+                          listening={true}
                         />
                         {i === selectedId.groupID && pageNumber === selectedId.page && 
                           <Rect
@@ -287,8 +293,7 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
                             cornerRadius={10}
                           />
                         }
-                        {group.map((shape, x) => {
-                          console.log(`DRAW ${x}`);
+                        {group.map((shape) => {
                           return(
                           <DrawElement
                             key={shape.id}

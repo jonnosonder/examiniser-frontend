@@ -7,7 +7,7 @@ import { Stage, Layer } from 'react-konva';
 import CanvasElements from '@/components/canvasElements'
 import CustomContextMenu from '@/components/customContextMenu';
 import { ShapeData } from '@/lib/shapeData';
-import { addPageElement, addPageElementsInfo, deletePageElement, deletePageElementInfo, getEstimatedPage, getGlobalStageScale, getSpecificPageElementsInfo, getStageDimension, setPageElement, setPageElementsInfo } from '@/lib/stageStore';
+import { addPageElement, addPageElementsInfo, deletePageElement, deletePageElementInfo, getEstimatedPage, getGlobalStageScale, getSpecificPageElementsInfo, getStageDimension, RENDER_PREVIEW, setPageElement, setPageElementsInfo } from '@/lib/stageStore';
 import ColorSelectorSection from '@/components/colorSelectorSection';
 import { KonvaEventObject } from 'konva/lib/Node';
 import Advert from './advert';
@@ -34,12 +34,10 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
     const [selectedStrokeColorViaDisplay, setSelectedStrokeColorViaDisplay] = useState<string>("");
     const [selectedShadowColorViaDisplay, setSelectedShadowColorViaDisplay] = useState<string>("");
     const [displayFillColorSelector, setDisplayFillColorSelector] = useState<boolean>(false);
-    const toggleDisplayFillColorSelector = () => {setDisplayFillColorSelector(!displayFillColorSelector); if (!displayFillColorSelector && (displayStrokeColorSelector || displayShadowColorSelector)) {setDisplayStrokeColorSelector(false); setDisplayShadowColorSelector(false);}}
+    const toggleDisplayFillColorSelector = () => {setDisplayFillColorSelector(!displayFillColorSelector); if (!displayFillColorSelector && displayStrokeColorSelector) {setDisplayStrokeColorSelector(false)}}
     const [displayStrokeColorSelector, setDisplayStrokeColorSelector] = useState<boolean>(false);
-    const toggleDisplayStrokeColorSelector = () => {setDisplayStrokeColorSelector(!displayStrokeColorSelector); if (!displayStrokeColorSelector && (displayFillColorSelector || displayShadowColorSelector)) {setDisplayFillColorSelector(false); setDisplayShadowColorSelector(false);}}
-    const [displayShadowColorSelector, setDisplayShadowColorSelector] = useState<boolean>(false);
-    const toggleDisplayShadowColorSelector = () => {setDisplayShadowColorSelector(!displayShadowColorSelector); if (!displayShadowColorSelector && (displayFillColorSelector || displayStrokeColorSelector)) {setDisplayFillColorSelector(false); setDisplayStrokeColorSelector(false);}}
-
+    const toggleDisplayStrokeColorSelector = () => {setDisplayStrokeColorSelector(!displayStrokeColorSelector); if (!displayStrokeColorSelector && displayFillColorSelector) {setDisplayFillColorSelector(false)}}
+    
 
     const [parameterPanelIndex, setParameterPanelIndex] = useState<Set<number>>(new Set([1]));
     const toggleParameterPanelSection = (index:number) => {
@@ -131,7 +129,6 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
 
     const colourFillButtonDivRef = useRef<HTMLDivElement>(null);
     const colourStrokeButtonDivRef = useRef<HTMLDivElement>(null);
-    const colourShadowButtonDivRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -152,7 +149,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
             setSelectedShapeType(shape.type);
             setEditorXpositionValue(String(shape.x));
             setEditorYpositionValue(String(shape.y));
-            if (shape.type !== "oval"){
+            if (shape.type !== 'oval'){
                 setEditorWidthValue(String(shape.width));
                 setEditorHeightValue(String(shape.height));
             } else {
@@ -160,20 +157,18 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                 setEditorHeightValue(String(shape.radiusY));
             }
             setEditorRotateValue(String(shape.rotation));
-            if (shape.type === "rect" || shape.type === "image") {
+            if (shape.type === 'rect' || shape.type === 'image' || shape.type === 'tri' || shape.type === 'rightAngleTri') {
                 setEditorCornerRadiusValue(String(shape.cornerRadius));
             } else {
                 setEditorCornerRadiusValue("0");
             }
             setEditorStrokeWeightValue(String(shape.strokeWidth));
-            setEditorShadowBlurValue(String(shape.shadowBlur));
-            if (shape.type === "text") {
+            if (shape.type === 'text') {
                 setEditorTextSizeValue(String(shape.fontSize));
                 setEditorTextAlignValue(String(shape.align));
             }
             setSelectedFillColorViaDisplay(shape.fill);
             setSelectedStrokeColorViaDisplay(shape.stroke);
-            setSelectedShadowColorViaDisplay(shape.shadowColor);
         } else {
             setSelectedShapeType(null);
             setEditorXpositionValue("0");
@@ -185,7 +180,6 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
             setEditorStrokeWeightValue("0");
             setEditorTextSizeValue("0");
             setEditorTextAlignValue("");
-            setEditorShadowBlurValue("0");
         }
         if (shape != undefined && colourFillButtonDivRef.current && shape.fill) {
             colourFillButtonDivRef.current.style.background = shape.fill;
@@ -193,10 +187,6 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
 
         if (shape != undefined && colourStrokeButtonDivRef.current && shape.stroke) {
             colourStrokeButtonDivRef.current.style.background = shape.stroke;
-        }
-
-        if (shape != undefined && colourShadowButtonDivRef.current && shape.shadowColor) {
-            colourShadowButtonDivRef.current.style.background = shape.shadowColor;
         }
 
         setShapes(prev => {
@@ -248,8 +238,6 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
             stroke: 'black',
             strokeWidth: 1,
             align: "left",
-            shadowColor: "black",
-            shadowBlur: 0,
         };
         setShapes(prevShapes => [...prevShapes, newShape]);
         setSelectedId(newShape.id);
@@ -267,9 +255,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
             fill: 'black',
             stroke: 'red',
             strokeWidth: 1,
-            cornerRadius: 10,
-            shadowColor: "black",
-            shadowBlur: 0,
+            cornerRadius: 0,
         };
         setShapes(prevShapes => [...prevShapes, newShape]);
         setSelectedId(newShape.id);
@@ -287,8 +273,6 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
             fill: 'black',
             stroke: 'red',
             strokeWidth: 1,
-            shadowColor: "black",
-            shadowBlur: 0,
         };
         setShapes(prevShapes => [...prevShapes, newShape]);
         setSelectedId(newShape.id);
@@ -306,8 +290,25 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
             fill: 'black',
             stroke: 'red',
             strokeWidth: 1,
-            shadowColor: "black",
-            shadowBlur: 0,
+            cornerRadius: 0,
+        };
+        setShapes(prevShapes => [...prevShapes, newShape]);
+        setSelectedId(newShape.id);
+    }
+
+    const addStarHandle = () => {
+        const newShape: ShapeData = {
+            id: 's'+Date.now(),
+            type: 'star',
+            x: 50,
+            y: 50,
+            width: 100,
+            height: 100,
+            rotation: 0,
+            fill: 'black',
+            stroke: 'red',
+            strokeWidth: 1,
+            numPoints: 5,
         };
         setShapes(prevShapes => [...prevShapes, newShape]);
         setSelectedId(newShape.id);
@@ -321,6 +322,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                 if (questionEditingID.page !== null && questionEditingID.groupID !== null) {
                     deletePageElementInfo(questionEditingID.page, questionEditingID.groupID);
                     deletePageElement(questionEditingID.page, questionEditingID.groupID);
+                    RENDER_PREVIEW();
                     return;
                 }
             }
@@ -342,6 +344,15 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                 }
                 if (shiftY > element.y - element.radiusY) {
                     shiftY = element.y - element.radiusY;
+                }
+            } else if (element.type === "star") {
+                x = element.x + element.width/2;
+                y = element.y + element.height/2;
+                if (shiftX > element.x - element.width/2) {
+                    shiftX = element.x - element.width/2;
+                }
+                if (shiftY > element.y - element.height/2) {
+                    shiftY = element.y - element.height/2;
                 }
             } else {
                 x = element.x + element.width;
@@ -382,6 +393,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                 setPageElement(shapes, questionEditingID.page, questionEditingID.groupID);
             }
         }
+        RENDER_PREVIEW();
     }
 
     const [editorXpositionValue, setEditorXpositionValue] = useState<string>("0");
@@ -391,7 +403,6 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
     const [editorRotateValue, setEditorRotateValue] = useState<string>("0");
     const [editorCornerRadiusValue, setEditorCornerRadiusValue] = useState<string>("0");
     const [editorStrokeWeightValue, setEditorStrokeWeightValue] = useState<string>("0");
-    const [editorShadowBlurValue, setEditorShadowBlurValue] = useState<string>("0");
     const [editorTextSizeValue, setEditorTextSizeValue] = useState<string>("0");
     const [editorTextAlignValue, setEditorTextAlignValue] = useState<string>("left");
 
@@ -401,6 +412,8 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
         if (/^\d*\.?\d*$/.test(value)) {
             if (value === "") {
                 setEditorXpositionValue("");
+            } else if (Number(value) === 0) {
+                setEditorXpositionValue(value);
             } else {
                 const roundedValue = Math.trunc((Number(value) + Number.EPSILON) * 10000) / 10000;
                 if (value.endsWith(".")) {
@@ -427,6 +440,8 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
         if (/^\d*\.?\d*$/.test(value)) {
             if (value === "") {
                 setEditorYpositionValue("");
+            } else if (Number(value) === 0) {
+                setEditorYpositionValue(value);
             } else {
                 const roundedValue = Math.trunc((Number(value) + Number.EPSILON) * 10000) / 10000;
                 if (value.endsWith(".")) {
@@ -453,6 +468,8 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
         if (/^\d*\.?\d*$/.test(value)) {
             if (value === "") {
                 setEditorWidthValue("");
+            } else if (Number(value) === 0) {
+                setEditorWidthValue(value);
             } else {
                 const roundedValue = Math.trunc((Number(value) + Number.EPSILON) * 10000) / 10000;
                 if (value.endsWith(".")) {
@@ -481,6 +498,8 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
         if (/^\d*\.?\d*$/.test(value)) {
             if (value === "") {
                 setEditorHeightValue("");
+            } else if (Number(value) === 0) {
+                setEditorHeightValue(value);
             } else {
                 const roundedValue = Math.trunc((Number(value) + Number.EPSILON) * 10000) / 10000;
                 if (value.endsWith(".")) {
@@ -509,6 +528,8 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
         if (/^\d*\.?\d*$/.test(value)) {
             if (value === "") {
                 setEditorRotateValue("");
+            } else if (Number(value) === 0) {
+                setEditorRotateValue(value);
             } else {
                 const roundedValue = Math.trunc((Number(value) + Number.EPSILON) * 10000) / 10000;
                 if (value.endsWith(".")) {
@@ -530,12 +551,14 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
     }
 
     const editorCornerRadiusValueHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (selectedShapeType === "rect" || selectedShapeType === "img") {
+        if (selectedShapeType === "rect" || selectedShapeType === "img" || selectedShapeType === "tri" || selectedShapeType === "rightAngleTri") {
             const value = e.target.value;
 
             if (/^\d*\.?\d*$/.test(value)) {
                 if (value === "") {
                     setEditorCornerRadiusValue("");
+                } else if (Number(value) === 0) {
+                    setEditorCornerRadiusValue(value);
                 } else {
                     const roundedValue = Math.trunc((Number(value) + Number.EPSILON) * 10000) / 10000;
                     if (value.endsWith(".")) {
@@ -563,6 +586,8 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
         if (/^\d*\.?\d*$/.test(value)) {
             if (value === "") {
                 setEditorStrokeWeightValue("");
+            } else if (Number(value) === 0) {
+                setEditorStrokeWeightValue(value);
             } else {
                 const roundedValue = Math.trunc((Number(value) + Number.EPSILON) * 10000) / 10000;
                 if (value.endsWith(".")) {
@@ -583,39 +608,14 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
         }
     }
 
-    const editorShadowBlurValueHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-
-        if (/^\d*\.?\d*$/.test(value)) {
-            if (value === "") {
-                setEditorShadowBlurValue("");
-            } else {
-                const roundedValue = Math.trunc((Number(value) + Number.EPSILON) * 10000) / 10000;
-                if (value.endsWith(".")) {
-                    setEditorShadowBlurValue(String(roundedValue)+".");
-                } else {
-                    setEditorShadowBlurValue(String(roundedValue));
-                }
-            
-                setShapes(prevShapes =>
-                    prevShapes.map(shape => {
-                    if (shape.id === selectedId) {
-                        return { ...shape, shadowBlur: roundedValue };
-                    }
-                    return shape;
-                    })
-                );
-            }
-        }
-    }
-    
-
     const editorTextSizeValueHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
 
         if (/^\d*\.?\d*$/.test(value)) {
             if (value === "") {
                 setEditorTextSizeValue("");
+            } else if (Number(value) === 0) {
+                setEditorTextSizeValue(value);
             } else {
                 if (Number(value) <= 0) {
                     return;
@@ -650,7 +650,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
         const newWidth = Math.max(5, node.width() * node.scaleX());
         const newHeight = Math.max(5, node.height() * node.scaleY());
         const newRotation = node.rotation();
-        if (selectedShapeType !== "oval"){
+        if (selectedShapeType !== "oval" && selectedShapeType !== "star"){
             setEditorWidthValue(String(Math.round((newWidth + Number.EPSILON) * 10000) / 10000));
             setEditorHeightValue(String(Math.round((newHeight + Number.EPSILON) * 10000) / 10000));
         } else {
@@ -728,6 +728,13 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                                     <path d="M19.7949 18.5H4.20508L12 4.99902L19.7949 18.5Z" stroke="black"/>
                                 </svg>
                             </button>
+                            {/* Add Star */}
+                            <button className='w-10 h-full' onClick={addStarHandle}>
+                                <svg className='h-full' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M23.4847 3.196H21.2047V5.524H20.7847V3.196H18.5167V2.8H20.7847V0.46H21.2047V2.8H23.4847V3.196Z" fill="black"/>
+                                    <path d="M11.5254 5.31168C11.6136 5.12084 11.7984 5 12 5C12.2023 5 12.3864 5.12084 12.4746 5.31168C13.1564 6.78389 14.3296 9.32011 14.3296 9.32011C14.3296 9.32011 16.9973 9.70621 18.545 9.93095C18.8271 9.97147 19 10.2227 19 10.4814C19 10.6214 18.9496 10.7636 18.8383 10.8763C17.7113 12.0096 15.7709 13.9644 15.7709 13.9644C15.7709 13.9644 16.2448 16.7401 16.5192 18.3501C16.5773 18.6905 16.3267 19 15.9998 19C15.9144 19 15.829 18.9786 15.7513 18.9344C14.3737 18.1622 12 16.8337 12 16.8337C12 16.8337 9.6263 18.1622 8.2487 18.9344C8.171 18.9786 8.0849 19 7.9995 19C7.674 19 7.422 18.6898 7.4808 18.3501C7.7559 16.7401 8.2298 13.9644 8.2298 13.9644C8.2298 13.9644 6.2887 12.0096 5.1624 10.8763C5.0504 10.7636 5 10.6214 5 10.4821C5 10.2227 5.1743 9.97074 5.4557 9.93095C7.0034 9.70621 9.6704 9.32011 9.6704 9.32011C9.6704 9.32011 10.8443 6.78389 11.5254 5.31168ZM12 6.80968L10.3473 10.3406L6.6751 10.8704L9.3687 13.5547L8.7051 17.4268L12 15.5811L15.2949 17.4268L14.6292 13.5687L17.3249 10.8704L13.6051 10.3134L12 6.80968Z" fill="black"/>
+                                </svg>
+                            </button>
                         </div>
                         <div ref={stageContainerRef} className='w-full h-[55vh] flex overflow-y-auto overflow-x-auto border-2 border-primary bg-white justify-start'>
                             <div 
@@ -770,10 +777,15 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                                                 let maxY: number;
 
                                                 if (shape.type === "oval") {
-                                                    shiftX = +shape.radiusX;
-                                                    shiftY = +shape.radiusY;
+                                                    shiftX = shape.radiusX;
+                                                    shiftY = shape.radiusY;
                                                     maxX = dimensions.width - shape.radiusX;
                                                     maxY = dimensions.height - shape.radiusY;
+                                                } else if (shape.type === "star") {
+                                                    shiftX = shape.width/2;
+                                                    shiftY = shape.height/2;
+                                                    maxX = dimensions.width - shape.width/2;
+                                                    maxY = dimensions.height - shape.height/2;
                                                 } else {
                                                     shiftX = 0;
                                                     shiftY = 0;
@@ -910,11 +922,10 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                                 checkParameterPanelSection(2) ? 'm-2' : 'max-h-0 p-0 border-0'
                                 }`}
                             >
-                                <div className='flex w-full flex-row items-center justify-center h-30'>
+                                <div className='flex w-full flex-row items-center justify-center h-20'>
                                     <div className='flex flex-col items-left justify-center'>
                                         <p className='p-2 text-start'>Fill</p>
                                         <p className='p-2 text-start'>Stroke</p>
-                                        <p className='p-2 text-start'>Shadow</p>
                                     </div>
                                     <div className='flex flex-col items-center justify-center'>
                                         {/* Fill Colour */}
@@ -935,28 +946,16 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                                             <ColorSelectorSection onClose={() => setDisplayStrokeColorSelector(false)} passColorValue={setSelectedStrokeColorViaDisplay} startingColor={selectedStrokeColorViaDisplay}/>
                                         </div>
                                         )}
-                                        {/* Shadow Colour */}
-                                        <button onClick={toggleDisplayShadowColorSelector} className='w-16 h-10 p-2'>
-                                            <div ref={colourShadowButtonDivRef} style={{background: selectedShadowColorViaDisplay || 'black'}} className='w-full h-full border border-primary flex items-center justify-center rounded-sm'></div>
-                                        </button>
-                                        {displayShadowColorSelector && (
-                                        <div className='absolute flex items-center justify-center left-[25vw]'>
-                                            <ColorSelectorSection onClose={() => setDisplayShadowColorSelector(false)} passColorValue={setSelectedShadowColorViaDisplay} startingColor={selectedShadowColorViaDisplay}/>
-                                        </div>
-                                        )}
                                     </div>
                                     <div className='flex flex-col items-left justify-center'>
                                         <p className='p-2 text-start'>Belve</p>
                                         <p className='p-2 text-start'>Weight</p>
-                                        <p className='p-2 text-start'>Blur</p>
                                     </div>
                                     <div className="flex flex-col items-left justify-center">
                                         {/* Belve Weight */}
                                         <input className='w-12 rounded-sm border border-primary px-1 m-2' value={editorCornerRadiusValue} onChange={editorCornerRadiusValueHandler}></input>
                                         {/* Stroke Weight */}
                                         <input className='w-12 rounded-sm border border-primary px-1 m-2' value={editorStrokeWeightValue} onChange={editorStrokeWeightValueHandler}></input>
-                                        {/* Blur Weight */}
-                                        <input className='w-12 rounded-sm border border-primary px-1 m-2' value={editorShadowBlurValue} onChange={editorShadowBlurValueHandler}></input>
                                     </div>
                                 </div>
                             </div>
