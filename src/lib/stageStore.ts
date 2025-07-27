@@ -23,8 +23,8 @@ let previewStageListeners: (() => void)[] = [];
 let viewMargin: boolean = false;
 let marginValue: number = 300;
 let globalStageScale: number;
-const pageElements: ShapeData[][][] = [];
-const pageElementsInfo: stageGroupInfoData[][] = [];
+let pageElements: ShapeData[][][] = [];
+let pageElementsInfo: stageGroupInfoData[][] = [];
 let estimatedPage: number = 0;
 
 export function RENDER_PAGE() {
@@ -85,8 +85,10 @@ export function getStages(): StageData[] {
   return [...stages];
 }
 
-export function deleteAllStages() {
-    stages = [];
+export function deleteAll() {
+  stages = [];
+  pageElements = [];
+  pageElementsInfo = [];
 }
 
 export function stagesLength() {
@@ -210,6 +212,10 @@ export function changePageOfElementInfo(page: number, groupID: number, newPage: 
   const arrayToMove = pageElementsInfo[page][groupID];
   pageElementsInfo[page].splice(groupID, 1);
   pageElementsInfo[newPage].push(arrayToMove);
+}
+
+export function groupsOnPage(page: number) {
+  return pageElementsInfo[page].length;
 }
 
 //////////////////////////////////////////////////////////////

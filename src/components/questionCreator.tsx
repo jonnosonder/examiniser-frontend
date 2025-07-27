@@ -32,7 +32,6 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
 
     const [selectedFillColorViaDisplay, setSelectedFillColorViaDisplay] = useState<string>("");
     const [selectedStrokeColorViaDisplay, setSelectedStrokeColorViaDisplay] = useState<string>("");
-    const [selectedShadowColorViaDisplay, setSelectedShadowColorViaDisplay] = useState<string>("");
     const [displayFillColorSelector, setDisplayFillColorSelector] = useState<boolean>(false);
     const toggleDisplayFillColorSelector = () => {setDisplayFillColorSelector(!displayFillColorSelector); if (!displayFillColorSelector && displayStrokeColorSelector) {setDisplayStrokeColorSelector(false)}}
     const [displayStrokeColorSelector, setDisplayStrokeColorSelector] = useState<boolean>(false);
@@ -78,18 +77,6 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
             );
         }
     }, [selectedStrokeColorViaDisplay]);
-
-    useEffect(() => {
-        if (selectedId) {
-            setShapes((prevShapes) =>
-                prevShapes.map((shape) =>
-                    shape.id === selectedId
-                        ? { ...shape, shadowColor: selectedShadowColorViaDisplay }
-                        : shape
-                )
-            );
-        }
-    }, [selectedShadowColorViaDisplay]);
 
     const handleContextMenu = (e: React.MouseEvent) => {
         e.preventDefault();

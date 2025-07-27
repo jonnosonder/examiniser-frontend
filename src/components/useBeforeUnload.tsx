@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { deleteAllStages } from '@/lib/stageStore';
+import { deleteAll } from '@/lib/stageStore';
 
 export default function useBeforeUnload(shouldWarn: boolean) {
   const router = useRouter();
@@ -30,7 +30,7 @@ export default function useBeforeUnload(shouldWarn: boolean) {
       const confirmLeave = window.confirm('You have unsaved changes. Leave this page?');
       if (confirmLeave) {
         originalPush(url);
-        deleteAllStages();
+        deleteAll();
       }
 
     };
@@ -39,7 +39,7 @@ export default function useBeforeUnload(shouldWarn: boolean) {
       const confirmLeave = window.confirm('You have unsaved changes. Go back?');
       if (confirmLeave) {
         originalBack();
-        deleteAllStages();
+        deleteAll();
       }
     };
 

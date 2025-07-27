@@ -7,7 +7,7 @@ import AllStages from '@/components/allStages';
 import HoverExplainButton from '@/components/hoverExplainButton';
 import '@/styles/editor.css';
 
-import { addPageElement, addPageElementsInfo, addStage, addStageCopyPrevious, deleteAllStages, duplicatePageElement, duplicatePageElementsInfo, getEstimatedPage, getPageElements, RENDER_PAGE, stagesLength } from '@/lib/stageStore';
+import { addPageElement, addPageElementsInfo, addStage, addStageCopyPrevious, deleteAll, duplicatePageElement, duplicatePageElementsInfo, getEstimatedPage, getPageElements, RENDER_PAGE, stagesLength } from '@/lib/stageStore';
 import QuestionCreator from '@/components/questionCreator';
 import { ShapeData } from '@/lib/shapeData';
 import EditorSidePanel from '@/components/editorSidePanel';
@@ -136,7 +136,7 @@ function EditorPage() {
             const pdf = await loadingTask.promise;
             console.log('got pdf');
 
-            deleteAllStages();
+            deleteAll();
 
             const scale = 300 / 72;
 
@@ -210,6 +210,8 @@ function EditorPage() {
 
                 console.log('Page rendered');
             }
+
+            RENDER_PAGE();
         } catch (error) {
             console.error('Error rendering PDF:', error);
         }
@@ -220,7 +222,6 @@ function EditorPage() {
             console.log("converting pdf to images");
             setProjectNameValue(fileUploaded.name);
             renderPdf(fileUploaded);
-            RENDER_PAGE();
         }
     }, [])
 
