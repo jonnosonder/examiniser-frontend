@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef} from 'react';
+import { useEffect, useState, useRef, useMemo} from 'react';
 import { Stage, Layer, Group, Rect } from 'react-konva';
 import React from "react";
 import { getStages, subscribeStage, maxWidthHeight, getMarginValue, getViewMargin, setGlobalStageScale, getGlobalStageScale, getPageElements, getPageElementsInfo, getEstimatedPage, setEstimatedPage, setPageElementsInfo, subscribePreviewStage, RENDER_PREVIEW, deletePageElement, deletePageElementInfo, changePageOfElement, changePageOfElementInfo, RENDER_PAGE, duplicatePageElementsInfo, duplicatePageElement, RENDER_MAIN } from '@/lib/stageStore';
@@ -26,8 +26,8 @@ type setSelectedIdType = {
 
 const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, setSelectedId, ignoreSelectionArray, previewStyle, editQuestionButtonHandler } : AllStagesProps) => {
   const [stages, setStages] = useState(getStages());
-  const pageElements = getPageElements();
-  const pageElementsInfo = getPageElementsInfo();
+  const pageElements = useMemo(() => getPageElements(), [stages]);
+  const pageElementsInfo = useMemo(() => getPageElementsInfo(), [stages]);
 
   const wholeContainerRef = useRef<HTMLDivElement>(null);
   const stageContainerRef = useRef<HTMLDivElement>(null);
@@ -247,12 +247,31 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
 
   let aPagesElements:ShapeData[][];
 
+  const [selectButtonOffset, setSelectButtonOffset] = useState<{ x: number; y: number }>({x: 0, y: 0});
+  useEffect(() => {
+    if (wholeContainerRef.current) {
+      const rect = wholeContainerRef.current.getBoundingClientRect();
+
+      const x = rect.left + window.scrollX;
+      const y = rect.top + window.scrollY;
+
+      // Store in state variable
+      setSelectButtonOffset({ x, y });
+    }
+  }, []);
+
   return (
-    <div ref={wholeContainerRef} className='overflow-y-auto custom-scroll h-full w-full flex flex-col items-center justify-start space-y-4 p-4' id={!previewStyle ? `wholeStageContainerScroller` : ''}>
+    <div ref={wholeContainerRef} className='overflow-y-auto custom-scroll relative h-full w-full flex flex-col items-center justify-start space-y-4 p-4' id={!previewStyle ? `wholeStageContainerScroller` : ''}>
       {stages.map((stage, pageNumber) => {
-        const scaleX = containerWidth / stage.width;
-        const scaleY = containerHeight / stage.height;
-        const scale = Math.min(scaleX, scaleY);
+        const container = wholeContainerRef.current;
+        const displayDimension = maxWidthHeight();
+        const manualPadding = previewStyle ?  32 : 64;
+        const scale = container 
+          ? Math.min(
+              (container.clientWidth - manualPadding) / (displayDimension.maxWidth),
+              (container.clientHeight - manualPadding) / (displayDimension.maxHeight)
+            )
+          : 1;
         if (!previewStyle) {
           setGlobalStageScale(scale);
         }
@@ -275,7 +294,7 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
           )}
           <div ref={stageContainerRef} key={stage.id+"div"} onClick={() => previewPageOnClickHanlder?.(pageNumber)} className='flex flex-col w-full h-full items-center justify-start'>
               <div
-                className={`flex flex-shrink-0 relative  ${previewStyle && `border border-primary rounded-sm transition-shadow duration-300 hover:shadow-[0_0_0_0.2rem_theme('colors.contrast')]`} overflow-hidden`}
+                className={`flex flex-shrink-0  ${previewStyle && `border border-primary rounded-sm transition-shadow duration-300 hover:shadow-[0_0_0_0.2rem_theme('colors.contrast')]`} overflow-hidden`}
                 style={{
                   width: stage.width * scale * manualScaler,
                   height: stage.height * scale * manualScaler,
@@ -419,39 +438,42 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
               </Stage>
               {!previewStyle && showSelectButtons && selectedId.page === pageNumber && (
                 <div 
-                  className={`absolute flex bg-background rounded-sm border border-darkGrey items-center justify-center z-10 shadow`}
-                  style={{
-                    top: selectButtonPosition.y + 5,
-                    left: selectButtonPosition.x + 5
-                  }}
-                  ref={selectButtonsDivRef}
+                  className={`absolute w-full h-full top-0 left-0 z-10`}
                 >
-                  { !expandSelectButtons ? (
-                    <>
-                      <button className='w-5 h-5 p-0.25' onClick={() => setExpandSelectButtons(true)}>
-                        <svg clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m12 16.495c1.242 0 2.25 1.008 2.25 2.25s-1.008 2.25-2.25 2.25-2.25-1.008-2.25-2.25 1.008-2.25 2.25-2.25zm0 1.5c.414 0 .75.336.75.75s-.336.75-.75.75-.75-.336-.75-.75.336-.75.75-.75zm0-8.25c1.242 0 2.25 1.008 2.25 2.25s-1.008 2.25-2.25 2.25-2.25-1.008-2.25-2.25 1.008-2.25 2.25-2.25zm0 1.5c.414 0 .75.336.75.75s-.336.75-.75.75-.75-.336-.75-.75.336-.75.75-.75zm0-8.25c1.242 0 2.25 1.008 2.25 2.25s-1.008 2.25-2.25 2.25-2.25-1.008-2.25-2.25 1.008-2.25 2.25-2.25zm0 1.5c.414 0 .75.336.75.75s-.336.75-.75.75-.75-.336-.75-.75.336-.75.75-.75z"/></svg>
-                      </button>
-                    </>
-                  ) : (
-                    <div className='flex flex-col text-xs text-primary'>
-                      <button onClick={duplicateQuestionButtonHandler} className='flex items-center justify-start p-1'>
-                        <svg className='w-4 h-4 items-center justify-center' clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m20 20h-15.25c-.414 0-.75.336-.75.75s.336.75.75.75h15.75c.53 0 1-.47 1-1v-15.75c0-.414-.336-.75-.75-.75s-.75.336-.75.75zm-1-17c0-.478-.379-1-1-1h-15c-.62 0-1 .519-1 1v15c0 .621.52 1 1 1h15c.478 0 1-.379 1-1zm-15.5.5h14v14h-14zm6.25 6.25h-3c-.414 0-.75.336-.75.75s.336.75.75.75h3v3c0 .414.336.75.75.75s.75-.336.75-.75v-3h3c.414 0 .75-.336.75-.75s-.336-.75-.75-.75h-3v-3c0-.414-.336-.75-.75-.75s-.75.336-.75.75z" fillRule="nonzero"/></svg>
-                        <p className='ml-1'>Duplicate</p>
-                      </button>
-                      <button onClick={selectButtonMoveUpElementHandler} className='flex items-center justify-start p-1'>
-                        <svg className='w-4 h-4 items-center justify-center' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.0894 3.17889L20.9276 20.8553C20.9609 20.9218 20.9125 21 20.8382 21L3.1618 21C3.08747 21 3.03912 20.9218 3.07236 20.8553L11.9106 3.17889C11.9474 3.10518 12.0526 3.10518 12.0894 3.17889Z" stroke="black" strokeWidth="2"/></svg>
-                        <p className='ml-1'>Up page</p>
-                      </button>
-                      <button onClick={selectButtonMoveDownElementHandler} className='flex items-center justify-start p-1'>
-                        <svg className='w-4 h-4 items-center justify-center' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.9106 21.8211L3.07236 4.14472C3.03912 4.07823 3.08747 4 3.1618 4H20.8382C20.9125 4 20.9609 4.07823 20.9276 4.14472L12.0894 21.8211C12.0526 21.8948 11.9474 21.8948 11.9106 21.8211Z" stroke="black" strokeWidth="2"/></svg>
-                        <p className='ml-1'>Down page</p>
-                      </button>
-                      <button onClick={selectButtonDeleteHandler} className='flex items-center justify-start p-1'>
-                        <svg className='w-4 h-4 items-center justify-center' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 20L20 4M4 4L20 20" stroke="black" strokeWidth="1.5"/></svg>
-                        <p className='ml-1'>Delete</p>
-                      </button>
-                    </div>
-                  )}
+                  <div className='absolute inline-flex w-max bg-background border border-darkGrey rounded-sm items-center justify-center shadow'
+                    style={{
+                      top: selectButtonOffset.y + selectButtonPosition.y - 5,
+                      left: selectButtonOffset.x + selectButtonPosition.x - 5
+                    }}
+                    ref={selectButtonsDivRef}
+                  >
+                    { !expandSelectButtons ? (
+                      <>
+                        <button className='w-5 h-5 p-0.25' onClick={() => setExpandSelectButtons(true)}>
+                          <svg clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m12 16.495c1.242 0 2.25 1.008 2.25 2.25s-1.008 2.25-2.25 2.25-2.25-1.008-2.25-2.25 1.008-2.25 2.25-2.25zm0 1.5c.414 0 .75.336.75.75s-.336.75-.75.75-.75-.336-.75-.75.336-.75.75-.75zm0-8.25c1.242 0 2.25 1.008 2.25 2.25s-1.008 2.25-2.25 2.25-2.25-1.008-2.25-2.25 1.008-2.25 2.25-2.25zm0 1.5c.414 0 .75.336.75.75s-.336.75-.75.75-.75-.336-.75-.75.336-.75.75-.75zm0-8.25c1.242 0 2.25 1.008 2.25 2.25s-1.008 2.25-2.25 2.25-2.25-1.008-2.25-2.25 1.008-2.25 2.25-2.25zm0 1.5c.414 0 .75.336.75.75s-.336.75-.75.75-.75-.336-.75-.75.336-.75.75-.75z"/></svg>
+                        </button>
+                      </>
+                    ) : (
+                      <div className='flex flex-col text-xs text-primary'>
+                        <button onClick={duplicateQuestionButtonHandler} className='flex items-center justify-start p-1'>
+                          <svg className='w-4 h-4 items-center justify-center' clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m20 20h-15.25c-.414 0-.75.336-.75.75s.336.75.75.75h15.75c.53 0 1-.47 1-1v-15.75c0-.414-.336-.75-.75-.75s-.75.336-.75.75zm-1-17c0-.478-.379-1-1-1h-15c-.62 0-1 .519-1 1v15c0 .621.52 1 1 1h15c.478 0 1-.379 1-1zm-15.5.5h14v14h-14zm6.25 6.25h-3c-.414 0-.75.336-.75.75s.336.75.75.75h3v3c0 .414.336.75.75.75s.75-.336.75-.75v-3h3c.414 0 .75-.336.75-.75s-.336-.75-.75-.75h-3v-3c0-.414-.336-.75-.75-.75s-.75.336-.75.75z" fillRule="nonzero"/></svg>
+                          <p className='ml-1'>Duplicate</p>
+                        </button>
+                        <button onClick={selectButtonMoveUpElementHandler} className='flex items-center justify-start p-1'>
+                          <svg className='w-4 h-4 items-center justify-center' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.0894 3.17889L20.9276 20.8553C20.9609 20.9218 20.9125 21 20.8382 21L3.1618 21C3.08747 21 3.03912 20.9218 3.07236 20.8553L11.9106 3.17889C11.9474 3.10518 12.0526 3.10518 12.0894 3.17889Z" stroke="black" strokeWidth="2"/></svg>
+                          <p className='ml-1'>Up page</p>
+                        </button>
+                        <button onClick={selectButtonMoveDownElementHandler} className='flex items-center justify-start p-1'>
+                          <svg className='w-4 h-4 items-center justify-center' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.9106 21.8211L3.07236 4.14472C3.03912 4.07823 3.08747 4 3.1618 4H20.8382C20.9125 4 20.9609 4.07823 20.9276 4.14472L12.0894 21.8211C12.0526 21.8948 11.9474 21.8948 11.9106 21.8211Z" stroke="black" strokeWidth="2"/></svg>
+                          <p className='ml-1'>Down page</p>
+                        </button>
+                        <button onClick={selectButtonDeleteHandler} className='flex items-center justify-start p-1'>
+                          <svg className='w-4 h-4 items-center justify-center' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 20L20 4M4 4L20 20" stroke="black" strokeWidth="1.5"/></svg>
+                          <p className='ml-1'>Delete</p>
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -468,6 +490,8 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
           <p className='text-white'>{stageEstimatedPage+1} / {stages.length}</p>
         </div>
       )}
+
+      <div className='w-full h-4' />
     </div>
   );
 }
