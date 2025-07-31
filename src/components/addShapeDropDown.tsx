@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright © 2025 Jonathan Kwok
+
 'use client';
 import { ShapeData } from '@/lib/shapeData';
 import { addPageElement, addPageElementsInfo, getEstimatedPage, RENDER_PAGE } from '@/lib/stageStore';

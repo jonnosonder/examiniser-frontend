@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright © 2025 Jonathan Kwok
 
 type BaseShape = {
   id: string;

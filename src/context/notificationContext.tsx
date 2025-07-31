@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright © 2025 Jonathan Kwok
+
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 // Notification type definition

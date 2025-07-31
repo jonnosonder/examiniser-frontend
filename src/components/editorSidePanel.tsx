@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright © 2025 Jonathan Kwok
+
 import { useEffect, useState } from 'react';
 import { getMarginValue, getViewMargin, setMarginValue, setViewMargin, getStagesBackground, setAllStagesBackground, RENDER_MAIN } from '@/lib/stageStore';
 import ColorSelectorSection from '@/components/colorSelectorSection';

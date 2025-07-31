@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright © 2025 Jonathan Kwok
+
 import React from 'react';
 
 type ArrowIconProps = React.SVGProps<SVGSVGElement>;
