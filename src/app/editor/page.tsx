@@ -415,7 +415,7 @@ function EditorPage() {
                     </div>
                 </div>
                 <div className="flex-1 bg-grey w-full flex items-center justify-center">
-                    <AllStages manualScaler={manualScaler} selectedId={selectedQuestionId} setSelectedId={setSelectedQuestionId} ignoreSelectionArray={ignoreSelectionArray} previewStyle={false} editQuestionButtonHandler={editQuestionButtonHandler}/>
+                    <AllStages manualScaler={manualScaler} selectedId={selectedQuestionId} setSelectedId={setSelectedQuestionId} ignoreSelectionArray={ignoreSelectionArray} previewStyle={false} editQuestionButtonHandler={editQuestionButtonHandler} actionWindow={actionWindow}/>
                 </div>
                 <div className="h-full">
                     <div
@@ -460,7 +460,7 @@ function EditorPage() {
                                 <div className="w-8 h-8 text-lg items-center justify-center"> 
                                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><mask id="path-1-inside-1_38_2" fill="white"><rect x="3" y="3" width="18" height="18" rx="1"/></mask><rect x="3" y="3" width="18" height="18" rx="1" stroke="black" strokeWidth="3" mask="url(#path-1-inside-1_38_2)"/><path d="M7.46967 15.4697C7.17678 15.7626 7.17678 16.2374 7.46967 16.5303C7.76256 16.8232 8.23744 16.8232 8.53033 16.5303L7.46967 15.4697ZM16.75 8C16.75 7.58579 16.4142 7.25 16 7.25H9.25C8.83579 7.25 8.5 7.58579 8.5 8C8.5 8.41421 8.83579 8.75 9.25 8.75H15.25V14.75C15.25 15.1642 15.5858 15.5 16 15.5C16.4142 15.5 16.75 15.1642 16.75 14.75V8ZM8 16L8.53033 16.5303L16.5303 8.53033L16 8L15.4697 7.46967L7.46967 15.4697L8 16Z" fill="black"/></svg>
                                 </div>
-                                {actionWindow && <span className="ml-3">Template</span>}
+                                {actionWindow && <span className="ml-3">Templates</span>}
                             </button>
                             {showPremadePage && (<TemplatePage onClose={() => setShowPremadePage(false)} />)}
 
