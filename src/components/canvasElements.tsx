@@ -75,7 +75,7 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
         trRef.current.getLayer()?.batchDraw();
       }
     }
-  }, [isSelected]);
+  }, [isSelected, shape.type]);
 
   const commonProps = {
     onClick: onSelect,

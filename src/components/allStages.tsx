@@ -6,13 +6,12 @@
 import { useEffect, useState, useRef, useMemo} from 'react';
 import { Stage, Layer, Group, Rect } from 'react-konva';
 import React from "react";
-import { getStages, subscribeStage, maxWidthHeight, getMarginValue, getViewMargin, setGlobalStageScale, getGlobalStageScale, getPageElements, getPageElementsInfo, getEstimatedPage, setEstimatedPage, setPageElementsInfo, subscribePreviewStage, RENDER_PREVIEW, deletePageElement, deletePageElementInfo, changePageOfElement, changePageOfElementInfo, RENDER_PAGE, duplicatePageElementsInfo, duplicatePageElement, RENDER_MAIN, groupsOnPage } from '@/lib/stageStore';
+import { getStages, subscribeStage, maxWidthHeight, getMarginValue, getViewMargin, setGlobalStageScale, getGlobalStageScale, getPageElements, getPageElementsInfo, getEstimatedPage, setEstimatedPage, setPageElementsInfo, subscribePreviewStage, RENDER_PREVIEW, deletePageElement, deletePageElementInfo, changePageOfElement, changePageOfElementInfo, RENDER_PAGE, duplicatePageElementsInfo, duplicatePageElement, groupsOnPage } from '@/lib/stageStore';
 import "@/styles/allStages.css"
 import Konva from 'konva';
 import DrawElement from './drawElement';
 import { ShapeData } from '@/lib/shapeData';
 import { useNotification } from '@/context/notificationContext';
-import { transform } from 'next/dist/build/swc/generated-native';
 
 type AllStagesProps = {
   manualScaler?: number;
@@ -61,7 +60,7 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
       });
       return () => unsubscribeStage();
     }
-  }, []);
+  }, [previewStyle]);
 
   useEffect(() => {
     if (!previewStyle) {
@@ -71,7 +70,7 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
       });
       return () => unsubscribeStage();
     }
-  }, []);
+  }, [previewStyle]);
 
   useEffect(() => {
     if (!previewStyle) {
@@ -101,7 +100,7 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
         if (el) el.removeEventListener('scroll', handleScroll);
       };
     }
-  }, [stages]);
+  }, [stages, previewStyle]);
 
   const selectButtonsDivRef = useRef<HTMLDivElement>(null);
 
@@ -127,7 +126,7 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
       document.addEventListener('mousedown', handleClickOutside);
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
-  }, [selectedId]);
+  }, [selectedId, ignoreSelectionArray, previewStyle]);
   
   const marginValue = getMarginValue();
   const viewMargin = getViewMargin();
@@ -345,8 +344,6 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
                         widestX: focusGroup.widestX * scale,
                         widestY: focusGroup.widestY * scale,
                       });
-                      console.log((focusGroup.x + focusGroup.widestX) * scale);
-                      console.log((focusGroup.y + focusGroup.widestY) * scale);
                       setShowSelectButtons(true);
                     } 
 

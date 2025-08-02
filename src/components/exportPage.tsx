@@ -4,7 +4,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { getStages } from '@/lib/stageStore';
+import { getPageElements, getPageElementsInfo, getStages } from '@/lib/stageStore';
 import { jsPDF } from "jspdf";
 import Advert from './advert';
 
@@ -29,7 +29,6 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
     low: 0.09,
   };
   
-
   const stages = getStages();
 
   const calculateFileSizeVlaue = () => {
@@ -57,7 +56,7 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
 
   useEffect(() => {
     setEstimatedFileSize(formatFileSize(baseFileSizeValue * qualityMap[qualityValue] / qualityCompression[qualityValue]));
-  }, [qualityValue])
+  }, [qualityValue]);
 
   const pxTommScaler = 25.4/300;
 
@@ -73,36 +72,80 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
 
     const quality = qualityMap[qualityValue];
     console.log(quality);
+
+    const pageElements = getPageElements();
+    const pageElementsInfo = getPageElementsInfo();
     
     stages.forEach((stage, stageIndex) => {
-        console.log(stage.stageRef);
         if (stage.stageRef && stage.stageRef.current){
-            console.log("adding");
-            const width = stage.stageRef.current.width() * pxTommScaler;
-            const height = stage.stageRef.current.height() * pxTommScaler;
+            if (stage.background !== "" && stage.background !== "white" && stage.background !== "#ffffff") {
+              const width = stage.stageRef.current.width() * pxTommScaler;
+              const height = stage.stageRef.current.height() * pxTommScaler;
 
-            // Get the layer (first layer in this case)
-            const layer = stage.stageRef.current.getChildren()[0];
+              doc.setFillColor(stage.background);
+              doc.rect(0, 0, width, height, "F");
+            }
 
-            // Ensure the layer is fully rendered
-            layer.batchDraw();
+            pageElements[stageIndex].forEach((group, groupID) => {
+              const groupInfo = pageElementsInfo[stageIndex][groupID]
+              const groupX = groupInfo.x * pxTommScaler
+              const groupY = groupInfo.y * pxTommScaler
+              group.forEach((element) => {
+                console.log(element.type);
+                switch (element.type) {
+                  case "rect":
+                    doc.setFillColor(element.fill);
+                    doc.setDrawColor(element.stroke);
+                    doc.setLineWidth(element.strokeWidth * pxTommScaler);
+                    doc.rect(groupX + element.x * pxTommScaler, groupY + element.y * pxTommScaler, element.width * pxTommScaler, element.height * pxTommScaler, "FD");
+                    console.log(groupX + element.x * pxTommScaler, groupY + element.y * pxTommScaler, element.width * pxTommScaler, element.height * pxTommScaler, "FD");
+                    break;
+                  case "oval":
+                    doc.setFillColor(element.fill);
+                    doc.setDrawColor(element.stroke);
+                    doc.setLineWidth(element.strokeWidth * pxTommScaler);
+                    doc.ellipse(groupX + element.x * pxTommScaler, groupY + element.y * pxTommScaler, element.radiusX * pxTommScaler, element.radiusY * pxTommScaler, "FD");
+                    break;
+                  case "tri":
+                    doc.setFillColor(element.fill);
+                    doc.setDrawColor(element.stroke);
+                    doc.setLineWidth(element.strokeWidth * pxTommScaler);
+                    doc.triangle(groupX, groupY + element.height * pxTommScaler, groupX + (element.width * pxTommScaler)/2, groupY, groupX + element.width * pxTommScaler, groupY + element.height * pxTommScaler, "FD");
+                    break;
+                  case "rightAngleTri":
+                    doc.setFillColor(element.fill);
+                    doc.setDrawColor(element.stroke);
+                    doc.setLineWidth(element.strokeWidth * pxTommScaler);
+                    doc.triangle(groupX, groupY + element.height * pxTommScaler, groupX, groupY, groupX + element.width * pxTommScaler, groupY + element.height * pxTommScaler, "FD");
+                    break;
+                  case "text":
+                    doc.setFontSize(element.fontSize);
 
-            const stageScale = stage.stageRef.current.scale();
+                    const wrappedLines = doc.splitTextToSize(element.text, element.width);
+                    console.log(wrappedLines);
+                    const lineHeight = element.fontSize * 1.15;
+                    console.log(lineHeight);
+                    const height = (wrappedLines.length * lineHeight);
+                    console.log(height);
 
-            // Convert the layer to a high-res data URL at 300 DPI
-            const dataUrl = layer.toDataURL({
-                mimeType: "image/jpeg",
-                quality: quality,
-                pixelRatio: 300/72,
+                    if (element.background !== "" || element.borderWeight !== 0) { 
+                      doc.setFillColor(element.background);
+                      doc.setDrawColor(element.border);
+                      doc.setLineWidth(element.borderWeight);
+                      doc.rect(groupX + element.x * pxTommScaler, groupY + element.y * pxTommScaler, element.width * pxTommScaler, height * pxTommScaler, "FD");
+                    }
+                    doc.setTextColor(element.fill);
+                    doc.text(wrappedLines, groupX + element.x * pxTommScaler, groupY + element.y * pxTommScaler + height, { align: element.align });                    
+
+                    console.log(element.text, groupX + element.x * pxTommScaler, groupY + element.y * pxTommScaler);
+                }
+              })
             });
-
+            
             if (stageIndex !== 0) {
                 doc.addPage(); 
             }
             
-            doc.addImage(dataUrl, "JPEG", 0, 0, width / stageScale.x, height / stageScale.y);
-            console.log(width / stageScale.x,);
-            console.log(height / stageScale.y);
         }
     });
     

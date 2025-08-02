@@ -228,6 +228,8 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
             stroke: 'black',
             strokeWidth: 1,
             align: "left",
+            border: "",
+            borderWeight: 0,
         };
         setShapes(prevShapes => [...prevShapes, newShape]);
         setSelectedId(newShape.id);
@@ -718,11 +720,13 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
         setEditorRotateValue(String(Math.round((Number(newRotation) + Number.EPSILON) * 10000) / 10000));
     }
 
+    type alginType = "left" | "center" | "right" | "justify";
+
     const editorTextAlignHanlder = (newAlign: string) => {
         setShapes(prevShapes =>
             prevShapes.map(shape => {
             if (shape.id === selectedId) {
-                return { ...shape, align: newAlign };
+                return { ...shape, align: newAlign as alginType };
             }
             return shape;
             })

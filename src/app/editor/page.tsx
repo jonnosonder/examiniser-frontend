@@ -126,7 +126,7 @@ function EditorPage() {
             });
             RENDER_PAGE();            
         }
-    }, [pageFormatData]);
+    }, [pageFormatData, fileUploaded]);
 
     const renderPdf = async (file: File) => {
         try {
@@ -226,7 +226,7 @@ function EditorPage() {
             setProjectNameValue(fileUploaded.name);
             renderPdf(fileUploaded);
         }
-    }, [])
+    }, [fileUploaded])
 
 
     const newPageButtonHandler = () => {
@@ -303,6 +303,8 @@ function EditorPage() {
             stroke: '',
             strokeWidth: 1,
             align: "left",
+            border: "",
+            borderWeight: 0,
         };
         addPageElementsInfo({widestX: newText.width, widestY: newText.height, x:0, y:0}, pageToAddIt);
         addPageElement([newText], pageToAddIt);

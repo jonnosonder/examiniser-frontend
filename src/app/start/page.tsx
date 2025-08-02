@@ -296,16 +296,8 @@ export default function StartPage() {
     }
 
     useEffect(() => {
-        if (widthValue !== null) {
-            hasOrintationNeedUpdating();
-        }
-    }, [widthValue]);
-
-    useEffect(() => {
-        if (heightValue !== null) {
-            hasOrintationNeedUpdating();
-        }
-    }, [heightValue]);
+        hasOrintationNeedUpdating();
+    }, [widthValue, heightValue]);
 
     const checkIfFileDimensionNeedsUpdating = (recentWidth: Decimal | null, recentHeight: Decimal | null) => {
         if (recentWidth !== null && recentHeight !== null && recentWidth !== Decimal(0) && recentHeight !== Decimal(0)){
