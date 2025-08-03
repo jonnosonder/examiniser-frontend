@@ -25,7 +25,6 @@ let stageListeners: (() => void)[] = [];
 let previewStageListeners: (() => void)[] = [];
 let viewMargin: boolean = false;
 let marginValue: number = 300;
-let globalStageScale: number;
 let pageElements: ShapeData[][][] = [];
 let pageElementsInfo: stageGroupInfoData[][] = [];
 let estimatedPage: number = 0;
@@ -139,16 +138,6 @@ export function getViewMargin(): boolean {
 
 export function setViewMargin(newMarginStage: boolean) {
   viewMargin = newMarginStage;
-}
-
-//////////////////////////////////////////////////////////////
-
-export function setGlobalStageScale(newStageScale: number) {
-  globalStageScale = newStageScale;
-}
-
-export function getGlobalStageScale(): number {
-  return globalStageScale;
 }
 
 //////////////////////////////////////////////////////////////

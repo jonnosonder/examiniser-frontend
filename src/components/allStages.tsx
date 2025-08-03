@@ -6,7 +6,7 @@
 import { useEffect, useState, useRef, useMemo} from 'react';
 import { Stage, Layer, Group, Rect } from 'react-konva';
 import React from "react";
-import { getStages, subscribeStage, maxWidthHeight, getMarginValue, getViewMargin, setGlobalStageScale, getGlobalStageScale, getPageElements, getPageElementsInfo, getEstimatedPage, setEstimatedPage, setPageElementsInfo, subscribePreviewStage, RENDER_PREVIEW, deletePageElement, deletePageElementInfo, changePageOfElement, changePageOfElementInfo, RENDER_PAGE, duplicatePageElementsInfo, duplicatePageElement, groupsOnPage } from '@/lib/stageStore';
+import { getStages, subscribeStage, maxWidthHeight, getMarginValue, getViewMargin, getPageElements, getPageElementsInfo, getEstimatedPage, setEstimatedPage, setPageElementsInfo, subscribePreviewStage, RENDER_PREVIEW, deletePageElement, deletePageElementInfo, changePageOfElement, changePageOfElementInfo, RENDER_PAGE, duplicatePageElementsInfo, duplicatePageElement, groupsOnPage } from '@/lib/stageStore';
 import "@/styles/allStages.css"
 import Konva from 'konva';
 import DrawElement from './drawElement';
@@ -156,8 +156,6 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
     }
   }
 
-  const previewFontScale = getGlobalStageScale();
-
   const round4 = (num: number) => Math.round((num + Number.EPSILON) * 10000) / 10000;
 
   const selectButtonDeleteHandler = () => {
@@ -248,10 +246,6 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
               (container.clientHeight - manualPadding) / (displayDimension.maxHeight)
             )
           : 1;
-        if (!previewStyle) {
-          setGlobalStageScale(scale);
-        }
-
         
         if (stageEstimatedPage-1 <= pageNumber && stageEstimatedPage+1 >= pageNumber) {
           aPagesElements = pageElements.slice(pageNumber, pageNumber+1)[0];
@@ -406,7 +400,6 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
                           <DrawElement
                             key={shape.id}
                             shape={shape}
-                            fontScale={previewStyle ? previewFontScale : scale}
                           />
                           );
                         })}

@@ -10,7 +10,7 @@ import { Stage, Layer } from 'react-konva';
 import CanvasElements from '@/components/canvasElements'
 import CustomContextMenu from '@/components/customContextMenu';
 import { ShapeData } from '@/lib/shapeData';
-import { addPageElement, addPageElementsInfo, deletePageElement, deletePageElementInfo, getEstimatedPage, getGlobalStageScale, getSpecificPageElementsInfo, getStageDimension, RENDER_PREVIEW, setPageElement, setPageElementsInfo } from '@/lib/stageStore';
+import { addPageElement, addPageElementsInfo, deletePageElement, deletePageElementInfo, getEstimatedPage, getSpecificPageElementsInfo, getStageDimension, RENDER_PREVIEW, setPageElement, setPageElementsInfo } from '@/lib/stageStore';
 import ColorSelectorSection from '@/components/colorSelectorSection';
 import { KonvaEventObject } from 'konva/lib/Node';
 import Advert from './advert';
@@ -105,7 +105,6 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
     const stageContainerRef = useRef<HTMLDivElement>(null);
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
     const [stageScale, setStageScale] = useState(1);
-    const [fontScale, setFontScale] = useState(1);
 
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [selectedShapeType, setSelectedShapeType] = useState<string | null>(null);
@@ -197,7 +196,6 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                 const stageDimension = getStageDimension();
                 const scaleClac = stageContainerRef.current.offsetWidth / stageDimension.width;
                 setStageScale(scaleClac);
-                setFontScale(getGlobalStageScale());
                 setDimensions({
                     width: stageDimension.width,
                     height: stageDimension.height,
@@ -888,7 +886,6 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                                                 onSelect={() => setSelectedId(shape.id)}
                                                 onChange={updateShape}
                                                 stageScale={stageScale}
-                                                fontScale={fontScale}
                                                 dragBoundFunc={dragBoundFunc}
                                                 stageWidth={dimensions.width}
                                                 stageHeight={dimensions.height}

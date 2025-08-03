@@ -12,10 +12,9 @@ import { CreateRoundedPolygonPath } from '@/calculation/createRoundedPolygonPath
 
 interface Props {
   shape: ShapeData;
-  fontScale: number;
 }
 
-export default function DrawElement({ shape, fontScale }: Props) {
+export default function DrawElement({ shape }: Props) {
   switch (shape.type) {
     case 'rect':
       return (
@@ -47,7 +46,7 @@ export default function DrawElement({ shape, fontScale }: Props) {
       );
     case 'text':
       return (
-        <Text {...shape} fontSize={shape.fontSize / fontScale}  listening={false}/>
+        <Text {...shape} fontSize={(shape.fontSize * (300/72))} listening={false}/>
       );
     case 'image':
       return (

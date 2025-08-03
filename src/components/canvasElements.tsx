@@ -19,7 +19,6 @@ interface Props {
   onSelect: () => void;
   onChange: (newAttrs: ShapeData) => void;
   stageScale: number;
-  fontScale: number;
   dragBoundFunc?: (pos: { x: number; y: number }) => { x: number; y: number };
   stageWidth?: number,
   stageHeight?: number,
@@ -27,7 +26,7 @@ interface Props {
   onTransformUpdates?: (e: KonvaEventObject<Event>) => void;
 }
 
-export default function CanvasElements({ shape, isSelected, onSelect, onChange, stageScale, fontScale, dragBoundFunc, stageWidth, stageHeight, onDragMoveUpdates, onTransformUpdates }: Props) {
+export default function CanvasElements({ shape, isSelected, onSelect, onChange, stageScale, dragBoundFunc, stageWidth, stageHeight, onDragMoveUpdates, onTransformUpdates }: Props) {
   const rectRef = useRef<Konva.Rect | null>(null);
   const ovalRef = useRef<Konva.Ellipse | null>(null);
   const triangleRef = useRef<Konva.Path | null>(null);
@@ -271,7 +270,7 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
         input.style.left = `${areaPosition.x+1}px`;
         input.style.width = `${shape.width}px`;
         input.style.height = `${shape.height}px`;
-        input.style.fontSize = `${shape.fontSize / fontScale}px`;
+        input.style.fontSize = `${shape.fontSize * (300/72)}px`;
         input.style.fontFamily = textNode.fontFamily();
         input.style.border = '1px solid #ccc';
         input.style.padding = '0px';
@@ -314,7 +313,7 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
 
       return (
         <>
-          <Text {...shape} fontSize={shape.fontSize / fontScale} {...commonProps} ref={textRef} draggable={true} onDragMove={(e) => {onDragMoveUpdates?.(e); onSelect()}} onDblClick={handleDoubleClick} onDblTap={handleDoubleClick} 
+          <Text {...shape} fontSize={shape.fontSize * (300/72)} {...commonProps} ref={textRef} draggable={true} onDragMove={(e) => {onDragMoveUpdates?.(e); onSelect()}} onDblClick={handleDoubleClick} onDblTap={handleDoubleClick} 
           onTransform={(e) => {
             const node = e.target;
             const scaleX = node.scaleX();

@@ -78,6 +78,9 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
     
     stages.forEach((stage, stageIndex) => {
         if (stage.stageRef && stage.stageRef.current){
+            if (stageIndex !== 0) {
+                doc.addPage(); 
+            }
             if (stage.background !== "" && stage.background !== "white" && stage.background !== "#ffffff") {
               const width = stage.stageRef.current.width() * pxTommScaler;
               const height = stage.stageRef.current.height() * pxTommScaler;
@@ -122,30 +125,56 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
                     doc.setFontSize(element.fontSize);
 
                     const wrappedLines = doc.splitTextToSize(element.text, element.width);
-                    console.log(wrappedLines);
-                    const lineHeight = element.fontSize * 1.15;
-                    console.log(lineHeight);
-                    const height = (wrappedLines.length * lineHeight);
-                    console.log(height);
+                    const lineHeight = element.fontSize * (300/72) * pxTommScaler;
+                    const maxLines = Math.floor(element.height * pxTommScaler / lineHeight);
+                    const visibleLines = wrappedLines.slice(0, maxLines);
+                    const height = (visibleLines.length * lineHeight);
+
+                    const xPosition = groupX + element.x * pxTommScaler;
+                    const yPosition = groupY + element.y * pxTommScaler;
+                    const setWidth = element.width * pxTommScaler;
 
                     if (element.background !== "" || element.borderWeight !== 0) { 
                       doc.setFillColor(element.background);
                       doc.setDrawColor(element.border);
                       doc.setLineWidth(element.borderWeight);
-                      doc.rect(groupX + element.x * pxTommScaler, groupY + element.y * pxTommScaler, element.width * pxTommScaler, height * pxTommScaler, "FD");
+                      doc.rect(xPosition, yPosition, setWidth, height * pxTommScaler, "FD");
                     }
                     doc.setTextColor(element.fill);
-                    doc.text(wrappedLines, groupX + element.x * pxTommScaler, groupY + element.y * pxTommScaler + height, { align: element.align });                    
+                    doc.text(visibleLines, xPosition, yPosition + lineHeight, { maxWidth: setWidth - 1, align: element.align });   
+                    break;
+                  case "star":
+                    const outerRadius = Math.min(element.width * pxTommScaler, element.height * pxTommScaler) / 2;
+                    const innerRadius = outerRadius / 2;
 
-                    console.log(element.text, groupX + element.x * pxTommScaler, groupY + element.y * pxTommScaler);
+                    const angleStep = Math.PI / element.numPoints;
+                    let angle = -Math.PI / 2;
+
+                    const firstX = element.x * pxTommScaler + Math.cos(angle) * outerRadius;
+                    const firstY = element.y * pxTommScaler + Math.sin(angle) * outerRadius;
+
+                    doc.moveTo(firstX, firstY);
+
+                    for (let i = 0; i < element.numPoints * 2; i++) {
+                      const radius = i % 2 === 0 ? outerRadius : innerRadius;
+                      const px = element.x * pxTommScaler + Math.cos(angle) * radius;
+                      const py = element.y * pxTommScaler + Math.sin(angle) * radius;
+                      
+                      doc.lineTo(px, py);
+                      angle += angleStep;
+                    }
+
+                    doc.lineTo(firstX, firstY);
+
+                    doc.setFillColor(element.fill);
+                    doc.setDrawColor(element.stroke);
+                    doc.setLineWidth(element.strokeWidth * pxTommScaler);
+
+                    doc.fillStroke();   
+                    break;                 
                 }
               })
             });
-            
-            if (stageIndex !== 0) {
-                doc.addPage(); 
-            }
-            
         }
     });
     
