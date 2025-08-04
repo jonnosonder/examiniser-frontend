@@ -10,6 +10,9 @@ const Custom404: React.FC = () => {
 
   return (
     <>
+      <div className='absolute left-0 top-0 p-2'>
+        <p onClick={() => router.push('/')} className='text-2xl cursor-pointer'>Examiniser</p>
+      </div>
       <div 
         className="w-screen h-screen flex items-center justify-center text-primary"
         style={
@@ -24,6 +27,7 @@ const Custom404: React.FC = () => {
         <div className='flex flex-col items-center justify-center'>
           <h1 className='text-6xl'>404</h1>
           <h2 className='text-2xl'>Woah, what page did you try to find?</h2>
+          <p onClick={() => router.push('/')} className='underline cursor-pointer'>Back Home</p>
         </div>
       </div>
     </>

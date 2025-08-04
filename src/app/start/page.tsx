@@ -639,8 +639,8 @@ export default function StartPage() {
             </div>
         </div>
     </div>
-    <div className='absolute bottom-2 w-full max-h-[15%] z-100'>
-        <Advert slot="1234567890" />
+    <div className='absolute bottom-0 items-center justify-center max-h-[15%] z-100'>
+        <Advert slot="6394473175" />
     </div>
     </>
 );

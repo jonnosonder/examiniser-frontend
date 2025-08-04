@@ -21,9 +21,35 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"></meta>
-        <link rel="icon" href="/favicon.ico" />
+        <meta name="description" content="Create exam papers quick and easy" />
+        <meta name="keywords" content="exam, paper, edit, school, editor, question, maths, mathematics" />
+        <meta property="og:title" content="Examiniser" />
+        <meta property="og:description" content="Create exam papers quick and easy" />
+        <meta property="og:image" content="https://examiniser.com/" /> 
+        <meta property="og:url" content="https://examiniser.com" />
 
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"></meta>
+        <meta name="google-adsense-account" content="ca-pub-6195862060195022"></meta>
+        {/* Standard Favicon */}
+        <link rel="icon" href="/icons/favicon-16x16.png" sizes="16x16" />
+        <link rel="icon" href="/icons/favicon-32x32.png" sizes="32x32" />
+        
+        {/* Android and Chrome Favicon */}
+        <link rel="icon" href="/icons/favicon-192x192.png" sizes="192x192" />
+        
+        {/* Apple Touch Icon */}
+        <link rel="apple-touch-icon" href="/icons/favicon-180x180.png" />
+        
+        {/* Windows Tile Icon (for Microsoft devices) */}
+        <meta name="msapplication-TileImage" content="/icons/favicon-144x144.png" />
+        <meta name="msapplication-TileColor" content="#FFFFFF" />
+        
+        {/* High-DPI (Retina) Displays */}
+        <link rel="icon" href="/icons/favicon-64x64.png" sizes="64x64" />
+        <link rel="icon" href="/icons/favicon-128x128.png" sizes="128x128" />
+        
+        {/* Additional Apple Touch Icons (for iOS) */}
+        <link rel="apple-touch-icon" sizes="152x152" href="/icons/favicon-152x152.png" />
       </head>
       <script
           async

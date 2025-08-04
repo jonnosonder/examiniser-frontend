@@ -5,13 +5,12 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { ReloadLink } from './reloadLink';
 
 const navLinks = [
   { title: 'Product', href: '/' },
   { title: 'About', href: '/about' },
-  { title: 'Contact', href: '/contact' }
+  { title: 'Updates', href: '/updates' }
 ];
 
 export default function Navbar() {
@@ -40,9 +39,9 @@ export default function Navbar() {
                 <div className="inline-flex">
                 {navLinks.map((link, index) => (
                     <div key={index} className="inline p-5">
-                    <Link  href={link.href} className="inline-flex p-1">
+                    <ReloadLink  href={link.href} className="inline-flex p-1">
                         {link.title}
-                    </Link>
+                    </ReloadLink>
                     </div>
                 ))}
                 </div>

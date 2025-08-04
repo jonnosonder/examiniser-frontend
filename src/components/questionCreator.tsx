@@ -1091,8 +1091,8 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
 
                     </div>
                 </div>
-                <div className='absolute bottom-2 w-full max-h-[10%] z-10000'>
-                    <Advert slot="1234567890" />
+                <div className='absolute bottom-0 items-center justify-center max-h-[10%] z-10000'>
+                    <Advert slot="4588173114" />
                 </div>
             </div>
         </div>

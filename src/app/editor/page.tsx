@@ -165,7 +165,7 @@ function EditorPage() {
 
                 // Assuming `addStage` is a function that you use to add the rendered canvas to your app
                 addStage({
-                    id: `stage-${Date.now()}-1`,
+                    id: `stage-${Date.now()}-`+pageNum,
                     width: canvas.width,
                     height: canvas.height,
                     background: 'white',

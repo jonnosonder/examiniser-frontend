@@ -34,7 +34,7 @@ module.exports = {
         background: '#f7fbfb',
       },
       fontFamily: {
-        sans: ['Nunito', 'Arial'],
+        nunito: ['Nunito', 'Arial'],
       },
     },
   },
