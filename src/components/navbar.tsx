@@ -61,7 +61,7 @@ export default function Navbar() {
           </div>
         </nav>
       ) : (
-        <nav className="bg-background">
+        <nav className="bg-background w-full">
           <div className="mx-auto flex justify-between items-center py-4 px-4">
             <div className="flex items-center justify-center text-primary font-bold text-2xl sm:text-3xl lg:text-5xl cursor-pointer">Examiniser</div>
             <div className="flex justify-end items-center gap-6 text-white cursor-pointer">

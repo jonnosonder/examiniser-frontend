@@ -46,7 +46,7 @@ export default function DrawElement({ shape }: Props) {
       );
     case 'text':
       return (
-        <Text {...shape} fontSize={(shape.fontSize * (300/72))} listening={false}/>
+        <Text {...shape} fontSize={shape.fontSize * (300/72)} listening={false}/>
       );
     case 'image':
       return (

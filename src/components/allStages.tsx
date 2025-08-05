@@ -235,7 +235,7 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
   }, [actionWindow]);
 
   return (
-    <div ref={wholeContainerRef} className='overflow-y-auto custom-scroll h-full w-full flex flex-col items-center justify-start space-y-4 p-4' id={!previewStyle ? `wholeStageContainerScroller` : ''}>
+    <div ref={wholeContainerRef} className='overflow-auto custom-scroll h-full w-full flex flex-col items-center justify-start space-y-2 p-4' id={!previewStyle ? `wholeStageContainerScroller` : ''}>
       {stages.map((stage, pageNumber) => {
         const container = wholeContainerRef.current;
         const displayDimension = maxWidthHeight();
@@ -258,14 +258,14 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
         //console.log(`Rending Page ${pageNumber+1}#, Items: ${aPagesElements.length}`);
 
         return (
-          <div key={stage.id+"wrap"} className='flex flex-col flex-shrink-1 w-full h-full items-center justify-start' id={!previewStyle ? `stageDivSelect${pageNumber}` : ''}>
+          <div key={stage.id+"wrap"} className='flex flex-col items-center justify-start' id={!previewStyle ? `stageDivSelect${pageNumber}` : ''}>
           {!previewStyle && (
             <p key={stage.id+"p"} className='flex text-darkGrey text-[0.6rem] text-left'>{stage.width}px x {stage.height}px</p>
           )}
           <div ref={stageContainerRef} key={stage.id+"div"} onClick={() => previewPageOnClickHanlder?.(pageNumber)} className='flex flex-col relative w-full h-full items-center justify-start'>
               <div
                 ref={stageWrapRef}
-                className={`flex flex-shrink-0 ${previewStyle && `border border-primary rounded-sm transition-shadow duration-300 hover:shadow-[0_0_0_0.2rem_theme('colors.contrast')]`} overflow-hidden`}
+                className={`flex flex-shrink-0 ${previewStyle && `border border-primary rounded-sm transition-shadow duration-300 hover:shadow-[0_0_0_0.2rem_theme('colors.contrast')]`} ${previewStyle && pageNumber===stageEstimatedPage && `shadow-[0_0_0_0.2rem_theme('colors.accent')]`} overflow-hidden`}
                 style={{
                   width: stage.width * scale * manualScaler,
                   height: stage.height * scale * manualScaler,
@@ -411,7 +411,7 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
               
             </div>
             {previewStyle && (
-              <p key={stage.id+"previewPageNumber"} className='flex text-primary text-[0.8rem] text-left'>{pageNumber+1}</p>
+              <p key={stage.id+"previewPageNumber"} className='flex text-primary text-[0.8rem] text-left pt-1'>{pageNumber+1}</p>
             )}
             {!previewStyle && showSelectButtons && selectedId.page === pageNumber && ( () => {
               const marginSpace = 4;
@@ -470,7 +470,7 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
         </div>
       )}
 
-      <div className='w-full h-4' />
+      <div className='w-full h-4 m-0' />
     </div>
   );
 }

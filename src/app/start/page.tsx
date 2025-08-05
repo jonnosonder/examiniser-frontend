@@ -639,7 +639,7 @@ export default function StartPage() {
             </div>
         </div>
     </div>
-    <div className='absolute bottom-0 items-center justify-center max-h-[15%] z-100'>
+    <div className='absolute flex bottom-0 left-0 right-0 items-center justify-center z-10000 max-h-[15%]'>
         <Advert slot="6394473175" />
     </div>
     </>

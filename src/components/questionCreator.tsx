@@ -224,7 +224,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
             fill: 'black',
             background: '',
             stroke: 'black',
-            strokeWidth: 1,
+            strokeWidth: 0,
             align: "left",
             border: "",
             borderWeight: 0,

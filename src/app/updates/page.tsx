@@ -18,8 +18,8 @@ export default function Contact() {
         <>
             <Navbar />
             <span className='w-full h-20 flex' />
-            <div className='w-full flex flex-col items-center justify-center scroll-y-auto text-primary'>
-                <div className='w-[90vw] h-full flex flex-col items-center justify-center'>
+            <div className='w-full h-[calc(100vh-5rem)] flex flex-col items-center justify-between overflow-y-auto text-primary'>
+                <div className='w-[90vw] flex flex-col items-center justify-center'>
                     <h1 className="text-6xl p-2 font-nunito">Updates</h1>
                     <p className='p-2'>Here is a track of each update to the website, feel free to email and suggest any ideas or problems.</p>
                     <div className='w-full flex items-center justify-center'>
@@ -58,7 +58,7 @@ export default function Contact() {
                         </div>
                     </div>
                 </div>
-                <div className='absolute bottom-0 right-0 text-right p-2'>
+                <div className='w-full text-right p-2'>
                     <p>Version: {version}</p>
                 </div>
             </div>
