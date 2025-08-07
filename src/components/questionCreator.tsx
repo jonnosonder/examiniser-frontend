@@ -15,6 +15,7 @@ import ColorSelectorSection from '@/components/colorSelectorSection';
 import { KonvaEventObject } from 'konva/lib/Node';
 import Advert from './advert';
 import '@/styles/QuestionCreator.css'
+import { AddImage } from './addImage';
 
 type QuestionCreatorProps = {
   onClose: () => void;
@@ -35,6 +36,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
 
     const [selectedFillColorViaDisplay, setSelectedFillColorViaDisplay] = useState<string>("");
     const [selectedStrokeColorViaDisplay, setSelectedStrokeColorViaDisplay] = useState<string>("");
+    const [showAddImagePage, setShowAddImagePage] = useState<boolean>(false);
     const [displayFillColorSelector, setDisplayFillColorSelector] = useState<boolean>(false);
     const toggleDisplayFillColorSelector = () => {setDisplayFillColorSelector(!displayFillColorSelector); if (!displayFillColorSelector && displayStrokeColorSelector) {setDisplayStrokeColorSelector(false)}}
     const [displayStrokeColorSelector, setDisplayStrokeColorSelector] = useState<boolean>(false);
@@ -743,6 +745,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
     });
 
     return(
+        <>
         <div onContextMenu={handleContextMenu}>
             <CustomContextMenu
                 x={contextMenu.x}
@@ -765,6 +768,12 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                             <button onClick={addTextHandle}>
                                 <svg className='h-full' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M6.67406 6.4H17.3141V9.66H16.7941L16.2141 7.56C16.1741 7.4 16.1274 7.28667 16.0741 7.22C16.0341 7.14 15.9474 7.09333 15.8141 7.08C15.6807 7.05333 15.4541 7.04 15.1341 7.04H12.8741V18.38C12.8741 18.8467 12.8941 19.12 12.9341 19.2C12.9741 19.28 13.1007 19.3333 13.3141 19.36L14.4141 19.48V20H9.59406V19.48L10.6941 19.36C10.9074 19.3333 11.0341 19.28 11.0741 19.2C11.1141 19.12 11.1341 18.8467 11.1341 18.38V7.04H8.85406C8.5474 7.04 8.32073 7.05333 8.17406 7.08C8.04073 7.09333 7.9474 7.14 7.89406 7.22C7.85406 7.28667 7.81406 7.4 7.77406 7.56L7.19406 9.66H6.67406V6.4Z" fill="black"/>
+                                </svg>
+                            </button>
+                            {/* Add Image */}
+                            <button onClick={() => setShowAddImagePage(true)}>
+                                <svg className='h-full p-[2px]' viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fillRule="evenodd" clipRule="evenodd">
+                                    <path d="M24 22h-24v-20h24v20zm-1-19h-22v18h22v-18zm-1 16h-19l4-7.492 3 3.048 5.013-7.556 6.987 12zm-11.848-2.865l-2.91-2.956-2.574 4.821h15.593l-5.303-9.108-4.806 7.243zm-4.652-11.135c1.38 0 2.5 1.12 2.5 2.5s-1.12 2.5-2.5 2.5-2.5-1.12-2.5-2.5 1.12-2.5 2.5-2.5zm0 1c.828 0 1.5.672 1.5 1.5s-.672 1.5-1.5 1.5-1.5-.672-1.5-1.5.672-1.5 1.5-1.5z"/>
                                 </svg>
                             </button>
                             {/* Add Square */}
@@ -1091,11 +1100,13 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
 
                     </div>
                 </div>
-                <div className='absolute bottom-0 items-center justify-center max-h-[10%] z-10000'>
+                <div className='absolute bottom-0 items-center justify-center max-h-[10%] z-30'>
                     <Advert slot="4588173114" />
                 </div>
             </div>
         </div>
+        {showAddImagePage && (<AddImage onClose={() => setShowAddImagePage(false)} showAdvert={false} mainPageMode={false} setShapes={setShapes} setSelectedId={setSelectedId}/>)}
+        </>
     );
 }
 

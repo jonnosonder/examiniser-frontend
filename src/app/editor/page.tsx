@@ -22,6 +22,7 @@ import * as pdfjsLib from 'pdfjs-dist';
 import { useNotification } from '@/context/notificationContext';
 import AddShapeDropDown from '@/components/addShapeDropDown';
 import TemplatePage from '@/components/templatePage';
+import { AddImage } from '@/components/addImage';
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@5.3.93/build/pdf.worker.mjs`;
 
 
@@ -30,6 +31,7 @@ function EditorPage() {
 
     const { notify } = useNotification();
 
+    const [showAddImagePage, setShowAddImagePage] = useState<boolean>(false);
     const [showExportPage, setShowExportPage] = useState<boolean>(false);
     const [showPremadePage, setShowPremadePage] = useState<boolean>(false);
 
@@ -311,6 +313,10 @@ function EditorPage() {
         RENDER_PAGE();
     }
 
+    const showAddImageHandler = () => {
+        setShowAddImagePage(true);
+    }
+
     return (
     <div ref={cursorDivRef} className='cursor-default'>
         {showQuestionCreator && <QuestionCreator onClose={handleQuestionCreatorClose} newQuestionCreating={newQuestionCreating} shapes={questionCreatorShapes} setShapes={setQuestionCreatorShapes} questionEditingID={questionEditingID}/>}
@@ -358,32 +364,14 @@ function EditorPage() {
                         explanation={'Add Text'}
                         onClick={addTextToPageButtonHandler}
                     />
+                    <HoverExplainButton
+                        icon={<svg className='h-full p-[2px]' viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fillRule="evenodd" clipRule="evenodd"><path d="M24 22h-24v-20h24v20zm-1-19h-22v18h22v-18zm-1 16h-19l4-7.492 3 3.048 5.013-7.556 6.987 12zm-11.848-2.865l-2.91-2.956-2.574 4.821h15.593l-5.303-9.108-4.806 7.243zm-4.652-11.135c1.38 0 2.5 1.12 2.5 2.5s-1.12 2.5-2.5 2.5-2.5-1.12-2.5-2.5 1.12-2.5 2.5-2.5zm0 1c.828 0 1.5.672 1.5 1.5s-.672 1.5-1.5 1.5-1.5-.672-1.5-1.5.672-1.5 1.5-1.5z"/></svg>}
+                        explanation={'Add Image'}
+                        onClick={showAddImageHandler}
+                    />
+                    {showAddImagePage && (<AddImage onClose={() => setShowAddImagePage(false)} showAdvert={true} mainPageMode={true}/>)}
 
                     <AddShapeDropDown />
-
-                    {/*
-                    <HoverExplainButton
-                        icon={<svg className='h-full' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="5.5" y="5.5" width="13" height="13" rx="0.5" stroke="black"/><path d="M23.4847 3.196H21.2047V5.524H20.7847V3.196H18.5167V2.8H20.7847V0.46H21.2047V2.8H23.4847V3.196Z" fill="black"/></svg>}
-                        explanation={'Add Square'}
-                        onClick={addSquareToPageButtonHandler}
-                    />
-                    <HoverExplainButton
-                        icon={<svg className='h-full' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M23.4847 3.196H21.2047V5.524H20.7847V3.196H18.5167V2.8H20.7847V0.46H21.2047V2.8H23.4847V3.196Z" fill="black"/><circle cx="12" cy="12" r="6.5" stroke="black"/></svg>}
-                        explanation={'Add Circle'}
-                        onClick={addCircleToPageButtonHandler}
-                    />
-                    <HoverExplainButton
-                        icon={<svg className='h-full' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M23.4847 3.196H21.2047V5.524H20.7847V3.196H18.5167V2.8H20.7847V0.46H21.2047V2.8H23.4847V3.196Z" fill="black"/><path d="M19.7949 18.5H4.20508L12 4.99902L19.7949 18.5Z" stroke="black"/></svg>}
-                        explanation={'Add Triangle'}
-                        onClick={addTriangleToPageButtonHandler}
-                    />
-                    <HoverExplainButton
-                        icon={<svg className='h-full' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M23.4847 3.196H21.2047V5.524H20.7847V3.196H18.5167V2.8H20.7847V0.46H21.2047V2.8H23.4847V3.196Z" fill="black"/><path d="M11.5254 5.31168C11.6136 5.12084 11.7984 5 12 5C12.2023 5 12.3864 5.12084 12.4746 5.31168C13.1564 6.78389 14.3296 9.32011 14.3296 9.32011C14.3296 9.32011 16.9973 9.70621 18.545 9.93095C18.8271 9.97147 19 10.2227 19 10.4814C19 10.6214 18.9496 10.7636 18.8383 10.8763C17.7113 12.0096 15.7709 13.9644 15.7709 13.9644C15.7709 13.9644 16.2448 16.7401 16.5192 18.3501C16.5773 18.6905 16.3267 19 15.9998 19C15.9144 19 15.829 18.9786 15.7513 18.9344C14.3737 18.1622 12 16.8337 12 16.8337C12 16.8337 9.6263 18.1622 8.2487 18.9344C8.171 18.9786 8.0849 19 7.9995 19C7.674 19 7.422 18.6898 7.4808 18.3501C7.7559 16.7401 8.2298 13.9644 8.2298 13.9644C8.2298 13.9644 6.2887 12.0096 5.1624 10.8763C5.0504 10.7636 5 10.6214 5 10.4821C5 10.2227 5.1743 9.97074 5.4557 9.93095C7.0034 9.70621 9.6704 9.32011 9.6704 9.32011C9.6704 9.32011 10.8443 6.78389 11.5254 5.31168ZM12 6.80968L10.3473 10.3406L6.6751 10.8704L9.3687 13.5547L8.7051 17.4268L12 15.5811L15.2949 17.4268L14.6292 13.5687L17.3249 10.8704L13.6051 10.3134L12 6.80968Z" fill="black"/></svg>}
-                        explanation={'Add Star'}
-                        onClick={addStarToPageButtonHandler}
-                    />
-                    */}
-                    
                 </div>
                 <div className='flex m-2'>
                     <button className='h-full' onClick={() => setShowExportPage(true)}>

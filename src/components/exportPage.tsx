@@ -3,7 +3,7 @@
 
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { getPageElements, getPageElementsInfo, getStages } from '@/lib/stageStore';
 import { jsPDF } from "jspdf";
 import Advert from './advert';
@@ -23,40 +23,14 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
     medium: 0.5,
     low: 0.01,
   };
-  const qualityCompression: Record<string, number> = {
-    high: 5,
-    medium: 5,
-    low: 0.09,
+  const [compressionValue, setCompressionValue] = useState<string>("high");
+  const compressionMap: Record<string, string> = {
+    high: "SLOW",
+    medium: "MEDIUM",
+    low: "FAST",
+    none: "NONE",
   };
-  
-  const stages = getStages();
-
-  const calculateFileSizeVlaue = () => {
-    let value = 0;
-    stages.forEach((stage) => {
-      value += (stage.width * stage.height * 3);
-    })
-    return value;
-  }
-
-  const baseFileSizeValue = calculateFileSizeVlaue();
-
-  function formatFileSize(bytes: number): string {
-    if (bytes === 0) return '0 Bytes';
-
-    const units = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-    const k = 1024;
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    const size = parseFloat((bytes / Math.pow(k, i)).toFixed(2));
-
-    return `${size} ${units[i]}`;
-  }
-
-  const [estimatedFileSize, setEstimatedFileSize] = useState<string>(formatFileSize(baseFileSizeValue));
-
-  useEffect(() => {
-    setEstimatedFileSize(formatFileSize(baseFileSizeValue * qualityMap[qualityValue] / qualityCompression[qualityValue]));
-  }, [qualityValue]);
+  type ImageCompression = 'NONE' | 'FAST' | 'MEDIUM' | 'SLOW';
 
   const pxTommScaler = 25.4/300;
 
@@ -75,6 +49,8 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
 
     const pageElements = getPageElements();
     const pageElementsInfo = getPageElementsInfo();
+
+    const compressionSpeed = compressionMap[compressionValue] as ImageCompression;
     
     stages.forEach((stage, stageIndex) => {
         if (stage.stageRef && stage.stageRef.current){
@@ -143,6 +119,9 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
                     doc.setTextColor(element.fill);
                     doc.text(visibleLines, xPosition, yPosition + lineHeight, { maxWidth: setWidth - 1, align: element.align });   
                     break;
+                  case "image":
+                    doc.addImage(element.image, "webp", groupX + element.x * pxTommScaler, groupY + element.y * pxTommScaler, element.width * pxTommScaler, element.height * pxTommScaler, undefined, compressionSpeed, element.rotation);
+                    break;
                   case "star":
                     const outerRadius = Math.min(element.width * pxTommScaler, element.height * pxTommScaler) / 2;
                     const innerRadius = outerRadius / 2;
@@ -194,6 +173,10 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
     setQualityValue(e.target.value);
   }
 
+  const handleCompressionDropDownChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setCompressionValue(e.target.value);
+  }
+
   return (
       <div className="absolute flex z-10 w-screen h-screen bg-opacity-50 backdrop-blur-sm items-center justify-center left-0 top-0">
         <div className="flex flex-col h-1/2 bg-background border-2 border-primary space-y-5 p-2 rounded-lg">
@@ -211,21 +194,26 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
               </div>
               <div className="flex flex-row w-full items-center">
                 <p className='flex text-center p-2 pr-7'>Quality: </p>
-                <select value={qualityValue} onChange={handleQualityDropDownChange} id="fileDimensionDropBox" className="border-2 border-primary rounded p-2 bg-background cursor-pointer transition-shadow duration-300 focus:shadow-[0_0_0_0.4rem_theme('colors.accent')] focus:outline-none">
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
+                <select value={qualityValue} onChange={handleQualityDropDownChange} className="border-2 border-primary rounded p-2 bg-background cursor-pointer transition-shadow duration-300 focus:shadow-[0_0_0_0.4rem_theme('colors.accent')] focus:outline-none">
                   <option value="high">High</option>
+                  <option value="medium">Medium</option>
+                  <option value="low">Low</option>
                 </select>
               </div>
               <div className="flex flex-row w-full items-center">
-                <p className='p-2'>Estimated Size: </p>
-                <p className=''>{estimatedFileSize}</p>
+                <p className='flex text-center p-2 pr-7'>Compression: </p>
+                <select value={compressionValue} onChange={handleCompressionDropDownChange} className="border-2 border-primary rounded p-2 bg-background cursor-pointer transition-shadow duration-300 focus:shadow-[0_0_0_0.4rem_theme('colors.accent')] focus:outline-none">
+                  <option value="high">High</option>
+                  <option value="medium">Medium</option>
+                  <option value="low">Low</option>
+                  <option value="none">None</option>
+                </select>
               </div>
             </div>
           </div>
           <div className="flex w-full items-center justify-center justify-between">
               <span className='flex'></span>
-              <button className='border-2 border-primary text-primary text-lg rounded-lg py-2 px-4' onClick={exportToPDF}>Export</button>
+              <button className="border-2 border-primary text-primary text-lg rounded-lg py-2 px-4 transition-shadow duration-300 hover:shadow-[0_0_0_0.4rem_theme('colors.accent')] hover:outline-none" onClick={exportToPDF}>Export</button>
           </div>
         </div>
         <div className='absolute bottom-0 items-center justify-center max-h-[18%] z-10000'>

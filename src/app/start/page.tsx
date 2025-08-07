@@ -620,7 +620,7 @@ export default function StartPage() {
                             )}
                             {file && (
                                 <div className="mt-4">
-                                <p className="font-semibold">Uploaded File:</p>
+                                <p className="font-semibold">Uploaded File</p>
                                 <p>{file.name}</p>
                                 <p>{(file.size / 1024).toFixed(2)} KB</p>
                                 </div>

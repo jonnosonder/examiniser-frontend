@@ -28,6 +28,7 @@ module.exports = {
         accent: '#88CFCF',
         red: '#E21D20',
         darkRed: '#a8181b',
+        green: '#29cd17ff',
         contrast: '#F57C22',
         grey: '#c1c1c1',
         darkGrey: '#a6a6a6',

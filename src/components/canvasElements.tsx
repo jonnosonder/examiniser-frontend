@@ -360,7 +360,7 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
             onChange({ ...shape, x: round4(e.target.x()), y: round4(e.target.y()) });
           }}
           onTransformEnd={ () => {
-            const node = rectRef.current;
+            const node = imageRef.current;
             if (!node) return;
             const scaleX = node.scaleX();
             const scaleY = node.scaleY();

@@ -238,7 +238,12 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
     <div ref={wholeContainerRef} className='overflow-auto custom-scroll h-full w-full flex flex-col items-center justify-start space-y-2 p-4' id={!previewStyle ? `wholeStageContainerScroller` : ''}>
       {stages.map((stage, pageNumber) => {
         const container = wholeContainerRef.current;
-        const displayDimension = maxWidthHeight();
+        let displayDimension;
+        if (!previewStyle) {
+          displayDimension = maxWidthHeight();
+        } else {
+          displayDimension = {maxWidth: stage.width, maxHeight: stage.height}
+        }
         const manualPadding = previewStyle ?  32 : 64;
         const scale = container 
           ? Math.min(
@@ -247,6 +252,7 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
             )
           : 1;
         
+        /*
         if (stageEstimatedPage-1 <= pageNumber && stageEstimatedPage+1 >= pageNumber) {
           aPagesElements = pageElements.slice(pageNumber, pageNumber+1)[0];
           if (!aPagesElements) {
@@ -255,8 +261,10 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
         } else {
           aPagesElements = [];
         }
-        //console.log(`Rending Page ${pageNumber+1}#, Items: ${aPagesElements.length}`);
+        */
+        aPagesElements = pageElements[pageNumber];
 
+        //console.log(`Rending Page ${pageNumber+1}#, Items: ${aPagesElements.length}`);
         return (
           <div key={stage.id+"wrap"} className='flex flex-col items-center justify-start' id={!previewStyle ? `stageDivSelect${pageNumber}` : ''}>
           {!previewStyle && (
@@ -265,7 +273,7 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
           <div ref={stageContainerRef} key={stage.id+"div"} onClick={() => previewPageOnClickHanlder?.(pageNumber)} className='flex flex-col relative w-full h-full items-center justify-start'>
               <div
                 ref={stageWrapRef}
-                className={`flex flex-shrink-0 ${previewStyle && `border border-primary rounded-sm transition-shadow duration-300 hover:shadow-[0_0_0_0.2rem_theme('colors.contrast')]`} ${previewStyle && pageNumber===stageEstimatedPage && `shadow-[0_0_0_0.2rem_theme('colors.accent')]`} overflow-hidden`}
+                className={`flex flex-shrink-0 ${previewStyle && `border border-primary rounded-sm transition-shadow duration-300 hover:shadow-[0_0_0_0.2rem_theme('colors.contrast')]`} overflow-hidden`}
                 style={{
                   width: stage.width * scale * manualScaler,
                   height: stage.height * scale * manualScaler,
@@ -417,10 +425,10 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
               const marginSpace = 4;
               const oneOverTwoValue = 1/2;
               const topPosition = ((selectButtonPosition.y + (selectButtonPosition.widestY*oneOverTwoValue)) < (stage.height * scale)*oneOverTwoValue) ? selectButtonOffset.y + selectButtonPosition.y + selectButtonPosition.widestY + marginSpace : selectButtonOffset.y + selectButtonPosition.y - marginSpace;
-              const leftPosition = ((selectButtonPosition.x + (selectButtonPosition.widestX*oneOverTwoValue)) < (stage.width * scale)*oneOverTwoValue) ? selectButtonOffset.x + selectButtonPosition.x + selectButtonPosition.widestX + marginSpace : selectButtonOffset.x + selectButtonPosition.x - marginSpace;
-              const transformFrom = (((selectButtonPosition.y + (selectButtonPosition.widestY*oneOverTwoValue)) < (stage.height * scale)*oneOverTwoValue) ? "top" : "bottom") + " " + (((selectButtonPosition.x + (selectButtonPosition.widestX*oneOverTwoValue)) < (stage.width * scale)*oneOverTwoValue) ? "left" : "right");
-              const translateX = ((selectButtonPosition.x + (selectButtonPosition.widestX*oneOverTwoValue)) < (stage.width * scale)*oneOverTwoValue) ? "0%" : "-100%";
-              const translateY = ((selectButtonPosition.y + (selectButtonPosition.widestY*oneOverTwoValue)) < (stage.height * scale)*oneOverTwoValue) ? "0%" : "-100%";
+              const leftPosition = ((selectButtonPosition.x + (selectButtonPosition.widestX*oneOverTwoValue)) <= (stage.width * scale)*oneOverTwoValue) ? selectButtonOffset.x + selectButtonPosition.x + selectButtonPosition.widestX + marginSpace : selectButtonOffset.x + selectButtonPosition.x - marginSpace;
+              const transformFrom = (((selectButtonPosition.y + (selectButtonPosition.widestY*oneOverTwoValue)) <= (stage.height * scale)*oneOverTwoValue) ? "top" : "bottom") + " " + (((selectButtonPosition.x + (selectButtonPosition.widestX*oneOverTwoValue)) <= (stage.width * scale)*oneOverTwoValue) ? "left" : "right");
+              const translateX = ((selectButtonPosition.x + (selectButtonPosition.widestX*oneOverTwoValue)) <= (stage.width * scale)*oneOverTwoValue) ? "0%" : "-100%";
+              const translateY = ((selectButtonPosition.y + (selectButtonPosition.widestY*oneOverTwoValue)) <= (stage.height * scale)*oneOverTwoValue) ? "0%" : "-100%";
               return (
                 <div className='absolute inline-flex w-max bg-background border border-darkGrey rounded-sm items-center justify-center shadow z-20'
                   style={{
