@@ -23,8 +23,8 @@ import { useNotification } from '@/context/notificationContext';
 import AddShapeDropDown from '@/components/addShapeDropDown';
 import TemplatePage from '@/components/templatePage';
 import { AddImage } from '@/components/addImage';
+import Advert from '@/components/advert';
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@5.3.93/build/pdf.worker.mjs`;
-
 
 function EditorPage() {
     useBeforeUnload(false); //TEMP change to true
@@ -130,104 +130,97 @@ function EditorPage() {
         }
     }, [pageFormatData, fileUploaded]);
 
+    const [showLoadingScreen, setShowLoadingScreen] = useState<boolean>(false);
+    const wholeLoadingBarDiv = useRef<HTMLDivElement>(null);
+    const progressBarDiv = useRef<HTMLDivElement>(null);
+    const progressText = useRef<HTMLParagraphElement>(null);
+
     const renderPdf = async (file: File) => {
-        try {
-            console.log(file);
-            // Start the loading task to load the PDF document
-            const loadingTask = pdfjsLib.getDocument(URL.createObjectURL(file));
-            console.log('got loadingTask');
+        deleteAll();
 
-            // Wait for the loading task to finish and get the PDF
-            const pdf = await loadingTask.promise;
-            console.log('got pdf');
+        if (progressText.current) {
+            progressText.current.innerText = "Opening PDF";
+        } 
+        const formData = new FormData();
+        formData.append("file", file);
 
-            deleteAll();
+        const res = await fetch("http://127.0.0.1:8000/parse-pdf", { // BEFORE RELEASE UPDATE
+            method: "POST",
+            body: formData,
+        });
 
-            const scale = 300 / 72;
+        const data = (await res.json()) as PdfParseResponse;
+        console.log(data);
 
-            // Get the first page of the PDF
-            for (let pageNum = 0; pageNum < pdf.numPages; pageNum++){
-                console.log('getting page one');
-                const page = await pdf.getPage(pageNum + 1);
-                console.log('have page '+pageNum);
-
-                
-                const viewport = page.getViewport({ scale });
-
-                // Prepare canvas using PDF page dimensions
-                const canvas = document.createElement('canvas');
-                const context = canvas.getContext('2d');
-                if (!context) {
-                    console.error('Failed to get canvas context');
-                    return;  // No need to reject, we just return
+        data.pages.forEach((page) => {
+            const pageNumber = page.page;
+            addStage({
+                id: `stage-${Date.now()}-`+pageNumber,
+                width: page.width,
+                height: page.height,
+                background: "white",
+            });
+            page.content.forEach((element, elementIndex) => {
+                switch (element.type) {
+                    case "text":
+                        const newText: ShapeData = { 
+                            id: 't'+Date.now()+"-"+pageNumber+"-"+elementIndex,
+                            type: 'text',
+                            x: 0,
+                            y: 0,
+                            text: element.text,
+                            width: element.width,
+                            height: element.height,
+                            rotation: 0,
+                            fontSize: element.font_size,
+                            fill: element.fill,
+                            background:  '',
+                            stroke: element.stroke,
+                            strokeWidth: 1,
+                            align: "left",
+                            border: "",
+                            borderWeight: 0,
+                        };
+                        addPageElement([newText], pageNumber);
+                        addPageElementsInfo({x: element.x, y: element.y, widestX: element.width, widestY: element.height}, pageNumber);
+                        break;
+                    case "img":
+                        const imageData = new window.Image();
+                        imageData.crossOrigin = "anonymous";
+                        imageData.src = element.data;
+                        imageData.onload = () => {
+                            const newImageShape: ShapeData = {
+                                id: 'i'+Date.now()+"-"+pageNumber+"-"+elementIndex,
+                                type: 'image',
+                                x: 0,
+                                y: 0,
+                                width: element.width,
+                                height: element.height,
+                                rotation: 0,
+                                fill: '',
+                                stroke: '',
+                                strokeWidth: 0,
+                                image: imageData,
+                                cornerRadius: 0,
+                            };
+                            addPageElement([newImageShape], pageNumber);
+                            addPageElementsInfo({x: element.x, y: element.y, widestX: element.width, widestY: element.height}, pageNumber);
+                        };
+                        break;
                 }
-
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
-
-                // Assuming `addStage` is a function that you use to add the rendered canvas to your app
-                addStage({
-                    id: `stage-${Date.now()}-`+pageNum,
-                    width: canvas.width,
-                    height: canvas.height,
-                    background: 'white',
-                });
-
-                // Render PDF page into canvas context
-                const renderContext = {
-                    canvasContext: context,
-                    viewport: viewport,
-                };
-
-                // Render the page and wait for the rendering to complete
-                await page.render(renderContext).promise;
-
-                const img = new Image();
-                img.src = canvas.toDataURL("image/JPEG");
-                console.log(img.src);
-
-                // Wait for the image to load (optional)
-                await new Promise((res) => {
-                    img.onload = res;
-                });
-
-                const newImageShape: ShapeData = {
-                    id: 'i'+Date.now(),
-                    type: 'image',
-                    x: 0,
-                    y: 0,
-                    width: viewport.width,
-                    height: viewport.height,
-                    rotation: 0,
-                    fill: '',
-                    stroke: '',
-                    strokeWidth: 0,
-                    image: img,
-                    cornerRadius: 0,
-                };
-
-                console.log(img);
-
-                addPageElementsInfo({widestX: img.width, widestY: img.height, x:0, y:0}, pageNum);
-                addPageElement([newImageShape], pageNum);
-                console.log(newImageShape);
-                //addPageElement(newImageShape, 0);
-
-                console.log('Page rendered');
-            }
-
-            RENDER_PAGE();
-        } catch (error) {
-            console.error('Error rendering PDF:', error);
-        }
+            })
+        })
     };
 
     useEffect(() => {
+        setShowLoadingScreen(true);
         if (fileUploaded && fileUploaded.name.endsWith('.pdf')) {
-            console.log("converting pdf to images");
             setProjectNameValue(fileUploaded.name);
             renderPdf(fileUploaded);
         }
+
+        RENDER_PAGE();
+        setShowLoadingScreen(false);
     }, [fileUploaded])
 
 
@@ -318,6 +311,7 @@ function EditorPage() {
     }
 
     return (
+    <>
     <div ref={cursorDivRef} className='cursor-default'>
         {showQuestionCreator && <QuestionCreator onClose={handleQuestionCreatorClose} newQuestionCreating={newQuestionCreating} shapes={questionCreatorShapes} setShapes={setQuestionCreatorShapes} questionEditingID={questionEditingID}/>}
         <div className="flex flex-col w-full h-screen">
@@ -458,6 +452,43 @@ function EditorPage() {
             </div>
         </div>
     </div>
+    {showLoadingScreen && (
+        <div className='absolute flex flex-col w-full h-full left-0 right-0 top-0 bottom-0 backdrop-blur-md items-center justify-center z-50 text-primary'>
+            <h1 className='text-center text-6xl font-nunito'>Examiniser</h1>
+            <div className="upload-loader m-16">
+                <div className="upload-box upload-box-1">
+                    <div className="upload-side-left"></div>
+                    <div className="upload-side-right"></div>
+                    <div className="upload-side-top"></div>
+                </div>
+                <div className="upload-box upload-box-2">
+                    <div className="upload-side-left"></div>
+                    <div className="upload-side-right"></div>
+                    <div className="upload-side-top"></div>
+                </div>
+                <div className="upload-box upload-box-3">
+                    <div className="upload-side-left"></div>
+                    <div className="upload-side-right"></div>
+                    <div className="upload-side-top"></div>
+                </div>
+                <div className="upload-box upload-box-4">
+                    <div className="upload-side-left"></div>
+                    <div className="upload-side-right"></div>
+                    <div className="upload-side-top"></div>
+                </div>
+            </div>
+            <p className='italic'>Loading file into editor...</p>
+            <div ref={wholeLoadingBarDiv} className='flex relative w-[90vw] sm:w-[80vw] md:w-[75vw] lg:w-[70vw] h-8 rounded-full border-2 border-primary'>
+                <div ref={progressBarDiv} className='absolute top-0 left-0 bottom-0 bg-contrast rounded-full' />
+                <p ref={progressText} className='absolute top-0 bottom-0 left-0 right-0 text-center'></p>
+            </div>
+            
+            <div className='absolute flex bottom-0 left-0 right-0 items-center justify-center z-10000 max-h-[15%]'>
+                <Advert slot="2931099214" />
+            </div>
+        </div>
+    )}
+    </>
     );
 }
 
@@ -468,3 +499,52 @@ const PageWithProvider = () => (
 );
 
 export default PageWithProvider;
+
+
+
+export interface PdfTextItem {
+  type: "text";
+  text: string;
+  x: number;       // position in px at 300 DPI
+  y: number;
+  width: number;
+  height: number;
+  fill: string;
+  stroke: string; // usually null for text
+  font_size: number;
+}
+
+export interface PdfImageItem {
+  type: "img";
+  x: number;       // position in px at 300 DPI
+  y: number;
+  width: number;
+  height: number;
+  data: string;
+}
+
+export interface PdfShapePoint {
+  cmd: string;          // drawing command: "m", "l", "c", "re", etc.
+  coords: number[];     // coordinates in px at 300 DPI
+}
+
+export interface PdfShapeItem {
+  type: "rect" | "path";
+  points: PdfShapePoint[];
+  fill: string;
+  stroke: string;
+  width: number | null;  // stroke width
+}
+
+export type PdfPageContentItem = PdfTextItem | PdfShapeItem | PdfImageItem;
+
+export interface PdfPage {
+  page: number;                // page index starting from 0
+  width: number;                // px at 300 DPI
+  height: number;               // px at 300 DPI
+  content: PdfPageContentItem[]; // text + shapes
+}
+
+export interface PdfParseResponse {
+  pages: PdfPage[];
+}
