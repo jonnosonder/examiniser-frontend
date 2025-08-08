@@ -62,14 +62,14 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
           if (n.type === 'success') {
             notificationClass = 'bg-green-500 text-white';
           } else if (n.type === 'error') {
-            notificationClass = 'bg-red-500 text-white';
+            notificationClass = 'bg-red text-white';
           } else if (n.type === 'info') {
             notificationClass = 'bg-yellow-500 text-white';
           }
 
           return (
             <div key={n.id} className={`${notificationClass} flex p-3 rounded-lg shadow-lg items-center justify-center ${animationClass}`}>
-              <div className='w-5 h-5'>
+              <div className='w-5 h-5 flex items-center justify-center'>
                 {renderIcon(n.type)}
               </div>
               <div className='flex px-2 items-center justify-center'>

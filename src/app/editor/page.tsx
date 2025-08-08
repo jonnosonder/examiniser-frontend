@@ -130,7 +130,7 @@ function EditorPage() {
         }
     }, [pageFormatData, fileUploaded]);
 
-    const [showLoadingScreen, setShowLoadingScreen] = useState<boolean>(false);
+    const [showLoadingScreen, setShowLoadingScreen] = useState<boolean>(fileUploaded !== undefined ? true : false);
     const wholeLoadingBarDiv = useRef<HTMLDivElement>(null);
     const progressBarDiv = useRef<HTMLDivElement>(null);
     const progressText = useRef<HTMLParagraphElement>(null);
@@ -138,22 +138,76 @@ function EditorPage() {
     const renderPdf = async (file: File) => {
         deleteAll();
 
-        if (progressText.current) {
-            progressText.current.innerText = "Opening PDF";
-        } 
+        const imagePromises: Promise<null>[] = [];
+        const loadImage = (pageNumber: number, elementIndex: number, element: PdfImageItem ): Promise<null> => {
+            return new Promise((resolve, reject) => {
+                const img = new window.Image();
+                img.crossOrigin = "anonymous";
+                img.src = element.data;
+                img.onload = () => {
+                    const newImageShape: ShapeData = {
+                                id: 'i'+Date.now()+"-"+pageNumber+"-"+elementIndex,
+                                type: 'image',
+                                x: 0,
+                                y: 0,
+                                width: element.width,
+                                height: element.height,
+                                rotation: 0,
+                                fill: '',
+                                stroke: '',
+                                strokeWidth: 0,
+                                image: img,
+                                cornerRadius: 0,
+                            };
+                            addPageElement([newImageShape], pageNumber);
+                            addPageElementsInfo({x: element.x, y: element.y, widestX: element.width, widestY: element.height}, pageNumber);
+                    resolve(null)
+                };
+                img.onerror = (err) => reject(err);
+            });
+        };
+
         const formData = new FormData();
         formData.append("file", file);
 
-        const res = await fetch("http://127.0.0.1:8000/parse-pdf", { // BEFORE RELEASE UPDATE
+        if (progressBarDiv.current && progressText.current) {
+            progressBarDiv.current.style.width = '2%';
+            progressText.current.innerText = 'Sending file...';
+        }
+
+        const res = await fetch("http://localhost:8000/parse-pdf", { // BEFORE RELEASE UPDATE
             method: "POST",
             body: formData,
         });
 
+        console.log(res);
+        if (res.status !== 200 ) {
+            serverFailAction();
+        }
+
+        if (progressBarDiv.current && progressText.current) {
+            progressBarDiv.current.style.width = '5%';
+            progressText.current.innerText = 'Waiting for server to read file...';
+        }
+
         const data = (await res.json()) as PdfParseResponse;
         console.log(data);
 
+        if (progressBarDiv.current && progressText.current) {
+            progressBarDiv.current.style.width = '10%';
+            progressText.current.innerText = 'File recieved...';
+        }
+
+        const totalPages = data.pages.length
+        const percentagePerElement = (98 - 10) / totalPages;
+
         data.pages.forEach((page) => {
+            
             const pageNumber = page.page;
+            if (progressBarDiv.current && progressText.current) {
+                progressBarDiv.current.style.width = ((10+pageNumber+1) * percentagePerElement) + '%';
+                progressText.current.innerText = 'Drawing elements '+pageNumber+'/'+totalPages+'...';
+            }
             addStage({
                 id: `stage-${Date.now()}-`+pageNumber,
                 width: page.width,
@@ -185,43 +239,89 @@ function EditorPage() {
                         addPageElementsInfo({x: element.x, y: element.y, widestX: element.width, widestY: element.height}, pageNumber);
                         break;
                     case "img":
-                        const imageData = new window.Image();
-                        imageData.crossOrigin = "anonymous";
-                        imageData.src = element.data;
-                        imageData.onload = () => {
-                            const newImageShape: ShapeData = {
-                                id: 'i'+Date.now()+"-"+pageNumber+"-"+elementIndex,
-                                type: 'image',
-                                x: 0,
-                                y: 0,
-                                width: element.width,
-                                height: element.height,
-                                rotation: 0,
-                                fill: '',
-                                stroke: '',
-                                strokeWidth: 0,
-                                image: imageData,
-                                cornerRadius: 0,
-                            };
-                            addPageElement([newImageShape], pageNumber);
-                            addPageElementsInfo({x: element.x, y: element.y, widestX: element.width, widestY: element.height}, pageNumber);
+                        imagePromises.push(loadImage(pageNumber, elementIndex, element));
+                        break;
+                    case "path":
+                        const newPath: ShapeData = { 
+                            id: 'p'+Date.now()+"-"+pageNumber+"-"+elementIndex,
+                            type: 'path',
+                            x: 0,
+                            y: 0,
+                            width: element.width,
+                            height: element.height,
+                            rotation: 0,
+                            fill: element.fill,
+                            stroke: element.stroke,
+                            strokeWidth: 0,
+                            data: element.path,
                         };
+                        addPageElement([newPath], pageNumber);
+                        addPageElementsInfo({x: element.x, y: element.y, widestX: element.width, widestY: element.height}, pageNumber);
                         break;
                 }
             })
         })
-    };
 
-    useEffect(() => {
-        setShowLoadingScreen(true);
-        if (fileUploaded && fileUploaded.name.endsWith('.pdf')) {
-            setProjectNameValue(fileUploaded.name);
-            renderPdf(fileUploaded);
+        if (progressBarDiv.current && progressText.current) {
+            progressBarDiv.current.style.width = '98%';
+            progressText.current.innerText = 'Rendering images...';
+        }
+
+        await Promise.all(imagePromises);
+
+        if (progressBarDiv.current && progressText.current) {
+            progressBarDiv.current.style.width = '99%';
+            progressText.current.innerText = 'Rendering elements...';
         }
 
         RENDER_PAGE();
         setShowLoadingScreen(false);
+
+        if (progressBarDiv.current && progressText.current) {
+            progressBarDiv.current.style.width = '99%';
+            progressText.current.innerText = 'Finished rendering file...';
+        }
+    };
+
+    useEffect(() => {
+        if (fileUploaded) {
+            if (fileUploaded && fileUploaded.name.endsWith('.pdf')) {
+                setProjectNameValue(fileUploaded.name.slice(0, -4));
+                if (progressBarDiv.current && progressText.current) {
+                    progressBarDiv.current.style.width = '1%';
+                    progressText.current.innerText = 'Opening pdf file...';
+                }
+                renderPdf(fileUploaded);
+            } else {
+                setShowLoadingScreen(false);
+
+                addStage({
+                    id: `stage-${Date.now()}`,
+                    width: 2480,
+                    height: 3508,
+                    background: '#ffffff',
+                });
+
+                notify('error', 'File format not recognised');
+                RENDER_PAGE();      
+            }
+        } else {
+            setShowLoadingScreen(false);
+            notify('error', 'File data lost, please try again');
+        }
     }, [fileUploaded])
+
+    const serverFailAction = () => {
+        notify('error', 'Server side fail, please try again');
+        addStage({
+            id: `stage-${Date.now()}`,
+            width: 2480,
+            height: 3508,
+            background: '#ffffff',
+        });
+        RENDER_PAGE();
+        setShowLoadingScreen(false);
+    }
 
 
     const newPageButtonHandler = () => {
@@ -312,6 +412,44 @@ function EditorPage() {
 
     return (
     <>
+    {showLoadingScreen && (
+        <div className='absolute flex flex-col w-full h-full left-0 right-0 top-0 bottom-0 backdrop-blur-md items-center justify-center z-50 text-primary'>
+            <h1 className='text-center text-6xl font-nunito'>Examiniser</h1>
+            <div className='relative m-16 items-center justify-center'>
+                <div className="upload-loader">
+                    <div className="upload-box upload-box-1">
+                        <div className="upload-side-left"></div>
+                        <div className="upload-side-right"></div>
+                        <div className="upload-side-top"></div>
+                    </div>
+                    <div className="upload-box upload-box-2">
+                        <div className="upload-side-left"></div>
+                        <div className="upload-side-right"></div>
+                        <div className="upload-side-top"></div>
+                    </div>
+                    <div className="upload-box upload-box-3">
+                        <div className="upload-side-left"></div>
+                        <div className="upload-side-right"></div>
+                        <div className="upload-side-top"></div>
+                    </div>
+                    <div className="upload-box upload-box-4">
+                        <div className="upload-side-left"></div>
+                        <div className="upload-side-right"></div>
+                        <div className="upload-side-top"></div>
+                    </div>
+                </div>
+            </div>
+            <p className='italic'>Loading file into editor...</p>
+            <div ref={wholeLoadingBarDiv} className='flex relative w-[90vw] sm:w-[80vw] md:w-[75vw] lg:w-[70vw] h-8 rounded-full border-2 border-primary'>
+                <div ref={progressBarDiv} style={{width: '0%'}} className='absolute top-0 left-0 bottom-0 bg-contrast rounded-full' />
+                <p ref={progressText} className='absolute flex top-0 bottom-0 left-0 right-0 text-center items-center justify-center'></p>
+            </div>
+            
+            <div className='absolute flex bottom-0 left-0 right-0 items-center justify-center z-10000 max-h-[15%]'>
+                <Advert slot="2931099214" />
+            </div>
+        </div>
+    )}
     <div ref={cursorDivRef} className='cursor-default'>
         {showQuestionCreator && <QuestionCreator onClose={handleQuestionCreatorClose} newQuestionCreating={newQuestionCreating} shapes={questionCreatorShapes} setShapes={setQuestionCreatorShapes} questionEditingID={questionEditingID}/>}
         <div className="flex flex-col w-full h-screen">
@@ -452,42 +590,6 @@ function EditorPage() {
             </div>
         </div>
     </div>
-    {showLoadingScreen && (
-        <div className='absolute flex flex-col w-full h-full left-0 right-0 top-0 bottom-0 backdrop-blur-md items-center justify-center z-50 text-primary'>
-            <h1 className='text-center text-6xl font-nunito'>Examiniser</h1>
-            <div className="upload-loader m-16">
-                <div className="upload-box upload-box-1">
-                    <div className="upload-side-left"></div>
-                    <div className="upload-side-right"></div>
-                    <div className="upload-side-top"></div>
-                </div>
-                <div className="upload-box upload-box-2">
-                    <div className="upload-side-left"></div>
-                    <div className="upload-side-right"></div>
-                    <div className="upload-side-top"></div>
-                </div>
-                <div className="upload-box upload-box-3">
-                    <div className="upload-side-left"></div>
-                    <div className="upload-side-right"></div>
-                    <div className="upload-side-top"></div>
-                </div>
-                <div className="upload-box upload-box-4">
-                    <div className="upload-side-left"></div>
-                    <div className="upload-side-right"></div>
-                    <div className="upload-side-top"></div>
-                </div>
-            </div>
-            <p className='italic'>Loading file into editor...</p>
-            <div ref={wholeLoadingBarDiv} className='flex relative w-[90vw] sm:w-[80vw] md:w-[75vw] lg:w-[70vw] h-8 rounded-full border-2 border-primary'>
-                <div ref={progressBarDiv} className='absolute top-0 left-0 bottom-0 bg-contrast rounded-full' />
-                <p ref={progressText} className='absolute top-0 bottom-0 left-0 right-0 text-center'></p>
-            </div>
-            
-            <div className='absolute flex bottom-0 left-0 right-0 items-center justify-center z-10000 max-h-[15%]'>
-                <Advert slot="2931099214" />
-            </div>
-        </div>
-    )}
     </>
     );
 }
@@ -512,6 +614,7 @@ export interface PdfTextItem {
   fill: string;
   stroke: string; // usually null for text
   font_size: number;
+  font_family: string;
 }
 
 export interface PdfImageItem {
@@ -523,17 +626,15 @@ export interface PdfImageItem {
   data: string;
 }
 
-export interface PdfShapePoint {
-  cmd: string;          // drawing command: "m", "l", "c", "re", etc.
-  coords: number[];     // coordinates in px at 300 DPI
-}
-
 export interface PdfShapeItem {
-  type: "rect" | "path";
-  points: PdfShapePoint[];
+  type: 'path';
+  x: number;
+  y: number;
+  width: number;
+  height: number;
   fill: string;
   stroke: string;
-  width: number | null;  // stroke width
+  path: string;
 }
 
 export type PdfPageContentItem = PdfTextItem | PdfShapeItem | PdfImageItem;

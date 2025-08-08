@@ -252,8 +252,8 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
             )
           : 1;
         
-        /*
-        if (stageEstimatedPage-1 <= pageNumber && stageEstimatedPage+1 >= pageNumber) {
+        const range = 5;
+        if (stageEstimatedPage-range <= pageNumber && stageEstimatedPage+range >= pageNumber) {
           aPagesElements = pageElements.slice(pageNumber, pageNumber+1)[0];
           if (!aPagesElements) {
             aPagesElements = [];
@@ -261,8 +261,8 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
         } else {
           aPagesElements = [];
         }
-        */
-        aPagesElements = pageElements[pageNumber];
+        
+        //aPagesElements = pageElements[pageNumber];
 
         //console.log(`Rending Page ${pageNumber+1}#, Items: ${aPagesElements.length}`);
         return (

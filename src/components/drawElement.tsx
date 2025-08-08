@@ -60,6 +60,11 @@ export default function DrawElement({ shape }: Props) {
       return (
           <Star {...shape} innerRadius={innerRadius} outerRadius={outerRadius} listening={false}/>
       );
+    case 'path':
+      return (
+        <Path {...shape} listening={false}/>
+      );
+      break;
     default:
       return null;
   }

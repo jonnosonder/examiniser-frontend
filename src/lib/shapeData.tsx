@@ -32,4 +32,5 @@ export type ShapeData =
   | (Basics & { type: 'oval'; radiusX: number; radiusY: number; })
   | (BaseShape & { type: 'text'; text: string; fontSize: number; background: string; align: alginType; border: string; borderWeight: number; })
   | (BaseShape & { type: 'image'; image: HTMLImageElement; cornerRadius: number; })
-  | (Basics & { type: 'star'; numPoints: number; width: number; height: number; });
+  | (Basics & { type: 'star'; numPoints: number; width: number; height: number; })
+  | (BaseShape & { type: 'path'; data: string; });
