@@ -83,7 +83,7 @@ function EditorPage() {
         if (!el) return;
         
         if (cursorType === 0) {
-            el.className = 'cursor-default';
+            el.classList.add('cursor-default');
             el.style.cursor = '';
             if (defualtCursorRef.current){
                 defualtCursorRef.current.classList.add('indented-button');
@@ -92,7 +92,7 @@ function EditorPage() {
                 pageCursorRef.current.classList.remove('indented-button');
             }
         } else if (cursorType === 1) {
-            el.className = '';
+            el.classList.remove('cursor-default');
             el.style.cursor = `url("data:image/svg+xml,%3Csvg%20clip-rule%3D%22evenodd%22%20fill-rule%3D%22evenodd%22%20stroke-linejoin%3D%22round%22%20stroke-miterlimit%3D%222%22%20viewBox%3D%220%200%2024%2024%22%20width%3D%2224%22%20height%3D%2224%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22m3%2017v3c0%20.621.52%201%201%201h3v-1.5h-2.5v-2.5zm8.5%204h-3.5v-1.5h3.5zm4.5%200h-3.5v-1.5h3.5zm5-4h-1.5v2.5h-2.5v1.5h3c.478%200%201-.379%201-1zm-1.5-1v-3.363h1.5v3.363zm-15-3.363v3.363h-1.5v-3.363zm15-1v-3.637h1.5v3.637zm-15-3.637v3.637h-1.5v-3.637zm12.5-5v1.5h2.5v2.5h1.5v-3c0-.478-.379-1-1-1zm-10%200h-3c-.62%200-1%20.519-1%201v3h1.5v-2.5h2.5zm4.5%201.5h-3.5v-1.5h3.5zm4.5%200h-3.5v-1.5h3.5z%22%20fill-rule%3D%22nonzero%22/%3E%3C/svg%3E") 12 12, auto`;
             if (defualtCursorRef.current){
                 defualtCursorRef.current.classList.remove('indented-button');
@@ -130,7 +130,7 @@ function EditorPage() {
         }
     }, [pageFormatData, fileUploaded]);
 
-    const [showLoadingScreen, setShowLoadingScreen] = useState<boolean>(fileUploaded !== undefined ? true : false);
+    const [showLoadingScreen, setShowLoadingScreen] = useState<boolean>(fileUploaded !== null ? true : false);
     const wholeLoadingBarDiv = useRef<HTMLDivElement>(null);
     const progressBarDiv = useRef<HTMLDivElement>(null);
     const progressText = useRef<HTMLParagraphElement>(null);
@@ -171,120 +171,122 @@ function EditorPage() {
         formData.append("file", file);
 
         if (progressBarDiv.current && progressText.current) {
-            progressBarDiv.current.style.width = '2%';
-            progressText.current.innerText = 'Sending file...';
-        }
+            progressBarDiv.current.style.width = '5%';
+            progressText.current.innerText = 'Waiting for server to read file...';
+        }  
 
-        const res = await fetch("http://localhost:8000/parse-pdf", { // BEFORE RELEASE UPDATE
-            method: "POST",
-            body: formData,
-        });
 
-        console.log(res);
-        if (res.status !== 200 ) {
+        try {
+            const res = await fetch("http://localhost:8000/parse-pdf", { // BEFORE RELEASE UPDATE
+                method: "POST",
+                body: formData,
+            });
+
+            console.log(res);
+            if (res.status !== 200 ) {
+                serverFailAction();
+                return;
+            }
+
+            const data = (await res.json()) as PdfParseResponse;
+            console.log(data);
+
+            if (progressBarDiv.current && progressText.current) {
+                progressBarDiv.current.style.width = '10%';
+                progressText.current.innerText = 'File recieved...';
+            }
+
+            const totalPages = data.pages.length
+            const percentagePerElement = (98 - 10) / totalPages;
+
+            data.pages.forEach((page) => {
+                
+                const pageNumber = page.page;
+                if (progressBarDiv.current && progressText.current) {
+                    progressBarDiv.current.style.width = ((10+pageNumber+1) * percentagePerElement) + '%';
+                    progressText.current.innerText = 'Drawing elements '+pageNumber+'/'+totalPages+'...';
+                }
+                addStage({
+                    id: `stage-${Date.now()}-`+pageNumber,
+                    width: page.width,
+                    height: page.height,
+                    background: "white",
+                });
+                page.content.forEach((element, elementIndex) => {
+                    switch (element.type) {
+                        case "text":
+                            const newText: ShapeData = { 
+                                id: 't'+Date.now()+"-"+pageNumber+"-"+elementIndex,
+                                type: 'text',
+                                x: 0,
+                                y: 0,
+                                text: element.text,
+                                width: element.width,
+                                height: element.height,
+                                rotation: 0,
+                                fontSize: element.font_size,
+                                fill: element.fill,
+                                background:  '',
+                                stroke: element.stroke,
+                                strokeWidth: 1,
+                                align: "left",
+                                border: "",
+                                borderWeight: 0,
+                            };
+                            addPageElement([newText], pageNumber);
+                            addPageElementsInfo({x: element.x, y: element.y, widestX: element.width, widestY: element.height}, pageNumber);
+                            break;
+                        case "img":
+                            imagePromises.push(loadImage(pageNumber, elementIndex, element));
+                            break;
+                        case "path":
+                            const newPath: ShapeData = { 
+                                id: 'p'+Date.now()+"-"+pageNumber+"-"+elementIndex,
+                                type: 'path',
+                                x: 0,
+                                y: 0,
+                                width: element.width,
+                                height: element.height,
+                                rotation: 0,
+                                fill: element.fill,
+                                stroke: element.stroke,
+                                strokeWidth: 0,
+                                data: element.path,
+                            };
+                            addPageElement([newPath], pageNumber);
+                            addPageElementsInfo({x: element.x, y: element.y, widestX: element.width, widestY: element.height}, pageNumber);
+                            break;
+                    }
+                })
+            })
+
+            if (progressBarDiv.current && progressText.current) {
+                progressBarDiv.current.style.width = '98%';
+                progressText.current.innerText = 'Rendering images...';
+            }
+
+            await Promise.all(imagePromises);
+
+            if (progressBarDiv.current && progressText.current) {
+                progressBarDiv.current.style.width = '99%';
+                progressText.current.innerText = 'Rendering elements...';
+            }
+
+            RENDER_PAGE();
+            setShowLoadingScreen(false);
+
+            if (progressBarDiv.current && progressText.current) {
+                progressBarDiv.current.style.width = '99%';
+                progressText.current.innerText = 'Finished rendering file...';
+            }
+        } catch {
             serverFailAction();
         }
 
-        if (progressBarDiv.current && progressText.current) {
-            progressBarDiv.current.style.width = '5%';
-            progressText.current.innerText = 'Waiting for server to read file...';
-        }
-
-        const data = (await res.json()) as PdfParseResponse;
-        console.log(data);
-
-        if (progressBarDiv.current && progressText.current) {
-            progressBarDiv.current.style.width = '10%';
-            progressText.current.innerText = 'File recieved...';
-        }
-
-        const totalPages = data.pages.length
-        const percentagePerElement = (98 - 10) / totalPages;
-
-        data.pages.forEach((page) => {
-            
-            const pageNumber = page.page;
-            if (progressBarDiv.current && progressText.current) {
-                progressBarDiv.current.style.width = ((10+pageNumber+1) * percentagePerElement) + '%';
-                progressText.current.innerText = 'Drawing elements '+pageNumber+'/'+totalPages+'...';
-            }
-            addStage({
-                id: `stage-${Date.now()}-`+pageNumber,
-                width: page.width,
-                height: page.height,
-                background: "white",
-            });
-            page.content.forEach((element, elementIndex) => {
-                switch (element.type) {
-                    case "text":
-                        const newText: ShapeData = { 
-                            id: 't'+Date.now()+"-"+pageNumber+"-"+elementIndex,
-                            type: 'text',
-                            x: 0,
-                            y: 0,
-                            text: element.text,
-                            width: element.width,
-                            height: element.height,
-                            rotation: 0,
-                            fontSize: element.font_size,
-                            fill: element.fill,
-                            background:  '',
-                            stroke: element.stroke,
-                            strokeWidth: 1,
-                            align: "left",
-                            border: "",
-                            borderWeight: 0,
-                        };
-                        addPageElement([newText], pageNumber);
-                        addPageElementsInfo({x: element.x, y: element.y, widestX: element.width, widestY: element.height}, pageNumber);
-                        break;
-                    case "img":
-                        imagePromises.push(loadImage(pageNumber, elementIndex, element));
-                        break;
-                    case "path":
-                        const newPath: ShapeData = { 
-                            id: 'p'+Date.now()+"-"+pageNumber+"-"+elementIndex,
-                            type: 'path',
-                            x: 0,
-                            y: 0,
-                            width: element.width,
-                            height: element.height,
-                            rotation: 0,
-                            fill: element.fill,
-                            stroke: element.stroke,
-                            strokeWidth: 0,
-                            data: element.path,
-                        };
-                        addPageElement([newPath], pageNumber);
-                        addPageElementsInfo({x: element.x, y: element.y, widestX: element.width, widestY: element.height}, pageNumber);
-                        break;
-                }
-            })
-        })
-
-        if (progressBarDiv.current && progressText.current) {
-            progressBarDiv.current.style.width = '98%';
-            progressText.current.innerText = 'Rendering images...';
-        }
-
-        await Promise.all(imagePromises);
-
-        if (progressBarDiv.current && progressText.current) {
-            progressBarDiv.current.style.width = '99%';
-            progressText.current.innerText = 'Rendering elements...';
-        }
-
-        RENDER_PAGE();
-        setShowLoadingScreen(false);
-
-        if (progressBarDiv.current && progressText.current) {
-            progressBarDiv.current.style.width = '99%';
-            progressText.current.innerText = 'Finished rendering file...';
-        }
     };
 
     useEffect(() => {
-        if (fileUploaded) {
+        if (fileUploaded != null) {
             if (fileUploaded && fileUploaded.name.endsWith('.pdf')) {
                 setProjectNameValue(fileUploaded.name.slice(0, -4));
                 if (progressBarDiv.current && progressText.current) {
@@ -307,12 +309,11 @@ function EditorPage() {
             }
         } else {
             setShowLoadingScreen(false);
-            notify('error', 'File data lost, please try again');
         }
     }, [fileUploaded])
 
     const serverFailAction = () => {
-        notify('error', 'Server side fail, please try again');
+        notify('error', 'Server side fail, please try again later');
         addStage({
             id: `stage-${Date.now()}`,
             width: 2480,
@@ -410,6 +411,14 @@ function EditorPage() {
         setShowAddImagePage(true);
     }
 
+    const undoActionButtonHandler = () => {
+        
+    }
+
+    const redoActionButtonHandler = () => {
+        
+    }
+
     return (
     <>
     {showLoadingScreen && (
@@ -450,9 +459,9 @@ function EditorPage() {
             </div>
         </div>
     )}
-    <div ref={cursorDivRef} className='cursor-default'>
+    <div ref={cursorDivRef} className='cursor-default h-full'>
         {showQuestionCreator && <QuestionCreator onClose={handleQuestionCreatorClose} newQuestionCreating={newQuestionCreating} shapes={questionCreatorShapes} setShapes={setQuestionCreatorShapes} questionEditingID={questionEditingID}/>}
-        <div className="flex flex-col w-full h-screen">
+        <div className="flex flex-col w-full h-full">
             <div className="flex h-10 border-b-1 border-primary">
                 <div className='flex m-1'>
                     <input className='border-2 bg-background border-background rounded-lg p-1 text-ellipsis overflow-hidden whitespace-nowrap outline-none focus:border-black' type="text" onChange={fileNameOnChangeHandler} onBlur={(e) => {e.target.setSelectionRange(0, 0);}} value={projectNameValue} placeholder='Project Name'></input>
@@ -479,7 +488,22 @@ function EditorPage() {
                 <div className='flex items-center justify-center border-r-2 border-primary '>
                     <HoverExplainButton
                         ref = {defualtCursorRef}
-                        icon={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M4 0l16 12.279-6.951 1.17 4.325 8.817-3.596 1.734-4.35-8.879-5.428 4.702z"/></svg>}
+                        icon={<svg xmlns="http://www.w3.org/2000/svg" className='p-1' viewBox="0 0 24 24"><path d="M12 0c-3.31 0-6.291 1.353-8.459 3.522l-2.48-2.48-1.061 7.341 7.437-.966-2.489-2.488c1.808-1.808 4.299-2.929 7.052-2.929 5.514 0 10 4.486 10 10s-4.486 10-10 10c-3.872 0-7.229-2.216-8.89-5.443l-1.717 1.046c2.012 3.803 6.005 6.397 10.607 6.397 6.627 0 12-5.373 12-12s-5.373-12-12-12z"/></svg>}
+                        explanation={'Undo'}
+                        onClick={undoActionButtonHandler}
+                    />
+                    <HoverExplainButton
+                        ref = {defualtCursorRef}
+                        icon={<svg xmlns="http://www.w3.org/2000/svg" className='p-1' viewBox="0 0 24 24"><path d="M12 0c3.31 0 6.291 1.353 8.459 3.522l2.48-2.48 1.061 7.341-7.437-.966 2.489-2.489c-1.808-1.807-4.299-2.928-7.052-2.928-5.514 0-10 4.486-10 10s4.486 10 10 10c3.872 0 7.229-2.216 8.89-5.443l1.717 1.046c-2.012 3.803-6.005 6.397-10.607 6.397-6.627 0-12-5.373-12-12s5.373-12 12-12z"/></svg>}
+                        explanation={'Redo'}
+                        onClick={redoActionButtonHandler}
+                    />
+                </div>
+
+                <div className='flex items-center justify-center border-r-2 border-primary '>
+                    <HoverExplainButton
+                        ref = {defualtCursorRef}
+                        icon={<svg xmlns="http://www.w3.org/2000/svg" className='p-1' viewBox="0 0 24 24"><path d="M4 0l16 12.279-6.951 1.17 4.325 8.817-3.596 1.734-4.35-8.879-5.428 4.702z"/></svg>}
                         explanation={'Selector'}
                         onClick={() => setCursorType(0)}
                     />
@@ -557,31 +581,31 @@ function EditorPage() {
 
                     <nav className="w-full mt-4">
                         <button onClick={createQuestionButtonHandler} className="flex text-center items-center justify-start w-full p-3 focus:outline-none">
-                            <div className="w-8 h-8 text-lg items-center justify-center">
+                            <div className="w-8 h-8 items-center justify-center">
                                 <svg className='w-full h-full' clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m21 3.998c0-.478-.379-1-1-1h-16c-.62 0-1 .519-1 1v16c0 .621.52 1 1 1h16c.478 0 1-.379 1-1zm-16.5.5h15v15h-15zm6.75 6.752h-3.5c-.414 0-.75.336-.75.75s.336.75.75.75h3.5v3.5c0 .414.336.75.75.75s.75-.336.75-.75v-3.5h3.5c.414 0 .75-.336.75-.75s-.336-.75-.75-.75h-3.5v-3.5c0-.414-.336-.75-.75-.75s-.75.336-.75.75z" fillRule="nonzero"/></svg>
                             </div>
-                            {actionWindow && <span className="ml-3">Add Question</span>}
+                            {actionWindow && <span className="ml-3 text-sm lg:text-sm">Add Question</span>}
                         </button>
 
                         <button ref={editButtonRef} onClick={() => editQuestionButtonHandler()} className="flex text-center items-center justify-start  w-full p-3 focus:outline-none">
-                            <div className="w-8 h-8 text-lg items-center justify-center">
+                            <div className="w-8 h-8 items-center justify-center">
                                 <svg className='w-full h-full' clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m11.25 6c.398 0 .75.352.75.75 0 .414-.336.75-.75.75-1.505 0-7.75 0-7.75 0v12h17v-8.749c0-.414.336-.75.75-.75s.75.336.75.75v9.249c0 .621-.522 1-1 1h-18c-.48 0-1-.379-1-1v-13c0-.481.38-1 1-1zm1.521 9.689 9.012-9.012c.133-.133.217-.329.217-.532 0-.179-.065-.363-.218-.515l-2.423-2.415c-.143-.143-.333-.215-.522-.215s-.378.072-.523.215l-9.027 8.996c-.442 1.371-1.158 3.586-1.264 3.952-.126.433.198.834.572.834.41 0 .696-.099 4.176-1.308zm-2.258-2.392 1.17 1.171c-.704.232-1.274.418-1.729.566zm.968-1.154 7.356-7.331 1.347 1.342-7.346 7.347z" fillRule="nonzero"/></svg>
                             </div>
-                            {actionWindow && <span className="ml-3">Edit Question</span>}
+                            {actionWindow && <span className="ml-3 text-sm lg:text-sm">Edit Question</span>}
                         </button>
 
                         <button ref={duplicateButtonRef} onClick={duplicateQuestionButtonHandler} className="flex text-center items-center justify-start  w-full p-3 focus:outline-none">
-                            <div className="w-8 h-8 text-lg items-center justify-center">
+                            <div className="w-8 h-8 items-center justify-center">
                                 <svg clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m20 20h-15.25c-.414 0-.75.336-.75.75s.336.75.75.75h15.75c.53 0 1-.47 1-1v-15.75c0-.414-.336-.75-.75-.75s-.75.336-.75.75zm-1-17c0-.478-.379-1-1-1h-15c-.62 0-1 .519-1 1v15c0 .621.52 1 1 1h15c.478 0 1-.379 1-1zm-15.5.5h14v14h-14zm6.25 6.25h-3c-.414 0-.75.336-.75.75s.336.75.75.75h3v3c0 .414.336.75.75.75s.75-.336.75-.75v-3h3c.414 0 .75-.336.75-.75s-.336-.75-.75-.75h-3v-3c0-.414-.336-.75-.75-.75s-.75.336-.75.75z" fillRule="nonzero"/></svg>
                             </div>
-                            {actionWindow && <span className="ml-3">Duplicate</span>}
+                            {actionWindow && <span className="ml-3 text-sm lg:text-sm">Duplicate</span>}
                         </button>
                         
                         <button onClick={premadeButtonHandler} className="flex text-center items-center justify-start  w-full p-3 focus:outline-none">
-                            <div className="w-8 h-8 text-lg items-center justify-center"> 
+                            <div className="w-8 h-8 items-center justify-center"> 
                                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><mask id="path-1-inside-1_38_2" fill="white"><rect x="3" y="3" width="18" height="18" rx="1"/></mask><rect x="3" y="3" width="18" height="18" rx="1" stroke="black" strokeWidth="3" mask="url(#path-1-inside-1_38_2)"/><path d="M7.46967 15.4697C7.17678 15.7626 7.17678 16.2374 7.46967 16.5303C7.76256 16.8232 8.23744 16.8232 8.53033 16.5303L7.46967 15.4697ZM16.75 8C16.75 7.58579 16.4142 7.25 16 7.25H9.25C8.83579 7.25 8.5 7.58579 8.5 8C8.5 8.41421 8.83579 8.75 9.25 8.75H15.25V14.75C15.25 15.1642 15.5858 15.5 16 15.5C16.4142 15.5 16.75 15.1642 16.75 14.75V8ZM8 16L8.53033 16.5303L16.5303 8.53033L16 8L15.4697 7.46967L7.46967 15.4697L8 16Z" fill="black"/></svg>
                             </div>
-                            {actionWindow && <span className="ml-3">Templates</span>}
+                            {actionWindow && <span className="ml-3 text-sm lg:text-sm">Templates</span>}
                         </button>
                         {showPremadePage && (<TemplatePage onClose={() => setShowPremadePage(false)} />)}
 

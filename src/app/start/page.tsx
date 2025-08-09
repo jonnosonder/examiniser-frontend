@@ -523,7 +523,8 @@ export default function StartPage() {
                 height: heightValueToSend,
                 visualWidth: visualWidthValue,
                 visualHeight: visualHeightValue,
-             });
+            });
+            setFile(null);
             router.push("/editor");
         }
     } 

@@ -96,33 +96,6 @@ export default function EditorSidePanel() {
                     <input value={marginEditorVisual} onChange={marginValueInputHandler} placeholder='300px'></input>
                 </div>
             </div>
-
-            <div className="w-full">
-                <button
-                    className="w-full flex justify-between items-center px-4 py-1 bg-transparent text-primary border border-button-border text-base transition cursor-pointer"
-                    onClick={() => toggleEditPanelSection(3)}
-                >
-                    Layout
-                    {editPanelIndex === 3 ? (
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" />
-                    </svg>
-                    ) : (
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M6 15L12 9L18 15" stroke="currentColor" strokeWidth="2" />
-                    </svg>
-                    )}
-                </button>
-
-                <div
-                    className={`flex flex-col overflow-hidden transition-all duration-400 ease-linear space-y-2 ${
-                    editPanelIndex === 3 ? 'm-2' : 'max-h-0 p-0 border-0'
-                    }`}
-                >   
-                    <p className="text-sm">Question Layout</p>
-
-                </div>
-            </div>
         </div>
     );
 }

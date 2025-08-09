@@ -754,15 +754,16 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                 onClose={closeContextMenu}
                 onSelect={handleSelect}
             />
-            <div className='absolute flex z-10 w-screen h-screen bg-opacity-50 backdrop-blur-sm items-center justify-center'>
-                <div className='flex w-full items-center justify-center h-3/4'>
-                    <div className='bg-background rounded-lg p-2 m-2 border-2 border-primary rounded-xl w-[75vw] h-full'>
+            <div className='absolute flex z-10 w-full h-full bg-opacity-50 backdrop-blur-sm justify-center'>
+                <div className='absolute flex top-5 w-full items-center justify-center h-[85%]'>
+                    <div className='bg-background flex flex-col rounded-lg p-2 m-2 border-2 border-primary rounded-xl w-[75vw] h-full'>
                         <div className='flex justify-between items-center justify-center'>
                             <h3 className='text-lg'>Question Creator Editor</h3>
                             <button onClick={onClose} className='w-6 h-6'>
                                 <svg className='w-full h-full' clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m12 10.93 5.719-5.72c.146-.146.339-.219.531-.219.404 0 .75.324.75.749 0 .193-.073.385-.219.532l-5.72 5.719 5.719 5.719c.147.147.22.339.22.531 0 .427-.349.75-.75.75-.192 0-.385-.073-.531-.219l-5.719-5.719-5.719 5.719c-.146.146-.339.219-.531.219-.401 0-.75-.323-.75-.75 0-.192.073-.384.22-.531l5.719-5.719-5.72-5.719c-.146-.147-.219-.339-.219-.532 0-.425.346-.749.75-.749.192 0 .385.073.531.219z"/></svg>
                             </button>
                         </div>
+                        <span className='flex w-full flex-1' />
                         <div className='flex flex-row w-full h-10 my-2'>
                             {/* Add Text */}
                             <button onClick={addTextHandle}>
@@ -805,7 +806,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                                 </svg>
                             </button>
                         </div>
-                        <div ref={stageContainerRef} className='w-full h-[55vh] flex overflow-y-auto overflow-x-auto border-2 border-primary bg-white justify-start'>
+                        <div ref={stageContainerRef} className='w-full h-[65vh] flex overflow-y-auto overflow-x-auto border-2 border-primary bg-white justify-start'>
                             <div 
                                 className='flex'
                                 style={{
@@ -908,7 +909,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                             </div>
                         </div>
                         <div className='flex w-full mt-2 space-x-4'>
-                            <button onClick={() => {setShapes([]);}} className='px-4 py-2 border-2 border-darkRed rounded-full bg-red text-white'>Delete</button>
+                            <button onClick={() => {setShapes([]);}} className='px-4 py-2 border-2 border-darkRed rounded-full bg-red text-white whitespace-nowrap'>Delete All</button>
                             <span className='flex w-full'></span>
                             <button onClick={() => {setDimensions({width: dimensions.width, height: dimensions.height * 2})}} className='px-4 py-2 border-2 border-primary rounded-full text-primary whitespace-nowrap'>Add Space</button>
                             <button onClick={() => {createHandler(); onClose();}} className='px-4 py-2 border-2 border-primary rounded-full whitespace-nowrap'>
@@ -1100,7 +1101,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
 
                     </div>
                 </div>
-                <div className='absolute bottom-0 items-center justify-center max-h-[10%] z-30'>
+                <div className='absolute bottom-0 items-center justify-center max-h-[10vh] z-30'>
                     <Advert slot="4588173114" />
                 </div>
             </div>

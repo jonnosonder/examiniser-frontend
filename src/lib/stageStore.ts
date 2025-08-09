@@ -28,6 +28,9 @@ let marginValue: number = 300;
 let pageElements: ShapeData[][][] = [];
 let pageElementsInfo: stageGroupInfoData[][] = [];
 let estimatedPage: number = 0;
+const stageHistoryUndo: ShapeData[][] = [];
+const stageHistoryRedo: ShapeData[][] = [];
+const stageHistoryLimit = 50;
 
 export function RENDER_PAGE() {
   console.log("Call to render");
@@ -107,6 +110,18 @@ export function maxWidthHeight() {
   }
   
   return {maxWidth, maxHeight};
+}
+
+export function minWidthHeight() {
+  let minWidth = Infinity;
+  let minHeight = Infinity;
+
+  for (const stage of stages) {
+    if (stage.width < minWidth) minWidth = stage.width;
+    if (stage.height < minHeight) minHeight = stage.height;
+  }
+  
+  return {minWidth, minHeight};
 }
 
 export function getStagesBackground():string {
@@ -217,5 +232,18 @@ export function getEstimatedPage():number {
 }
 
 export function setEstimatedPage(page: number) {
-  estimatedPage = page
+  estimatedPage = page;
+}
+
+//////////////////////////////////////////////////////////////
+
+export function addToHistoryUndo(past: ShapeData[]) {
+  stageHistoryUndo.push(past);
+  if (stageHistoryUndo.length > stageHistoryLimit) {
+
+  }
+}
+
+export function addToHistoryRedo(past: ShapeData[]) {
+  stageHistoryRedo.push(past);
 }

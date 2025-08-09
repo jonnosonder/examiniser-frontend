@@ -120,7 +120,7 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
                     doc.text(visibleLines, xPosition, yPosition + lineHeight, { maxWidth: setWidth - 1, align: element.align });   
                     break;
                   case "image":
-                    doc.addImage(element.image, "webp", groupX + element.x * pxTommScaler, groupY + element.y * pxTommScaler, element.width * pxTommScaler, element.height * pxTommScaler, undefined, compressionSpeed, element.rotation);
+                    doc.addImage(element.image, "PNG", groupX + element.x * pxTommScaler, groupY + element.y * pxTommScaler, element.width * pxTommScaler, element.height * pxTommScaler, undefined, compressionSpeed, element.rotation);
                     break;
                   case "star":
                     const outerRadius = Math.min(element.width * pxTommScaler, element.height * pxTommScaler) / 2;

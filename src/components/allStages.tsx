@@ -6,7 +6,7 @@
 import { useEffect, useState, useRef, useMemo} from 'react';
 import { Stage, Layer, Group, Rect } from 'react-konva';
 import React from "react";
-import { getStages, subscribeStage, maxWidthHeight, getMarginValue, getViewMargin, getPageElements, getPageElementsInfo, getEstimatedPage, setEstimatedPage, setPageElementsInfo, subscribePreviewStage, RENDER_PREVIEW, deletePageElement, deletePageElementInfo, changePageOfElement, changePageOfElementInfo, RENDER_PAGE, duplicatePageElementsInfo, duplicatePageElement, groupsOnPage } from '@/lib/stageStore';
+import { getStages, subscribeStage, maxWidthHeight, getMarginValue, getViewMargin, getPageElements, getPageElementsInfo, getEstimatedPage, setEstimatedPage, setPageElementsInfo, subscribePreviewStage, RENDER_PREVIEW, deletePageElement, deletePageElementInfo, changePageOfElement, changePageOfElementInfo, RENDER_PAGE, duplicatePageElementsInfo, duplicatePageElement, groupsOnPage, minWidthHeight } from '@/lib/stageStore';
 import "@/styles/allStages.css"
 import Konva from 'konva';
 import DrawElement from './drawElement';
@@ -38,6 +38,7 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
   const stageWrapRef = useRef<HTMLDivElement>(null);
 
   const [stageEstimatedPage, setStageEstimatedPage] = useState(getEstimatedPage());
+  const [stagePreviewEstimatedPage, setStagePreviewEstimatedPage] = useState(0);
 
   const [showSelectButtons, setShowSelectButtons] = useState(false);
   const [expandSelectButtons, setExpandSelectButtons] = useState(false);
@@ -73,33 +74,40 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
   }, [previewStyle]);
 
   useEffect(() => {
-    if (!previewStyle) {
-      const handleScroll = () => {
-        if (stages.length === 0) {
+    const handleScroll = () => {
+      if (stages.length === 0) {
+        if (previewStyle) {
+          setStagePreviewEstimatedPage(0);
+        } else {
           setStageEstimatedPage(0);
           setEstimatedPage(0);
-          return;
         }
-        const el = wholeContainerRef.current;
-        if (!el) return;
+        return;
+      }
+      const el = wholeContainerRef.current;
+      if (!el) return;
 
-        const scrollTop = el.scrollTop;
-        const scrollHeight = el.scrollHeight;
-        const clientHeight = el.clientHeight;
+      const scrollTop = el.scrollTop;
+      const scrollHeight = el.scrollHeight;
+      const clientHeight = el.clientHeight;
 
-        const scrollValue = (scrollTop / (scrollHeight - clientHeight));
-        const estimatedPageCal = Math.min(Math.floor(scrollValue * stages.length), stages.length-1);
+      const scrollValue = (scrollTop / (scrollHeight - clientHeight));
+      const estimatedPageCal = Math.min(Math.floor(scrollValue * stages.length), stages.length-1);
+      if (previewStyle) {
+        setStagePreviewEstimatedPage(estimatedPageCal);
+      } else {
         setStageEstimatedPage(estimatedPageCal);
         setEstimatedPage(estimatedPageCal);
-      };
+      }
+    };
 
-      const el = wholeContainerRef.current;
-      if (el) el.addEventListener('scroll', handleScroll);
+    const el = wholeContainerRef.current;
+    if (el) el.addEventListener('scroll', handleScroll);
 
-      return () => {
-        if (el) el.removeEventListener('scroll', handleScroll);
-      };
-    }
+    return () => {
+      if (el) el.removeEventListener('scroll', handleScroll);
+    };
+
   }, [stages, previewStyle]);
 
   const selectButtonsDivRef = useRef<HTMLDivElement>(null);
@@ -202,7 +210,7 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
     }
   }
 
-  let aPagesElements:ShapeData[][];
+  let aPagesElements: ShapeData[][] | null;
 
   const [selectButtonOffset, setSelectButtonOffset] = useState<{ x: number; y: number }>({x: 0, y: 0});
 
@@ -218,24 +226,51 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
     }
   };
 
+  const [pagesInsightValue, setPagesInsightValue] = useState<number>(1);
+  const [pagesInsightValuePreview, setPagesInsightValuePreview] = useState<number>(1);
+  const preloadAhead = 2;
+
+  const calculatePagesInsight = () => {
+    if (wholeContainerRef.current) {
+      const viewSize = wholeContainerRef.current.getBoundingClientRect();
+      const displayDimension = minWidthHeight();
+
+      const previewScale = (wholeContainerRef.current.clientWidth - 32) / displayDimension.minHeight;
+      const previewPagesInsight = Math.floor(viewSize.height / (displayDimension.minHeight * previewScale));
+      setPagesInsightValuePreview(isNaN(previewPagesInsight) ? 1 : previewPagesInsight);
+
+      const scale = (wholeContainerRef.current.clientWidth - 64) / displayDimension.minHeight;
+      const pagesInsight = Math.floor(viewSize.height / (displayDimension.minHeight * scale * manualScaler));
+      setPagesInsightValue(isNaN(pagesInsight) ? 1 : pagesInsight);
+    }
+  }
+
+  const windowResizedFunctions = () => {
+    updateOffset();
+    calculatePagesInsight();
+  }
+
   useEffect(() => {
     const id = requestAnimationFrame(updateOffset);
     return () => cancelAnimationFrame(id);
   }, [])
 
   useEffect(() => {
-    updateOffset();
+    windowResizedFunctions();
 
-    window.addEventListener('resize', updateOffset);
-    return () => window.removeEventListener('resize', updateOffset);
+    window.addEventListener('resize', windowResizedFunctions);
+    return () => window.removeEventListener('resize', windowResizedFunctions);
   }, []);
 
   useEffect(() => {
     updateOffset();
   }, [actionWindow]);
 
+  const range = (previewStyle ? pagesInsightValuePreview : pagesInsightValue) + preloadAhead;
+  const pageOn = (previewStyle ? stagePreviewEstimatedPage : stageEstimatedPage);
+
   return (
-    <div ref={wholeContainerRef} className='overflow-auto custom-scroll h-full w-full flex flex-col items-center justify-start space-y-2 p-4' id={!previewStyle ? `wholeStageContainerScroller` : ''}>
+    <div ref={wholeContainerRef} className='overflow-auto relative custom-scroll h-full w-full flex flex-col items-center justify-start space-y-2 p-4' id={!previewStyle ? `wholeStageContainerScroller` : ''}>
       {stages.map((stage, pageNumber) => {
         const container = wholeContainerRef.current;
         let displayDimension;
@@ -252,14 +287,13 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
             )
           : 1;
         
-        const range = 5;
-        if (stageEstimatedPage-range <= pageNumber && stageEstimatedPage+range >= pageNumber) {
+        if (pageOn-range <= pageNumber && pageOn+range >= pageNumber) {
           aPagesElements = pageElements.slice(pageNumber, pageNumber+1)[0];
           if (!aPagesElements) {
-            aPagesElements = [];
+            aPagesElements = null;
           }
         } else {
-          aPagesElements = [];
+          aPagesElements = null;
         }
         
         //aPagesElements = pageElements[pageNumber];
@@ -280,9 +314,10 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
                   transformOrigin: 'top left',
                 }}
               >
+              {aPagesElements !== null && (
               <Stage
-                width={stage.width}
-                height={stage.height}
+                width={stage.width * scale * manualScaler}
+                height={stage.height * scale * manualScaler}
                 scaleX={scale * manualScaler}
                 scaleY={scale * manualScaler}
                 pixelRatio={1}
@@ -416,7 +451,7 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
                   })}
                 </Layer>
               </Stage>
-              
+            )}
             </div>
             {previewStyle && (
               <p key={stage.id+"previewPageNumber"} className='flex text-primary text-[0.8rem] text-left pt-1'>{pageNumber+1}</p>

@@ -22,14 +22,17 @@ export default function Contact() {
                 <div className='w-[90vw] flex flex-col items-center justify-center'>
                     <h1 className="text-6xl p-2 font-nunito">Updates</h1>
                     <p className='p-2'>Here is a track of each update to the website, feel free to email and suggest any ideas or problems.</p>
-                    <div className='w-full flex items-center justify-center'>
+                    <div className='w-full flex flex-col items-center justify-center'>
+                        <div className="w-full md:w-[80vw] lg:w-[70vw] p-2">
+                            <p>Beta Releases</p>
+                        </div>
                         <div className="w-full md:w-[80vw] lg:w-[70vw] border border-primary rounded-xl">
                             <button
                                 className="w-full text-2xl flex justify-between items-center px-4 py-2 bg-transparent text-primary text-base transition cursor-pointer"
                                 onClick={() => toggleEditPanelSection(1)}
                             >   
                                 <div>
-                                    1.0.0 <span className='text-grey ml-1 text-sm'>— xx/xx/xxxx</span>
+                                    0.0.1 <span className='text-grey ml-1 text-sm'>— xx/xx/xxxx</span>
                                 </div>
                                 {editPanelIndex === 1 ? (
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -49,9 +52,14 @@ export default function Contact() {
                             >   
                                 <p className="text-sm">
                                     - Initial release <br/>
-                                    - Home, about, updates, editor, 404 page created <br/>
-                                    - Start page finished <br/>
                                     - Icon created <br/>
+                                    - Pages home, about, updates, start, editor, 404 created <br/>
+                                    - General editor functions completed <br/>
+                                    - Start page only allows you to create a new project, can&#39;t import files (development started) <br/>
+                                    - Limited shapes added <br/>
+                                    - Export file type only has pdf <br/>
+                                    - No templates added (in development) <br/>
+                                    - Desktop focus layout <br/>
                                 </p>
                                 
                             </div>
