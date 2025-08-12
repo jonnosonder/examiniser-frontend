@@ -56,7 +56,7 @@ export default function Home() {
         {/*Contents section*/}
         <div className="flex flex-col w-[50vw] items-center justify-center">
           <div className='p-8'>
-            <h1 id="heroTitle" className="text-primary font-bold text-2xl sm:text-3xl lg:text-5xl">
+            <h1 id="heroTitle" className="text-primary font-inter font-bold text-2xl sm:text-3xl lg:text-5xl">
               Create Exam Papers<br />
               <span id="heroKeywordtextSpan">Quick</span> and <span id="heroKeywordtextSpan">Easy</span></h1>
             <p id="heroP" className="max-w-sm sm:max-w-md lg:max-w-xl text-primary sm:text-lg lg:text-xl break-words">An editor specialised in making question and exam papers. Easy to create and navigate with inbuilt templaets all for free!</p>

@@ -29,7 +29,7 @@ export type ShapeData =
   | (BaseShape & { type: 'rect'; cornerRadius: number; })
   | (BaseShape & { type: 'tri'; cornerRadius: number; })
   | (BaseShape & { type: 'rightAngleTri'; cornerRadius: number; })
-  | (Basics & { type: 'oval'; radiusX: number; radiusY: number; })
+  | (BaseShape & { type: 'oval'; })
   | (BaseShape & { type: 'text'; text: string; fontSize: number; background: string; align: alginType; border: string; borderWeight: number; })
   | (BaseShape & { type: 'image'; image: HTMLImageElement; cornerRadius: number; })
   | (Basics & { type: 'star'; numPoints: number; width: number; height: number; })

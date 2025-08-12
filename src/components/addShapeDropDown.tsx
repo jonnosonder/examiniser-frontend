@@ -133,7 +133,7 @@ const AddShapeDropDown: React.FC = () => {
         className="text-white rounded h-full"
         onClick={toggleDropdown}
       >
-        <svg className='h-full p-1' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg className='h-full p-[6px]' onMouseEnter={showDropdown} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="3" y="3" width="11" height="11" rx="0.5" stroke="black"/>
             <path d="M9.5 15.5C9.5 18.8137 12.1863 21.5 15.5 21.5C18.8137 21.5 21.5 18.8137 21.5 15.5C21.5 12.1863 18.8137 9.5 15.5 9.5" stroke="black"/>
             <path d="M2 19L5 22L8 19" stroke="black"/>
@@ -142,11 +142,11 @@ const AddShapeDropDown: React.FC = () => {
 
       {open && (
         <div
-          className="absolute left-0 top-10 z-10"
+          className="absolute left-0 top-12 z-10"
           onMouseEnter={showDropdown}
           onMouseLeave={hideDropdown}
         >
-            <div className='flex flex-col bg-background mt-2 p-2 border border-primary rounded shadow text-primary'>
+            <div className='flex flex-col bg-background mt-2 p-2 rounded shadow text-primary border border-grey'>
                 <p className='whitespace-nowrap text-left mb-2'>Add Shape</p>
                 <div className='flex h-10 items-center justify-center space-x-2'>
                   {/* Square */}

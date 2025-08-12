@@ -3,21 +3,20 @@
 
 'use client';
 
-import { useEffect, useState, useRef, useMemo} from 'react';
-import { Stage, Layer, Group, Rect } from 'react-konva';
+import { useEffect, useState, useRef, useMemo, RefObject, useCallback} from 'react';
+import { Stage, Layer, Group, Rect, Transformer } from 'react-konva';
 import React from "react";
-import { getStages, subscribeStage, maxWidthHeight, getMarginValue, getViewMargin, getPageElements, getPageElementsInfo, getEstimatedPage, setEstimatedPage, setPageElementsInfo, subscribePreviewStage, RENDER_PREVIEW, deletePageElement, deletePageElementInfo, changePageOfElement, changePageOfElementInfo, RENDER_PAGE, duplicatePageElementsInfo, duplicatePageElement, groupsOnPage, minWidthHeight } from '@/lib/stageStore';
+import { getStages, subscribeStage, maxWidthHeight, getMarginValue, getViewMargin, getPageElements, getPageElementsInfo, getEstimatedPage, setEstimatedPage, setPageElementsInfo, subscribePreviewStage, RENDER_PREVIEW, deletePageElement, deletePageElementInfo, changePageOfElement, changePageOfElementInfo, RENDER_PAGE, duplicatePageElementsInfo, duplicatePageElement, groupsOnPage, minWidthHeight, setPageElementWidth, getPageGroup, setPageElementHeight, setPageElementsInfoWidth, setPageElementsInfoHeight } from '@/lib/stageStore';
 import "@/styles/allStages.css"
 import Konva from 'konva';
 import DrawElement from './drawElement';
 import { ShapeData } from '@/lib/shapeData';
 import { useNotification } from '@/context/notificationContext';
+import KonvaPage from './konvaPage';
 
 type AllStagesProps = {
   manualScaler?: number;
-  selectedId?: setSelectedIdType;
-  setSelectedId?: React.Dispatch<React.SetStateAction<setSelectedIdType>>;
-  ignoreSelectionArray?: React.RefObject<HTMLElement | null>[];
+  selectedId?: RefObject<setSelectedIdType>;
   previewStyle: boolean;
   editQuestionButtonHandler?: (passedPage?: number, passedGroupID?: number) => void;
   actionWindow?: boolean;
@@ -26,9 +25,10 @@ type AllStagesProps = {
 type setSelectedIdType = {
   groupID: number | null;
   page: number | null;
+  transformerRef: React.RefObject<Konva.Transformer | null>;
 };
 
-const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, setSelectedId, ignoreSelectionArray, previewStyle, editQuestionButtonHandler, actionWindow=undefined } : AllStagesProps) => {
+const AllStages = ({ manualScaler=1, selectedId=useRef<setSelectedIdType>({groupID: null, page: null, transformerRef: useRef(null)}), previewStyle, editQuestionButtonHandler, actionWindow=undefined } : AllStagesProps) => {
   const [stages, setStages] = useState(getStages());
   const pageElements = useMemo(() => getPageElements(), [stages]);
   const pageElementsInfo = useMemo(() => getPageElementsInfo(), [stages]);
@@ -47,7 +47,7 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
   const { notify } = useNotification();
 
   useEffect(() => {
-    if (selectedId.groupID === null || selectedId.page === null) {
+    if (selectedId.current.groupID === null || selectedId.current.page === null) {
       setShowSelectButtons(false);
       setExpandSelectButtons(false);
     }
@@ -94,10 +94,10 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
       const scrollValue = (scrollTop / (scrollHeight - clientHeight));
       const estimatedPageCal = Math.min(Math.floor(scrollValue * stages.length), stages.length-1);
       if (previewStyle) {
-        setStagePreviewEstimatedPage(estimatedPageCal);
+        setStagePreviewEstimatedPage(isNaN(estimatedPageCal) ? 0 : estimatedPageCal);
       } else {
-        setStageEstimatedPage(estimatedPageCal);
-        setEstimatedPage(estimatedPageCal);
+        setStageEstimatedPage(isNaN(estimatedPageCal) ? 0 : estimatedPageCal);
+        setEstimatedPage(isNaN(estimatedPageCal) ? 0 : estimatedPageCal);
       }
     };
 
@@ -109,44 +109,21 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
     };
 
   }, [stages, previewStyle]);
-
-  const selectButtonsDivRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!previewStyle && ignoreSelectionArray && setSelectedId) {
-      const handleClickOutside = (e: MouseEvent) => {
-        if (selectedId.groupID !== null) {
-          let returnEarly = false;
-          ignoreSelectionArray.forEach(element => {
-            if (element.current && element.current.contains(e.target as Node)) {
-              returnEarly = true;
-              return;
-            }
-          });
-          if (returnEarly) return;
-          if (selectButtonsDivRef.current && selectButtonsDivRef.current.contains(e.target as Node)) {
-            return;
-          }
-          setSelectedId({groupID: null, page: null});
-        }
-      };
-
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [selectedId, ignoreSelectionArray, previewStyle]);
   
   const marginValue = getMarginValue();
   const viewMargin = getViewMargin();
   
   const stageRefs = useRef<React.RefObject<Konva.Stage | null>[]>([]);
+  const transformerRefs = useRef<React.RefObject<Konva.Transformer | null>[]>([]);
 
   while (stageRefs.current.length < stages.length) {
     stageRefs.current.push(React.createRef<Konva.Stage | null>());
+    transformerRefs.current.push(React.createRef<Konva.Transformer | null>());
   }
 
   stages.forEach((stage, stageIndex) => {
     stage.stageRef = stageRefs.current[stageIndex];
+    stage.transformerRef = transformerRefs.current[stageIndex];
   });
 
   let previewPageOnClickHanlder: ((pageNumber: number) => void) | undefined;
@@ -164,8 +141,7 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
     }
   }
 
-  const round4 = (num: number) => Math.round((num + Number.EPSILON) * 10000) / 10000;
-
+  /*
   const selectButtonDeleteHandler = () => {
     if (selectedId.page !== null && selectedId.groupID !== null) {
       deletePageElement(selectedId.page, selectedId.groupID);
@@ -209,6 +185,7 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
       notify('info', 'No page above');
     }
   }
+  */
 
   let aPagesElements: ShapeData[][] | null;
 
@@ -228,7 +205,7 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
 
   const [pagesInsightValue, setPagesInsightValue] = useState<number>(1);
   const [pagesInsightValuePreview, setPagesInsightValuePreview] = useState<number>(1);
-  const preloadAhead = 2;
+  const preloadAhead = 1;
 
   const calculatePagesInsight = () => {
     if (wholeContainerRef.current) {
@@ -237,7 +214,7 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
 
       const previewScale = (wholeContainerRef.current.clientWidth - 32) / displayDimension.minHeight;
       const previewPagesInsight = Math.floor(viewSize.height / (displayDimension.minHeight * previewScale));
-      setPagesInsightValuePreview(isNaN(previewPagesInsight) ? 1 : previewPagesInsight);
+      setPagesInsightValuePreview(isNaN(previewPagesInsight) ? 3 : (previewPagesInsight+1));
 
       const scale = (wholeContainerRef.current.clientWidth - 64) / displayDimension.minHeight;
       const pagesInsight = Math.floor(viewSize.height / (displayDimension.minHeight * scale * manualScaler));
@@ -266,11 +243,41 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
     updateOffset();
   }, [actionWindow]);
 
+
+
+
+
+
+
+  
+  const handleShapesChange = useCallback(
+    (pageIndex: number, updatedShapes: ShapeData[]) => {
+      setAllShapes((prev) => ({
+        ...prev,
+        [pageIndex]: updatedShapes,
+      }));
+    },
+    []
+  );
+
   const range = (previewStyle ? pagesInsightValuePreview : pagesInsightValue) + preloadAhead;
   const pageOn = (previewStyle ? stagePreviewEstimatedPage : stageEstimatedPage);
 
   return (
-    <div ref={wholeContainerRef} className='overflow-auto relative custom-scroll h-full w-full flex flex-col items-center justify-start space-y-2 p-4' id={!previewStyle ? `wholeStageContainerScroller` : ''}>
+    <>
+    {true && (() => {console.log(previewStyle ? "Preview Render Called" : "Main Render Called");})()}
+    <div 
+      ref={wholeContainerRef}
+      className='overflow-auto relative custom-scroll h-full w-full flex flex-col items-center justify-start space-y-2 p-4'
+      id={!previewStyle ? `wholeStageContainerScroller` : ''}
+      onClick={(e) => {
+        if (!previewStyle && e.target === e.currentTarget) {
+          selectedId.current.transformerRef?.current?.nodes([]);
+          selectedId.current.transformerRef?.current?.getLayer()?.batchDraw();
+          selectedId.current = {groupID: null, page: null, transformerRef: nullTransformerRef};
+        }
+      }}
+      >
       {stages.map((stage, pageNumber) => {
         const container = wholeContainerRef.current;
         let displayDimension;
@@ -302,7 +309,17 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
         return (
           <div key={stage.id+"wrap"} className='flex flex-col items-center justify-start' id={!previewStyle ? `stageDivSelect${pageNumber}` : ''}>
           {!previewStyle && (
-            <p key={stage.id+"p"} className='flex text-darkGrey text-[0.6rem] text-left'>{stage.width}px x {stage.height}px</p>
+            <p 
+              key={stage.id+"p"}
+              className='flex w-full items-center justify-center text-darkGrey text-[0.6rem] text-center select-none cursor-default'
+              onClick={(e) => {
+                  if (!previewStyle && e.target === e.currentTarget) {
+                    selectedId.current.transformerRef?.current?.nodes([]);
+                    selectedId.current.transformerRef?.current?.getLayer()?.batchDraw();
+                    selectedId.current = {groupID: null, page: null, transformerRef: nullTransformerRef};
+                  }
+                }}
+              >{stage.width}px x {stage.height}px</p>
           )}
           <div ref={stageContainerRef} key={stage.id+"div"} onClick={() => previewPageOnClickHanlder?.(pageNumber)} className='flex flex-col relative w-full h-full items-center justify-start'>
               <div
@@ -314,149 +331,23 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
                   transformOrigin: 'top left',
                 }}
               >
-              {aPagesElements !== null && (
-              <Stage
-                width={stage.width * scale * manualScaler}
-                height={stage.height * scale * manualScaler}
-                scaleX={scale * manualScaler}
-                scaleY={scale * manualScaler}
-                pixelRatio={1}
-                style={{
-                  transformOrigin: 'top left',
-                }}
-                ref={stage.stageRef}
-              >
-                <Layer>
-                  <Rect 
-                    x={0}
-                    y={0}
-                    width={stage.width}
-                    height={stage.height}
-                    fill={stage.background || '#ffffff'}
-                  />
-                  { (viewMargin && !previewStyle) && ( 
-                  <Rect 
-                    x={marginValue}
-                    y={marginValue}
-                    width={stage.width-(marginValue*2)}
-                    height={stage.height-(marginValue*2)}
-                    fill={"transparent"}
-                    stroke={"black"}
-                    strokeWidth={2}
-                  />
-                  )}
-                  { aPagesElements.map((group, i) => {
-                    const focusGroup = pageElementsInfo[pageNumber][i];
-                    let dragBoundFunc: ((pos: { x: number; y: number }) => { x: number; y: number }) | undefined;
-                    if (!previewStyle) {
-                      dragBoundFunc = (pos: { x: number; y: number }) => {
-                        const scaled = scale * manualScaler;
-                        const inverseScale = 1 / scaled;
-
-                        let x = pos.x * inverseScale;
-                        let y = pos.y * inverseScale;
-
-                        const { width: stageWidth, height: stageHeight } = stage;
-                        const elementInfo = focusGroup;
-
-                        const maxX = stageWidth - elementInfo.widestX;
-                        const maxY = stageHeight - elementInfo.widestY;
-
-                        x = Math.max(0, Math.min(x, maxX));
-                        y = Math.max(0, Math.min(y, maxY));
-
-                        // Return in scaled space
-                        return {
-                          x: x * scaled,
-                          y: y * scaled,
-                        };
-                      };
-                    }
-
-                    const onClickHandler = () => {
-                      setSelectedId?.({groupID: i, page: pageNumber})
-                      setSelectButtonPosition({
-                        x: focusGroup.x * scale,
-                        y: focusGroup.y * scale,
-                        widestX: focusGroup.widestX * scale,
-                        widestY: focusGroup.widestY * scale,
-                      });
-                      setShowSelectButtons(true);
-                    } 
-
-                    const onDbClickHandler = () => {
-                      editQuestionButtonHandler?.(pageNumber, i)
-                      setShowSelectButtons(false);
-                      setExpandSelectButtons(false);
-                    } 
-
-                    return (
-                      <Group
-                        key={i + (i * pageNumber+1)}
-                        x={focusGroup.x}
-                        y={focusGroup.y}
-                        width={focusGroup.widestX}
-                        height={focusGroup.widestY}
-                        draggable={!previewStyle}
-                        dragBoundFunc={!previewStyle ? dragBoundFunc : undefined}
-                        listening={!previewStyle}
-                        onClick={onClickHandler}
-                        onTap={onClickHandler}
-                        onDblClick={onDbClickHandler}
-                        onDblTap={onDbClickHandler}
-                        onDragEnd={ (e) => {
-                          const newX = round4(e.target.x());
-                          const newY = round4(e.target.y());
-                          setPageElementsInfo({ ...focusGroup, x: newX, y: newY }, pageNumber, i);
-                          setSelectButtonPosition({
-                            x: newX * scale,
-                            y: newY * scale,
-                            widestX: focusGroup.widestX * scale,
-                            widestY: focusGroup.widestY * scale,
-                          });
-                          RENDER_PREVIEW();
-                        }}
-                      > 
-                        <Rect
-                          x={0}
-                          y={0}
-                          width={focusGroup.widestX}
-                          height={focusGroup.widestY}
-                          fill="rgba(0,0,0,0)" // invisible but interactive
-                          listening={true}
-                        />
-                        {i === selectedId.groupID && pageNumber === selectedId.page && 
-                          <Rect
-                            x={-10}
-                            y={-10}
-                            width={focusGroup.widestX+20}
-                            height={focusGroup.widestY+20}
-                            stroke={'#F57C22'}
-                            strokeWidth={20}
-                            fillEnabled={false}
-                            listening={false}
-                            cornerRadius={10}
-                          />
-                        }
-                        {group.map((shape) => {
-                          return(
-                          <DrawElement
-                            key={shape.id}
-                            shape={shape}
-                          />
-                          );
-                        })}
-                      </Group>
-                    );
-                  })}
-                </Layer>
-              </Stage>
-            )}
+              {aPagesElements !== null && !previewStyle && (
+                <KonvaPage 
+                  key={pageNumber}
+                  stage={stage}
+                  stageScale={scale}
+                  manualScaler={manualScaler}
+                  pageNumber={pageNumber}
+                  viewMargin={viewMargin}
+                  shapesInit={aPagesElements}
+                  shapesInfoInit={pageElementsInfo[pageNumber]}
+                />
+              )}
             </div>
             {previewStyle && (
               <p key={stage.id+"previewPageNumber"} className='flex text-primary text-[0.8rem] text-left pt-1'>{pageNumber+1}</p>
             )}
-            {!previewStyle && showSelectButtons && selectedId.page === pageNumber && ( () => {
+            {/*!previewStyle && showSelectButtons && selectedId.page === pageNumber && ( () => {
               const marginSpace = 4;
               const oneOverTwoValue = 1/2;
               const topPosition = ((selectButtonPosition.y + (selectButtonPosition.widestY*oneOverTwoValue)) < (stage.height * scale)*oneOverTwoValue) ? selectButtonOffset.y + selectButtonPosition.y + selectButtonPosition.widestY + marginSpace : selectButtonOffset.y + selectButtonPosition.y - marginSpace;
@@ -501,20 +392,19 @@ const AllStages = ({ manualScaler=1, selectedId={groupID: null, page: null}, set
                     </div>
                   )}
                 </div>
-          )})()}
+          )})()*/}
           </div>
           </div>
         );
       })}
-
-      {!previewStyle && (
-        <div className='absolute bg-gray-600 opacity-50 bottom-2 px-2 py-1'>
-          <p className='text-white'>{stageEstimatedPage+1} / {stages.length}</p>
-        </div>
-      )}
-
       <div className='w-full h-4 m-0' />
     </div>
+    {!previewStyle && (
+      <div className='absolute bg-gray-600 opacity-50 bottom-2 px-2 py-1'>
+        <p className='text-white'>{stageEstimatedPage+1} / {stages.length}</p>
+      </div>
+    )}
+    </>
   );
 }
 

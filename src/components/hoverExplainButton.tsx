@@ -44,13 +44,13 @@ const HoverExplainButton = forwardRef<HTMLButtonElement, HoverExplainButtonProps
           onClick={onClick}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
-          className="flex cursor-pointer w-10 h-10 items-center justify-center p-1"
+          className="flex cursor-pointer w-10 h-10 items-center justify-center p-[6px]"
           aria-label={explanation}
         >
           {icon}
         </button>
         {showText && (
-          <div className="absolute shadow border border-primary bg-background rounded-lg z-10">
+          <div className="absolute border border-grey shadow bg-background rounded-lg z-10">
             <p className="flex text-primary p-1 text-xs md:text-sm whitespace-nowrap">{explanation}</p>
           </div>
         )}

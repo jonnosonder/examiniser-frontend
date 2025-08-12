@@ -229,8 +229,8 @@ export const AddImage: React.FC<AddImageProps>  = ({onClose, showAdvert, mainPag
     const [file, setFile] = useState<File | null>(null);
 
     const onDrop = (acceptedFiles: File[]) => {
-        const uploadedFile = acceptedFiles[0];
-        setFile(uploadedFile);
+        const uploadedFiles = acceptedFiles[0];
+        setFile(uploadedFiles);
         if (loadingInformationRef.current) {
             loadingInformationRef.current.style.display = 'none';
         }
@@ -246,7 +246,7 @@ export const AddImage: React.FC<AddImageProps>  = ({onClose, showAdvert, mainPag
 
     return (
         <div className='absolute flex z-20 w-screen h-screen bg-opacity-50 backdrop-blur-sm items-center justify-center left-0 top-0 right-0'>
-            <div className="flex flex-col bg-background border-2 border-primary space-y-4 p-2 rounded-lg max-h-[80%]">
+            <div className="flex flex-col bg-background border border-grey space-y-4 p-2 rounded-lg max-h-[80%]">
                 <div className="flex w-full items-center justify-between">
                     <h2 className="p-2">Add Image</h2>
                     <button className='p-2 m-0 ' onClick={onClose}>

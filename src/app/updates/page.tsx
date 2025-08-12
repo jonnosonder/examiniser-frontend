@@ -21,7 +21,8 @@ export default function Contact() {
             <div className='w-full h-[calc(100vh-5rem)] flex flex-col items-center justify-between overflow-y-auto text-primary'>
                 <div className='w-[90vw] flex flex-col items-center justify-center'>
                     <h1 className="text-6xl p-2 font-nunito">Updates</h1>
-                    <p className='p-2'>Here is a track of each update to the website, feel free to email and suggest any ideas or problems.</p>
+                    <p className='p-2 pb-0'>Here is a track of each update to the website, feel free to email and suggest any ideas or problems.</p>
+                    <p className='text-sm'>(This website is currently in beta versions, meaning this is not close to the final product)</p>
                     <div className='w-full flex flex-col items-center justify-center'>
                         <div className="w-full md:w-[80vw] lg:w-[70vw] p-2">
                             <p>Beta Releases</p>

@@ -32,10 +32,12 @@ module.exports = {
         contrast: '#F57C22',
         grey: '#c1c1c1',
         darkGrey: '#a6a6a6',
-        background: '#f7fbfb',
+        background: '#f9fafaff',
       },
       fontFamily: {
-        nunito: ['Nunito', 'Arial'],
+        nunito: ['Nunito', 'Roboto'],
+        roboto: ['Roboto', 'Nunito'],
+        inter: ['Inter', 'Roboto']
       },
     },
   },

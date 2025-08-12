@@ -58,8 +58,8 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
                 doc.addPage(); 
             }
             if (stage.background !== "" && stage.background !== "white" && stage.background !== "#ffffff") {
-              const width = stage.stageRef.current.width() * pxTommScaler;
-              const height = stage.stageRef.current.height() * pxTommScaler;
+              const width = stage.width * pxTommScaler;
+              const height = stage.height * pxTommScaler;
 
               doc.setFillColor(stage.background);
               doc.rect(0, 0, width, height, "F");
@@ -104,18 +104,33 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
                     const lineHeight = element.fontSize * (300/72) * pxTommScaler;
                     const maxLines = Math.floor(element.height * pxTommScaler / lineHeight);
                     const visibleLines = wrappedLines.slice(0, maxLines);
-                    const height = (visibleLines.length * lineHeight);
+                    //const height = (visibleLines.length * lineHeight);
 
-                    const xPosition = groupX + element.x * pxTommScaler;
+                    let xPosition;
+                    switch (element.align) {
+                      case "center":
+                        xPosition = (groupX + element.x + (element.width/2)) * pxTommScaler;
+                        break;
+                      case "right":
+                        xPosition = (groupX + element.x + element.width) * pxTommScaler;
+                        break;
+                      default:
+                        xPosition = (groupX + element.x) * pxTommScaler;
+                        break;
+                    }
+                     
                     const yPosition = groupY + element.y * pxTommScaler;
                     const setWidth = element.width * pxTommScaler;
 
+                    /*
                     if (element.background !== "" || element.borderWeight !== 0) { 
                       doc.setFillColor(element.background);
                       doc.setDrawColor(element.border);
                       doc.setLineWidth(element.borderWeight);
                       doc.rect(xPosition, yPosition, setWidth, height * pxTommScaler, "FD");
                     }
+                    */
+
                     doc.setTextColor(element.fill);
                     doc.text(visibleLines, xPosition, yPosition + lineHeight, { maxWidth: setWidth - 1, align: element.align });   
                     break;
@@ -179,7 +194,7 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
 
   return (
       <div className="absolute flex z-10 w-screen h-screen bg-opacity-50 backdrop-blur-sm items-center justify-center left-0 top-0">
-        <div className="flex flex-col h-1/2 bg-background border-2 border-primary space-y-5 p-2 rounded-lg">
+        <div className="flex flex-col h-1/2 bg-background border border-grey shadow space-y-5 p-2 rounded-lg">
           <div className='flex w-full items-center justify-between'>
             <h2 className=" p-2 text-2xl font-semibold m-0 ">Export to File</h2>
             <button className='p-2 m-0 ' onClick={onClose}>

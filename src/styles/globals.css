@@ -16,6 +16,20 @@ Copyright © 2025 Jonathan Kwok
   font-style: normal;
 }
 
+@font-face {
+  font-family: 'Roboto';
+  src: url('/fonts/Roboto-VariableFont_wdth_wght.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter-VariableFont_opsz_wght.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+}
+
 html, body, #__next {
   height: 100%;
 }
@@ -25,8 +39,4 @@ body {
   font-family: 'Nunito', Arial, sans-serif;
   color: var(--primary);
   border-color: var(--primary);
-}
-
-h1 {
-  font-family: Arial, sans-serif;
 }

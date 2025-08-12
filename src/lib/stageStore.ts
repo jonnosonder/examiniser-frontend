@@ -10,6 +10,7 @@ export type StageData = {
   height: number;
   background: string;
   stageRef?: React.RefObject<Konva.Stage | null>;
+  transformerRef?: React.RefObject<Konva.Transformer | null>;
 };
 
 export type stageGroupInfoData = {
@@ -19,6 +20,10 @@ export type stageGroupInfoData = {
   y: number;
 };
 
+export type historyData = {
+  command: string;
+  data: ShapeData[];
+}
 
 let stages: StageData[] = [];
 let stageListeners: (() => void)[] = [];
@@ -28,8 +33,8 @@ let marginValue: number = 300;
 let pageElements: ShapeData[][][] = [];
 let pageElementsInfo: stageGroupInfoData[][] = [];
 let estimatedPage: number = 0;
-const stageHistoryUndo: ShapeData[][] = [];
-const stageHistoryRedo: ShapeData[][] = [];
+const stageHistoryUndo: historyData[] = [];
+const stageHistoryRedo: historyData[] = [];
 const stageHistoryLimit = 50;
 
 export function RENDER_PAGE() {
@@ -161,6 +166,10 @@ export function getPageElements(): ShapeData[][][] {
   return [...pageElements];
 }
 
+export function getPageGroup(page: number, groupID: number): ShapeData[] {
+  return [...pageElements[page][groupID]];
+}
+
 export function addPageElement(newShape: ShapeData[], page:number) {
   pageElements[page].push(newShape);
 }
@@ -171,6 +180,19 @@ export function duplicatePageElement(page: number, groupID: number) {
 
 export function setPageElement(newShape: ShapeData[], page: number, groupID: number) {
   pageElements[page][groupID] = newShape;
+}
+
+export function setPageElementWidth(newWidth: number, page: number, groupID: number, index: number) {
+  console.log(page + "-" + groupID + "-" + index);
+  const shape = pageElements[page][groupID][index];
+  console.log(shape);
+  shape.width = newWidth;
+}
+
+export function setPageElementHeight(newHeight: number, page: number, groupID: number, index: number) {
+  const shape = pageElements[page][groupID][index];
+  shape.height = newHeight;
+
 }
 
 export function deletePageElement(page: number, groupID: number) {
@@ -211,6 +233,14 @@ export function setPageElementsInfo(newStageGroupInfo: stageGroupInfoData, page:
   pageElementsInfo[page][groupID] = newStageGroupInfo;
 }
 
+export function setPageElementsInfoWidth(newWidestX: number, page: number, groupID: number) {
+  pageElementsInfo[page][groupID].widestX = newWidestX;
+}
+
+export function setPageElementsInfoHeight(newWidestY: number, page: number, groupID: number) {
+  pageElementsInfo[page][groupID].widestY = newWidestY;
+}
+
 export function deletePageElementInfo(page: number, groupID: number) {
   pageElementsInfo[page].splice(groupID, 1);
 }
@@ -237,13 +267,13 @@ export function setEstimatedPage(page: number) {
 
 //////////////////////////////////////////////////////////////
 
-export function addToHistoryUndo(past: ShapeData[]) {
+export function addToHistoryUndo(past: historyData) {
   stageHistoryUndo.push(past);
   if (stageHistoryUndo.length > stageHistoryLimit) {
-
+    stageHistoryUndo.pop();
   }
 }
 
-export function addToHistoryRedo(past: ShapeData[]) {
-  stageHistoryRedo.push(past);
+export function addToHistoryRedo(future: historyData) {
+  stageHistoryRedo.push(future);
 }

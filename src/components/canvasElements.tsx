@@ -85,6 +85,10 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
   const transformerCommonProps = {
     rotationSnaps: [0, 45, 90, 135, 180, 225, 270, 315],
     rotationSnapTolerance: 6,
+    anchorFill: "#fff",
+    anchorStrokeWidth: 1,
+    anchorSize: 12,
+    anchorCornerRadius: 2,
   }
 
   const anchorDragBoundFunc = (oldPos: { x: number; y: number }, newPos: { x: number; y: number }) => {
@@ -141,7 +145,7 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
     case 'oval':
       return (
         <>
-          <Ellipse {...shape} {...commonProps} ref={ovalRef}  onDragMove={(e) => {onDragMoveUpdates?.(e); onSelect()}} draggable={true}
+          <Ellipse {...shape} radiusX={shape.width/2} radiusY={shape.height/2} {...commonProps} ref={ovalRef}  onDragMove={(e) => {onDragMoveUpdates?.(e); onSelect()}} draggable={true}
           onTransformEnd={ () => {
             const node = ovalRef.current;
             if (!node) return;

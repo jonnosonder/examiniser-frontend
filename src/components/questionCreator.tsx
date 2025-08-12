@@ -144,8 +144,8 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                 setEditorWidthValue(String(shape.width));
                 setEditorHeightValue(String(shape.height));
             } else {
-                setEditorWidthValue(String(shape.radiusX));
-                setEditorHeightValue(String(shape.radiusY));
+                setEditorWidthValue(String(shape.width/2));
+                setEditorHeightValue(String(shape.height/2));
             }
             setEditorRotateValue(String(shape.rotation));
             if (shape.type === 'rect' || shape.type === 'image' || shape.type === 'tri' || shape.type === 'rightAngleTri') {
@@ -259,8 +259,8 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
             type: 'oval',
             x: 50,
             y: 50,
-            radiusX: 40,
-            radiusY: 40,
+            width: 40*2,
+            height: 40*2,
             rotation: 0,
             fill: 'black',
             stroke: 'red',
@@ -328,16 +328,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
         shapes.forEach((element) => {
             let x: number;
             let y: number;
-            if (element.type === "oval"){
-                x = element.x + element.radiusX;
-                y = element.y + element.radiusY;
-                if (shiftX > element.x - element.radiusX) {
-                    shiftX = element.x - element.radiusX;
-                }
-                if (shiftY > element.y - element.radiusY) {
-                    shiftY = element.y - element.radiusY;
-                }
-            } else if (element.type === "star") {
+            if (element.type === "star" || element.type === "oval") {
                 x = element.x + element.width/2;
                 y = element.y + element.height/2;
                 if (shiftX > element.x - element.width/2) {
@@ -806,7 +797,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                                 </svg>
                             </button>
                         </div>
-                        <div ref={stageContainerRef} className='w-full h-[65vh] flex overflow-y-auto overflow-x-auto border-2 border-primary bg-white justify-start'>
+                        <div ref={stageContainerRef} className='w-full h-[65vh] flex overflow-y-auto overflow-x-auto scrollbar-hide border-2 border-primary bg-white justify-start'>
                             <div 
                                 className='flex'
                                 style={{
@@ -815,6 +806,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                                     overflow: 'hidden',
                                     transformOrigin: 'top left',
                             }}>
+                                
                                 <Stage 
                                 width={dimensions.width * stageScale} 
                                 height={dimensions.height * stageScale} 
@@ -846,12 +838,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                                                 let maxX: number;
                                                 let maxY: number;
 
-                                                if (shape.type === "oval") {
-                                                    shiftX = shape.radiusX;
-                                                    shiftY = shape.radiusY;
-                                                    maxX = dimensions.width - shape.radiusX;
-                                                    maxY = dimensions.height - shape.radiusY;
-                                                } else if (shape.type === "star") {
+                                                if (shape.type === "star" || shape.type === "oval") {
                                                     shiftX = shape.width/2;
                                                     shiftY = shape.height/2;
                                                     maxX = dimensions.width - shape.width/2;
@@ -886,23 +873,22 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                                                     y: y * stageScale,
                                                 };
                                             };
-
                                         
-                                        return (
-                                            <CanvasElements
-                                                key={shape.id}
-                                                shape={shape}
-                                                isSelected={shape.id === selectedId}
-                                                onSelect={() => setSelectedId(shape.id)}
-                                                onChange={updateShape}
-                                                stageScale={stageScale}
-                                                dragBoundFunc={dragBoundFunc}
-                                                stageWidth={dimensions.width}
-                                                stageHeight={dimensions.height}
-                                                onDragMoveUpdates={editorShapeOnDragHandler}
-                                                onTransformUpdates={editorShapeOnTranformHandler}
-                                            />
-                                        );
+                                            return (
+                                                <CanvasElements
+                                                    key={shape.id}
+                                                    shape={shape}
+                                                    isSelected={shape.id === selectedId}
+                                                    onSelect={() => setSelectedId(shape.id)}
+                                                    onChange={updateShape}
+                                                    stageScale={stageScale}
+                                                    dragBoundFunc={dragBoundFunc}
+                                                    stageWidth={dimensions.width}
+                                                    stageHeight={dimensions.height}
+                                                    onDragMoveUpdates={editorShapeOnDragHandler}
+                                                    onTransformUpdates={editorShapeOnTranformHandler}
+                                                />
+                                            );
                                         })}
                                     </Layer>
                                 </Stage>
