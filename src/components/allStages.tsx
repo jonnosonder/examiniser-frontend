@@ -62,28 +62,6 @@ const AllStages = ({ manualScaler=1, previewStyle, editQuestionButtonHandler} : 
     }
   }, [previewStyle]);
 
-  const handleGroupChange = (pageIndex: number, groupIndex: number, updatedShapes: ShapeData[]) => {
-    setAllShapes((prev) => {
-      const newData = [...prev];
-      newData[pageIndex] = [...newData[pageIndex]];
-      newData[pageIndex][groupIndex] = updatedShapes;
-      pageElements[pageIndex][groupIndex] = updatedShapes;
-
-      return newData;
-    });
-  };
-
-  const handleGroupInfoChange = (pageIndex: number, groupIndex: number, updatedShapesInfo: stageGroupInfoData) => {
-    setAllShapesInfo((prev) => {
-      const newData = [...prev];
-      newData[pageIndex] = [...newData[pageIndex]];
-      newData[pageIndex][groupIndex] = updatedShapesInfo;
-      pageElementsInfo[pageIndex][groupIndex] = updatedShapesInfo;
-
-      return newData;
-    });
-  };
-
   useEffect(() => {
     const handleScroll = () => {
       if (stages.length === 0) {
@@ -213,8 +191,6 @@ const AllStages = ({ manualScaler=1, previewStyle, editQuestionButtonHandler} : 
           aPagesElements = null;
         }
         
-        console.log("passing");
-        console.log(allShapesInfo);
         //aPagesElements = pageElements[pageNumber];
 
         //console.log(`Rending Page ${pageNumber+1}#, Items: ${aPagesElements.length}`);
@@ -243,14 +219,8 @@ const AllStages = ({ manualScaler=1, previewStyle, editQuestionButtonHandler} : 
                   stageScale={scale}
                   manualScaler={manualScaler}
                   pageIndex={pageNumber}
-                  pageGroups={aPagesElements}
-                  pageGroupsInfo={allShapesInfo[pageNumber]}
-                  onGroupChange={(groupIndex, updated) =>
-                    handleGroupChange(pageNumber, groupIndex, updated)
-                  }
-                  onGroupInfoChange={(groupIndex, updated) =>
-                    handleGroupInfoChange(pageNumber, groupIndex, updated)
-                  }
+                  pageGroups={[...aPagesElements]}
+                  pageGroupsInfo={[...allShapesInfo[pageNumber]]}
                   editQuestionButtonHandler={editQuestionButtonHandler}
                 />
               ) : (
@@ -260,8 +230,8 @@ const AllStages = ({ manualScaler=1, previewStyle, editQuestionButtonHandler} : 
                   stageScale={scale}
                   manualScaler={manualScaler}
                   pageIndex={pageNumber}
-                  pageGroups={aPagesElements}
-                  pageGroupsInfo={allShapesInfo[pageNumber]}
+                  pageGroups={[...aPagesElements]}
+                  pageGroupsInfo={[...allShapesInfo[pageNumber]]}
                 />
               ))}
             </div>

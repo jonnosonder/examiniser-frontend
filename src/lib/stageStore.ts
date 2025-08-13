@@ -3,6 +3,7 @@
 
 import {ShapeData} from '@/lib/shapeData'
 import Konva from 'konva';
+import { Stage } from 'konva/lib/Stage';
 
 export type StageData = {
   id: string;
@@ -20,6 +21,12 @@ export type stageGroupInfoData = {
   rotation: number;
 };
 
+export type selectIndexData = {
+  pageIndex: number | null;
+  groupIndex: number | null;
+}
+
+
 export type historyData = {
   command: string;
   data: ShapeData[];
@@ -32,10 +39,12 @@ let viewMargin: boolean = false;
 let marginValue: number = 300;
 export const pageElements: ShapeData[][][] = [];
 export const pageElementsInfo: stageGroupInfoData[][] = [];
+const globalSelectIndex: selectIndexData = {pageIndex: null, groupIndex: null};
 let estimatedPage: number = 0;
 const stageHistoryUndo: historyData[] = [];
 const stageHistoryRedo: historyData[] = [];
 const stageHistoryLimit = 50;
+export const newShapeSizePercent = 0.1;
 
 export function RENDER_PAGE() {
   console.log("Call to render");
@@ -93,6 +102,10 @@ export function addStageCopyPrevious(id: string) {
 
 export function getStages(): StageData[] {
   return [...stages];
+}
+
+export function getSpecificStage(pageIndex: number): StageData {
+  return stages[pageIndex];
 }
 
 export function deleteAll() {
@@ -264,6 +277,18 @@ export function changePageOfElementInfo(page: number, groupID: number, newPage: 
 
 export function groupsOnPage(page: number) {
   return pageElementsInfo[page].length;
+}
+
+//////////////////////////////////////////////////////////////
+
+export function getGlobalSelectIndex():selectIndexData {
+  return globalSelectIndex;
+}
+
+export function setGlobalSelectIndex(pageIndex: number | null, groupIndex: number | null) {
+  globalSelectIndex.pageIndex = pageIndex;
+  globalSelectIndex.groupIndex = groupIndex;
+
 }
 
 //////////////////////////////////////////////////////////////

@@ -50,6 +50,9 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
     const pageElements = getPageElements();
     const pageElementsInfo = getPageElementsInfo();
 
+    console.log(pageElements);
+    console.log(pageElementsInfo);
+
     const compressionSpeed = compressionMap[compressionValue] as ImageCompression;
     
     stages.forEach((stage, stageIndex) => {
@@ -77,7 +80,6 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
                     doc.setDrawColor(element.stroke);
                     doc.setLineWidth(element.strokeWidth * pxTommScaler);
                     doc.rect(groupX + element.x * pxTommScaler, groupY + element.y * pxTommScaler, element.width * pxTommScaler, element.height * pxTommScaler, "FD");
-                    console.log(groupX + element.x * pxTommScaler, groupY + element.y * pxTommScaler, element.width * pxTommScaler, element.height * pxTommScaler, "FD");
                     break;
                   case "oval":
                     doc.setFillColor(element.fill);
@@ -147,18 +149,18 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
                     const firstX = element.x * pxTommScaler + Math.cos(angle) * outerRadius;
                     const firstY = element.y * pxTommScaler + Math.sin(angle) * outerRadius;
 
-                    doc.moveTo(firstX, firstY);
+                    doc.moveTo(groupX + firstX, groupY + firstY);
 
                     for (let i = 0; i < element.numPoints * 2; i++) {
                       const radius = i % 2 === 0 ? outerRadius : innerRadius;
                       const px = element.x * pxTommScaler + Math.cos(angle) * radius;
                       const py = element.y * pxTommScaler + Math.sin(angle) * radius;
                       
-                      doc.lineTo(px, py);
+                      doc.lineTo(groupX + px, groupY + py);
                       angle += angleStep;
                     }
 
-                    doc.lineTo(firstX, firstY);
+                    doc.lineTo(groupX + firstX, groupY + firstY);
 
                     doc.setFillColor(element.fill);
                     doc.setDrawColor(element.stroke);

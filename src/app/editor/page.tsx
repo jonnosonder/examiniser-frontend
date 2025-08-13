@@ -10,7 +10,7 @@ import AllStages from '@/components/allStages';
 import HoverExplainButton from '@/components/hoverExplainButton';
 import '@/styles/editor.css';
 
-import { addPageElement, addPageElementsInfo, addStage, addStageCopyPrevious, deleteAll, duplicatePageElement, duplicatePageElementsInfo, getEstimatedPage, getPageElements, RENDER_PAGE, stagesLength } from '@/lib/stageStore';
+import { addPageElement, addPageElementsInfo, addStage, addStageCopyPrevious, deleteAll, duplicatePageElement, duplicatePageElementsInfo, getEstimatedPage, getGlobalSelectIndex, getPageElements, RENDER_PAGE, stagesLength } from '@/lib/stageStore';
 import QuestionCreator from '@/components/questionCreator';
 import { ShapeData } from '@/lib/shapeData';
 import EditorSidePanel from '@/components/editorSidePanel';
@@ -24,7 +24,6 @@ import AddShapeDropDown from '@/components/addShapeDropDown';
 import TemplatePage from '@/components/templatePage';
 import { AddImage } from '@/components/addImage';
 import Advert from '@/components/advert';
-import Konva from 'konva';
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@5.3.93/build/pdf.worker.mjs`;
 
 function EditorPage() {
@@ -44,12 +43,6 @@ function EditorPage() {
 
     const [leftSidePanelToggle, setLeftSidePanelToggle] = useState<boolean>(true);
 
-    const transformerRef = useRef<Konva.Transformer | null>(null);
-    const selectedQuestionId = useRef<{ groupID: number | null; page: number | null; transformerRef: React.RefObject<Konva.Transformer | null>}>({
-        groupID: null,
-        page: null,
-        transformerRef,
-    });
     const editButtonRef = useRef(null);
     const duplicateButtonRef = useRef(null);
 
@@ -326,13 +319,13 @@ function EditorPage() {
             return;
         }
 
-        const currentSelectValues = selectedQuestionId.current;
+        const currentSelectValues = getGlobalSelectIndex();
 
-        if (currentSelectValues.page !== null && currentSelectValues.groupID !== null){
+        if (currentSelectValues.pageIndex !== null && currentSelectValues.groupIndex !== null){
             setNewQuestionCreating(false);
             const pageElements = getPageElements();
-            setQuestionEditingID({groupID: currentSelectValues.groupID, page: currentSelectValues.page})
-            setQuestionCreatorShapes(pageElements[currentSelectValues.page][currentSelectValues.groupID]);
+            setQuestionEditingID({groupID: currentSelectValues.groupIndex, page: currentSelectValues.pageIndex})
+            setQuestionCreatorShapes(pageElements[currentSelectValues.pageIndex][currentSelectValues.groupIndex]);
             handleQuestionCreatorOpen();
             //selectedQuestionId.current = {page: null, groupID: null, transformerRef: useRef(null)};
         } else {
@@ -341,10 +334,10 @@ function EditorPage() {
     }
 
     const duplicateQuestionButtonHandler = () => {
-        const currentSelectValues = selectedQuestionId.current;
-        if (currentSelectValues.page !== null && currentSelectValues.groupID !== null){
-            duplicatePageElementsInfo(currentSelectValues.page, currentSelectValues.groupID);
-            duplicatePageElement(currentSelectValues.page, currentSelectValues.groupID);
+        const currentSelectValues = getGlobalSelectIndex();
+        if (currentSelectValues.pageIndex !== null && currentSelectValues.groupIndex !== null){
+            duplicatePageElementsInfo(currentSelectValues.pageIndex, currentSelectValues.groupIndex);
+            duplicatePageElement(currentSelectValues.pageIndex, currentSelectValues.groupIndex);
             RENDER_PAGE();
             //selectedQuestionId.current = {page: null, groupID: null, transformerRef: useRef(null)};
         } else {
@@ -514,8 +507,13 @@ function EditorPage() {
                 )}
                 </div>
             </div>
-            <div className="flex bg-grey w-full items-center justify-center">
-                <AllStages manualScaler={manualScaler} selectedId={selectedQuestionId} previewStyle={false} editQuestionButtonHandler={editQuestionButtonHandler}/>
+            <div className="flex relative bg-grey w-full items-center justify-center">
+                <AllStages manualScaler={manualScaler} previewStyle={false} editQuestionButtonHandler={editQuestionButtonHandler}/>
+                <div className='absolute flex bottom-[1px] right-[1px]'>
+                    <button className='w-4 h-4' onClick={RENDER_PAGE}>
+                        <svg  className='w-4 h-4' clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m3.508 6.726c1.765-2.836 4.911-4.726 8.495-4.726 5.518 0 9.997 4.48 9.997 9.997 0 5.519-4.479 9.999-9.997 9.999-5.245 0-9.553-4.048-9.966-9.188-.024-.302.189-.811.749-.811.391 0 .715.3.747.69.351 4.369 4.012 7.809 8.47 7.809 4.69 0 8.497-3.808 8.497-8.499 0-4.689-3.807-8.497-8.497-8.497-3.037 0-5.704 1.597-7.206 3.995l1.991.005c.414 0 .75.336.75.75s-.336.75-.75.75h-4.033c-.414 0-.75-.336-.75-.75v-4.049c0-.414.336-.75.75-.75s.75.335.75.75z" fillRule="nonzero" fill="grey"/></svg>
+                    </button>
+                </div>
             </div>
             <div
                 className={`flex flex-col text-primary transition-width duration-300 ease-in-out h-full border-t border-grey

@@ -3,7 +3,7 @@
 
 'use client';
 import { ShapeData } from '@/lib/shapeData';
-import { addPageElement, addPageElementsInfo, getEstimatedPage, RENDER_PAGE } from '@/lib/stageStore';
+import { addPageElement, addPageElementsInfo, getEstimatedPage, getSpecificStage, newShapeSizePercent, RENDER_PAGE } from '@/lib/stageStore';
 import React, { useState } from 'react';
 
 const AddShapeDropDown: React.FC = () => {
@@ -21,13 +21,15 @@ const AddShapeDropDown: React.FC = () => {
 
   const addSquareToPageButtonHandler = () => {
     const pageToAddIt = getEstimatedPage();
+    const focusStage = getSpecificStage(pageToAddIt);
+    const size = Math.min(focusStage.width * newShapeSizePercent, focusStage.height * newShapeSizePercent);
     const newSquare: ShapeData = {
       id: 'r'+Date.now(),
       type: 'rect',
       x: 0,
       y: 0,
-      width: 100,
-      height: 100,
+      width: size,
+      height: size,
       rotation: 0,
       fill: 'black',
       stroke: 'red',
@@ -42,13 +44,15 @@ const AddShapeDropDown: React.FC = () => {
 
   const addCircleToPageButtonHandler = () => {
     const pageToAddIt = getEstimatedPage();
+    const focusStage = getSpecificStage(pageToAddIt);
+    const size = Math.min(focusStage.width * newShapeSizePercent, focusStage.height * newShapeSizePercent);
     const newCircle: ShapeData = {
       id: 'c'+Date.now(),
       type: 'oval',
-      x: 40,
-      y: 40,
-      width: 80,
-      height: 80,
+      x: size * 0.5,
+      y: size * 0.5,
+      width: size,
+      height: size,
       rotation: 0,
       fill: 'black',
       stroke: 'red',
@@ -62,13 +66,15 @@ const AddShapeDropDown: React.FC = () => {
 
   const addTriangleToPageButtonHandler = () => {
     const pageToAddIt = getEstimatedPage();
+    const focusStage = getSpecificStage(pageToAddIt);
+    const size = Math.min(focusStage.width * newShapeSizePercent, focusStage.height * newShapeSizePercent);
     const newTriangle: ShapeData = {
       id: 't'+Date.now(),
       type: 'tri',
       x: 0,
       y: 0,
-      width: 100,
-      height: 100,
+      width: size,
+      height: size,
       rotation: 0,
       fill: 'black',
       stroke: 'red',
@@ -83,13 +89,15 @@ const AddShapeDropDown: React.FC = () => {
 
   const addRightAngleTriangleToPageButtonHandler = () => {
     const pageToAddIt = getEstimatedPage();
+    const focusStage = getSpecificStage(pageToAddIt);
+    const size = Math.min(focusStage.width * newShapeSizePercent, focusStage.height * newShapeSizePercent);
     const newTriangle: ShapeData = {
       id: 't'+Date.now(),
       type: 'rightAngleTri',
       x: 0,
       y: 0,
-      width: 100,
-      height: 100,
+      width: size,
+      height: size,
       rotation: 0,
       fill: 'black',
       stroke: 'red',
@@ -104,13 +112,15 @@ const AddShapeDropDown: React.FC = () => {
 
   const addStarToPageButtonHandler = () => {
     const pageToAddIt = getEstimatedPage();
+    const focusStage = getSpecificStage(pageToAddIt);
+    const size = Math.min(focusStage.width * newShapeSizePercent, focusStage.height * newShapeSizePercent);
     const newCircle: ShapeData = {
       id: 's'+Date.now(),
       type: 'star',
-      x: 50,
-      y: 50,
-      width: 100,
-      height: 100,
+      x: size * 0.5,
+      y: size * 0.5,
+      width: size,
+      height: size,
       rotation: 0,
       fill: 'black',
       stroke: 'red',

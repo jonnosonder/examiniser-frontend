@@ -11,7 +11,7 @@ const TemplatePage: React.FC<TemplatePageProps> = ({ onClose }) => {
 
     return(
         <div className="absolute flex w-screen h-screen bg-opacity-50 backdrop-blur-sm items-center justify-center left-0 top-0">
-            <div className="flex flex-col h-3/4 w-3/4 bg-background border-2 border-primary space-y-5 p-2 rounded-lg">
+            <div className="flex flex-col h-3/4 w-3/4 bg-background border border-grey shadow space-y-5 p-2 rounded-lg">
                 <div className='flex w-full items-center justify-between'>
                     <h2 className="p-2 text-2xl font-semibold m-0 ">Premade Assets</h2>
                     <button className='p-2 m-0 ' onClick={onClose}>

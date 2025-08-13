@@ -1,9 +1,9 @@
 import { ShapeData } from "@/lib/shapeData";
 import Konva from "konva";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Group, Layer, Rect, Stage, Transformer } from "react-konva";
 import DrawElement from "./drawElement";
-import { getMarginValue, getViewMargin, RENDER_PREVIEW, StageData, stageGroupInfoData } from "@/lib/stageStore";
+import { getMarginValue, getViewMargin, pageElements, pageElementsInfo, RENDER_PREVIEW, setGlobalSelectIndex, StageData, stageGroupInfoData } from "@/lib/stageStore";
 import { KonvaEventObject, Node, NodeConfig } from "konva/lib/Node";
 
 
@@ -14,19 +14,25 @@ interface KonvaPageProps {
     pageIndex: number;
     pageGroups: ShapeData[][];
     pageGroupsInfo: stageGroupInfoData[];
-    onGroupChange: (groupIndex: number, updatedShapes: ShapeData[]) => void;
-    onGroupInfoChange: (groupIndex: number, updatedShapes: stageGroupInfoData) => void;
     editQuestionButtonHandler: (passedPage?: number, passedGroupID?: number) => void;
 }
 
-export default function KonvaPage({ stage, stageScale, manualScaler, pageIndex, pageGroups, pageGroupsInfo, onGroupChange, onGroupInfoChange, editQuestionButtonHandler }: KonvaPageProps) {
+const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pageGroupsInfo, editQuestionButtonHandler }: KonvaPageProps) => {
     const [groupShapes, setGroupShapes] = useState<ShapeData[][]>(pageGroups);
     const [groupInfo, setGroupInfo] = useState<stageGroupInfoData[]>(pageGroupsInfo);
     //const [selectedId, setSelectedId] = useState<number | null>(null);
 
-    // Refs for each group
     const groupRefs =  useRef<(Konva.Group | null)[]>([]);
     const transformerRef = useRef<Konva.Transformer>(null);
+    const transformLimitsRef = useRef<{
+        maxScaleRight: number;
+        maxScaleBottom: number;
+        maxScaleLeft: number;
+        maxScaleTop: number;
+        minScale: number;
+        startX: number;
+        startY: number;
+    } | null>(null);
 
     const marginValue = getMarginValue();
     const viewMargin = getViewMargin();
@@ -35,17 +41,16 @@ export default function KonvaPage({ stage, stageScale, manualScaler, pageIndex, 
     useEffect(() => {
         setGroupShapes(pageGroups);
         setGroupInfo(pageGroupsInfo);
-        console.log("Syncing");
-        console.log(pageGroupsInfo);
     }, [pageGroups, pageGroupsInfo]);
 
-    const groupOnClick = (e: KonvaEventObject<MouseEvent, Node<NodeConfig>> | KonvaEventObject<Event, Node<NodeConfig>>) => {
+    const groupOnClick = (e: KonvaEventObject<MouseEvent, Node<NodeConfig>> | KonvaEventObject<Event, Node<NodeConfig>>, groupIndex: number) => {
         const clickedNode = e.target.getParent();
         const currentTransformer = transformerRef.current;
         if (currentTransformer && clickedNode && clickedNode.getType() === "Group") {
             currentTransformer.nodes([clickedNode]);
             currentTransformer.getLayer()?.batchDraw();
         }
+        setGlobalSelectIndex(pageIndex, groupIndex);
     }
 
     const updateGroupShapes = useCallback((groupIndex: number, updatedShapes: ShapeData[]) => {
@@ -54,8 +59,8 @@ export default function KonvaPage({ stage, stageScale, manualScaler, pageIndex, 
             updatedGroups[groupIndex] = updatedShapes;
             return updatedGroups; // Just update state here
         });
-        onGroupChange(groupIndex, updatedShapes); // Call side effect AFTER state update
-    }, [onGroupChange]);
+        pageElements[pageIndex][groupIndex] = updatedShapes;
+    }, []);
 
     const updateGroupInfo = useCallback((groupIndex: number, updatedShapesInfo: stageGroupInfoData) => {
         setGroupInfo((prev) => {
@@ -63,9 +68,8 @@ export default function KonvaPage({ stage, stageScale, manualScaler, pageIndex, 
             updatedGroupsInfo[groupIndex] = updatedShapesInfo;
             return updatedGroupsInfo;  // only update state here
         });
-        onGroupInfoChange(groupIndex, updatedShapesInfo); // side effect outside setState updater
-        RENDER_PREVIEW();
-    }, [onGroupInfoChange]);
+        pageElementsInfo[pageIndex][groupIndex] = updatedShapesInfo;
+    }, []);
 
     const onDbClickHanlder = (groupIndex: number) => {
         editQuestionButtonHandler(pageIndex, groupIndex);
@@ -80,16 +84,17 @@ export default function KonvaPage({ stage, stageScale, manualScaler, pageIndex, 
             scaleX={stageScale * manualScaler}
             scaleY={stageScale * manualScaler}
             pixelRatio={1}
+            ref={stage.stageRef}
             style={{
                 transformOrigin: 'top left',
             }}
-            ref={stage.stageRef}
             onMouseDown={(e) => {
                 const target = e.target as Konva.Node;
                 if (target.id() === "background-rect") {
                     const transformer = transformerRef.current;
                     transformer?.nodes([]);
                     transformer?.getLayer()?.batchDraw();
+                    setGlobalSelectIndex(null, null);
                     return;
                 }
             }}
@@ -129,12 +134,18 @@ export default function KonvaPage({ stage, stageScale, manualScaler, pageIndex, 
                     width={focusGroupInfo.widestX}
                     height={focusGroupInfo.widestY}
                     rotation={focusGroupInfo.rotation}
-                    onClick={(e) => groupOnClick(e)}
-                    onTap={(e) => groupOnClick(e)}
+                    onClick={(e) => groupOnClick(e, groupIndex)}
+                    onTap={(e) => groupOnClick(e, groupIndex)}
                     onDblClick={() => onDbClickHanlder(groupIndex)}
                     onDblTap={() => onDbClickHanlder(groupIndex)}
+                    clip={{
+                        x: 0,
+                        y: 0,
+                        width: focusGroupInfo.widestX,
+                        height: focusGroupInfo.widestY,
+                    }}
                     onDragMove={(e) => {
-                        const node = e.target;
+                        const node = e.target as Konva.Group;
 
                         const box = node.getClientRect({ skipTransform: false });
 
@@ -165,10 +176,13 @@ export default function KonvaPage({ stage, stageScale, manualScaler, pageIndex, 
                         
                         node.position({ x: newX, y: newY });
                     }}
+                    onTransform={(e) => {
+
+                    }}
                     onDragEnd={(e) => {
                         console.log("drag end");
                         console.log(groupInfo);
-                        const node = e.target;
+                        const node = e.target as Konva.Group;
                         const focusGroupInfo = groupInfo[groupIndex];
                         const newGroupInfo = {
                             ... focusGroupInfo,
@@ -176,9 +190,10 @@ export default function KonvaPage({ stage, stageScale, manualScaler, pageIndex, 
                             y: round4(node.y()),
                         } as stageGroupInfoData;
                         updateGroupInfo(groupIndex, newGroupInfo);
+                        RENDER_PREVIEW();
                     }}
                     onTransformEnd={(e) => {
-                        const node = e.target;
+                        const node = e.target as Konva.Group;
                         const scaleX = node.scaleX();
                         const scaleY = node.scaleY();
                         const updatedShapes = shapes.map((shape) => ({
@@ -200,9 +215,10 @@ export default function KonvaPage({ stage, stageScale, manualScaler, pageIndex, 
                         node.scaleY(1);
                         updateGroupShapes(groupIndex, updatedShapes);
                         updateGroupInfo(groupIndex, newGroupInfo);
+                        RENDER_PREVIEW();
                     }}
                     >
-                        <Rect
+                    <Rect
                         x={0}
                         y={0}
                         width={groupInfo[groupIndex].widestX}
@@ -230,4 +246,6 @@ export default function KonvaPage({ stage, stageScale, manualScaler, pageIndex, 
             </Layer>
         </Stage>
     );
-}
+};
+
+export default memo(KonvaPage);

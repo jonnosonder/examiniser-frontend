@@ -1,5 +1,5 @@
 import { ShapeData } from "@/lib/shapeData";
-import React, { useEffect, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { Group, Layer, Rect, Stage } from "react-konva";
 import DrawElement from "./drawElement";
 import { getMarginValue, getViewMargin, StageData, stageGroupInfoData } from "@/lib/stageStore";
@@ -14,7 +14,7 @@ interface KonvaPreviewPageProps {
     pageGroupsInfo: stageGroupInfoData[];
 }
 
-export default function KonvaPreviewPage({ stage, stageScale, manualScaler, pageIndex, pageGroups, pageGroupsInfo }: KonvaPreviewPageProps) {
+const KonvaPreviewPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pageGroupsInfo }: KonvaPreviewPageProps) => {
     const [groupShapes, setGroupShapes] = useState<ShapeData[][]>(pageGroups);
     const [groupInfo, setGroupInfo] = useState<stageGroupInfoData[]>(pageGroupsInfo);
 
@@ -70,6 +70,12 @@ export default function KonvaPreviewPage({ stage, stageScale, manualScaler, page
                     width={focusGroupInfo.widestX}
                     height={focusGroupInfo.widestY}
                     rotation={focusGroupInfo.rotation}
+                    clip={{
+                        x: 0,
+                        y: 0,
+                        width: focusGroupInfo.widestX,
+                        height: focusGroupInfo.widestY,
+                    }}
                     >
                     {shapes.map((shape) => (
                         <DrawElement key={shape.id} shape={shape}/>
@@ -79,4 +85,6 @@ export default function KonvaPreviewPage({ stage, stageScale, manualScaler, page
             </Layer>
         </Stage>
     );
-}
+};
+
+export default memo(KonvaPreviewPage);

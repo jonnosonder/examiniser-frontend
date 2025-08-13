@@ -10,7 +10,7 @@ import { Stage, Layer } from 'react-konva';
 import CanvasElements from '@/components/canvasElements'
 import CustomContextMenu from '@/components/customContextMenu';
 import { ShapeData } from '@/lib/shapeData';
-import { addPageElement, addPageElementsInfo, deletePageElement, deletePageElementInfo, getEstimatedPage, getSpecificPageElementsInfo, getStageDimension, RENDER_PAGE, RENDER_PREVIEW, setPageElement, setPageElementsInfo } from '@/lib/stageStore';
+import { addPageElement, addPageElementsInfo, deletePageElement, deletePageElementInfo, getEstimatedPage, getSpecificPageElementsInfo, getStageDimension, RENDER_PAGE, setPageElement, setPageElementsInfo } from '@/lib/stageStore';
 import ColorSelectorSection from '@/components/colorSelectorSection';
 import { KonvaEventObject } from 'konva/lib/Node';
 import Advert from './advert';
