@@ -32,6 +32,52 @@ export default function EditorSidePanel() {
         RENDER_MAIN();
     }, [selectedBackgroundColor])
 
+    /*
+    const selectButtonDeleteHandler = () => {
+    if (selectedId.page !== null && selectedId.groupID !== null) {
+        deletePageElement(selectedId.page, selectedId.groupID);
+        deletePageElementInfo(selectedId.page, selectedId.groupID);
+    }
+    setSelectedId?.({groupID: null, page: null});
+    RENDER_PREVIEW();
+    }
+
+    const duplicateQuestionButtonHandler = () => {
+    if (selectedId.page !== null && selectedId.groupID !== null){
+        duplicatePageElementsInfo(selectedId.page, selectedId.groupID);
+        duplicatePageElement(selectedId.page, selectedId.groupID);
+        RENDER_PAGE();
+        setSelectedId?.({groupID: null, page: null});
+    } else {
+        notify('info', 'Please select an element');
+    }
+    }
+
+    const selectButtonMoveDownElementHandler = () => {
+    if (selectedId.page !== null && selectedId.groupID !== null && selectedId.page < stages.length-1) {
+        changePageOfElement(selectedId.page, selectedId.groupID, selectedId.page+1);
+        changePageOfElementInfo(selectedId.page, selectedId.groupID, selectedId.page+1);
+        console.log(groupsOnPage(selectedId.page+1)-1);
+        setSelectedId?.({groupID: groupsOnPage(selectedId.page+1)-1, page: selectedId.page+1});
+        RENDER_PAGE();
+    } else {
+        notify('info', 'No page bellow');
+    }
+    }
+
+    const selectButtonMoveUpElementHandler = () => {
+    if (selectedId.page !== null && selectedId.groupID !== null && selectedId.page > 0) {
+        changePageOfElement(selectedId.page, selectedId.groupID, selectedId.page-1);
+        changePageOfElementInfo(selectedId.page, selectedId.groupID, selectedId.page-1);
+        console.log(groupsOnPage(selectedId.page-1)-1);
+        setSelectedId?.({groupID: groupsOnPage(selectedId.page-1)-1, page: selectedId.page-1});
+        RENDER_PAGE();
+    } else {
+        notify('info', 'No page above');
+    }
+    }
+    */
+
     return (
         <div className='w-full h-full'>
             <div className="w-full">

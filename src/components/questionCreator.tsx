@@ -10,7 +10,7 @@ import { Stage, Layer } from 'react-konva';
 import CanvasElements from '@/components/canvasElements'
 import CustomContextMenu from '@/components/customContextMenu';
 import { ShapeData } from '@/lib/shapeData';
-import { addPageElement, addPageElementsInfo, deletePageElement, deletePageElementInfo, getEstimatedPage, getSpecificPageElementsInfo, getStageDimension, RENDER_PREVIEW, setPageElement, setPageElementsInfo } from '@/lib/stageStore';
+import { addPageElement, addPageElementsInfo, deletePageElement, deletePageElementInfo, getEstimatedPage, getSpecificPageElementsInfo, getStageDimension, RENDER_PAGE, RENDER_PREVIEW, setPageElement, setPageElementsInfo } from '@/lib/stageStore';
 import ColorSelectorSection from '@/components/colorSelectorSection';
 import { KonvaEventObject } from 'konva/lib/Node';
 import Advert from './advert';
@@ -314,7 +314,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                 if (questionEditingID.page !== null && questionEditingID.groupID !== null) {
                     deletePageElementInfo(questionEditingID.page, questionEditingID.groupID);
                     deletePageElement(questionEditingID.page, questionEditingID.groupID);
-                    RENDER_PREVIEW();
+                    RENDER_PAGE();
                     return;
                 }
             }
@@ -366,17 +366,17 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
 
         if (newQuestionCreating) {
             const pageOn = getEstimatedPage();
-            addPageElementsInfo({widestX, widestY, x:0, y:0}, pageOn);
+            addPageElementsInfo({widestX, widestY, x:0, y:0, rotation:0}, pageOn);
             addPageElement(shapes, pageOn);
             console.log(shapes);
         } else {
             if (questionEditingID.page !== null && questionEditingID.groupID !== null) {
                 const previousGroupInfo = getSpecificPageElementsInfo(questionEditingID.page, questionEditingID.groupID);
-                setPageElementsInfo({widestX, widestY, x:previousGroupInfo.x, y:previousGroupInfo.y}, questionEditingID.page, questionEditingID.groupID);
+                setPageElementsInfo({widestX, widestY, x:previousGroupInfo.x, y:previousGroupInfo.y, rotation: previousGroupInfo.rotation}, questionEditingID.page, questionEditingID.groupID);
                 setPageElement(shapes, questionEditingID.page, questionEditingID.groupID);
             }
         }
-        RENDER_PREVIEW();
+        RENDER_PAGE();
     }
 
     const [editorXpositionValue, setEditorXpositionValue] = useState<string>("0");

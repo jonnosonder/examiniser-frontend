@@ -10,7 +10,6 @@ export type StageData = {
   height: number;
   background: string;
   stageRef?: React.RefObject<Konva.Stage | null>;
-  transformerRef?: React.RefObject<Konva.Transformer | null>;
 };
 
 export type stageGroupInfoData = {
@@ -18,6 +17,7 @@ export type stageGroupInfoData = {
   widestY: number;
   x: number;
   y: number;
+  rotation: number;
 };
 
 export type historyData = {
@@ -25,13 +25,13 @@ export type historyData = {
   data: ShapeData[];
 }
 
-let stages: StageData[] = [];
+const stages: StageData[] = [];
 let stageListeners: (() => void)[] = [];
 let previewStageListeners: (() => void)[] = [];
 let viewMargin: boolean = false;
 let marginValue: number = 300;
-let pageElements: ShapeData[][][] = [];
-let pageElementsInfo: stageGroupInfoData[][] = [];
+export const pageElements: ShapeData[][][] = [];
+export const pageElementsInfo: stageGroupInfoData[][] = [];
 let estimatedPage: number = 0;
 const stageHistoryUndo: historyData[] = [];
 const stageHistoryRedo: historyData[] = [];
@@ -96,9 +96,9 @@ export function getStages(): StageData[] {
 }
 
 export function deleteAll() {
-  stages = [];
-  pageElements = [];
-  pageElementsInfo = [];
+  stages.length = 0;
+  pageElements.length = 0;
+  pageElementsInfo.length = 0;
 }
 
 export function stagesLength() {
@@ -166,6 +166,11 @@ export function getPageElements(): ShapeData[][][] {
   return [...pageElements];
 }
 
+export function setAllPageElements(newShapeData: ShapeData[][][]) {
+  pageElements.length = 0;
+  pageElements.push(...newShapeData);
+}
+
 export function getPageGroup(page: number, groupID: number): ShapeData[] {
   return [...pageElements[page][groupID]];
 }
@@ -210,6 +215,12 @@ export function changePageOfElement(page: number, groupID: number, newPage: numb
 export function getPageElementsInfo(): stageGroupInfoData[][] {
   return [...pageElementsInfo];
 }
+
+export function setAllPageElementsInfo(newShapeInfoData: stageGroupInfoData[][]) {
+  pageElementsInfo.length = 0;
+  pageElementsInfo.push(...newShapeInfoData);
+}
+
 
 export function getSpecificPageElementsInfo(page: number, groupID: number): stageGroupInfoData {
   return pageElementsInfo[page][groupID];

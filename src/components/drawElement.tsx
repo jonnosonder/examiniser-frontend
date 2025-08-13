@@ -22,7 +22,7 @@ export default function DrawElement({ shape }: Props) {
       );
     case 'oval':
       return (
-        <Ellipse {...shape} listening={false} />
+        <Ellipse {...shape} radiusX={shape.width*0.5} radiusY={shape.height*0.5} listening={false} />
       );
     case 'tri':
       const trianglePoints: [number, number][] = [

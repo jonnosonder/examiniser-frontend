@@ -131,7 +131,7 @@ function EditorPage() {
                                 cornerRadius: 0,
                             };
                             addPageElement([newImageShape], pageNumber);
-                            addPageElementsInfo({x: element.x, y: element.y, widestX: element.width, widestY: element.height}, pageNumber);
+                            addPageElementsInfo({x: element.x, y: element.y, widestX: element.width, widestY: element.height, rotation: 0}, pageNumber);
                     resolve(null)
                 };
                 img.onerror = (err) => reject(err);
@@ -205,7 +205,7 @@ function EditorPage() {
                                 borderWeight: 0,
                             };
                             addPageElement([newText], pageNumber);
-                            addPageElementsInfo({x: element.x, y: element.y, widestX: element.width, widestY: element.height}, pageNumber);
+                            addPageElementsInfo({x: element.x, y: element.y, widestX: element.width, widestY: element.height, rotation: 0}, pageNumber);
                             break;
                         case "img":
                             imagePromises.push(loadImage(pageNumber, elementIndex, element));
@@ -225,7 +225,7 @@ function EditorPage() {
                                 data: element.path,
                             };
                             addPageElement([newPath], pageNumber);
-                            addPageElementsInfo({x: element.x, y: element.y, widestX: element.width, widestY: element.height}, pageNumber);
+                            addPageElementsInfo({x: element.x, y: element.y, widestX: element.width, widestY: element.height, rotation: 0}, pageNumber);
                             break;
                     }
                 })
@@ -334,7 +334,7 @@ function EditorPage() {
             setQuestionEditingID({groupID: currentSelectValues.groupID, page: currentSelectValues.page})
             setQuestionCreatorShapes(pageElements[currentSelectValues.page][currentSelectValues.groupID]);
             handleQuestionCreatorOpen();
-            selectedQuestionId.current = {page: null, groupID: null, transformerRef: useRef(null)};
+            //selectedQuestionId.current = {page: null, groupID: null, transformerRef: useRef(null)};
         } else {
             notify('info', 'Please select an element');
         }
@@ -346,7 +346,7 @@ function EditorPage() {
             duplicatePageElementsInfo(currentSelectValues.page, currentSelectValues.groupID);
             duplicatePageElement(currentSelectValues.page, currentSelectValues.groupID);
             RENDER_PAGE();
-            selectedQuestionId.current = {page: null, groupID: null, transformerRef: useRef(null)};
+            //selectedQuestionId.current = {page: null, groupID: null, transformerRef: useRef(null)};
         } else {
             notify('info', 'Please select an element');
         }
@@ -376,7 +376,7 @@ function EditorPage() {
             border: "",
             borderWeight: 0,
         };
-        addPageElementsInfo({widestX: newText.width, widestY: newText.height, x:0, y:0}, pageToAddIt);
+        addPageElementsInfo({widestX: newText.width, widestY: newText.height, x:0, y:0, rotation: 0}, pageToAddIt);
         addPageElement([newText], pageToAddIt);
         RENDER_PAGE();
     }
@@ -515,10 +515,10 @@ function EditorPage() {
                 </div>
             </div>
             <div className="flex bg-grey w-full items-center justify-center">
-                <AllStages manualScaler={manualScaler} selectedId={selectedQuestionId} previewStyle={false} editQuestionButtonHandler={editQuestionButtonHandler} actionWindow={actionWindow}/>
+                <AllStages manualScaler={manualScaler} selectedId={selectedQuestionId} previewStyle={false} editQuestionButtonHandler={editQuestionButtonHandler}/>
             </div>
             <div
-                className={`flex flex-col text-primary transition-width duration-300 ease-in-out h-full
+                className={`flex flex-col text-primary transition-width duration-300 ease-in-out h-full border-t border-grey
                     ${!actionWindow ? 'w-16' : 'w-56'}`}
                 >
                 <button

@@ -80,7 +80,7 @@ export const AddImage: React.FC<AddImageProps>  = ({onClose, showAdvert, mainPag
 
                     if (mainPageMode) { 
                         addPageElement([newImageShape], pageToAddOn);
-                        addPageElementsInfo({widestX: image.width, widestY: image.height, x:0, y:0}, pageToAddOn);
+                        addPageElementsInfo({widestX: image.width, widestY: image.height, x: 0, y: 0, rotation: 0}, pageToAddOn);
                         RENDER_PAGE();
                     } else {
                         setShapes?.(prevShapes => [...prevShapes, newImageShape]);
@@ -155,7 +155,7 @@ export const AddImage: React.FC<AddImageProps>  = ({onClose, showAdvert, mainPag
 
                         if (mainPageMode) { 
                             addPageElement([newImageShape], pageToAddOn);
-                            addPageElementsInfo({widestX: img.width, widestY: img.height, x:0, y:0}, pageToAddOn);
+                            addPageElementsInfo({widestX: img.width, widestY: img.height, x:0, y:0, rotation: 0}, pageToAddOn);
                             RENDER_PAGE();
                         } else {
                             setShapes?.(prevShapes => [...prevShapes, newImageShape]);

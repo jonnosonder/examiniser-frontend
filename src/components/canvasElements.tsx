@@ -156,8 +156,6 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
 
               onChange({
                 ...shape,
-                radiusX: round4WithMax(node.width() * scaleX /2),
-                radiusY: round4WithMax(node.height() * scaleY /2),
                 width: round4WithMax(node.width() * scaleX),
                 height: round4WithMax(node.height() * scaleY),
                 rotation: round4(node.rotation()),

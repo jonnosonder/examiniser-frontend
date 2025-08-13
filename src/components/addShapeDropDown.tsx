@@ -34,7 +34,7 @@ const AddShapeDropDown: React.FC = () => {
       strokeWidth: 1,
       cornerRadius: 0,
     };
-    addPageElementsInfo({widestX: newSquare.width, widestY: newSquare.height, x:0, y:0}, pageToAddIt);
+    addPageElementsInfo({widestX: newSquare.width, widestY: newSquare.height, x: 0, y: 0, rotation: 0}, pageToAddIt);
     addPageElement([newSquare], pageToAddIt);
     RENDER_PAGE();
     hideDropdown();
@@ -47,14 +47,14 @@ const AddShapeDropDown: React.FC = () => {
       type: 'oval',
       x: 40,
       y: 40,
-      radiusX: 40,
-      radiusY: 40,
+      width: 80,
+      height: 80,
       rotation: 0,
       fill: 'black',
       stroke: 'red',
       strokeWidth: 1,
     };
-    addPageElementsInfo({widestX: newCircle.radiusX*2, widestY: newCircle.radiusY*2, x:0, y:0}, pageToAddIt);
+    addPageElementsInfo({widestX: newCircle.width, widestY: newCircle.height, x: 0, y: 0, rotation: 0}, pageToAddIt);
     addPageElement([newCircle], pageToAddIt);
     RENDER_PAGE();
     hideDropdown();
@@ -75,7 +75,7 @@ const AddShapeDropDown: React.FC = () => {
       strokeWidth: 1,
       cornerRadius: 0,
     };
-    addPageElementsInfo({widestX: newTriangle.width, widestY: newTriangle.height, x:0, y:0}, pageToAddIt);
+    addPageElementsInfo({widestX: newTriangle.width, widestY: newTriangle.height, x: 0, y: 0, rotation: 0}, pageToAddIt);
     addPageElement([newTriangle], pageToAddIt);
     RENDER_PAGE();
     hideDropdown();
@@ -96,7 +96,7 @@ const AddShapeDropDown: React.FC = () => {
       strokeWidth: 1,
       cornerRadius: 0,
     };
-    addPageElementsInfo({widestX: newTriangle.width, widestY: newTriangle.height, x:0, y:0}, pageToAddIt);
+    addPageElementsInfo({widestX: newTriangle.width, widestY: newTriangle.height, x: 0, y: 0, rotation: 0}, pageToAddIt);
     addPageElement([newTriangle], pageToAddIt);
     RENDER_PAGE();
     hideDropdown();
@@ -117,7 +117,7 @@ const AddShapeDropDown: React.FC = () => {
       strokeWidth: 1,
       numPoints: 5,
     };
-    addPageElementsInfo({widestX: newCircle.width, widestY: newCircle.height, x:0, y:0}, pageToAddIt);
+    addPageElementsInfo({widestX: newCircle.width, widestY: newCircle.height, x: 0, y: 0, rotation: 0}, pageToAddIt);
     addPageElement([newCircle], pageToAddIt);
     RENDER_PAGE();
     hideDropdown();

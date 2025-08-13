@@ -83,7 +83,7 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
                     doc.setFillColor(element.fill);
                     doc.setDrawColor(element.stroke);
                     doc.setLineWidth(element.strokeWidth * pxTommScaler);
-                    doc.ellipse(groupX + element.x * pxTommScaler, groupY + element.y * pxTommScaler, element.radiusX * pxTommScaler, element.radiusY * pxTommScaler, "FD");
+                    doc.ellipse(groupX + element.x * pxTommScaler, groupY + element.y * pxTommScaler, element.width * 0.5 * pxTommScaler, element.height * 0.5 * pxTommScaler, "FD");
                     break;
                   case "tri":
                     doc.setFillColor(element.fill);

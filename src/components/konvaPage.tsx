@@ -1,80 +1,75 @@
 import { ShapeData } from "@/lib/shapeData";
 import Konva from "konva";
-import { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Group, Layer, Rect, Stage, Transformer } from "react-konva";
 import DrawElement from "./drawElement";
-import { StageData, stageGroupInfoData } from "@/lib/stageStore";
+import { getMarginValue, getViewMargin, RENDER_PREVIEW, StageData, stageGroupInfoData } from "@/lib/stageStore";
+import { KonvaEventObject, Node, NodeConfig } from "konva/lib/Node";
 
 
-interface KonvaStageProps {
+interface KonvaPageProps {
     stage: StageData;
     stageScale: number;
     manualScaler: number;
-    pageNumber: number;
-    viewMargin: boolean;
-    shapesInit: ShapeData[][];
-    shapesInfoInit: stageGroupInfoData[];
-    onShapesChange: (updatedShapes: ShapeData[]) => void;
+    pageIndex: number;
+    pageGroups: ShapeData[][];
+    pageGroupsInfo: stageGroupInfoData[];
+    onGroupChange: (groupIndex: number, updatedShapes: ShapeData[]) => void;
+    onGroupInfoChange: (groupIndex: number, updatedShapes: stageGroupInfoData) => void;
+    editQuestionButtonHandler: (passedPage?: number, passedGroupID?: number) => void;
 }
 
-export default function KonvaPage({ stage, stageScale, manualScaler, pageNumber, viewMargin, shapesInit, shapesInfoInit, onShapesChange }: KonvaStageProps) {
-    const [shapes, setShapes] = useState<ShapeData[][]>(shapesInit);
-    const [shapesInfo, setShapesInfo] = useState<stageGroupInfoData[]>(shapesInfoInit);
-    const [selectedId, setSelectedId] = useState<string | null>(null);
+export default function KonvaPage({ stage, stageScale, manualScaler, pageIndex, pageGroups, pageGroupsInfo, onGroupChange, onGroupInfoChange, editQuestionButtonHandler }: KonvaPageProps) {
+    const [groupShapes, setGroupShapes] = useState<ShapeData[][]>(pageGroups);
+    const [groupInfo, setGroupInfo] = useState<stageGroupInfoData[]>(pageGroupsInfo);
+    //const [selectedId, setSelectedId] = useState<number | null>(null);
 
+    // Refs for each group
+    const groupRefs =  useRef<(Konva.Group | null)[]>([]);
+    const transformerRef = useRef<Konva.Transformer>(null);
+
+    const marginValue = getMarginValue();
+    const viewMargin = getViewMargin();
+
+    // Sync props -> state
     useEffect(() => {
-        setShapes(shapesInit);
-    }, [shapesInit]);
+        setGroupShapes(pageGroups);
+        setGroupInfo(pageGroupsInfo);
+        console.log("Syncing");
+        console.log(pageGroupsInfo);
+    }, [pageGroups, pageGroupsInfo]);
 
-    useEffect(() => {
-        const layer = stage.stageRef?.current;
-        const transformer = stage.transformerRef?.current;
-        if (selectedId && layer && transformer) {
-        const selectedNode = layer.findOne(`#${selectedId}`);
-        if (selectedNode) {
-            transformer.nodes([selectedNode]);
-            transformer.getLayer()?.batchDraw();
-        } else {
-            transformer.nodes([]);
-            transformer.getLayer()?.batchDraw();
+    const groupOnClick = (e: KonvaEventObject<MouseEvent, Node<NodeConfig>> | KonvaEventObject<Event, Node<NodeConfig>>) => {
+        const clickedNode = e.target.getParent();
+        const currentTransformer = transformerRef.current;
+        if (currentTransformer && clickedNode && clickedNode.getType() === "Group") {
+            currentTransformer.nodes([clickedNode]);
+            currentTransformer.getLayer()?.batchDraw();
         }
-        } else {
-        transformer?.nodes([]);
-        transformer?.getLayer()?.batchDraw();
-        }
-    }, [selectedId]);
+    }
 
-    const updateShape = useCallback(
-        (id: string, newAttrs: Partial<ShapeData>) => {
-            setShapes((prevShapes) => {
-                const updated = prevShapes.map((shape) => (shape.id === id ? { ...shape, ...newAttrs } : shape));
-                // Notify parent
-                onShapesChange(updated);
-                return updated;
-            });
-            stage.stageRef?.current?.batchDraw();
-        },
-        [onShapesChange]
-    );
-
-    const handleDragEnd = (e: any, id: string) => {
-        updateShape(id, {
-        x: e.target.x(),
-        y: e.target.y(),
+    const updateGroupShapes = useCallback((groupIndex: number, updatedShapes: ShapeData[]) => {
+        setGroupShapes((prev) => {
+            const updatedGroups = [...prev];
+            updatedGroups[groupIndex] = updatedShapes;
+            return updatedGroups; // Just update state here
         });
-    };
+        onGroupChange(groupIndex, updatedShapes); // Call side effect AFTER state update
+    }, [onGroupChange]);
 
-    const handleTransformEnd = (e: any, id: string) => {
-        const node = e.target;
-        updateShape(id, {
-        x: node.x(),
-        y: node.y(),
-        width: Math.max(5, node.width() * node.scaleX()),
-        height: Math.max(5, node.height() * node.scaleY()),
+    const updateGroupInfo = useCallback((groupIndex: number, updatedShapesInfo: stageGroupInfoData) => {
+        setGroupInfo((prev) => {
+            const updatedGroupsInfo = [...prev];
+            updatedGroupsInfo[groupIndex] = updatedShapesInfo;
+            return updatedGroupsInfo;  // only update state here
         });
-        node.scaleX(1);
-        node.scaleY(1);
-    };
+        onGroupInfoChange(groupIndex, updatedShapesInfo); // side effect outside setState updater
+        RENDER_PREVIEW();
+    }, [onGroupInfoChange]);
+
+    const onDbClickHanlder = (groupIndex: number) => {
+        editQuestionButtonHandler(pageIndex, groupIndex);
+    }
 
     const round4 = (num: number) => Math.round((num + Number.EPSILON) * 10000) / 10000;
 
@@ -92,173 +87,145 @@ export default function KonvaPage({ stage, stageScale, manualScaler, pageNumber,
             onMouseDown={(e) => {
                 const target = e.target as Konva.Node;
                 if (target.id() === "background-rect") {
-                    selectedId.current.transformerRef?.current?.nodes([]);
-                    selectedId.current.transformerRef?.current?.getLayer()?.batchDraw();
-                    selectedId.current = {groupID: null, page: null, transformerRef: nullTransformerRef};
+                    const transformer = transformerRef.current;
+                    transformer?.nodes([]);
+                    transformer?.getLayer()?.batchDraw();
                     return;
                 }
             }}
             >
             <Layer>
                 <Rect 
-                id='background-rect'
-                x={0}
-                y={0}
-                width={stage.width}
-                height={stage.height}
-                fill={stage.background || '#ffffff'}
+                    id='background-rect'
+                    x={0}
+                    y={0}
+                    width={stage.width}
+                    height={stage.height}
+                    fill={stage.background || '#ffffff'}
                 />
                 { viewMargin && ( 
                 <Rect 
-                x={marginValue}
-                y={marginValue}
-                width={stage.width-(marginValue*2)}
-                height={stage.height-(marginValue*2)}
-                fill={"transparent"}
-                stroke={"black"}
-                strokeWidth={2}
+                    x={marginValue}
+                    y={marginValue}
+                    width={stage.width-(marginValue*2)}
+                    height={stage.height-(marginValue*2)}
+                    fill={"transparent"}
+                    stroke={"black"}
+                    strokeWidth={2}
                 />
                 )}
-                { shapes.map((group, groupdIndex) => {
-                const focusGroup = shapesInfo[groupdIndex];
-                const dragBoundFunc = (pos: { x: number; y: number }) => {
-                    const scaled = stageScale * manualScaler;
-                    const inverseScale = 1 / scaled;
-
-                    let x = pos.x * inverseScale;
-                    let y = pos.y * inverseScale;
-
-                    const { width: stageWidth, height: stageHeight } = stage;
-                    const elementInfo = focusGroup;
-
-                    const maxX = stageWidth - elementInfo.widestX;
-                    const maxY = stageHeight - elementInfo.widestY;
-
-                    x = Math.max(0, Math.min(x, maxX));
-                    y = Math.max(0, Math.min(y, maxY));
-
-                    // Return in scaled space
-                    return {
-                        x: x * scaled,
-                        y: y * scaled,
-                    };
-                }
-
-
-                const onClickHandler = (e: Konva.KonvaEventObject<MouseEvent | Event>) => {
-                    selectedId.current = {groupID: groupdIndex, page: pageNumber, transformerRef: stage.transformerRef?.current ? stage.transformerRef : nullTransformerRef};
-                    const clickedNode = e.target.getParent();
-                    if (clickedNode && clickedNode.getType() === "Group" && stage.transformerRef?.current) {
-                    stage.transformerRef.current.nodes([clickedNode]);
-                    stage.transformerRef.current.getLayer()?.batchDraw();
-                    }
-                } 
-
-                const onDbClickHandler = () => {
-                    editQuestionButtonHandler?.(pageNumber, groupdIndex)
-                } 
-
-                return (
+                {groupShapes.map((shapes, groupIndex) => {
+                    const focusGroupInfo = groupInfo[groupIndex];
+                    //console.log("to draw");
+                    //console.log(focusGroupInfo);
+                    return (
                     <Group
-                    key={groupdIndex + (groupdIndex * pageNumber+1)}
-                    x={focusGroup.x}
-                    y={focusGroup.y}
-                    width={focusGroup.widestX}
-                    height={focusGroup.widestY}
+                    key={`${pageIndex}-${groupIndex}`}
+                    ref={(el) => {groupRefs.current[groupIndex] = el;}}
                     draggable={true}
-                    dragBoundFunc={dragBoundFunc}
                     listening={true}
-                    onClick={(e) => {onClickHandler(e)}}
-                    onTap={(e) => {onClickHandler(e)}}
-                    onDblClick={onDbClickHandler}
-                    onDblTap={onDbClickHandler}
-                    onDragEnd={ (e) => {
-                        const newX = round4(e.target.x());
-                        const newY = round4(e.target.y());
-                        setPageElementsInfo({ ...focusGroup, x: newX, y: newY }, pageNumber, groupdIndex);
-                        setSelectButtonPosition({
-                        x: newX * stageScale,
-                        y: newY * stageScale,
-                        widestX: focusGroup.widestX * stageScale,
-                        widestY: focusGroup.widestY * stageScale,
-                        });
-                        RENDER_PREVIEW();
+                    x={focusGroupInfo.x}
+                    y={focusGroupInfo.y}
+                    width={focusGroupInfo.widestX}
+                    height={focusGroupInfo.widestY}
+                    rotation={focusGroupInfo.rotation}
+                    onClick={(e) => groupOnClick(e)}
+                    onTap={(e) => groupOnClick(e)}
+                    onDblClick={() => onDbClickHanlder(groupIndex)}
+                    onDblTap={() => onDbClickHanlder(groupIndex)}
+                    onDragMove={(e) => {
+                        const node = e.target;
+
+                        const box = node.getClientRect({ skipTransform: false });
+
+                        const inverseStageScale = 1 / stageScale;
+                        const box_x = box.x * inverseStageScale;
+                        const box_y = box.y * inverseStageScale;
+                        const box_width =  box.width * inverseStageScale;
+                        const box_height = box.height * inverseStageScale;
+
+                        const stageWidth = stage.width;
+                        const stageHeight = stage.height;
+
+                        let newX = node.x();
+                        let newY = node.y();
+
+                        if (box_x < 0) {
+                            newX += -box_x;
+                        }
+                        if (box_y < 0) {
+                            newY += -box_y;
+                        }
+                        if (box_x + box_width  > stageWidth) {
+                            newX += stageWidth - (box_x + box_width);
+                        }
+                        if (box_y + box_height > stageHeight) {
+                            newY += stageHeight - (box_y + box_height);
+                        }
+                        
+                        node.position({ x: newX, y: newY });
                     }}
-                    > 
-                    <Rect
+                    onDragEnd={(e) => {
+                        console.log("drag end");
+                        console.log(groupInfo);
+                        const node = e.target;
+                        const focusGroupInfo = groupInfo[groupIndex];
+                        const newGroupInfo = {
+                            ... focusGroupInfo,
+                            x: round4(node.x()),
+                            y: round4(node.y()),
+                        } as stageGroupInfoData;
+                        updateGroupInfo(groupIndex, newGroupInfo);
+                    }}
+                    onTransformEnd={(e) => {
+                        const node = e.target;
+                        const scaleX = node.scaleX();
+                        const scaleY = node.scaleY();
+                        const updatedShapes = shapes.map((shape) => ({
+                            ...shape,
+                            x: round4(shape.x * scaleX),
+                            y: round4(shape.y * scaleY),
+                            width: round4(shape.width * scaleX),
+                            height: round4(shape.height * scaleY),
+                        }));
+                        const focusGroupInfo = groupInfo[groupIndex];
+                        const newGroupInfo = {
+                            widestX: round4(focusGroupInfo.widestX * scaleX),
+                            widestY: round4(focusGroupInfo.widestY * scaleY),
+                            x: round4(node.x()),
+                            y: round4(node.y()),
+                            rotation: round4(node.rotation())
+                        } as stageGroupInfoData;
+                        node.scaleX(1);
+                        node.scaleY(1);
+                        updateGroupShapes(groupIndex, updatedShapes);
+                        updateGroupInfo(groupIndex, newGroupInfo);
+                    }}
+                    >
+                        <Rect
                         x={0}
                         y={0}
-                        width={focusGroup.widestX}
-                        height={focusGroup.widestY}
+                        width={groupInfo[groupIndex].widestX}
+                        height={groupInfo[groupIndex].widestY}
                         fill="rgba(0,0,0,0)" // invisible but interactive
                         listening={true}
+                        draggable={false}
                     />
-                    {group.map((shape) => {
-                        return(
-                        <DrawElement
-                        key={shape.id}
-                        shape={shape}
-                        />
-                        );
-                    })}
+                    {shapes.map((shape) => (
+                        <DrawElement key={shape.id} shape={shape}/>
+                    ))}
                     </Group>
-                );
-                })}
+                );})}
                 <Transformer 
-                    key={"tranformer-"+pageNumber}
-                    ref={stage.transformerRef} 
-                    onTransformEnd={ () => {
-                    
-                    const transformer = stage.transformerRef?.current;
-                    if (!transformer) return;
-                    const attachedNodes = transformer.nodes();
-                    const liveGroup = attachedNodes[0] as Konva.Group;
-                    if (!liveGroup) return;
-                    const liveGroupChildren = liveGroup.getChildren();
-                    
-                    if (selectedId.current.groupID === null) {return;}
-                    const liveGroupScaleX = liveGroup.scaleX();
-                    const liveGroupScaleY = liveGroup.scaleY();
-                    liveGroupChildren.forEach((child, elementID) => {
-                        const newWidth = child.width() * liveGroupScaleX;
-                        const newHeight = child.height() * liveGroupScaleY;
-                        
-                        if (elementID !== 0) {
-                        if (selectedId.current.groupID === null) {return;}
-                        setPageElementWidth(newWidth, pageNumber, selectedId.current.groupID, elementID-1);
-                        setPageElementHeight(newHeight, pageNumber, selectedId.current.groupID, elementID-1);
-                        }
-
-                        child.width(newWidth);
-                        child.height(newHeight);
-                        child.scaleX(1);
-                        child.scaleY(1);
-
-                        console.log(`Child ${child.id} updated:`, {
-                        width: newWidth,
-                        height: newHeight,
-                        scaleX: liveGroupScaleX,
-                        scaleY: liveGroupScaleY,
-                        });
-
-                        // Store or send updated sizes somewhere
-                    });
-
-                    const newGroupWidth = liveGroup.width() * liveGroupScaleX;
-                    const newGroupHeight = liveGroup.height() * liveGroupScaleY;
-                    
-                    liveGroup.scaleX(1);
-                    liveGroup.scaleY(1);
-
-                    setPageElementsInfoWidth(newGroupWidth, pageNumber, selectedId.current.groupID);
-                    setPageElementsInfoHeight(newGroupHeight, pageNumber, selectedId.current.groupID);
-
-                    // You can also store group dimensions if needed
-                    console.log("Group size after transform:", {
-                        width: newGroupWidth,
-                        height: newGroupHeight,
-                    });
-                    }}
+                    key={"tranformer-"+pageIndex}
+                    ref={transformerRef} 
+                    rotationAnchorOffset={10}
+                    rotationSnaps={[0, 45, 90, 135, 180, 225, 270, 315]}
+                    rotationSnapTolerance={6}
+                    anchorFill={"#fff"}
+                    anchorStrokeWidth={1}
+                    anchorSize={10}
+                    anchorCornerRadius={2}
                 />
             </Layer>
         </Stage>
