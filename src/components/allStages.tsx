@@ -44,7 +44,6 @@ const AllStages = ({ manualScaler=1, previewStyle, editQuestionButtonHandler} : 
         setStages(getStages());
         setAllShapes(pageElements);
         setAllShapesInfo(pageElementsInfo);
-        console.log(pageElementsInfo);
       });
       return () => unsubscribeStage();
     }

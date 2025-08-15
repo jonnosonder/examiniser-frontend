@@ -2,8 +2,19 @@
 // Copyright © 2025 Jonathan Kwok
 
 import { useEffect, useState } from 'react';
-import { getMarginValue, getViewMargin, setMarginValue, setViewMargin, getStagesBackground, setAllStagesBackground, RENDER_MAIN } from '@/lib/stageStore';
+import { getMarginValue, getViewMargin, setMarginValue, setViewMargin, getStagesBackground, setAllStagesBackground, RENDER_MAIN, pageElements, pageElementsInfo, stageGroupInfoData, getSpecificPageElementsInfo, subscribePreviewStage } from '@/lib/stageStore';
 import ColorSelectorSection from '@/components/colorSelectorSection';
+import { useSelectRef } from './editorContextProvider';
+
+type shapeOnDragType = {
+    x: number;
+    y: number;
+}
+
+type shapeOnTransformType = {
+    width: number;
+    height: number;
+}
 
 export default function EditorSidePanel() {
     const [displayColorSelector, setDisplayColorSelector] = useState<boolean>(false);
@@ -15,6 +26,67 @@ export default function EditorSidePanel() {
     const [marginEditorVisual, setMarginEditorVisual] = useState<string>(String(getMarginValue()));
 
     const [editPanelIndex, setEditPanelIndex] = useState<number | null>(-1);
+
+    const { selectIndex } = useSelectRef();
+
+    const [groupInformation, setGroupInformation] = useState<stageGroupInfoData | null>(null);
+
+    useEffect(() => {
+        const handleChange = () => {
+            if (selectIndex.current.pageIndex !== null && selectIndex.current.groupIndex !== null) {
+                setGroupInformation(getSpecificPageElementsInfo(selectIndex.current.pageIndex, selectIndex.current.groupIndex));
+            } else {
+                setGroupInformation(null);
+            }
+        };
+
+        window.addEventListener('selectIndexChanged', handleChange);
+
+        return () => {
+            window.removeEventListener('selectIndexChanged', handleChange);
+        };
+    }, []);
+
+    useEffect(() => {
+        if (selectIndex.current.pageIndex !== null && selectIndex.current.groupIndex !== null) {
+            setGroupInformation(getSpecificPageElementsInfo(selectIndex.current.pageIndex, selectIndex.current.groupIndex));
+        } else {
+            setGroupInformation(null);
+        }
+    }, []);
+
+    useEffect(() => {
+        const handler = (e: Event) => {
+            const customEvent = e as CustomEvent<shapeOnDragType>;
+            setGroupInformation({
+                ...groupInformation,
+                x: customEvent.detail.x,
+                y: customEvent.detail.y
+            } as stageGroupInfoData)
+        };
+
+        window.addEventListener('shapeOnDrag', handler);
+        return () => {
+            window.removeEventListener('shapeOnDrag', handler);
+        };
+    }, []);
+
+    useEffect(() => {
+        const handler = (e: Event) => {
+            const customEvent = e as CustomEvent<shapeOnTransformType>;
+            setGroupInformation({
+                ...groupInformation,
+                widestX: customEvent.detail.width,
+                widestY: customEvent.detail.height
+            } as stageGroupInfoData)
+        };
+
+        window.addEventListener('shapeOnTransform', handler);
+        return () => {
+            window.removeEventListener('shapeOnTransform', handler);
+        };
+    }, []);
+
     
     const toggleEditPanelSection = (index:number) => {
         setEditPanelIndex(editPanelIndex === index ? null : index);
@@ -80,6 +152,34 @@ export default function EditorSidePanel() {
 
     return (
         <div className='w-full h-full'>
+            {selectIndex.current.pageIndex !== null && groupInformation !== null && (
+                <>
+                <p className='p-2 pb-1 text-md'>Position</p>
+
+                <p className='p-2 pb-1 text-sm'>Align</p>
+                <div className='flex w-full px-4'>
+                    
+                </div>
+
+                <p className='p-2 pb-1 text-sm'>Position</p>
+                <div className='w-full px-4 flex flex-col grid grid-cols-2 gap-x-2 text-xs text-primary'>
+                    <p className='text-xs ml-1'>X</p>
+                    <p className='text-xs ml-1'>Y</p>
+                    <input value={groupInformation.x} className="flex text-sm w-full px-[2px] rounded-md border border-grey shadow-sm transition-shadow duration-300 focus:shadow-[0_0_0_0.2rem_theme('colors.contrast')] focus:outline-none focus:border-transparent"></input>
+                    <input value={groupInformation.y} className="flex text-sm w-full px-[2px] rounded-md border border-grey shadow-sm transition-shadow duration-300 focus:shadow-[0_0_0_0.2rem_theme('colors.contrast')] focus:outline-none focus:border-transparent"></input>
+
+                    <p className='text-xs ml-1 mt-1'>Width</p>
+                    <p className='text-xs ml-1 mt-1'>Height</p>
+                    <input value={groupInformation.widestX} className="flex text-sm w-full px-[2px] rounded-md border border-grey shadow-sm transition-shadow duration-300 focus:shadow-[0_0_0_0.2rem_theme('colors.contrast')] focus:outline-none focus:border-transparent"></input>
+                    <input value={groupInformation.widestY} className="flex text-sm w-full px-[2px] rounded-md border border-grey shadow-sm transition-shadow duration-300 focus:shadow-[0_0_0_0.2rem_theme('colors.contrast')] focus:outline-none focus:border-transparent"></input>
+
+                </div>
+
+                <div className='w-full mt-2 h-[1px] bg-grey' />
+                </>
+            )}
+
+            <p className='px-2 py-1'>Page</p>
             <div className="w-full">
                 <button
                     className="w-full flex justify-between items-center px-4 py-1 bg-transparent text-primary border border-button-border text-base transition cursor-pointer"

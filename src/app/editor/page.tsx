@@ -10,7 +10,7 @@ import AllStages from '@/components/allStages';
 import HoverExplainButton from '@/components/hoverExplainButton';
 import '@/styles/editor.css';
 
-import { addPageElement, addPageElementsInfo, addStage, addStageCopyPrevious, deleteAll, duplicatePageElement, duplicatePageElementsInfo, getEstimatedPage, getGlobalSelectIndex, getPageElements, RENDER_PAGE, stagesLength } from '@/lib/stageStore';
+import { addPageElement, addPageElementsInfo, addStage, addStageCopyPrevious, deleteAll, duplicatePageElement, duplicatePageElementsInfo, getEstimatedPage, getPageElements, RENDER_PAGE, stagesLength } from '@/lib/stageStore';
 import QuestionCreator from '@/components/questionCreator';
 import { ShapeData } from '@/lib/shapeData';
 import EditorSidePanel from '@/components/editorSidePanel';
@@ -24,6 +24,7 @@ import AddShapeDropDown from '@/components/addShapeDropDown';
 import TemplatePage from '@/components/templatePage';
 import { AddImage } from '@/components/addImage';
 import Advert from '@/components/advert';
+import { EditorContextProvider, useSelectRef } from '@/components/editorContextProvider';
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@5.3.93/build/pdf.worker.mjs`;
 
 function EditorPage() {
@@ -67,6 +68,22 @@ function EditorPage() {
             setManualScaler(manualScaler - 0.1);
         }
     }
+
+    const { selectIndex } = useSelectRef();
+
+    useEffect(() => {
+        const handleChange = () => {
+            if (selectIndex.current.pageIndex !== null) {
+                setLeftSidePanelToggle(false);
+            }
+        };
+
+        window.addEventListener('selectIndexChanged', handleChange);
+
+        return () => {
+            window.removeEventListener('selectIndexChanged', handleChange);
+        };
+    }, []);
 
     useEffect(() => {
         if (stagesLength() === 0 && !fileUploaded){
@@ -319,7 +336,7 @@ function EditorPage() {
             return;
         }
 
-        const currentSelectValues = getGlobalSelectIndex();
+        const currentSelectValues = selectIndex.current;
 
         if (currentSelectValues.pageIndex !== null && currentSelectValues.groupIndex !== null){
             setNewQuestionCreating(false);
@@ -334,7 +351,7 @@ function EditorPage() {
     }
 
     const duplicateQuestionButtonHandler = () => {
-        const currentSelectValues = getGlobalSelectIndex();
+        const currentSelectValues = selectIndex.current;
         if (currentSelectValues.pageIndex !== null && currentSelectValues.groupIndex !== null){
             duplicatePageElementsInfo(currentSelectValues.pageIndex, currentSelectValues.groupIndex);
             duplicatePageElement(currentSelectValues.pageIndex, currentSelectValues.groupIndex);
@@ -571,7 +588,9 @@ function EditorPage() {
 
 const PageWithProvider = () => (
   <NotificationProvider>
-    <EditorPage />
+    <EditorContextProvider>
+        <EditorPage />
+    </EditorContextProvider>
   </NotificationProvider>
 );
 

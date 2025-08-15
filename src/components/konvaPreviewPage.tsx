@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright © 2025 Jonathan Kwok
+
 import { ShapeData } from "@/lib/shapeData";
 import React, { memo, useEffect, useState } from "react";
 import { Group, Layer, Rect, Stage } from "react-konva";

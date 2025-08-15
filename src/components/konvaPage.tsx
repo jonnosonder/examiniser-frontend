@@ -1,10 +1,14 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright © 2025 Jonathan Kwok
+
 import { ShapeData } from "@/lib/shapeData";
 import Konva from "konva";
 import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Group, Layer, Rect, Stage, Transformer } from "react-konva";
 import DrawElement from "./drawElement";
-import { getMarginValue, getViewMargin, pageElements, pageElementsInfo, RENDER_PREVIEW, setGlobalSelectIndex, StageData, stageGroupInfoData } from "@/lib/stageStore";
+import { getMarginValue, getViewMargin, pageElements, pageElementsInfo, RENDER_PREVIEW,  StageData, stageGroupInfoData } from "@/lib/stageStore";
 import { KonvaEventObject, Node, NodeConfig } from "konva/lib/Node";
+import { useSelectRef } from "./editorContextProvider";
 
 
 interface KonvaPageProps {
@@ -20,19 +24,28 @@ interface KonvaPageProps {
 const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pageGroupsInfo, editQuestionButtonHandler }: KonvaPageProps) => {
     const [groupShapes, setGroupShapes] = useState<ShapeData[][]>(pageGroups);
     const [groupInfo, setGroupInfo] = useState<stageGroupInfoData[]>(pageGroupsInfo);
-    //const [selectedId, setSelectedId] = useState<number | null>(null);
+
+    const { selectIndex, setSelectIndex } = useSelectRef();
+
+    useEffect(() => {
+        const handleChange = () => {
+            console.log("select index update");
+            const transformer = transformerRef.current;
+            if (transformer && transformer.nodes().length !== 0 && selectIndex.current.pageIndex !== pageIndex) {
+                transformer.nodes([]);
+                transformer.getLayer()?.batchDraw();
+            }
+        };
+
+        window.addEventListener('selectIndexChanged', handleChange);
+
+        return () => {
+            window.removeEventListener('selectIndexChanged', handleChange);
+        };
+    }, []);
 
     const groupRefs =  useRef<(Konva.Group | null)[]>([]);
     const transformerRef = useRef<Konva.Transformer>(null);
-    const transformLimitsRef = useRef<{
-        maxScaleRight: number;
-        maxScaleBottom: number;
-        maxScaleLeft: number;
-        maxScaleTop: number;
-        minScale: number;
-        startX: number;
-        startY: number;
-    } | null>(null);
 
     const marginValue = getMarginValue();
     const viewMargin = getViewMargin();
@@ -50,7 +63,7 @@ const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pag
             currentTransformer.nodes([clickedNode]);
             currentTransformer.getLayer()?.batchDraw();
         }
-        setGlobalSelectIndex(pageIndex, groupIndex);
+        setSelectIndex({pageIndex, groupIndex});
     }
 
     const updateGroupShapes = useCallback((groupIndex: number, updatedShapes: ShapeData[]) => {
@@ -75,7 +88,7 @@ const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pag
         editQuestionButtonHandler(pageIndex, groupIndex);
     }
 
-    const round4 = (num: number) => Math.round((num + Number.EPSILON) * 10000) / 10000;
+    //const round4 = (num: number) => Math.round((num + Number.EPSILON) * 10000) / 10000;
 
     return (
         <Stage
@@ -94,7 +107,7 @@ const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pag
                     const transformer = transformerRef.current;
                     transformer?.nodes([]);
                     transformer?.getLayer()?.batchDraw();
-                    setGlobalSelectIndex(null, null);
+                    setSelectIndex({pageIndex: null, groupIndex: null});
                     return;
                 }
             }}
@@ -121,8 +134,6 @@ const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pag
                 )}
                 {groupShapes.map((shapes, groupIndex) => {
                     const focusGroupInfo = groupInfo[groupIndex];
-                    //console.log("to draw");
-                    //console.log(focusGroupInfo);
                     return (
                     <Group
                     key={`${pageIndex}-${groupIndex}`}
@@ -175,19 +186,19 @@ const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pag
                         }
                         
                         node.position({ x: newX, y: newY });
+                        window.dispatchEvent(new CustomEvent('shapeOnDrag', { detail: { x: Math.trunc(newX), y: Math.trunc(newY)} }));
                     }}
                     onTransform={(e) => {
-
+                        const node = e.target;
+                        window.dispatchEvent(new CustomEvent('shapeOnTransform', { detail: { width: Math.trunc(node.width() * node.scaleX()), height: Math.trunc(node.height() * node.scaleY())} }));
                     }}
                     onDragEnd={(e) => {
-                        console.log("drag end");
-                        console.log(groupInfo);
                         const node = e.target as Konva.Group;
                         const focusGroupInfo = groupInfo[groupIndex];
                         const newGroupInfo = {
                             ... focusGroupInfo,
-                            x: round4(node.x()),
-                            y: round4(node.y()),
+                            x: Math.trunc(node.x()),
+                            y: Math.trunc(node.y()),
                         } as stageGroupInfoData;
                         updateGroupInfo(groupIndex, newGroupInfo);
                         RENDER_PREVIEW();
@@ -198,18 +209,18 @@ const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pag
                         const scaleY = node.scaleY();
                         const updatedShapes = shapes.map((shape) => ({
                             ...shape,
-                            x: round4(shape.x * scaleX),
-                            y: round4(shape.y * scaleY),
-                            width: round4(shape.width * scaleX),
-                            height: round4(shape.height * scaleY),
+                            x: Math.trunc(shape.x * scaleX),
+                            y: Math.trunc(shape.y * scaleY),
+                            width: Math.trunc(shape.width * scaleX),
+                            height: Math.trunc(shape.height * scaleY),
                         }));
                         const focusGroupInfo = groupInfo[groupIndex];
                         const newGroupInfo = {
-                            widestX: round4(focusGroupInfo.widestX * scaleX),
-                            widestY: round4(focusGroupInfo.widestY * scaleY),
-                            x: round4(node.x()),
-                            y: round4(node.y()),
-                            rotation: round4(node.rotation())
+                            widestX: Math.trunc(focusGroupInfo.widestX * scaleX),
+                            widestY: Math.trunc(focusGroupInfo.widestY * scaleY),
+                            x: Math.trunc(node.x()),
+                            y: Math.trunc(node.y()),
+                            rotation: Math.trunc(node.rotation())
                         } as stageGroupInfoData;
                         node.scaleX(1);
                         node.scaleY(1);
