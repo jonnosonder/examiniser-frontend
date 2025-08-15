@@ -2,7 +2,7 @@
 // Copyright © 2025 Jonathan Kwok
 
 import { useEffect, useState } from 'react';
-import { getMarginValue, getViewMargin, setMarginValue, setViewMargin, getStagesBackground, setAllStagesBackground, RENDER_MAIN, pageElements, pageElementsInfo, stageGroupInfoData, getSpecificPageElementsInfo, subscribePreviewStage } from '@/lib/stageStore';
+import { getMarginValue, getViewMargin, setMarginValue, setViewMargin, getStagesBackground, setAllStagesBackground, RENDER_MAIN, stageGroupInfoData, getSpecificPageElementsInfo, pageElementsInfo, getSpecificStage, addToHistoryUndo, historyData } from '@/lib/stageStore';
 import ColorSelectorSection from '@/components/colorSelectorSection';
 import { useSelectRef } from './editorContextProvider';
 
@@ -150,6 +150,142 @@ export default function EditorSidePanel() {
     }
     */
 
+    const leftXAlignButtonHandler = () => {
+        const focusSelectIndex = selectIndex.current;
+        if (focusSelectIndex.pageIndex === null || focusSelectIndex.groupIndex === null || !groupInformation) { return; }
+
+        if (pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].x === 0) { return; }
+
+        const elementBefore = { ...pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex]};
+        pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].x = 0
+        setGroupInformation({
+            ...groupInformation,
+            x: 0,
+        } as stageGroupInfoData)
+        RENDER_MAIN();
+        addToHistoryUndo({
+            command: "info",
+            pageIndex: focusSelectIndex.pageIndex,
+            groupIndex: focusSelectIndex.groupIndex,
+            from: elementBefore,
+            to: pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex],
+        } as historyData);
+    }
+
+    const centerXAlignButtonHanlder = () => {
+        const focusSelectIndex = selectIndex.current;
+        if (focusSelectIndex.pageIndex === null || focusSelectIndex.groupIndex === null || !groupInformation) { return; }
+
+        const focusStage = getSpecificStage(focusSelectIndex.pageIndex);
+        const focusPageElementInfo = {...pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex]};
+        const newValue = focusStage.width/2 - focusPageElementInfo.widestX/2;
+        if (focusPageElementInfo.x === newValue) { return; }
+        pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].x = newValue;
+        setGroupInformation({
+            ...groupInformation,
+            x: newValue,
+        } as stageGroupInfoData)
+        RENDER_MAIN();
+        addToHistoryUndo({
+            command: "info",
+            pageIndex: focusSelectIndex.pageIndex,
+            groupIndex: focusSelectIndex.groupIndex,
+            from: focusPageElementInfo,
+            to: pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex],
+        } as historyData);
+    }
+
+    const rightXAlignButtonHanlder = () => {
+        const focusSelectIndex = selectIndex.current;
+        if (focusSelectIndex.pageIndex === null || focusSelectIndex.groupIndex === null || !groupInformation) { return; }
+
+        const focusStage = getSpecificStage(focusSelectIndex.pageIndex);
+        const focusPageElementInfo = {...pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex]};
+        const newValue = focusStage.width - focusPageElementInfo.widestX;
+        if (focusPageElementInfo.x === newValue) { return; }
+        pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].x = newValue;
+        setGroupInformation({
+            ...groupInformation,
+            x: newValue,
+        } as stageGroupInfoData)
+        RENDER_MAIN();
+        addToHistoryUndo({
+            command: "info",
+            pageIndex: focusSelectIndex.pageIndex,
+            groupIndex: focusSelectIndex.groupIndex,
+            from: focusPageElementInfo,
+            to: pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex],
+        } as historyData);
+    }
+
+    const topYAlignButtonHanlder = () => {
+        const focusSelectIndex = selectIndex.current;
+        if (focusSelectIndex.pageIndex === null || focusSelectIndex.groupIndex === null || !groupInformation) { return; }
+
+        if (pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].y === 0) { return; }
+        const elementBefore = {...pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex]};
+        pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].y = 0;
+        setGroupInformation({
+            ...groupInformation,
+            y: 0,
+        } as stageGroupInfoData)
+        RENDER_MAIN();
+        addToHistoryUndo({
+            command: "info",
+            pageIndex: focusSelectIndex.pageIndex,
+            groupIndex: focusSelectIndex.groupIndex,
+            from: elementBefore,
+            to: pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex],
+        } as historyData);
+    }
+
+    const centerYAlignButtonHanlder = () => {
+        const focusSelectIndex = selectIndex.current;
+        if (focusSelectIndex.pageIndex === null || focusSelectIndex.groupIndex === null || !groupInformation) { return; }
+
+        const focusStage = getSpecificStage(focusSelectIndex.pageIndex);
+        const focusPageElementInfo = {...pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex]};
+        const newValue = focusStage.height/2 - focusPageElementInfo.widestY/2;
+        if (focusPageElementInfo.y === newValue) { return; }
+        pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].y = newValue;
+        setGroupInformation({
+            ...groupInformation,
+            y: newValue,
+        } as stageGroupInfoData)
+        RENDER_MAIN();
+        addToHistoryUndo({
+            command: "info",
+            pageIndex: focusSelectIndex.pageIndex,
+            groupIndex: focusSelectIndex.groupIndex,
+            from: focusPageElementInfo,
+            to: pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex],
+        } as historyData);
+        
+    }
+
+    const bottomYAlignButtonHanlder = () => {
+        const focusSelectIndex = selectIndex.current;
+        if (focusSelectIndex.pageIndex === null || focusSelectIndex.groupIndex === null || !groupInformation) { return; }
+
+        const focusStage = getSpecificStage(focusSelectIndex.pageIndex);
+        const focusPageElementInfo = {...pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex]};
+        const newValue = focusStage.height - focusPageElementInfo.widestY;
+        if (focusPageElementInfo.y === newValue) { return; }
+        pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].y = newValue;
+        setGroupInformation({
+            ...groupInformation,
+            y: newValue,
+        } as stageGroupInfoData)
+        RENDER_MAIN();
+        addToHistoryUndo({
+            command: "info",
+            pageIndex: focusSelectIndex.pageIndex,
+            groupIndex: focusSelectIndex.groupIndex,
+            from: focusPageElementInfo,
+            to: pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex],
+        } as historyData);
+    }
+
     return (
         <div className='w-full h-full'>
             {selectIndex.current.pageIndex !== null && groupInformation !== null && (
@@ -157,8 +293,34 @@ export default function EditorSidePanel() {
                 <p className='p-2 pb-1 text-md'>Position</p>
 
                 <p className='p-2 pb-1 text-sm'>Align</p>
-                <div className='flex w-full px-4'>
-                    
+                <div className='flex flex-col px-4 w-full items-center justify-center space-y-2'>
+                    <div className='flex border border-grey shadow-sm rounded-md'>
+                        <button className='w-6 h-6 m-[3px]' onClick={leftXAlignButtonHandler}>
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="3.5" y1="21" x2="3.5" y2="3" stroke="black"/><rect x="6" y="6" width="15" height="4" fill="black"/><rect x="6" y="14" width="10" height="4" fill="black"/></svg>
+                        </button>
+                        <span className='w-[1px] bg-grey' />
+                        <button className='w-6 h-6 m-[3px]' onClick={centerXAlignButtonHanlder}>
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="12" y1="21" x2="12" y2="3" stroke="black"/><rect x="4.5" y="6" width="15" height="4" fill="black"/><rect x="7" y="14" width="10" height="4" fill="black"/></svg>
+                        </button>
+                        <span className='w-[1px] bg-grey' />
+                        <button className='w-6 h-6 m-[3px]' onClick={rightXAlignButtonHanlder}>
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="20.5" y1="21" x2="20.5" y2="3" stroke="black"/><rect x="3" y="6" width="15" height="4" fill="black"/><rect x="8" y="14" width="10" height="4" fill="black"/></svg>
+                        </button>
+                    </div>
+
+                    <div className='flex border border-grey shadow-sm rounded-md'>
+                        <button className='w-6 h-6 m-[3px]' onClick={topYAlignButtonHanlder}>
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="3" y1="3.5" x2="21" y2="3.5" stroke="black"/><rect x="6" y="21" width="15" height="4" transform="rotate(-90 6 21)" fill="black"/><rect x="14" y="16" width="10" height="4" transform="rotate(-90 14 16)" fill="black"/></svg>
+                        </button>
+                        <span className='w-[1px] bg-grey' />
+                        <button className='w-6 h-6 m-[3px]' onClick={centerYAlignButtonHanlder}>
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="3" y1="12" x2="21" y2="12" stroke="black"/><rect x="6" y="19.5" width="15" height="4" transform="rotate(-90 6 19.5)" fill="black"/><rect x="14" y="17" width="10" height="4" transform="rotate(-90 14 17)" fill="black"/></svg>
+                        </button>
+                        <span className='w-[1px] bg-grey' />
+                        <button className='w-6 h-6 m-[3px]' onClick={bottomYAlignButtonHanlder}>                    
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="3" y1="20.5" x2="21" y2="20.5" stroke="black"/><rect x="6" y="18" width="15" height="4" transform="rotate(-90 6 18)" fill="black"/><rect x="14" y="18" width="10" height="4" transform="rotate(-90 14 18)" fill="black"/></svg>
+                        </button>
+                    </div>
                 </div>
 
                 <p className='p-2 pb-1 text-sm'>Position</p>

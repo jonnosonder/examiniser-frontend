@@ -6,7 +6,7 @@ import Konva from "konva";
 import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Group, Layer, Rect, Stage, Transformer } from "react-konva";
 import DrawElement from "./drawElement";
-import { getMarginValue, getViewMargin, pageElements, pageElementsInfo, RENDER_PREVIEW,  StageData, stageGroupInfoData } from "@/lib/stageStore";
+import { addToHistoryUndo, getMarginValue, getViewMargin, historyData, pageElements, pageElementsInfo, RENDER_PREVIEW,  StageData, stageGroupInfoData } from "@/lib/stageStore";
 import { KonvaEventObject, Node, NodeConfig } from "konva/lib/Node";
 import { useSelectRef } from "./editorContextProvider";
 
@@ -101,7 +101,17 @@ const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pag
             style={{
                 transformOrigin: 'top left',
             }}
-            onMouseDown={(e) => {
+            onClick={(e) => {
+                const target = e.target as Konva.Node;
+                if (target.id() === "background-rect") {
+                    const transformer = transformerRef.current;
+                    transformer?.nodes([]);
+                    transformer?.getLayer()?.batchDraw();
+                    setSelectIndex({pageIndex: null, groupIndex: null});
+                    return;
+                }
+            }}
+            onTap={(e) => {
                 const target = e.target as Konva.Node;
                 if (target.id() === "background-rect") {
                     const transformer = transformerRef.current;
@@ -202,6 +212,13 @@ const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pag
                         } as stageGroupInfoData;
                         updateGroupInfo(groupIndex, newGroupInfo);
                         RENDER_PREVIEW();
+                        addToHistoryUndo({
+                            command: "info",
+                            pageIndex: pageIndex,
+                            groupIndex: groupIndex,
+                            from: groupInfo[groupIndex],
+                            to: newGroupInfo,
+                        } as historyData);
                     }}
                     onTransformEnd={(e) => {
                         const node = e.target as Konva.Group;
@@ -227,6 +244,15 @@ const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pag
                         updateGroupShapes(groupIndex, updatedShapes);
                         updateGroupInfo(groupIndex, newGroupInfo);
                         RENDER_PREVIEW();
+                        addToHistoryUndo({
+                            command: "info-contents",
+                            pageIndex: pageIndex,
+                            groupIndex: groupIndex,
+                            from: groupInfo[groupIndex],
+                            to: newGroupInfo,
+                            contentsFrom: shapes,
+                            contentsTo: updatedShapes
+                        } as historyData);
                     }}
                     >
                     <Rect

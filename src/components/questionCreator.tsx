@@ -10,7 +10,7 @@ import { Stage, Layer } from 'react-konva';
 import CanvasElements from '@/components/canvasElements'
 import CustomContextMenu from '@/components/customContextMenu';
 import { ShapeData } from '@/lib/shapeData';
-import { addPageElement, addPageElementsInfo, deletePageElement, deletePageElementInfo, getEstimatedPage, getSpecificPageElementsInfo, getStageDimension, RENDER_PAGE, setPageElement, setPageElementsInfo } from '@/lib/stageStore';
+import { addPageElement, addPageElementsInfo, addToHistoryUndo, deletePageElement, deletePageElementInfo, getEstimatedPage, getSpecificPageElementsInfo, getStageDimension, historyData, pageElementsInfo, RENDER_PAGE, setPageElement, setPageElementsInfo, stageGroupInfoData } from '@/lib/stageStore';
 import ColorSelectorSection from '@/components/colorSelectorSection';
 import { KonvaEventObject } from 'konva/lib/Node';
 import Advert from './advert';
@@ -42,7 +42,6 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
     const [displayStrokeColorSelector, setDisplayStrokeColorSelector] = useState<boolean>(false);
     const toggleDisplayStrokeColorSelector = () => {setDisplayStrokeColorSelector(!displayStrokeColorSelector); if (!displayStrokeColorSelector && displayFillColorSelector) {setDisplayFillColorSelector(false)}}
     
-
     const [parameterPanelIndex, setParameterPanelIndex] = useState<Set<number>>(new Set([1]));
     const toggleParameterPanelSection = (index:number) => {
         setParameterPanelIndex(prev => {
@@ -58,6 +57,12 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
     const checkParameterPanelSection = (index: number): boolean => {
         return parameterPanelIndex.has(index);
     };
+
+    const [initalShapes, setInitalShapes] = useState<ShapeData[]>([]);
+
+    useEffect(() => {
+        setInitalShapes(shapes);
+    }, [])
 
     useEffect(() => {
         if (selectedId) {
@@ -366,14 +371,26 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
 
         if (newQuestionCreating) {
             const pageOn = getEstimatedPage();
-            addPageElementsInfo({widestX, widestY, x:0, y:0, rotation:0}, pageOn);
+            addPageElementsInfo({widestX, widestY, x:0, y:0, rotation:0} as stageGroupInfoData, pageOn);
             addPageElement(shapes, pageOn);
             console.log(shapes);
         } else {
             if (questionEditingID.page !== null && questionEditingID.groupID !== null) {
                 const previousGroupInfo = getSpecificPageElementsInfo(questionEditingID.page, questionEditingID.groupID);
-                setPageElementsInfo({widestX, widestY, x:previousGroupInfo.x, y:previousGroupInfo.y, rotation: previousGroupInfo.rotation}, questionEditingID.page, questionEditingID.groupID);
+                const newGroupInfo = {widestX, widestY, x:previousGroupInfo.x, y:previousGroupInfo.y, rotation: previousGroupInfo.rotation} as stageGroupInfoData;
+                setPageElementsInfo(newGroupInfo, questionEditingID.page, questionEditingID.groupID);
                 setPageElement(shapes, questionEditingID.page, questionEditingID.groupID);
+                
+                addToHistoryUndo({
+                    command: "info-contents",
+                    pageIndex: questionEditingID.page,
+                    groupIndex: questionEditingID.groupID,
+                    from: previousGroupInfo,
+                    to: newGroupInfo,
+                    contentsFrom: initalShapes,
+                    contentsTo: shapes
+                } as historyData);
+
             }
         }
         RENDER_PAGE();
