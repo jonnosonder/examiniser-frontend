@@ -5,11 +5,20 @@ import { useEffect, useState } from 'react';
 import { getMarginValue, getViewMargin, setMarginValue, setViewMargin, getStagesBackground, setAllStagesBackground, RENDER_MAIN, stageGroupInfoData, getSpecificPageElementsInfo, pageElementsInfo, getSpecificStage, addToHistoryUndo, historyData } from '@/lib/stageStore';
 import ColorSelectorSection from '@/components/colorSelectorSection';
 import { useSelectRef } from './editorContextProvider';
+import { IRect } from 'konva/lib/types';
 
-type shapeOnDragType = {
+type shapeXY = {
     x: number;
     y: number;
 }
+
+type shapeXYWH = {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
+
 
 type shapeOnTransformType = {
     width: number;
@@ -30,6 +39,7 @@ export default function EditorSidePanel() {
     const { selectIndex } = useSelectRef();
 
     const [groupInformation, setGroupInformation] = useState<stageGroupInfoData | null>(null);
+    const [groupClientRect, setGroupClientRect] = useState<shapeXYWH | null>(null);
 
     useEffect(() => {
         const handleChange = () => {
@@ -57,7 +67,8 @@ export default function EditorSidePanel() {
 
     useEffect(() => {
         const handler = (e: Event) => {
-            const customEvent = e as CustomEvent<shapeOnDragType>;
+            console.log("recived drag data");
+            const customEvent = e as CustomEvent<shapeXY>;
             setGroupInformation({
                 ...groupInformation,
                 x: customEvent.detail.x,
@@ -73,6 +84,7 @@ export default function EditorSidePanel() {
 
     useEffect(() => {
         const handler = (e: Event) => {
+            console.log("recived transform data");
             const customEvent = e as CustomEvent<shapeOnTransformType>;
             setGroupInformation({
                 ...groupInformation,
@@ -84,6 +96,19 @@ export default function EditorSidePanel() {
         window.addEventListener('shapeOnTransform', handler);
         return () => {
             window.removeEventListener('shapeOnTransform', handler);
+        };
+    }, []);
+
+    useEffect(() => {
+        const handler = (e: Event) => {
+            console.log("recived shape client rect data");
+            const customEvent = e as CustomEvent<shapeXYWH>;
+            setGroupClientRect(customEvent.detail as shapeXYWH);
+        };
+
+        window.addEventListener('shapeClientRect', handler);
+        return () => {
+            window.removeEventListener('shapeClientRect', handler);
         };
     }, []);
 
@@ -152,33 +177,39 @@ export default function EditorSidePanel() {
 
     const leftXAlignButtonHandler = () => {
         const focusSelectIndex = selectIndex.current;
-        if (focusSelectIndex.pageIndex === null || focusSelectIndex.groupIndex === null || !groupInformation) { return; }
+        if (focusSelectIndex.pageIndex === null || focusSelectIndex.groupIndex === null || !groupInformation || !groupClientRect) { return; }
 
         if (pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].x === 0) { return; }
 
         const elementBefore = { ...pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex]};
-        pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].x = 0
+        const shift = Math.round(elementBefore.x - groupClientRect.x);
+        pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].x = shift;
         setGroupInformation({
             ...groupInformation,
-            x: 0,
-        } as stageGroupInfoData)
+            x: shift,
+        } as stageGroupInfoData);
         RENDER_MAIN();
+        setGroupClientRect({
+            ...groupClientRect,
+            x: 0,
+        });
         addToHistoryUndo({
             command: "info",
             pageIndex: focusSelectIndex.pageIndex,
             groupIndex: focusSelectIndex.groupIndex,
             from: elementBefore,
-            to: pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex],
+            to: {...pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex]},
         } as historyData);
     }
 
     const centerXAlignButtonHanlder = () => {
         const focusSelectIndex = selectIndex.current;
-        if (focusSelectIndex.pageIndex === null || focusSelectIndex.groupIndex === null || !groupInformation) { return; }
+        if (focusSelectIndex.pageIndex === null || focusSelectIndex.groupIndex === null || !groupInformation || !groupClientRect) { return; }
 
         const focusStage = getSpecificStage(focusSelectIndex.pageIndex);
         const focusPageElementInfo = {...pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex]};
-        const newValue = focusStage.width/2 - focusPageElementInfo.widestX/2;
+        const shift = Math.round(groupClientRect.x - focusPageElementInfo.x);
+        const newValue = focusStage.width/2 - focusPageElementInfo.widestX/2 - shift/2;
         if (focusPageElementInfo.x === newValue) { return; }
         pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].x = newValue;
         setGroupInformation({
@@ -186,22 +217,29 @@ export default function EditorSidePanel() {
             x: newValue,
         } as stageGroupInfoData)
         RENDER_MAIN();
+        setGroupClientRect({
+            ...groupClientRect,
+            x: focusStage.width/2 - groupClientRect.width/2,
+        });
         addToHistoryUndo({
             command: "info",
             pageIndex: focusSelectIndex.pageIndex,
             groupIndex: focusSelectIndex.groupIndex,
             from: focusPageElementInfo,
-            to: pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex],
+            to: {...pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex]},
         } as historyData);
     }
 
     const rightXAlignButtonHanlder = () => {
+        console.log(groupClientRect);
         const focusSelectIndex = selectIndex.current;
-        if (focusSelectIndex.pageIndex === null || focusSelectIndex.groupIndex === null || !groupInformation) { return; }
+        if (focusSelectIndex.pageIndex === null || focusSelectIndex.groupIndex === null || !groupInformation || !groupClientRect) { return; }
 
         const focusStage = getSpecificStage(focusSelectIndex.pageIndex);
         const focusPageElementInfo = {...pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex]};
-        const newValue = focusStage.width - focusPageElementInfo.widestX;
+        const shiftX = Math.round(groupClientRect.x - focusPageElementInfo.x);
+        const shiftWidth = Math.round(groupClientRect.width - focusPageElementInfo.widestX);
+        const newValue = focusStage.width - focusPageElementInfo.widestX - shiftWidth - shiftX;
         if (focusPageElementInfo.x === newValue) { return; }
         pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].x = newValue;
         setGroupInformation({
@@ -209,33 +247,42 @@ export default function EditorSidePanel() {
             x: newValue,
         } as stageGroupInfoData)
         RENDER_MAIN();
+        setGroupClientRect({
+            ...groupClientRect,
+            x: focusStage.width - groupClientRect.width,
+        });
         addToHistoryUndo({
             command: "info",
             pageIndex: focusSelectIndex.pageIndex,
             groupIndex: focusSelectIndex.groupIndex,
             from: focusPageElementInfo,
-            to: pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex],
+            to: {...pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex]},
         } as historyData);
     }
 
     const topYAlignButtonHanlder = () => {
         const focusSelectIndex = selectIndex.current;
-        if (focusSelectIndex.pageIndex === null || focusSelectIndex.groupIndex === null || !groupInformation) { return; }
+        if (focusSelectIndex.pageIndex === null || focusSelectIndex.groupIndex === null || !groupInformation || !groupClientRect) { return; }
 
         if (pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].y === 0) { return; }
         const elementBefore = {...pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex]};
-        pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].y = 0;
+        const shift = Math.round(elementBefore.y - groupClientRect.y);
+        pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].y = shift;
         setGroupInformation({
             ...groupInformation,
+            y: shift,
+        } as stageGroupInfoData);
+        setGroupClientRect({
+            ...groupClientRect,
             y: 0,
-        } as stageGroupInfoData)
+        });
         RENDER_MAIN();
         addToHistoryUndo({
             command: "info",
             pageIndex: focusSelectIndex.pageIndex,
             groupIndex: focusSelectIndex.groupIndex,
             from: elementBefore,
-            to: pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex],
+            to: {...pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex]},
         } as historyData);
     }
 
@@ -258,7 +305,7 @@ export default function EditorSidePanel() {
             pageIndex: focusSelectIndex.pageIndex,
             groupIndex: focusSelectIndex.groupIndex,
             from: focusPageElementInfo,
-            to: pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex],
+            to: {...pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex]},
         } as historyData);
         
     }
@@ -282,7 +329,7 @@ export default function EditorSidePanel() {
             pageIndex: focusSelectIndex.pageIndex,
             groupIndex: focusSelectIndex.groupIndex,
             from: focusPageElementInfo,
-            to: pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex],
+            to: {...pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex]},
         } as historyData);
     }
 

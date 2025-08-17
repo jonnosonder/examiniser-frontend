@@ -137,7 +137,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [selectedId, isAnInputActive])
+    }, [selectedId, isAnInputActive]);
 
     useEffect(() => {
         const shape = shapes.find(shape => shape.id === selectedId);
@@ -325,6 +325,8 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
             }
         }
 
+        if (shapes === initalShapes) { return; }
+
         let shiftX:number = Infinity;
         let shiftY:number = Infinity;
         let widestX:number = 0;
@@ -371,9 +373,17 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
 
         if (newQuestionCreating) {
             const pageOn = getEstimatedPage();
-            addPageElementsInfo({widestX, widestY, x:0, y:0, rotation:0} as stageGroupInfoData, pageOn);
+            const newGroupInfo = {widestX, widestY, x:0, y:0, rotation:0} as stageGroupInfoData;
+            addPageElementsInfo(newGroupInfo, pageOn);
             addPageElement(shapes, pageOn);
-            console.log(shapes);
+            addToHistoryUndo({
+                command: "create",
+                pageIndex: pageOn,
+                groupIndex: pageElementsInfo[pageOn].length-1,
+                from: {},
+                to: newGroupInfo,
+                contentsTo: shapes
+            } as historyData);
         } else {
             if (questionEditingID.page !== null && questionEditingID.groupID !== null) {
                 const previousGroupInfo = getSpecificPageElementsInfo(questionEditingID.page, questionEditingID.groupID);

@@ -26,6 +26,8 @@ const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pag
     const [groupInfo, setGroupInfo] = useState<stageGroupInfoData[]>(pageGroupsInfo);
 
     const { selectIndex, setSelectIndex } = useSelectRef();
+    
+    const inverseStageScale = 1 / stageScale;
 
     useEffect(() => {
         const handleChange = () => {
@@ -62,6 +64,9 @@ const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pag
         if (currentTransformer && clickedNode && clickedNode.getType() === "Group") {
             currentTransformer.nodes([clickedNode]);
             currentTransformer.getLayer()?.batchDraw();
+            const clientRect = clickedNode.getClientRect({ skipTransform: false });
+            const newShapeClientRect = {x: clientRect.x * inverseStageScale, y: clientRect.y * inverseStageScale, width: clientRect.width * inverseStageScale, height: clientRect.height * inverseStageScale};
+            window.dispatchEvent(new CustomEvent('shapeClientRect', {  detail: newShapeClientRect }));
         }
         setSelectIndex({pageIndex, groupIndex});
     }
@@ -170,7 +175,7 @@ const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pag
 
                         const box = node.getClientRect({ skipTransform: false });
 
-                        const inverseStageScale = 1 / stageScale;
+                        
                         const box_x = box.x * inverseStageScale;
                         const box_y = box.y * inverseStageScale;
                         const box_width =  box.width * inverseStageScale;
@@ -200,7 +205,9 @@ const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pag
                     }}
                     onTransform={(e) => {
                         const node = e.target;
-                        window.dispatchEvent(new CustomEvent('shapeOnTransform', { detail: { width: Math.trunc(node.width() * node.scaleX()), height: Math.trunc(node.height() * node.scaleY())} }));
+                        const clientRect = node.getClientRect();
+                        const newShapeClientRect = {x: clientRect.x * inverseStageScale, y: clientRect.y * inverseStageScale, width: clientRect.width, height: clientRect.height};
+                        window.dispatchEvent(new CustomEvent('shapeClientRect', {  detail: newShapeClientRect }));
                     }}
                     onDragEnd={(e) => {
                         const node = e.target as Konva.Group;
@@ -219,6 +226,9 @@ const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pag
                             from: groupInfo[groupIndex],
                             to: newGroupInfo,
                         } as historyData);
+                        const clientRect = node.getClientRect();
+                        const newShapeClientRect = {x: clientRect.x * inverseStageScale, y: clientRect.y * inverseStageScale, width: clientRect.width * inverseStageScale, height: clientRect.height * inverseStageScale};
+                        window.dispatchEvent(new CustomEvent('shapeClientRect', {  detail: newShapeClientRect }));
                     }}
                     onTransformEnd={(e) => {
                         const node = e.target as Konva.Group;
@@ -253,6 +263,9 @@ const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pag
                             contentsFrom: shapes,
                             contentsTo: updatedShapes
                         } as historyData);
+                        const clientRect = node.getClientRect();
+                        const newShapeClientRect = {x: clientRect.x * inverseStageScale, y: clientRect.y * inverseStageScale, width: clientRect.width * inverseStageScale, height: clientRect.height * inverseStageScale};
+                        window.dispatchEvent(new CustomEvent('shapeClientRect', {  detail: newShapeClientRect }));
                     }}
                     >
                     <Rect

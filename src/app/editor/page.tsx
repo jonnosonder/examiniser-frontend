@@ -86,6 +86,17 @@ function EditorPage() {
     }, []);
 
     useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Delete' && selectIndex.current.pageIndex !== null && selectIndex.current.groupIndex !== null) {
+                
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
+
+    useEffect(() => {
         if (stagesLength() === 0 && !fileUploaded){
             if (pageFormatData?.newProject != null && pageFormatData?.projectName != null ) {
                 setProjectNameValue(pageFormatData.projectName);
@@ -510,11 +521,12 @@ function EditorPage() {
                     </button>
                 </div>
                 <div className='flex w-[12rem] h-full items-start justify-start overflow-y-auto'>
-                {leftSidePanelToggle ? (
-                    <AllStages previewStyle={true}/>
-                ) : (
-                    <EditorSidePanel />
-                )}
+                    <div className={leftSidePanelToggle ? 'flex w-full h-full' : 'hidden w-0 h-0'}>
+                        <AllStages previewStyle={true}/>
+                    </div>
+                    <div className={!leftSidePanelToggle ? 'flex w-full h-full' : 'hidden w-0 h-0'}>
+                        <EditorSidePanel />
+                    </div>
                 </div>
             </div>
             <div className="flex relative bg-grey w-full items-center justify-center">

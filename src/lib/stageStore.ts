@@ -262,6 +262,8 @@ export function setPageElementsInfoHeight(newWidestY: number, page: number, grou
 };
 
 export function deletePageElementInfo(page: number, groupID: number) {
+  console.log(pageElementsInfo);
+  console.log(page + " - " + groupID);
   pageElementsInfo[page].splice(groupID, 1);
 };
 
@@ -278,7 +280,12 @@ export function groupsOnPage(page: number) {
 //////////////////////////////////////////////////////////////
 
 export function getEstimatedPage():number {
-  return estimatedPage;
+  if (!isNaN(estimatedPage)) {
+    return estimatedPage;
+  } else {
+    return 0;
+  }
+  
 };
 
 export function setEstimatedPage(page: number) {
@@ -312,9 +319,13 @@ export function restoreHistoryUndo() {
         }
         break;
       case "create":
+        deletePageElementInfo(front.pageIndex,front.groupIndex);
+        deletePageElement(front.pageIndex, front.groupIndex);
+        break;
+      case "delete":
         if (front.contentsFrom){ 
-          deletePageElementInfo(front.pageIndex,front.groupIndex);
-          deletePageElement(front.pageIndex, front.groupIndex);
+          addPageElementsInfo(front.from, front.pageIndex);
+          addPageElement(front.contentsFrom, front.pageIndex);
         }
         break;
     }
@@ -342,7 +353,11 @@ export function restoreHistoryRedo() {
           addPageElementsInfo(front.to, front.pageIndex);
           addPageElement(front.contentsTo, front.pageIndex);
         }
-        front.groupIndex = pageElementsInfo[front.pageIndex].length;
+        front.groupIndex = pageElementsInfo[front.pageIndex].length-1;
+        break;
+      case "delete":
+        deletePageElementInfo(front.pageIndex,front.groupIndex);
+        deletePageElement(front.pageIndex, front.groupIndex);
         break;
     }
     stageHistoryUndo.push(front);
