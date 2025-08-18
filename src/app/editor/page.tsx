@@ -10,7 +10,7 @@ import AllStages from '@/components/allStages';
 import HoverExplainButton from '@/components/hoverExplainButton';
 import '@/styles/editor.css';
 
-import { addPageElement, addPageElementsInfo, addStage, addStageCopyPrevious, deleteAll, duplicatePageElement, duplicatePageElementsInfo, getEstimatedPage, getPageElements, RENDER_PAGE, restoreHistoryRedo, restoreHistoryUndo, stagesLength } from '@/lib/stageStore';
+import { addPageElement, addPageElementsInfo, addStage, addStageCopyPrevious, deleteAll, duplicatePageElement, duplicatePageElementsInfo, getEstimatedPage, getPageElements, RENDER_PAGE, RENDER_PREVIEW, restoreHistoryRedo, restoreHistoryUndo, stagesLength } from '@/lib/stageStore';
 import QuestionCreator from '@/components/questionCreator';
 import { ShapeData } from '@/lib/shapeData';
 import EditorSidePanel from '@/components/editorSidePanel';
@@ -68,6 +68,10 @@ function EditorPage() {
             setManualScaler(manualScaler - 0.1);
         }
     }
+
+    useEffect(() => {
+        if (leftSidePanelToggle) { RENDER_PREVIEW() ;}
+    }, [leftSidePanelToggle])
 
     const { selectIndex } = useSelectRef();
 
@@ -507,7 +511,7 @@ function EditorPage() {
         <div className="w-full h-full flex overflow-hidden">
             <div className='flex flex-col h-full w-[12rem]'>
                 <div className='flex w-full'>
-                    <button className='flex flex-col flex-1 p-1 border border-grey border-l-0 text-center items-center justify-center' onClick={() => setLeftSidePanelToggle(true)}>
+                    <button className='flex flex-col flex-1 p-1 border border-grey border-l-0 text-center items-center justify-center' onClick={() => {setLeftSidePanelToggle(true);}}>
                         Preview
                         <div className={`flex w-full justify-center`}>
                             <div className={`mx-2 ${leftSidePanelToggle ? 'w-full' : 'w-0'} bg-accent h-1 rounded-full transition-all duration-300`}></div>

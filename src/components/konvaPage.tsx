@@ -205,9 +205,8 @@ const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pag
                     }}
                     onTransform={(e) => {
                         const node = e.target;
-                        const clientRect = node.getClientRect();
-                        const newShapeClientRect = {x: clientRect.x * inverseStageScale, y: clientRect.y * inverseStageScale, width: clientRect.width, height: clientRect.height};
-                        window.dispatchEvent(new CustomEvent('shapeClientRect', {  detail: newShapeClientRect }));
+                        const newShapeClientRect = {width: Math.round(node.width() * node.scaleX()), height: Math.round(node.height() * node.scaleY()), rotation: Math.round(node.rotation())};
+                        window.dispatchEvent(new CustomEvent('shapeOnTransform', {  detail: newShapeClientRect }));
                     }}
                     onDragEnd={(e) => {
                         const node = e.target as Konva.Group;
@@ -238,16 +237,16 @@ const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pag
                             ...shape,
                             x: Math.trunc(shape.x * scaleX),
                             y: Math.trunc(shape.y * scaleY),
-                            width: Math.trunc(shape.width * scaleX),
-                            height: Math.trunc(shape.height * scaleY),
+                            width: Math.round(shape.width * scaleX),
+                            height: Math.round(shape.height * scaleY),
                         }));
                         const focusGroupInfo = groupInfo[groupIndex];
                         const newGroupInfo = {
-                            widestX: Math.trunc(focusGroupInfo.widestX * scaleX),
-                            widestY: Math.trunc(focusGroupInfo.widestY * scaleY),
+                            widestX: Math.round(focusGroupInfo.widestX * scaleX),
+                            widestY: Math.round(focusGroupInfo.widestY * scaleY),
                             x: Math.trunc(node.x()),
                             y: Math.trunc(node.y()),
-                            rotation: Math.trunc(node.rotation())
+                            rotation: Math.round(node.rotation())
                         } as stageGroupInfoData;
                         node.scaleX(1);
                         node.scaleY(1);
@@ -264,8 +263,10 @@ const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pag
                             contentsTo: updatedShapes
                         } as historyData);
                         const clientRect = node.getClientRect();
-                        const newShapeClientRect = {x: clientRect.x * inverseStageScale, y: clientRect.y * inverseStageScale, width: clientRect.width * inverseStageScale, height: clientRect.height * inverseStageScale};
+                        const newShapeClientRect = {x: clientRect.x * inverseStageScale, y: clientRect.y * inverseStageScale, width: clientRect.width * scaleX * inverseStageScale, height: clientRect.height * scaleY * inverseStageScale};
                         window.dispatchEvent(new CustomEvent('shapeClientRect', {  detail: newShapeClientRect }));
+                        window.dispatchEvent(new CustomEvent('shapeOnDrag', { detail: { x: newGroupInfo.x, y: newGroupInfo.y} }));
+                        window.dispatchEvent(new CustomEvent('shapeOnTransform', {  detail: {width: newGroupInfo.widestX, height: newGroupInfo.widestY, rotation: newGroupInfo.rotation} }));
                     }}
                     >
                     <Rect
