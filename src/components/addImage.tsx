@@ -80,7 +80,7 @@ export const AddImage: React.FC<AddImageProps>  = ({onClose, showAdvert, mainPag
 
                     if (mainPageMode) { 
                         addPageElement([newImageShape], pageToAddOn);
-                        addPageElementsInfo({widestX: image.width, widestY: image.height, x: 0, y: 0, rotation: 0}, pageToAddOn);
+                        addPageElementsInfo({id: "g-"+Date.now(), widestX: image.width, widestY: image.height, x: 0, y: 0, rotation: 0}, pageToAddOn);
                         RENDER_PAGE();
                     } else {
                         setShapes?.(prevShapes => [...prevShapes, newImageShape]);
@@ -155,7 +155,7 @@ export const AddImage: React.FC<AddImageProps>  = ({onClose, showAdvert, mainPag
 
                         if (mainPageMode) { 
                             addPageElement([newImageShape], pageToAddOn);
-                            addPageElementsInfo({widestX: img.width, widestY: img.height, x:0, y:0, rotation: 0}, pageToAddOn);
+                            addPageElementsInfo({id: "g-"+Date.now(), widestX: img.width, widestY: img.height, x:0, y:0, rotation: 0}, pageToAddOn);
                             RENDER_PAGE();
                         } else {
                             setShapes?.(prevShapes => [...prevShapes, newImageShape]);
@@ -246,7 +246,7 @@ export const AddImage: React.FC<AddImageProps>  = ({onClose, showAdvert, mainPag
 
     return (
         <div className='absolute flex z-20 w-screen h-screen bg-opacity-50 backdrop-blur-sm items-center justify-center left-0 top-0 right-0'>
-            <div className="flex flex-col bg-background border border-grey space-y-4 p-2 rounded-lg max-h-[80%]">
+            <div className="flex flex-col bg-background border border-grey space-y-4 p-2 shadow-md rounded-lg max-h-[80%]">
                 <div className="flex w-full items-center justify-between">
                     <h2 className="p-2">Add Image</h2>
                     <button className='p-2 m-0 ' onClick={onClose}>

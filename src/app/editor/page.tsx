@@ -10,7 +10,7 @@ import AllStages from '@/components/allStages';
 import HoverExplainButton from '@/components/hoverExplainButton';
 import '@/styles/editor.css';
 
-import { addPageElement, addPageElementsInfo, addStage, addStageCopyPrevious, deleteAll, duplicatePageElement, duplicatePageElementsInfo, getEstimatedPage, getPageElements, RENDER_PAGE, RENDER_PREVIEW, restoreHistoryRedo, restoreHistoryUndo, stagesLength } from '@/lib/stageStore';
+import { addPageElement, addPageElementsInfo, addStage, addStageCopyPrevious, deleteAll, deletePageElement, deletePageElementInfo, duplicatePageElement, duplicatePageElementsInfo, getEstimatedPage, getPageElements, getSpecificStage, RENDER_PAGE, RENDER_PREVIEW, restoreHistoryRedo, restoreHistoryUndo, stagesLength } from '@/lib/stageStore';
 import QuestionCreator from '@/components/questionCreator';
 import { ShapeData } from '@/lib/shapeData';
 import EditorSidePanel from '@/components/editorSidePanel';
@@ -73,7 +73,7 @@ function EditorPage() {
         if (leftSidePanelToggle) { RENDER_PREVIEW() ;}
     }, [leftSidePanelToggle])
 
-    const { selectIndex } = useSelectRef();
+    const { selectIndex, setSelectIndex } = useSelectRef();
 
     useEffect(() => {
         const handleChange = () => {
@@ -91,8 +91,16 @@ function EditorPage() {
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Delete' && selectIndex.current.pageIndex !== null && selectIndex.current.groupIndex !== null) {
-                
+            const pageIndex = selectIndex.current.pageIndex;
+            const groupIndex = selectIndex.current.groupIndex;
+            if (e.key === 'Delete' && pageIndex !== null && groupIndex !== null) {
+                deletePageElement(pageIndex, groupIndex);
+                deletePageElementInfo(pageIndex, groupIndex);
+                RENDER_PAGE();
+                const transformer = getSpecificStage(pageIndex).transformerRef?.current;
+                transformer?.nodes([]);
+                transformer?.getLayer()?.batchDraw();
+                setSelectIndex({pageIndex: null, groupIndex: null});
             }
         };
 
@@ -156,7 +164,7 @@ function EditorPage() {
                                 cornerRadius: 0,
                             };
                             addPageElement([newImageShape], pageNumber);
-                            addPageElementsInfo({x: element.x, y: element.y, widestX: element.width, widestY: element.height, rotation: 0}, pageNumber);
+                            addPageElementsInfo({id: "g-"+Date.now(), x: element.x, y: element.y, widestX: element.width, widestY: element.height, rotation: 0}, pageNumber);
                     resolve(null)
                 };
                 img.onerror = (err) => reject(err);
@@ -221,6 +229,7 @@ function EditorPage() {
                                 height: element.height,
                                 rotation: 0,
                                 fontSize: element.font_size,
+                                fontFamily: element.font_family,
                                 fill: element.fill,
                                 background:  '',
                                 stroke: element.stroke,
@@ -230,7 +239,7 @@ function EditorPage() {
                                 borderWeight: 0,
                             };
                             addPageElement([newText], pageNumber);
-                            addPageElementsInfo({x: element.x, y: element.y, widestX: element.width, widestY: element.height, rotation: 0}, pageNumber);
+                            addPageElementsInfo({id: "g-"+Date.now(), x: element.x, y: element.y, widestX: element.width, widestY: element.height, rotation: 0}, pageNumber);
                             break;
                         case "img":
                             imagePromises.push(loadImage(pageNumber, elementIndex, element));
@@ -250,7 +259,7 @@ function EditorPage() {
                                 data: element.path,
                             };
                             addPageElement([newPath], pageNumber);
-                            addPageElementsInfo({x: element.x, y: element.y, widestX: element.width, widestY: element.height, rotation: 0}, pageNumber);
+                            addPageElementsInfo({id: "g-"+Date.now(), x: element.x, y: element.y, widestX: element.width, widestY: element.height, rotation: 0}, pageNumber);
                             break;
                     }
                 })
@@ -361,7 +370,7 @@ function EditorPage() {
             handleQuestionCreatorOpen();
             //selectedQuestionId.current = {page: null, groupID: null, transformerRef: useRef(null)};
         } else {
-            notify('info', 'Please select an element');
+            notify('info', 'Please select or double click an element');
         }
     }
 
@@ -389,6 +398,7 @@ function EditorPage() {
             x: 0,
             y: 0,
             text: 'Double Click to Edit!',
+            fontFamily: 'Inter-400',
             width: 570,
             height: 60,
             rotation: 0,
@@ -401,7 +411,7 @@ function EditorPage() {
             border: "",
             borderWeight: 0,
         };
-        addPageElementsInfo({widestX: newText.width, widestY: newText.height, x:0, y:0, rotation: 0}, pageToAddIt);
+        addPageElementsInfo({id: "g-"+Date.now(), widestX: newText.width, widestY: newText.height, x:0, y:0, rotation: 0}, pageToAddIt);
         addPageElement([newText], pageToAddIt);
         RENDER_PAGE();
     }

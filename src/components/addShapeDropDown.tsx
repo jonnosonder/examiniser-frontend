@@ -3,7 +3,7 @@
 
 'use client';
 import { ShapeData } from '@/lib/shapeData';
-import { addPageElement, addPageElementsInfo, getEstimatedPage, getSpecificStage, newShapeSizePercent, RENDER_PAGE } from '@/lib/stageStore';
+import { addPageElement, addPageElementsInfo, addToHistoryUndo, getEstimatedPage, getSpecificStage, historyData, newShapeSizePercent, pageElementsInfo, RENDER_PAGE, stageGroupInfoData } from '@/lib/stageStore';
 import React, { useState } from 'react';
 
 const AddShapeDropDown: React.FC = () => {
@@ -36,10 +36,19 @@ const AddShapeDropDown: React.FC = () => {
       strokeWidth: 1,
       cornerRadius: 0,
     };
-    addPageElementsInfo({widestX: newSquare.width, widestY: newSquare.height, x: 0, y: 0, rotation: 0}, pageToAddIt);
+    const newGroupInfo = {id: "g-"+Date.now(), widestX: newSquare.width, widestY: newSquare.height, x: 0, y: 0, rotation: 0} as stageGroupInfoData
+    addPageElementsInfo(newGroupInfo, pageToAddIt);
     addPageElement([newSquare], pageToAddIt);
     RENDER_PAGE();
     hideDropdown();
+    addToHistoryUndo({
+      command: "create",
+      pageIndex: pageToAddIt,
+      groupIndex: pageElementsInfo[pageToAddIt].length-1,
+      from: {},
+      to: newGroupInfo,
+      contentsTo: [newSquare]
+    } as historyData);
   }
 
   const addCircleToPageButtonHandler = () => {
@@ -58,10 +67,19 @@ const AddShapeDropDown: React.FC = () => {
       stroke: 'red',
       strokeWidth: 1,
     };
-    addPageElementsInfo({widestX: newCircle.width, widestY: newCircle.height, x: 0, y: 0, rotation: 0}, pageToAddIt);
+    const newGroupInfo = {id: "g-"+Date.now(), widestX: newCircle.width, widestY: newCircle.height, x: 0, y: 0, rotation: 0};
+    addPageElementsInfo(newGroupInfo, pageToAddIt);
     addPageElement([newCircle], pageToAddIt);
     RENDER_PAGE();
     hideDropdown();
+    addToHistoryUndo({
+      command: "create",
+      pageIndex: pageToAddIt,
+      groupIndex: pageElementsInfo[pageToAddIt].length-1,
+      from: {},
+      to: newGroupInfo,
+      contentsTo: [newCircle]
+    } as historyData);
   }
 
   const addTriangleToPageButtonHandler = () => {
@@ -81,10 +99,19 @@ const AddShapeDropDown: React.FC = () => {
       strokeWidth: 1,
       cornerRadius: 0,
     };
-    addPageElementsInfo({widestX: newTriangle.width, widestY: newTriangle.height, x: 0, y: 0, rotation: 0}, pageToAddIt);
+    const newGroupInfo = {id: "g-"+Date.now(), widestX: newTriangle.width, widestY: newTriangle.height, x: 0, y: 0, rotation: 0};
+    addPageElementsInfo(newGroupInfo, pageToAddIt);
     addPageElement([newTriangle], pageToAddIt);
     RENDER_PAGE();
     hideDropdown();
+    addToHistoryUndo({
+      command: "create",
+      pageIndex: pageToAddIt,
+      groupIndex: pageElementsInfo[pageToAddIt].length-1,
+      from: {},
+      to: newGroupInfo,
+      contentsTo: [newTriangle]
+    } as historyData);
   }
 
   const addRightAngleTriangleToPageButtonHandler = () => {
@@ -92,7 +119,7 @@ const AddShapeDropDown: React.FC = () => {
     const focusStage = getSpecificStage(pageToAddIt);
     const size = Math.min(focusStage.width * newShapeSizePercent, focusStage.height * newShapeSizePercent);
     const newTriangle: ShapeData = {
-      id: 't'+Date.now(),
+      id: 'rat'+Date.now(),
       type: 'rightAngleTri',
       x: 0,
       y: 0,
@@ -104,17 +131,26 @@ const AddShapeDropDown: React.FC = () => {
       strokeWidth: 1,
       cornerRadius: 0,
     };
-    addPageElementsInfo({widestX: newTriangle.width, widestY: newTriangle.height, x: 0, y: 0, rotation: 0}, pageToAddIt);
+    const newGroupInfo = {id: "g-"+Date.now(), widestX: newTriangle.width, widestY: newTriangle.height, x: 0, y: 0, rotation: 0};
+    addPageElementsInfo(newGroupInfo, pageToAddIt);
     addPageElement([newTriangle], pageToAddIt);
     RENDER_PAGE();
     hideDropdown();
+    addToHistoryUndo({
+      command: "create",
+      pageIndex: pageToAddIt,
+      groupIndex: pageElementsInfo[pageToAddIt].length-1,
+      from: {},
+      to: newGroupInfo,
+      contentsTo: [newTriangle]
+    } as historyData);
   }
 
   const addStarToPageButtonHandler = () => {
     const pageToAddIt = getEstimatedPage();
     const focusStage = getSpecificStage(pageToAddIt);
     const size = Math.min(focusStage.width * newShapeSizePercent, focusStage.height * newShapeSizePercent);
-    const newCircle: ShapeData = {
+    const newStar: ShapeData = {
       id: 's'+Date.now(),
       type: 'star',
       x: size * 0.5,
@@ -127,10 +163,19 @@ const AddShapeDropDown: React.FC = () => {
       strokeWidth: 1,
       numPoints: 5,
     };
-    addPageElementsInfo({widestX: newCircle.width, widestY: newCircle.height, x: 0, y: 0, rotation: 0}, pageToAddIt);
-    addPageElement([newCircle], pageToAddIt);
+    const newGroupInfo = {id: "g-"+Date.now(), widestX: newStar.width, widestY: newStar.height, x: 0, y: 0, rotation: 0};
+    addPageElementsInfo(newGroupInfo, pageToAddIt);
+    addPageElement([newStar], pageToAddIt);
     RENDER_PAGE();
     hideDropdown();
+    addToHistoryUndo({
+      command: "create",
+      pageIndex: pageToAddIt,
+      groupIndex: pageElementsInfo[pageToAddIt].length-1,
+      from: {},
+      to: newGroupInfo,
+      contentsTo: [newStar]
+    } as historyData);
   }
 
   return (
@@ -191,12 +236,13 @@ const AddShapeDropDown: React.FC = () => {
                       <path d="M14.3154 9.36914L14.4326 9.65137L14.7373 9.67578L20.748 10.1572L16.1689 14.0801L15.9365 14.2793L16.0078 14.5762L17.4062 20.4414L12.2607 17.2979L12 17.1387L11.7393 17.2979L6.59277 20.4414L7.99219 14.5762L8.06348 14.2793L7.83105 14.0801L3.25098 10.1572L9.2627 9.67578L9.56738 9.65137L9.68457 9.36914L12 3.80273L14.3154 9.36914Z" stroke="black"/>
                     </svg>
                   </button>
-                  {/* Trapezoid */}
+                  {/* Trapezoid 
                   <button className='h-full' onClick={addStarToPageButtonHandler}>
                     <svg className='h-full' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M21 17H3L7.5 7H16.5L21 17Z" stroke="black"/>
                     </svg>
                   </button>
+                  */}
                 </div>
             </div>
         </div>

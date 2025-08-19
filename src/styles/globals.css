@@ -12,21 +12,28 @@ Copyright © 2025 Jonathan Kwok
 @font-face {
   font-family: 'Nunito';
   src: url('/fonts/Nunito-VariableFont_wght.ttf') format('truetype');
-  font-weight: 600;
+  font-weight: 500;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Roboto';
   src: url('/fonts/Roboto-VariableFont_wdth_wght.ttf') format('truetype');
-  font-weight: 600;
+  font-weight: 500;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Inter';
   src: url('/fonts/Inter-VariableFont_opsz_wght.ttf') format('truetype');
-  font-weight: 600;
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Inter-400';
+  src: url('/fonts/Inter-VariableFont_opsz_wght.ttf') format('truetype');
+  font-weight: 400;
   font-style: normal;
 }
 

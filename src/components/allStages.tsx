@@ -109,6 +109,7 @@ const AllStages = ({ manualScaler=1, previewStyle, editQuestionButtonHandler} : 
 
   stages.forEach((stage, stageIndex) => {
     stage.stageRef = stageRefs.current[stageIndex];
+    stage.transformerRef = transformerRefs.current[stageIndex];
   });
 
   let previewPageOnClickHanlder: ((pageNumber: number) => void) | undefined;

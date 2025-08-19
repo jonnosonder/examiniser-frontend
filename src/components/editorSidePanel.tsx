@@ -60,6 +60,8 @@ export default function EditorSidePanel() {
 
     const [visualInformation, setVisualInformation] = useState<visualXYWHR | null>(null);
 
+    const round4 = (num: number) => Math.round((num + Number.EPSILON) * 10000) / 10000;
+
     useEffect(() => {
         const handleChange = () => {
             if (selectIndex.current.pageIndex !== null && selectIndex.current.groupIndex !== null) {
@@ -85,6 +87,7 @@ export default function EditorSidePanel() {
         };
     }, []);
 
+
     useEffect(() => {
         const handler = (e: Event) => {
             const customEvent = e as CustomEvent<shapeXY>;
@@ -93,12 +96,12 @@ export default function EditorSidePanel() {
                 x: customEvent.detail.x,
                 y: customEvent.detail.y
             } as stageGroupInfoData);
-            setVisualInformation({
-                ...visualInformation,
+            setVisualInformation(prev => ({
+                ...prev,
                 x: String(customEvent.detail.x),
                 y: String(customEvent.detail.y)
-            } as visualXYWHR);
-        };
+                } as visualXYWHR));
+            };
 
         window.addEventListener('shapeOnDrag', handler);
         return () => {
@@ -115,12 +118,12 @@ export default function EditorSidePanel() {
                 widestY: customEvent.detail.height,
                 rotation: customEvent.detail.rotation
             } as stageGroupInfoData);
-            setVisualInformation({
-                ...visualInformation,
+            setVisualInformation(prev => ({
+                ...prev,
                 width: String(customEvent.detail.width),
                 height: String(customEvent.detail.height),
-                rotation: String(customEvent.detail.rotation)
-            } as visualXYWHR);
+                rotation: String(customEvent.detail.rotation),
+            } as visualXYWHR));
         };
 
         window.addEventListener('shapeOnTransform', handler);
@@ -160,6 +163,7 @@ export default function EditorSidePanel() {
 
         setMarginEditorVisual(value);
         setMarginValue(Number(value.replace(/[^0-9]/g, '')));
+        RENDER_MAIN();
     }
 
     useEffect(() => {
@@ -475,124 +479,158 @@ export default function EditorSidePanel() {
     }
 
     const changeWidthInputHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
+        const widthValue = e.target.value;
         const focusSelectIndex = selectIndex.current;
         
-        if (focusSelectIndex.pageIndex === null || focusSelectIndex.groupIndex === null || !groupInformation || !groupClientRect || !/^\d*\.?\d*$/.test(value)) { return; }
+        if (focusSelectIndex.pageIndex === null || focusSelectIndex.groupIndex === null || !groupInformation || !groupClientRect || !/^\d*\.?\d*$/.test(widthValue)) { return; }
 
-        const numberValue = Number(value);
+        const widthNumberValue = Number(widthValue);
 
-        const currentValue = Math.trunc(pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].widestX);
-        const shift = Math.round(groupClientRect.width - currentValue);
+        const currentWidthValue = Math.trunc(pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].widestX);
+        const shiftWidth = Math.round(groupClientRect.width - currentWidthValue);
 
-        if (numberValue !== currentValue && numberValue >= 1) {
-            const scaleX = numberValue/currentValue;
+        if (widthNumberValue !== currentWidthValue && widthNumberValue >= 1) {
+            const scaleX = widthNumberValue/currentWidthValue;
             for (let x = 0; x < pageElements[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].length; x++) {
+                pageElements[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex][x].x *= scaleX;
                 pageElements[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex][x].width *= scaleX;
             }
-            pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].widestX = numberValue;
-            console.log("VS W: "+ value);
-            setVisualInformation({
-                ...visualInformation,
-                width: value
-            } as visualXYWHR);
-            setGroupInformation({
-                ...groupInformation,
-                widestX: numberValue,
-            } as stageGroupInfoData);
-            setGroupClientRect({
-                ...groupClientRect,
-                width: numberValue + shift,
-            });
+            pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].widestX = widthNumberValue;
+            console.log("VS W: "+ widthValue);
+            
             if (lockWHRatio) {
-                const currentValue = numberValue / groupInformation.widestX * groupInformation.widestY;
-                const secondValue = Math.trunc(pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].widestY);
-                const shift = Math.round(groupClientRect.height - secondValue);
-                const scaleY = currentValue/secondValue;
+                const heightValue = Math.trunc(pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].widestY);
+                const shiftHeight = round4(groupClientRect.height - heightValue);
+                const scaleY = scaleX;
                 for (let x = 0; x < pageElements[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].length; x++) {
-                    pageElements[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex][x].height *= scaleY;
+                    pageElements[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex][x].y = round4(pageElements[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex][x].y * scaleY);
+                    pageElements[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex][x].height = round4(pageElements[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex][x].height * scaleY);
                 }
-                pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].widestY = currentValue;
+                const newHieghtValue = round4(heightValue * scaleY);
+                pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].widestY = newHieghtValue;
                 setVisualInformation({
                     ...visualInformation,
-                    height: String(currentValue)
+                    width: String(widthNumberValue),
+                    height: String(newHieghtValue)
                 } as visualXYWHR);
                 setGroupInformation({
                     ...groupInformation,
-                    widestY: currentValue,
+                    widestX: widthNumberValue,
+                    widestY: newHieghtValue,
                 } as stageGroupInfoData);
                 setGroupClientRect({
                     ...groupClientRect,
-                    height: currentValue + shift,
+                    width: widthNumberValue + shiftWidth,
+                    height: newHieghtValue + shiftHeight,
+                });
+                console.log(scaleY);
+                console.log({width: String(widthNumberValue), height: String(newHieghtValue)});
+            } else {
+                setVisualInformation({
+                    ...visualInformation,
+                    width: String(widthNumberValue)
+                } as visualXYWHR);
+                setGroupInformation({
+                    ...groupInformation,
+                    widestX: widthNumberValue,
+                } as stageGroupInfoData);
+                setGroupClientRect({
+                    ...groupClientRect,
+                    width: widthNumberValue + shiftWidth,
                 });
             }
             RENDER_MAIN();
         } else {
-            setVisualInformation({
-                ...visualInformation,
-                width: value
-            } as visualXYWHR);
+            if (widthValue === "" && lockWHRatio) {
+                setVisualInformation({
+                    ...visualInformation,
+                    width: widthValue,
+                    height: ""
+                } as visualXYWHR);
+            } else {
+                setVisualInformation({
+                    ...visualInformation,
+                    width: widthValue
+                } as visualXYWHR);
+            }
         }
     }
 
     const changeHeightInputHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
+        const heightValue = e.target.value;
         const focusSelectIndex = selectIndex.current;
         
-        if (focusSelectIndex.pageIndex === null || focusSelectIndex.groupIndex === null || !groupInformation || !groupClientRect || !/^\d*\.?\d*$/.test(value)) { return; }
+        if (focusSelectIndex.pageIndex === null || focusSelectIndex.groupIndex === null || !groupInformation || !groupClientRect || !/^\d*\.?\d*$/.test(heightValue)) { return; }
 
-        const numberValue = Number(value);
+        const heightNumberValue = Number(heightValue);
 
-        const currentValue = Math.trunc(pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].widestY);
-        const shift = Math.round(groupClientRect.height - currentValue);
+        const currentHeightValue = Math.trunc(pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].widestY);
+        const shiftHeight = Math.round(groupClientRect.height - currentHeightValue);
 
-        if (numberValue !== currentValue && numberValue >= 1) {
-            const scaleY = numberValue/currentValue;
+        if (heightNumberValue !== currentHeightValue && heightNumberValue >= 1) {
+            const scaleY = heightNumberValue/currentHeightValue;
             for (let x = 0; x < pageElements[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].length; x++) {
+                pageElements[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex][x].y *= scaleY;
                 pageElements[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex][x].height *= scaleY;
             }
-            pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].widestY = numberValue;
-            console.log("VS H: "+ value);
-            setVisualInformation({
-                ...visualInformation,
-                height: value
-            } as visualXYWHR);
-            setGroupInformation({
-                ...groupInformation,
-                widestY: numberValue,
-            } as stageGroupInfoData);
-            setGroupClientRect({
-                ...groupClientRect,
-                height: numberValue + shift,
-            });
+            pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].widestY = heightNumberValue;
+            console.log("VS W: "+ heightValue);
+            
             if (lockWHRatio) {
-                const numberValue = currentValue / groupInformation.widestY * groupInformation.widestX;
-                const secondValue = Math.trunc(pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].widestX);
-                const shift = Math.round(groupClientRect.width - secondValue);
-                const scaleX = numberValue/secondValue;
+                const widthValue = Math.trunc(pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].widestX);
+                const shiftWidth = round4(groupClientRect.width - widthValue);
+                const scaleX = scaleY;
                 for (let x = 0; x < pageElements[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].length; x++) {
-                    pageElements[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex][x].width *= scaleX;
+                    pageElements[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex][x].x = round4(pageElements[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex][x].x * scaleX);
+                    pageElements[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex][x].width = round4(pageElements[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex][x].width * scaleX);
                 }
-                pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].widestX = numberValue;
+                const newWidthValue = round4(widthValue * scaleX);
+                pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].widestX = newWidthValue;
                 setVisualInformation({
                     ...visualInformation,
-                    width: String(numberValue)
+                    width: String(newWidthValue),
+                    height: String(heightNumberValue)
                 } as visualXYWHR);
                 setGroupInformation({
                     ...groupInformation,
-                    widestX: numberValue,
+                    widestX: newWidthValue,
+                    widestY: heightNumberValue,
                 } as stageGroupInfoData);
                 setGroupClientRect({
                     ...groupClientRect,
-                    width: numberValue + shift,
+                    width: newWidthValue + shiftWidth,
+                    height: heightNumberValue + shiftHeight,
+                });
+                console.log(scaleY);
+                console.log({width: String(newWidthValue), height: String(heightNumberValue)});
+            } else {
+                setVisualInformation({
+                    ...visualInformation,
+                    height: String(heightNumberValue)
+                } as visualXYWHR);
+                setGroupInformation({
+                    ...groupInformation,
+                    widestY: heightNumberValue,
+                } as stageGroupInfoData);
+                setGroupClientRect({
+                    ...groupClientRect,
+                    height: heightNumberValue + shiftHeight,
                 });
             }
             RENDER_MAIN();
         } else {
-            setVisualInformation({
-                ...visualInformation,
-                height: value
-            } as visualXYWHR);
+            if (heightValue === "" && lockWHRatio) {
+                setVisualInformation({
+                    ...visualInformation,
+                    width: "",
+                    height: heightValue
+                } as visualXYWHR);
+            } else {
+                setVisualInformation({
+                    ...visualInformation,
+                    height: heightValue
+                } as visualXYWHR);
+            }
         }
     }
 
@@ -755,13 +793,13 @@ export default function EditorSidePanel() {
                 <div className='w-full px-4 flex flex-col grid grid-cols-2 gap-x-2 text-xs text-primary'>
                     <p className='text-xs ml-1'>X</p>
                     <p className='text-xs ml-1'>Y</p>
-                    <input value={visualInformation.x} onChange={changeXInputHandler} onBlur={inputXBlurCleanUpHandler} className="flex text-sm w-full px-[2px] rounded-md border border-grey shadow-sm transition-shadow duration-300 focus:shadow-[0_0_0_0.2rem_theme('colors.contrast')] focus:outline-none focus:border-transparent"></input>
-                    <input value={visualInformation.y} onChange={changeYInputHandler} onBlur={inputYBlurCleanUpHandler} className="flex text-sm w-full px-[2px] rounded-md border border-grey shadow-sm transition-shadow duration-300 focus:shadow-[0_0_0_0.2rem_theme('colors.contrast')] focus:outline-none focus:border-transparent"></input>
+                    <input value={visualInformation.x ?? ''} onChange={changeXInputHandler} onBlur={inputXBlurCleanUpHandler} className="flex text-sm w-full px-[2px] rounded-md border border-grey shadow-sm transition-shadow duration-300 focus:shadow-[0_0_0_0.2rem_theme('colors.contrast')] focus:outline-none focus:border-transparent"></input>
+                    <input value={visualInformation.y ?? ''} onChange={changeYInputHandler} onBlur={inputYBlurCleanUpHandler} className="flex text-sm w-full px-[2px] rounded-md border border-grey shadow-sm transition-shadow duration-300 focus:shadow-[0_0_0_0.2rem_theme('colors.contrast')] focus:outline-none focus:border-transparent"></input>
 
                     <p className='text-xs ml-1 mt-1'>Width</p>
                     <p className='text-xs ml-1 mt-1'>Height</p>
-                    <input value={visualInformation.width} onChange={changeWidthInputHandler} className="flex text-sm w-full px-[2px] rounded-md border border-grey shadow-sm transition-shadow duration-300 focus:shadow-[0_0_0_0.2rem_theme('colors.contrast')] focus:outline-none focus:border-transparent"></input>
-                    <input value={visualInformation.height} onChange={changeHeightInputHandler} className="flex text-sm w-full px-[2px] rounded-md border border-grey shadow-sm transition-shadow duration-300 focus:shadow-[0_0_0_0.2rem_theme('colors.contrast')] focus:outline-none focus:border-transparent"></input>
+                    <input value={visualInformation.width ?? ''} onChange={changeWidthInputHandler} className="flex text-sm w-full px-[2px] rounded-md border border-grey shadow-sm transition-shadow duration-300 focus:shadow-[0_0_0_0.2rem_theme('colors.contrast')] focus:outline-none focus:border-transparent"></input>
+                    <input value={visualInformation.height ?? ''} onChange={changeHeightInputHandler} className="flex text-sm w-full px-[2px] rounded-md border border-grey shadow-sm transition-shadow duration-300 focus:shadow-[0_0_0_0.2rem_theme('colors.contrast')] focus:outline-none focus:border-transparent"></input>
 
                     <p className='text-xs ml-1 mt-1'>W:H Ratio</p>
                     <p className='text-xs ml-1 mt-1'>Rotation</p>
@@ -772,75 +810,30 @@ export default function EditorSidePanel() {
                             <svg xmlns="http://www.w3.org/2000/svg" className='w-5 h-5 p-[1px]' viewBox="0 0 24 24"><path d="M15.193 17.331l-4.909 4.91c-2.346 2.346-6.148 2.345-8.495 0-2.345-2.346-2.345-6.148 0-8.494l4.911-4.91 1.416 1.415-4.911 4.91c-1.56 1.562-1.56 4.102 0 5.663 1.562 1.561 4.102 1.561 5.663 0l4.91-4.91 1.415 1.416zm-1.415-15.572l-4.954 4.954 1.416 1.416 4.954-4.955c1.562-1.561 4.102-1.561 5.663 0s1.561 4.101 0 5.662l-4.955 4.955 1.417 1.416 4.955-4.955c2.344-2.345 2.344-6.148 0-8.494-2.347-2.345-6.15-2.344-8.496.001z"/></svg>
                         )}
                     </button>
-                    <input value={visualInformation.rotation} onChange={changeRotationInputHandler} onBlur={inputRotationBlurCleanUpHandler} className="flex text-sm w-full px-[2px] rounded-md border border-grey shadow-sm transition-shadow duration-300 focus:shadow-[0_0_0_0.2rem_theme('colors.contrast')] focus:outline-none focus:border-transparent"></input>
+                    <input value={visualInformation.rotation ?? ''} onChange={changeRotationInputHandler} onBlur={inputRotationBlurCleanUpHandler} className="flex text-sm w-full px-[2px] rounded-md border border-grey shadow-sm transition-shadow duration-300 focus:shadow-[0_0_0_0.2rem_theme('colors.contrast')] focus:outline-none focus:border-transparent"></input>
                 </div>
 
                 <div className='w-full mt-2 h-[1px] bg-grey' />
                 </>
             )}
 
-            <p className='px-2 py-1'>Page</p>
-            <div className="w-full">
-                <button
-                    className="w-full flex justify-between items-center px-4 py-1 bg-transparent text-primary border border-button-border text-base transition cursor-pointer"
-                    onClick={() => toggleEditPanelSection(1)}
-                >
-                    Background
-                    {editPanelIndex === 1 ? (
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" />
-                    </svg>
-                    ) : (
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M6 15L12 9L18 15" stroke="currentColor" strokeWidth="2" />
-                    </svg>
-                    )}
+            <p className='p-2 pb-1 text-md'>Page</p>
+
+            <p className='p-2 pb-1 text-sm'>Background</p>
+            <div className='flex flex-col px-4 space-y-2'>
+                <p className="text-xs">Colour</p>
+                <button style={{background: selectedBackgroundColor}} className='w-full h-5 border border-primary rounded-lg' onClick={toggleDisplayColorSelector}></button>
+                {displayColorSelector && (
+                    <div className='absolute flex items-center justify-center left-[25vw]'>
+                        <ColorSelectorSection onClose={() => setDisplayColorSelector(false)} passColorValue={setSelectedBackgroundColor} startingColor={selectedBackgroundColor} />
+                    </div>
+                )}
+                <p className="text-xs">View Margin</p>
+                <button className='rounded-md hover:bg-gray-200 transition duration-300' onClick={toggleViewMargin}>
+                        {viewMarginEditor ? 'Showing' : 'Hiding'}
                 </button>
-
-                <div
-                    className={`flex flex-col overflow-hidden transition-all duration-400 ease-linear space-y-2 ${
-                    editPanelIndex === 1 ? 'm-2' : 'max-h-0 p-0 border-0'
-                    }`}
-                >
-                    <p className="text-sm">Background Colour</p>
-                    <button style={{background: selectedBackgroundColor}} className='w-full h-5 border border-primary rounded-lg' onClick={toggleDisplayColorSelector}></button>
-                    {displayColorSelector && (
-                        <div className='absolute flex items-center justify-center left-[25vw]'>
-                            <ColorSelectorSection onClose={() => setDisplayColorSelector(false)} passColorValue={setSelectedBackgroundColor} startingColor={selectedBackgroundColor} />
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            <div className="w-full">
-                <button
-                    className="w-full flex justify-between items-center px-4 py-1 bg-transparent text-primary border border-button-border text-base transition cursor-pointer"
-                    onClick={() => toggleEditPanelSection(2)}
-                >
-                    Margin
-                    {editPanelIndex === 2 ? (
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" />
-                    </svg>
-                    ) : (
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M6 15L12 9L18 15" stroke="currentColor" strokeWidth="2" />
-                    </svg>
-                    )}
-                </button>
-
-                <div
-                    className={`flex flex-col overflow-hidden transition-all duration-400 ease-linear space-y-2 ${
-                    editPanelIndex === 2 ? 'm-2' : 'max-h-0 p-0 border-0'
-                    }`}
-                >   
-                    <p className="text-sm">View Margin</p>
-                    <button onClick={toggleViewMargin}>
-                         {viewMarginEditor ? 'Showing' : 'Hiding'}
-                    </button>
-                    <p className="text-sm">Margin Size</p>
-                    <input value={marginEditorVisual} onChange={marginValueInputHandler} placeholder='300px'></input>
-                </div>
+                <p className="text-xs">Margin Size (px)</p>
+                <input className="px-2 border border-grey rounded-md shadow-sm transition-shadow duration-300 focus:shadow-[0_0_0_0.2rem_theme('colors.contrast')] focus:outline-none focus:border-transparent" value={marginEditorVisual} onChange={marginValueInputHandler} placeholder='300px'></input>
             </div>
         </div>
     );

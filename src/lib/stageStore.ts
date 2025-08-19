@@ -10,9 +10,11 @@ export type StageData = {
   height: number;
   background: string;
   stageRef?: React.RefObject<Konva.Stage | null>;
+  transformerRef?: React.RefObject<Konva.Transformer | null>
 };
 
 export type stageGroupInfoData = {
+  id: string;
   widestX: number;
   widestY: number;
   x: number;
@@ -307,25 +309,27 @@ export function addToHistoryUndo(past: historyData) {
 
 export function restoreHistoryUndo() {
   const front = stageHistoryUndo.at(-1);
+  
   if (front) {
+    const {pageIndex, groupIndex} = validateIndexes(front);
     switch (front.command) {
       case "info":
-        pageElementsInfo[front.pageIndex][front.groupIndex] = front.from;
+        pageElementsInfo[pageIndex][groupIndex] = front.from;
         break;
       case "info-contents":
         if (front.contentsFrom){ 
-          pageElementsInfo[front.pageIndex][front.groupIndex] = front.from;
-          pageElements[front.pageIndex][front.groupIndex] = front.contentsFrom;
+          pageElementsInfo[pageIndex][groupIndex] = front.from;
+          pageElements[pageIndex][groupIndex] = front.contentsFrom;
         }
         break;
       case "create":
-        deletePageElementInfo(front.pageIndex,front.groupIndex);
-        deletePageElement(front.pageIndex, front.groupIndex);
+        deletePageElementInfo(pageIndex,groupIndex);
+        deletePageElement(pageIndex, groupIndex);
         break;
       case "delete":
         if (front.contentsFrom){ 
-          addPageElementsInfo(front.from, front.pageIndex);
-          addPageElement(front.contentsFrom, front.pageIndex);
+          addPageElementsInfo(front.from, pageIndex);
+          addPageElement(front.contentsFrom, pageIndex);
         }
         break;
     }
@@ -338,30 +342,68 @@ export function restoreHistoryUndo() {
 export function restoreHistoryRedo() {
   const front = stageHistoryRedo.at(-1);
   if (front) {
+    const {pageIndex, groupIndex} = validateIndexes(front);
     switch (front.command) {
       case "info":
-        pageElementsInfo[front.pageIndex][front.groupIndex] = front.to;
+        pageElementsInfo[pageIndex][groupIndex] = front.to;
         break;
       case "info-contents":
         if (front.contentsTo){ 
-          pageElementsInfo[front.pageIndex][front.groupIndex] = front.to;
-          pageElements[front.pageIndex][front.groupIndex] = front.contentsTo;
+          pageElementsInfo[pageIndex][groupIndex] = front.to;
+          pageElements[pageIndex][groupIndex] = front.contentsTo;
         }
         break;
       case "create":
         if (front.contentsTo){ 
-          addPageElementsInfo(front.to, front.pageIndex);
-          addPageElement(front.contentsTo, front.pageIndex);
+          addPageElementsInfo(front.to, pageIndex);
+          addPageElement(front.contentsTo, pageIndex);
         }
-        front.groupIndex = pageElementsInfo[front.pageIndex].length-1;
+        front.groupIndex = pageElementsInfo[pageIndex].length-1;
         break;
       case "delete":
-        deletePageElementInfo(front.pageIndex,front.groupIndex);
-        deletePageElement(front.pageIndex, front.groupIndex);
+        deletePageElementInfo(pageIndex,groupIndex);
+        deletePageElement(pageIndex, groupIndex);
         break;
     }
     stageHistoryUndo.push(front);
     stageHistoryRedo.pop();
     RENDER_PAGE();
+  }
+}
+
+type indexes = {
+  pageIndex: number;
+  groupIndex: number;
+}
+
+const validateIndexes = (data: historyData):indexes => {
+  const groupID = data.to !== null && data.to !== undefined ? data.to.id : data.from.id;
+  const pageIndex = data.pageIndex;
+  const groupIndex = data.groupIndex;
+  const focusID = pageElementsInfo[pageIndex][groupIndex];
+  if (focusID && groupID === focusID.id) {
+    return {pageIndex, groupIndex};
+  } else {
+    const focusLength = pageElementsInfo[pageIndex].length;
+    console.log(pageElementsInfo[pageIndex]);
+    if (groupIndex-1 < focusLength) { 
+      for (let x = groupIndex-1; x > -1; x--) {
+        if (groupID === pageElementsInfo[pageIndex][x].id) {
+          return {pageIndex, groupIndex: x};
+        }
+      }
+      for (let x = groupIndex+1; x > focusLength-1; x++) {
+        if (groupID === pageElementsInfo[pageIndex][x].id) {
+          return {pageIndex, groupIndex: x};
+        }
+      }
+    } else {
+      for (let x = focusLength-1; x > -1; x--) {
+        if (groupID === pageElementsInfo[pageIndex][x].id) {
+          return {pageIndex, groupIndex: x};
+        }
+      }
+    }
+    return {pageIndex: -1, groupIndex: -1};
   }
 }

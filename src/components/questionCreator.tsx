@@ -224,6 +224,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
             x: 20,
             y: 20,
             text: 'Double Click to Edit!',
+            fontFamily: 'Inter-400',
             width: 570,
             height: 60,
             rotation: 0,
@@ -279,6 +280,24 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
         const newShape: ShapeData = {
             id: 't'+Date.now(),
             type: 'tri',
+            x: 20,
+            y: 20,
+            width: 100,
+            height: 100,
+            rotation: 0,
+            fill: 'black',
+            stroke: 'red',
+            strokeWidth: 1,
+            cornerRadius: 0,
+        };
+        setShapes(prevShapes => [...prevShapes, newShape]);
+        setSelectedId(newShape.id);
+    }
+
+    const addRightAngledTriangleHandle = () => {
+        const newShape: ShapeData = {
+            id: 'rat'+Date.now(),
+            type: 'rightAngleTri',
             x: 20,
             y: 20,
             width: 100,
@@ -373,7 +392,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
 
         if (newQuestionCreating) {
             const pageOn = getEstimatedPage();
-            const newGroupInfo = {widestX, widestY, x:0, y:0, rotation:0} as stageGroupInfoData;
+            const newGroupInfo = {id: "g-"+Date.now(), widestX, widestY, x:0, y:0, rotation:0} as stageGroupInfoData;
             addPageElementsInfo(newGroupInfo, pageOn);
             addPageElement(shapes, pageOn);
             addToHistoryUndo({
@@ -387,7 +406,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
         } else {
             if (questionEditingID.page !== null && questionEditingID.groupID !== null) {
                 const previousGroupInfo = getSpecificPageElementsInfo(questionEditingID.page, questionEditingID.groupID);
-                const newGroupInfo = {widestX, widestY, x:previousGroupInfo.x, y:previousGroupInfo.y, rotation: previousGroupInfo.rotation} as stageGroupInfoData;
+                const newGroupInfo = {id: previousGroupInfo.id, widestX, widestY, x: previousGroupInfo.x, y: previousGroupInfo.y, rotation: previousGroupInfo.rotation} as stageGroupInfoData;
                 setPageElementsInfo(newGroupInfo, questionEditingID.page, questionEditingID.groupID);
                 setPageElement(shapes, questionEditingID.page, questionEditingID.groupID);
                 
@@ -404,6 +423,13 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
             }
         }
         RENDER_PAGE();
+    }
+
+    const deleteButtonHandler = () => {
+        if (selectedId) { 
+            setShapes((prev) => prev.filter((shape) => shape.id !== selectedId));
+            setSelectedId(null);
+        }
     }
 
     const [editorXpositionValue, setEditorXpositionValue] = useState<string>("0");
@@ -719,8 +745,8 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
 
 
     const editorShapeOnDragHandler = (e: KonvaEventObject<MouseEvent>) => {
-        setEditorXpositionValue(String(Math.round((e.target.x() + Number.EPSILON) * 10000) / 10000));
-        setEditorYpositionValue(String(Math.round((e.target.y() + Number.EPSILON) * 10000) / 10000));
+        setEditorXpositionValue(String(Math.round(e.target.x())));
+        setEditorYpositionValue(String(Math.round(e.target.y())));
     }
 
     const editorShapeOnTranformHandler = (e: KonvaEventObject<Event>) => {
@@ -729,13 +755,13 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
         const newHeight = Math.max(5, node.height() * node.scaleY());
         const newRotation = node.rotation();
         if (selectedShapeType !== "oval" && selectedShapeType !== "star"){
-            setEditorWidthValue(String(Math.round((newWidth + Number.EPSILON) * 10000) / 10000));
-            setEditorHeightValue(String(Math.round((newHeight + Number.EPSILON) * 10000) / 10000));
+            setEditorWidthValue(String(Math.round(newWidth)));
+            setEditorHeightValue(String(Math.round(newHeight)));
         } else {
-            setEditorWidthValue(String(Math.round((newWidth + Number.EPSILON) * 10000) / 20000));
-            setEditorHeightValue(String(Math.round((newHeight + Number.EPSILON) * 10000) / 20000));
+            setEditorWidthValue(String(Math.round(newWidth)));
+            setEditorHeightValue(String(Math.round(newHeight)));
         }
-        setEditorRotateValue(String(Math.round((Number(newRotation) + Number.EPSILON) * 10000) / 10000));
+        setEditorRotateValue(String(Math.round(Number(newRotation))));
     }
 
     type alginType = "left" | "center" | "right" | "justify";
@@ -816,12 +842,23 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                                     <path d="M19.7949 18.5H4.20508L12 4.99902L19.7949 18.5Z" stroke="black"/>
                                 </svg>
                             </button>
+                            {/* Right Angle Triangle */}
+                            <button className='w-10 h-full' onClick={addRightAngledTriangleHandle}>
+                                <svg className='h-full' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20.793 21.5H2.5V3.20703L20.793 21.5Z" stroke="black"/>
+                                </svg>
+                            </button>
                             {/* Add Star */}
                             <button className='w-10 h-full' onClick={addStarHandle}>
                                 <svg className='h-full' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M23.4847 3.196H21.2047V5.524H20.7847V3.196H18.5167V2.8H20.7847V0.46H21.2047V2.8H23.4847V3.196Z" fill="black"/>
                                     <path d="M11.5254 5.31168C11.6136 5.12084 11.7984 5 12 5C12.2023 5 12.3864 5.12084 12.4746 5.31168C13.1564 6.78389 14.3296 9.32011 14.3296 9.32011C14.3296 9.32011 16.9973 9.70621 18.545 9.93095C18.8271 9.97147 19 10.2227 19 10.4814C19 10.6214 18.9496 10.7636 18.8383 10.8763C17.7113 12.0096 15.7709 13.9644 15.7709 13.9644C15.7709 13.9644 16.2448 16.7401 16.5192 18.3501C16.5773 18.6905 16.3267 19 15.9998 19C15.9144 19 15.829 18.9786 15.7513 18.9344C14.3737 18.1622 12 16.8337 12 16.8337C12 16.8337 9.6263 18.1622 8.2487 18.9344C8.171 18.9786 8.0849 19 7.9995 19C7.674 19 7.422 18.6898 7.4808 18.3501C7.7559 16.7401 8.2298 13.9644 8.2298 13.9644C8.2298 13.9644 6.2887 12.0096 5.1624 10.8763C5.0504 10.7636 5 10.6214 5 10.4821C5 10.2227 5.1743 9.97074 5.4557 9.93095C7.0034 9.70621 9.6704 9.32011 9.6704 9.32011C9.6704 9.32011 10.8443 6.78389 11.5254 5.31168ZM12 6.80968L10.3473 10.3406L6.6751 10.8704L9.3687 13.5547L8.7051 17.4268L12 15.5811L15.2949 17.4268L14.6292 13.5687L17.3249 10.8704L13.6051 10.3134L12 6.80968Z" fill="black"/>
                                 </svg>
+                            </button>
+                            <span className='w-full flex' />
+                            {/* Add Star */}
+                            <button className='w-10 h-full' onClick={deleteButtonHandler}>
+                                <svg className='h-full p-2' viewBox='0 0 24 24' xmlns="http://www.w3.org/2000/svg" fillRule="evenodd" clipRule="evenodd"><path d="M19 24h-14c-1.104 0-2-.896-2-2v-17h-1v-2h6v-1.5c0-.827.673-1.5 1.5-1.5h5c.825 0 1.5.671 1.5 1.5v1.5h6v2h-1v17c0 1.104-.896 2-2 2zm0-19h-14v16.5c0 .276.224.5.5.5h13c.276 0 .5-.224.5-.5v-16.5zm-9 4c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm6 0c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm-2-7h-4v1h4v-1z"/></svg>
                             </button>
                         </div>
                         <div ref={stageContainerRef} className='w-full h-[65vh] flex overflow-y-auto overflow-x-auto scrollbar-hide border-2 border-primary bg-white justify-start'>
@@ -896,8 +933,8 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
 
                                                 // Convert back to pixel space
                                                 return {
-                                                    x: x * stageScale,
-                                                    y: y * stageScale,
+                                                    x: Math.round(x * stageScale),
+                                                    y: Math.round(y * stageScale),
                                                 };
                                             };
                                         
@@ -974,7 +1011,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                                         <input className='w-20 rounded-sm border border-primary px-1' value={editorHeightValue} onChange={editorHeightValueHandler}></input>
                                     </div>
                                 </div>
-                                <div className='flex flex-row w-full space-x-2 items-center justify-center'>
+                                <div className='flex flex-row w-full space-x-2 items-center justify-center pb-1'>
                                     <svg className='w-4 h-4' version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 122.88 103.56"><g><path d="M59.49,1.72c1.03-1.69,3.24-2.23,4.94-1.2c1.69,1.03,2.23,3.24,1.2,4.94L34.75,55.92c6.65,4.72,12.18,10.9,16.11,18.07 c3.69,6.72,5.99,14.31,6.51,22.37h61.91c1.99,0,3.6,1.61,3.6,3.6c0,1.99-1.61,3.6-3.6,3.6H3.59v-0.01c-0.64,0-1.29-0.17-1.87-0.53 c-1.69-1.03-2.23-3.24-1.2-4.94L59.49,1.72L59.49,1.72z M31,62.05L10.01,96.36h40.14c-0.51-6.82-2.47-13.23-5.59-18.91 C41.22,71.36,36.57,66.1,31,62.05L31,62.05z"/></g></svg>
                                     <input className='w-20 rounded-sm border border-primary px-1' value={editorRotateValue} onChange={editorRotateValueHandler}></input>
                                 </div>

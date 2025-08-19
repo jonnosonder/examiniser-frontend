@@ -602,7 +602,7 @@ export default function StartPage() {
         {/* Upload paper page */}
         <div ref={uploadPaperFormDiv} className="absolute hidden flex-col w-full h-full flex justify-center items-center">
             {/* First option: new paper or continue */}
-            <div className="flex flex-col bg-background w-[80%] sm:w-[65%] lg:w-[50%] m-2  border-4 border-primary rounded-lg justify-center items-center">
+            <div className="flex flex-col relative bg-background w-[80%] sm:w-[65%] lg:w-[50%] m-2 border-4 border-primary rounded-lg justify-center items-center">
                 <div className='flex flex-col p-8 gap-6'>
                     <p className='text-center text-primary w-full text-xl sm:text-2xl lg:text-3xl font-bold'>Upload File</p>
                     <p className='text-center text-primary w-full'>Continue editing your file by adding it bellow!</p>
@@ -628,6 +628,10 @@ export default function StartPage() {
                             )}
                         </div>
                     </div>
+                </div>
+                {/* TEMPORY UNTILL DEVELOPED */}
+                <div className='absolute flex w-full h-full z-10 backdrop-blur-sm items-center justify-center'>
+                    <p className='italic text-2xl'>Coming soon!</p>
                 </div>
             </div>
             <div className='flex w-[80%] sm:w-[65%] lg:w-[50%] h-[8%] sm:h-[8%] lg:h-[10%]'>

@@ -27,12 +27,12 @@ const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pag
 
     const { selectIndex, setSelectIndex } = useSelectRef();
     
-    const inverseStageScale = 1 / stageScale;
+    const inverseStageScale = 1 / (stageScale * manualScaler);
 
     useEffect(() => {
         const handleChange = () => {
             console.log("select index update");
-            const transformer = transformerRef.current;
+            const transformer = transformerRef?.current;
             if (transformer && transformer.nodes().length !== 0 && selectIndex.current.pageIndex !== pageIndex) {
                 transformer.nodes([]);
                 transformer.getLayer()?.batchDraw();
@@ -47,7 +47,7 @@ const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pag
     }, []);
 
     const groupRefs =  useRef<(Konva.Group | null)[]>([]);
-    const transformerRef = useRef<Konva.Transformer>(null);
+    const transformerRef = stage.transformerRef
 
     const marginValue = getMarginValue();
     const viewMargin = getViewMargin();
@@ -60,7 +60,7 @@ const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pag
 
     const groupOnClick = (e: KonvaEventObject<MouseEvent, Node<NodeConfig>> | KonvaEventObject<Event, Node<NodeConfig>>, groupIndex: number) => {
         const clickedNode = e.target.getParent();
-        const currentTransformer = transformerRef.current;
+        const currentTransformer = transformerRef?.current;
         if (currentTransformer && clickedNode && clickedNode.getType() === "Group") {
             currentTransformer.nodes([clickedNode]);
             currentTransformer.getLayer()?.batchDraw();
@@ -109,7 +109,7 @@ const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pag
             onClick={(e) => {
                 const target = e.target as Konva.Node;
                 if (target.id() === "background-rect") {
-                    const transformer = transformerRef.current;
+                    const transformer = transformerRef?.current;
                     transformer?.nodes([]);
                     transformer?.getLayer()?.batchDraw();
                     setSelectIndex({pageIndex: null, groupIndex: null});
@@ -119,7 +119,7 @@ const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pag
             onTap={(e) => {
                 const target = e.target as Konva.Node;
                 if (target.id() === "background-rect") {
-                    const transformer = transformerRef.current;
+                    const transformer = transformerRef?.current;
                     transformer?.nodes([]);
                     transformer?.getLayer()?.batchDraw();
                     setSelectIndex({pageIndex: null, groupIndex: null});
@@ -151,7 +151,7 @@ const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pag
                     const focusGroupInfo = groupInfo[groupIndex];
                     return (
                     <Group
-                    key={`${pageIndex}-${groupIndex}`}
+                    key={focusGroupInfo.id}
                     ref={(el) => {groupRefs.current[groupIndex] = el;}}
                     draggable={true}
                     listening={true}
@@ -242,6 +242,7 @@ const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pag
                         }));
                         const focusGroupInfo = groupInfo[groupIndex];
                         const newGroupInfo = {
+                            ...focusGroupInfo,
                             widestX: Math.round(focusGroupInfo.widestX * scaleX),
                             widestY: Math.round(focusGroupInfo.widestY * scaleY),
                             x: Math.trunc(node.x()),

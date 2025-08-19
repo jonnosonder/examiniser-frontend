@@ -117,7 +117,7 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
         <>
           <Rect {...shape} {...commonProps} cornerRadius={shape.cornerRadius/100 * Math.min(shape.width * 0.5, shape.height * 0.5)} ref={rectRef} onDragMove={(e) => {onDragMoveUpdates?.(e); onSelect()}} draggable={true}
           onDragEnd={ (e) => {
-            onChange({ ...shape, x: round4(e.target.x()), y: round4(e.target.y()) });
+            onChange({ ...shape, x: Math.round(e.target.x()), y: Math.round(e.target.y()) });
           }}
           onTransformEnd={ () => {
             const node = rectRef.current;
@@ -131,7 +131,7 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
                 ...shape,
                 width: round4WithMax(node.width() * scaleX),
                 height: round4WithMax(node.height() * scaleY),
-                rotation: round4(node.rotation()),
+                rotation: Math.round(node.rotation()),
               } as ShapeData);
             
           }}
@@ -158,12 +158,12 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
                 ...shape,
                 width: round4WithMax(node.width() * scaleX),
                 height: round4WithMax(node.height() * scaleY),
-                rotation: round4(node.rotation()),
+                rotation: Math.round(node.rotation()),
               } as ShapeData);
             
           }}
           onDragEnd={ (e) => {
-            onChange({ ...shape, x: round4(e.target.x()), y: round4(e.target.y()) });
+            onChange({ ...shape, x: Math.round(e.target.x()), y: Math.round(e.target.y()) });
           }}
           />
           {isSelected && <Transformer {...transformerCommonProps} ref={trRef} 
@@ -194,12 +194,12 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
                 ...shape,
                 width: round4WithMax(node.width() * scaleX),
                 height: round4WithMax(node.height() * scaleY),
-                rotation: round4(node.rotation()),
+                rotation: Math.round(node.rotation()),
               } as ShapeData);
             
           }}
           onDragEnd={ (e) => {
-            onChange({ ...shape, x: round4(e.target.x()), y: round4(e.target.y()) });
+            onChange({ ...shape, x: Math.round(e.target.x()), y: Math.round(e.target.y()) });
           }}
           />
           {isSelected && <Transformer {...transformerCommonProps} ref={trRef} 
@@ -230,12 +230,12 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
                 ...shape,
                 width: round4WithMax(node.width() * scaleX),
                 height: round4WithMax(node.height() * scaleY),
-                rotation: round4(node.rotation()),
+                rotation: Math.round(node.rotation()),
               } as ShapeData);
             
           }}
           onDragEnd={ (e) => {
-            onChange({ ...shape, x: round4(e.target.x()), y: round4(e.target.y()) });
+            onChange({ ...shape, x: Math.round(e.target.x()), y: Math.round(e.target.y()) });
           }}
           />
           {isSelected && <Transformer {...transformerCommonProps} ref={trRef} 
@@ -340,12 +340,12 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
                 ...shape,
                 width: round4WithMax(node.width() * scaleX),
                 height: round4WithMax(node.height() * scaleY),
-                rotation: round4(node.rotation()),
+                rotation: Math.round(node.rotation()),
               } as ShapeData);
             
           }}
           onDragEnd={ (e) => {
-            onChange({ ...shape, x: round4(e.target.x()), y: round4(e.target.y()) });
+            onChange({ ...shape, x: Math.round(e.target.x()), y: Math.round(e.target.y()) });
           }}
           />
           {isSelected && <Transformer {...transformerCommonProps} ref={trRef} 
@@ -359,7 +359,7 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
         <>
           <KonvaImage {...shape} {...commonProps} ref={imageRef} onDragMove={(e) => {onDragMoveUpdates?.(e); onSelect()}} draggable={true}
           onDragEnd={ (e) => {
-            onChange({ ...shape, x: round4(e.target.x()), y: round4(e.target.y()) });
+            onChange({ ...shape, x: Math.round(e.target.x()), y: Math.round(e.target.y()) });
           }}
           onTransformEnd={ () => {
             const node = imageRef.current;
@@ -373,7 +373,7 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
                 ...shape,
                 width: round4WithMax(node.width() * scaleX),
                 height: round4WithMax(node.height() * scaleY),
-                rotation: round4(node.rotation()),
+                rotation: Math.round(node.rotation()),
               } as ShapeData);
             
           }}
@@ -393,7 +393,7 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
         <>
           <Star {...shape} innerRadius={innerRadius} outerRadius={outerRadius} {...commonProps} ref={starRef} onDragMove={(e) => {onDragMoveUpdates?.(e); onSelect()}} draggable={true}
           onDragEnd={ (e) => {
-            onChange({ ...shape, x: round4(e.target.x()), y: round4(e.target.y()) });
+            onChange({ ...shape, x: Math.round(e.target.x()), y: Math.round(e.target.y()) });
           }}
           onTransformEnd={ () => {
             const node = starRef.current;
@@ -407,7 +407,7 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
                 ...shape,
                 width: round4WithMax(node.width() * scaleX),
                 height: round4WithMax(node.height() * scaleY),
-                rotation: round4(node.rotation()),
+                rotation: Math.round(node.rotation()),
               } as ShapeData);
             
           }}
