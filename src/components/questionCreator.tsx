@@ -16,6 +16,8 @@ import { KonvaEventObject } from 'konva/lib/Node';
 import Advert from './advert';
 import '@/styles/QuestionCreator.css'
 import { AddImage } from './addImage';
+import { getFontNamesArray } from '@/lib/fontData';
+import '@/styles/fonts.css';
 
 type QuestionCreatorProps = {
   onClose: () => void;
@@ -42,7 +44,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
     const [displayStrokeColorSelector, setDisplayStrokeColorSelector] = useState<boolean>(false);
     const toggleDisplayStrokeColorSelector = () => {setDisplayStrokeColorSelector(!displayStrokeColorSelector); if (!displayStrokeColorSelector && displayFillColorSelector) {setDisplayFillColorSelector(false)}}
     
-    const [parameterPanelIndex, setParameterPanelIndex] = useState<Set<number>>(new Set([1]));
+    const [parameterPanelIndex, setParameterPanelIndex] = useState<Set<number>>(new Set([1, 2, 3, 4, 5, 6]));
     const toggleParameterPanelSection = (index:number) => {
         setParameterPanelIndex(prev => {
             const newSet = new Set(prev);
@@ -87,6 +89,24 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
             );
         }
     }, [selectedStrokeColorViaDisplay]);
+
+    const [selectedFont, setSelectedFont] = useState<string>('Inter');
+
+    const onFontSelectChangeHandler = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        if (selectedId) {
+            const newFontValue = e.target.value;
+            setSelectedFont(newFontValue);
+            document.fonts.load('12px '+newFontValue).then(() => {
+                setShapes((prevShapes) =>
+                    prevShapes.map((shape) =>
+                        shape.id === selectedId
+                            ? { ...shape, fontFamily: newFontValue }
+                            : shape
+                    )
+                );       
+            });
+        }
+    }
 
     const handleContextMenu = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -237,8 +257,10 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
             border: "",
             borderWeight: 0,
         };
-        setShapes(prevShapes => [...prevShapes, newShape]);
-        setSelectedId(newShape.id);
+        document.fonts.load('12px Inter-400').then(() => {
+            setShapes(prevShapes => [...prevShapes, newShape]);
+            setSelectedId(newShape.id);
+        });
     }
 
     const addSquareHandle = () => {
@@ -788,6 +810,8 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
         });
     });
 
+    const fontNames = getFontNamesArray();
+
     return(
         <>
         <div onContextMenu={handleContextMenu}>
@@ -961,7 +985,9 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                         <div className='flex w-full mt-2 space-x-4'>
                             <button onClick={() => {setShapes([]);}} className='px-4 py-2 border-2 border-darkRed rounded-full bg-red text-white whitespace-nowrap'>Delete All</button>
                             <span className='flex w-full'></span>
+                            {/*
                             <button onClick={() => {setDimensions({width: dimensions.width, height: dimensions.height * 2})}} className='px-4 py-2 border-2 border-primary rounded-full text-primary whitespace-nowrap'>Add Space</button>
+                            */}
                             <button onClick={() => {createHandler(); onClose();}} className='px-4 py-2 border-2 border-primary rounded-full whitespace-nowrap'>
                                 {newQuestionCreating ? "Create" : "Set Edit"}
                             </button>
@@ -1107,8 +1133,17 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                                 >
                                     <div className='flex w-full flex-col items-center justify-center'>
                                         <div className='flex w-full h-10 flex-row items-center justify-center space-x-2'>
+                                            <p>Font</p>
+                                            <select className='p-1 flex rounded-md border border-grey' value={selectedFont} onChange={onFontSelectChangeHandler} style={{fontFamily: selectedFont}}>
+                                                {fontNames.map((font) => (
+                                                <option key={font} value={font} style={{fontFamily: font}}>
+                                                    {font.replace("-", " ")}
+                                                </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div className='flex w-full h-10 flex-row items-center justify-center space-x-2'>
                                             {/*<p className='whitespace-nowrap'>Font Size</p>*/}
-
                                             
                                             <svg className='h-10' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path d="M3.88109 6.4H14.5211V9.66H14.0011L13.4211 7.56C13.3811 7.4 13.3344 7.28667 13.2811 7.22C13.2411 7.14 13.1544 7.09333 13.0211 7.08C12.8878 7.05333 12.6611 7.04 12.3411 7.04H10.0811V18.38C10.0811 18.8467 10.1011 19.12 10.1411 19.2C10.1811 19.28 10.3078 19.3333 10.5211 19.36L11.6211 19.48V20H6.80109V19.48L7.90109 19.36C8.11443 19.3333 8.24109 19.28 8.28109 19.2C8.32109 19.12 8.34109 18.8467 8.34109 18.38V7.04H6.06109C5.75443 7.04 5.52776 7.05333 5.38109 7.08C5.24776 7.09333 5.15443 7.14 5.10109 7.22C5.06109 7.28667 5.02109 7.4 4.98109 7.56L4.40109 9.66H3.88109V6.4ZM14.923 13.2H20.243V14.83H19.983L19.693 13.78C19.673 13.7 19.6496 13.6433 19.623 13.61C19.603 13.57 19.5596 13.5467 19.493 13.54C19.4263 13.5267 19.313 13.52 19.153 13.52H18.023V19.19C18.023 19.4233 18.033 19.56 18.053 19.6C18.073 19.64 18.1363 19.6667 18.243 19.68L18.793 19.74V20H16.383V19.74L16.933 19.68C17.0396 19.6667 17.103 19.64 17.123 19.6C17.143 19.56 17.153 19.4233 17.153 19.19V13.52H16.013C15.8596 13.52 15.7463 13.5267 15.673 13.54C15.6063 13.5467 15.5596 13.57 15.533 13.61C15.513 13.6433 15.493 13.7 15.473 13.78L15.183 14.83H14.923V13.2Z" fill="black"/>

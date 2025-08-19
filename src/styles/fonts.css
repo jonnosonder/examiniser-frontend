@@ -1,0 +1,112 @@
+
+@font-face {
+  font-family: 'Bitter';
+  src: url('/fonts/text/Bitter[wght].ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Cormorant-Garamond';
+  src: url('/fonts/text/CormorantGaramond[wght].ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'IBM-Plex-Mono';
+  src: url('/fonts/text/IBM-Plex-Mono.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'IBM-Plex-Sans';
+  src: url('/fonts/text/IBMPlexSans[wdth,wght].ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'IBM-Plex-Serif';
+  src: url('/fonts/text/IBMPlexSerif-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/text/Inter[opsz,wght].ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Lora';
+  src: url('/fonts/text/Lora[wght].ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Merriweather';
+  src: url('/fonts/text/Merriweather[opsz,wdth,wght].ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  src: url('/fonts/text/Montserrat[wght].ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Noto-Sans';
+  src: url('/fonts/text/NotoSansYi-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Noto-Serif';
+  src: url('/fonts/text/NotoSerif[wdth,wght].ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'PT-Sans';
+  src: url('/fonts/text/PT_Sans-Web-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'PT-Serif';
+  src: url('/fonts/text/PT_Serif-Web-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('/fonts/text/Roboto[wdth,wght].ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Slabo';
+  src: url('/fonts/text/Slabo27px-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'STIX-Two-Text';
+  src: url('/fonts/text/STIXTwoText[wght].ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}

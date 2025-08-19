@@ -553,7 +553,7 @@ export default function StartPage() {
             {/* First option: new paper or continue */}
             <div className="flex flex-col bg-background w-[80%] sm:w-[65%] lg:w-[50%] m-2  border-4 border-primary rounded-lg justify-center items-center">
                 <div className='flex flex-col p-8 gap-6'>
-                    <p className='text-center text-primary w-full text-xl sm:text-2xl lg:text-3xl font-bold'>Create File</p>
+                    <p className='text-center text-primary w-full text-xl sm:text-2xl lg:text-3xl font-inter'>Create File</p>
                     <div className="inline-flex items-center space-x-4">
                         <p className="text-primary">File Name:</p>
                         <input ref={fileNameRef} type="text" value={fileNameValue} onChange={handleFileNameChange} className="w-full max-w-[15rem] border-2 border-primary rounded px-2 py-1 transition-shadow duration-300 focus:shadow-[0_0_0_0.4rem_theme('colors.accent')] focus:outline-none" placeholder="Maths Exam" />
@@ -594,7 +594,7 @@ export default function StartPage() {
                     <ArrowIcon className='w-full h-full'/>
                 </button>
                 <button onClick={createButtonPressed} className="flex flex-grow bg-background w-full m-2 mr-0 p-2 border-4 border-primary rounded-lg justify-center items-center cursor-pointer hover:shadow-[0_0_0_0.5rem_theme('colors.accent')] transition-all duration-300 ease-in-out">
-                    <p className='text-primary text-center text-lg sm:text-1xl lg:text-2xl font-bold'>Create</p>
+                    <p className='text-primary text-center text-lg sm:text-1xl lg:text-2xl font-inter'>Create</p>
                 </button>
             </div>
         </div>
@@ -604,7 +604,7 @@ export default function StartPage() {
             {/* First option: new paper or continue */}
             <div className="flex flex-col relative bg-background w-[80%] sm:w-[65%] lg:w-[50%] m-2 border-4 border-primary rounded-lg justify-center items-center">
                 <div className='flex flex-col p-8 gap-6'>
-                    <p className='text-center text-primary w-full text-xl sm:text-2xl lg:text-3xl font-bold'>Upload File</p>
+                    <p className='text-center text-primary w-full text-xl sm:text-2xl lg:text-3xl font-inter'>Upload File</p>
                     <p className='text-center text-primary w-full'>Continue editing your file by adding it bellow!</p>
                     <div className="w-full max-w-md ">
                         <div
@@ -631,7 +631,7 @@ export default function StartPage() {
                 </div>
                 {/* TEMPORY UNTILL DEVELOPED */}
                 <div className='absolute flex w-full h-full z-10 backdrop-blur-sm items-center justify-center'>
-                    <p className='italic text-2xl'>Coming soon!</p>
+                    <p className='italic text-2xl font-inter'>Coming soon!</p>
                 </div>
             </div>
             <div className='flex w-[80%] sm:w-[65%] lg:w-[50%] h-[8%] sm:h-[8%] lg:h-[10%]'>
@@ -639,7 +639,7 @@ export default function StartPage() {
                     <ArrowIcon className='w-full h-full'/>
                 </button>
                 <button onClick={() => router.push("/editor")} className="flex w-full bg-background m-2 mr-0 p-2 border-4 border-primary rounded-lg justify-center items-center cursor-pointer hover:shadow-[0_0_0_0.5rem_theme('colors.contrast')] transition-all duration-300 ease-in-out">
-                    <p className='text-primary text-center text-lg sm:text-1xl lg:text-2xl font-bold'>Start</p>
+                    <p className='text-primary text-center text-lg sm:text-1xl lg:text-2xl font-inter'>Start</p>
                 </button>
             </div>
         </div>

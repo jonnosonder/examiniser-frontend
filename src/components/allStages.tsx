@@ -195,14 +195,14 @@ const AllStages = ({ manualScaler=1, previewStyle, editQuestionButtonHandler} : 
 
         //console.log(`Rending Page ${pageNumber+1}#, Items: ${aPagesElements.length}`);
         return (
-          <div key={stage.id+"wrap"} className='flex flex-col items-center justify-start' id={!previewStyle ? `stageDivSelect${pageNumber}` : ''}>
+          <div key={stage.id+"wrap"} className='flex flex-col flex-shrink-0 items-center justify-start' id={!previewStyle ? `stageDivSelect${pageNumber}` : ''}>
           {!previewStyle && (
             <p 
               key={stage.id+"p"}
               className='flex w-full items-center justify-center text-darkGrey text-[0.6rem] text-center select-none cursor-default'
               >{stage.width}px x {stage.height}px</p>
           )}
-          <div ref={stageContainerRef} key={stage.id+"div"} onClick={() => previewPageOnClickHanlder?.(pageNumber)} className='flex flex-col relative w-full h-full items-center justify-start'>
+          <div ref={stageContainerRef} key={stage.id+"div"} onClick={() => previewPageOnClickHanlder?.(pageNumber)} className='flex flex-col flex-shrink-0 relative w-full h-full items-center justify-start'>
               <div
                 ref={stageWrapRef}
                 className={`flex flex-shrink-0 ${previewStyle && `border border-primary rounded-sm transition-shadow duration-300 hover:shadow-[0_0_0_0.2rem_theme('colors.contrast')]`} overflow-hidden`}

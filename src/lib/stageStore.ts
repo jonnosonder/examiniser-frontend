@@ -311,27 +311,28 @@ export function restoreHistoryUndo() {
   const front = stageHistoryUndo.at(-1);
   
   if (front) {
-    const {pageIndex, groupIndex} = validateIndexes(front);
-    switch (front.command) {
-      case "info":
-        pageElementsInfo[pageIndex][groupIndex] = front.from;
-        break;
-      case "info-contents":
-        if (front.contentsFrom){ 
+    if (front.command !== "delete") {
+      const {pageIndex, groupIndex} = validateIndexes(front);
+      switch (front.command) {
+        case "info":
           pageElementsInfo[pageIndex][groupIndex] = front.from;
-          pageElements[pageIndex][groupIndex] = front.contentsFrom;
-        }
-        break;
-      case "create":
-        deletePageElementInfo(pageIndex,groupIndex);
-        deletePageElement(pageIndex, groupIndex);
-        break;
-      case "delete":
-        if (front.contentsFrom){ 
-          addPageElementsInfo(front.from, pageIndex);
-          addPageElement(front.contentsFrom, pageIndex);
-        }
-        break;
+          break;
+        case "info-contents":
+          if (front.contentsFrom){ 
+            pageElementsInfo[pageIndex][groupIndex] = front.from;
+            pageElements[pageIndex][groupIndex] = front.contentsFrom;
+          }
+          break;
+        case "create":
+          deletePageElementInfo(pageIndex,groupIndex);
+          deletePageElement(pageIndex, groupIndex);
+          break;
+      }
+    } else {
+      if (front.contentsFrom){ 
+        addPageElementsInfo(front.from, front.pageIndex);
+        addPageElement(front.contentsFrom, front.pageIndex);
+      }
     }
     stageHistoryRedo.push(front);
     stageHistoryUndo.pop();
@@ -342,28 +343,29 @@ export function restoreHistoryUndo() {
 export function restoreHistoryRedo() {
   const front = stageHistoryRedo.at(-1);
   if (front) {
-    const {pageIndex, groupIndex} = validateIndexes(front);
-    switch (front.command) {
-      case "info":
-        pageElementsInfo[pageIndex][groupIndex] = front.to;
-        break;
-      case "info-contents":
-        if (front.contentsTo){ 
+    if (front.command !== "create") { 
+      const {pageIndex, groupIndex} = validateIndexes(front);
+      switch (front.command) {
+        case "info":
           pageElementsInfo[pageIndex][groupIndex] = front.to;
-          pageElements[pageIndex][groupIndex] = front.contentsTo;
-        }
-        break;
-      case "create":
-        if (front.contentsTo){ 
-          addPageElementsInfo(front.to, pageIndex);
-          addPageElement(front.contentsTo, pageIndex);
-        }
-        front.groupIndex = pageElementsInfo[pageIndex].length-1;
-        break;
-      case "delete":
-        deletePageElementInfo(pageIndex,groupIndex);
-        deletePageElement(pageIndex, groupIndex);
-        break;
+          break;
+        case "info-contents":
+          if (front.contentsTo){ 
+            pageElementsInfo[pageIndex][groupIndex] = front.to;
+            pageElements[pageIndex][groupIndex] = front.contentsTo;
+          }
+          break;
+        case "delete":
+          deletePageElementInfo(pageIndex, groupIndex);
+          deletePageElement(pageIndex, groupIndex);
+          break;
+      }
+    } else {
+      if (front.contentsTo){ 
+        addPageElementsInfo(front.to, front.pageIndex);
+        addPageElement(front.contentsTo, front.pageIndex);
+      }
+      front.groupIndex = pageElementsInfo[front.pageIndex].length-1;
     }
     stageHistoryUndo.push(front);
     stageHistoryRedo.pop();
@@ -392,7 +394,8 @@ const validateIndexes = (data: historyData):indexes => {
           return {pageIndex, groupIndex: x};
         }
       }
-      for (let x = groupIndex+1; x > focusLength-1; x++) {
+      console.log(pageElementsInfo[pageIndex]);
+      for (let x = groupIndex+1; x < focusLength-1; x++) {
         if (groupID === pageElementsInfo[pageIndex][x].id) {
           return {pageIndex, groupIndex: x};
         }

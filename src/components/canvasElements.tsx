@@ -108,8 +108,9 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
     return { x: x * stageScale, y: y * stageScale };
   };
 
-  const round4 = (num: number) => Math.round((num + Number.EPSILON) * 10000) / 10000;
-  const round4WithMax = (num: number) => Math.round((Math.max(5, num) + Number.EPSILON) * 10000) / 10000;
+  //const round4 = (num: number) => Math.round((num + Number.EPSILON) * 10000) / 10000;
+  //const round4WithMax = (num: number) => Math.round((Math.max(5, num) + Number.EPSILON) * 10000) / 10000;
+  const roundWithMax = (num: number) => Math.round(Math.max(5, num) + Number.EPSILON);
 
   switch (shape.type) {
     case 'rect':
@@ -129,8 +130,8 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
 
               onChange({
                 ...shape,
-                width: round4WithMax(node.width() * scaleX),
-                height: round4WithMax(node.height() * scaleY),
+                width: roundWithMax(node.width() * scaleX),
+                height: roundWithMax(node.height() * scaleY),
                 rotation: Math.round(node.rotation()),
               } as ShapeData);
             
@@ -156,8 +157,8 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
 
               onChange({
                 ...shape,
-                width: round4WithMax(node.width() * scaleX),
-                height: round4WithMax(node.height() * scaleY),
+                width: roundWithMax(node.width() * scaleX),
+                height: roundWithMax(node.height() * scaleY),
                 rotation: Math.round(node.rotation()),
               } as ShapeData);
             
@@ -192,8 +193,8 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
 
               onChange({
                 ...shape,
-                width: round4WithMax(node.width() * scaleX),
-                height: round4WithMax(node.height() * scaleY),
+                width: roundWithMax(node.width() * scaleX),
+                height: roundWithMax(node.height() * scaleY),
                 rotation: Math.round(node.rotation()),
               } as ShapeData);
             
@@ -228,8 +229,8 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
 
               onChange({
                 ...shape,
-                width: round4WithMax(node.width() * scaleX),
-                height: round4WithMax(node.height() * scaleY),
+                width: roundWithMax(node.width() * scaleX),
+                height: roundWithMax(node.height() * scaleY),
                 rotation: Math.round(node.rotation()),
               } as ShapeData);
             
@@ -338,8 +339,8 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
 
               onChange({
                 ...shape,
-                width: round4WithMax(node.width() * scaleX),
-                height: round4WithMax(node.height() * scaleY),
+                width: roundWithMax(node.width() * scaleX),
+                height: roundWithMax(node.height() * scaleY),
                 rotation: Math.round(node.rotation()),
               } as ShapeData);
             
@@ -371,8 +372,8 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
 
               onChange({
                 ...shape,
-                width: round4WithMax(node.width() * scaleX),
-                height: round4WithMax(node.height() * scaleY),
+                width: roundWithMax(node.width() * scaleX),
+                height: roundWithMax(node.height() * scaleY),
                 rotation: Math.round(node.rotation()),
               } as ShapeData);
             
@@ -405,8 +406,8 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
 
               onChange({
                 ...shape,
-                width: round4WithMax(node.width() * scaleX),
-                height: round4WithMax(node.height() * scaleY),
+                width: roundWithMax(node.width() * scaleX),
+                height: roundWithMax(node.height() * scaleY),
                 rotation: Math.round(node.rotation()),
               } as ShapeData);
             

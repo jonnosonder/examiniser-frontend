@@ -35,9 +35,9 @@ module.exports = {
         background: '#f9fafaff',
       },
       fontFamily: {
-        nunito: ['Nunito', 'Roboto'],
-        roboto: ['Roboto', 'Nunito'],
-        inter: ['Inter', 'Roboto']
+        nunito: ['Nunito-500', 'Roboto-500'],
+        roboto: ['Roboto-500', 'Nunito-500'],
+        inter: ['Inter-500', 'Roboto-500']
       },
     },
   },

@@ -196,7 +196,7 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
 
   return (
       <div className="absolute flex z-10 w-screen h-screen bg-opacity-50 backdrop-blur-sm items-center justify-center left-0 top-0">
-        <div className="flex flex-col h-1/2 bg-background border border-grey shadow space-y-5 p-2 rounded-lg">
+        <div className="flex flex-col h-3/6 bg-background border border-grey shadow space-y-5 p-2 rounded-lg">
           <div className='flex w-full items-center justify-between'>
             <h2 className=" p-2 text-2xl font-semibold m-0 ">Export to File</h2>
             <button className='p-2 m-0 ' onClick={onClose}>
@@ -224,6 +224,12 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
                   <option value="medium">Medium</option>
                   <option value="low">Low</option>
                   <option value="none">None</option>
+                </select>
+              </div>
+              <div className="flex flex-row w-full items-center">
+                <p className='flex text-center p-2 pr-7'>File Type: </p>
+                <select className="border-2 border-primary rounded p-2 bg-background cursor-pointer transition-shadow duration-300 focus:shadow-[0_0_0_0.4rem_theme('colors.accent')] focus:outline-none">
+                  <option value="pdf">PDf</option>
                 </select>
               </div>
             </div>

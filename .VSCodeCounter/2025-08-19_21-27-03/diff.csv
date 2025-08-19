@@ -1,0 +1,44 @@
+"filename", "language", "PostCSS", "TypeScript", "TypeScript JSX", "comment", "blank", "total"
+"c:\examiniser\examiniser-frontend\src\app\about\page.tsx", "TypeScript JSX", 0, 0, 29, 2, 3, 34
+"c:\examiniser\examiniser-frontend\src\app\editor\page.tsx", "TypeScript JSX", 0, 0, 589, 4, 81, 674
+"c:\examiniser\examiniser-frontend\src\app\layout.tsx", "TypeScript JSX", 0, 0, 44, 9, 11, 64
+"c:\examiniser\examiniser-frontend\src\app\not-found.tsx", "TypeScript JSX", 0, 0, 31, 2, 5, 38
+"c:\examiniser\examiniser-frontend\src\app\page.tsx", "TypeScript JSX", 0, 0, 65, 5, 4, 74
+"c:\examiniser\examiniser-frontend\src\app\start\page.tsx", "TypeScript JSX", 0, 0, 573, 10, 69, 652
+"c:\examiniser\examiniser-frontend\src\app\updates\page.tsx", "TypeScript JSX", 0, 0, 68, 2, 6, 76
+"c:\examiniser\examiniser-frontend\src\calculation\createRoundedPolygonPath.tsx", "TypeScript JSX", 0, 0, 41, 2, 12, 55
+"c:\examiniser\examiniser-frontend\src\components\addImage.tsx", "TypeScript JSX", 0, 0, 288, 2, 25, 315
+"c:\examiniser\examiniser-frontend\src\components\addShapeDropDown.tsx", "TypeScript JSX", 0, 0, 227, 14, 14, 255
+"c:\examiniser\examiniser-frontend\src\components\advert.tsx", "TypeScript JSX", 0, 0, 35, 0, 12, 47
+"c:\examiniser\examiniser-frontend\src\components\allStages.tsx", "TypeScript JSX", 0, 0, 218, 4, 34, 256
+"c:\examiniser\examiniser-frontend\src\components\arrowIcon.tsx", "TypeScript JSX", 0, 0, 10, 2, 5, 17
+"c:\examiniser\examiniser-frontend\src\components\canvasElements.tsx", "TypeScript JSX", 0, 0, 373, 10, 43, 426
+"c:\examiniser\examiniser-frontend\src\components\colorSelectorSection.tsx", "TypeScript JSX", 0, 0, 49, 4, 14, 67
+"c:\examiniser\examiniser-frontend\src\components\customContextMenu.tsx", "TypeScript JSX", 0, 0, 62, 2, 7, 71
+"c:\examiniser\examiniser-frontend\src\components\drawElement.tsx", "TypeScript JSX", 0, 0, 63, 3, 6, 72
+"c:\examiniser\examiniser-frontend\src\components\editorContextProvider.tsx", "TypeScript JSX", 0, 0, 41, 3, 10, 54
+"c:\examiniser\examiniser-frontend\src\components\editorSidePanel.tsx", "TypeScript JSX", 0, 0, 697, 47, 89, 833
+"c:\examiniser\examiniser-frontend\src\components\exportPage.tsx", "TypeScript JSX", 0, 0, 202, 12, 35, 249
+"c:\examiniser\examiniser-frontend\src\components\hoverExplainButton.tsx", "TypeScript JSX", 0, 0, 51, 3, 10, 64
+"c:\examiniser\examiniser-frontend\src\components\konvaPage.tsx", "TypeScript JSX", 0, 0, 273, 4, 26, 303
+"c:\examiniser\examiniser-frontend\src\components\konvaPreviewPage.tsx", "TypeScript JSX", 0, 0, 82, 3, 8, 93
+"c:\examiniser\examiniser-frontend\src\components\navbar.tsx", "TypeScript JSX", 0, 0, 58, 9, 8, 75
+"c:\examiniser\examiniser-frontend\src\components\questionCreator.tsx", "TypeScript JSX", 0, 0, 1058, 42, 99, 1199
+"c:\examiniser\examiniser-frontend\src\components\reloadLink.tsx", "TypeScript JSX", 0, 0, 18, 2, 6, 26
+"c:\examiniser\examiniser-frontend\src\components\templatePage.tsx", "TypeScript JSX", 0, 0, 25, 2, 5, 32
+"c:\examiniser\examiniser-frontend\src\components\useBeforeUnload.tsx", "TypeScript JSX", 0, 0, 41, 2, 12, 55
+"c:\examiniser\examiniser-frontend\src\context\dataContext.tsx", "TypeScript JSX", 0, 0, 35, 2, 10, 47
+"c:\examiniser\examiniser-frontend\src\context\notificationContext.tsx", "TypeScript JSX", 0, 0, 97, 10, 15, 122
+"c:\examiniser\examiniser-frontend\src\global.d.ts", "TypeScript", 0, 0, 0, 0, 1, 1
+"c:\examiniser\examiniser-frontend\src\store\useFileStore.ts", "TypeScript", 0, 11, 0, 2, 3, 16
+"c:\examiniser\examiniser-frontend\src\styles\addImage.css", "PostCSS", 79, 0, 0, 0, 11, 90
+"c:\examiniser\examiniser-frontend\src\styles\allStages.css", "PostCSS", 17, 0, 0, 5, 2, 24
+"c:\examiniser\examiniser-frontend\src\styles\colors.css", "PostCSS", 12, 0, 0, 4, 1, 17
+"c:\examiniser\examiniser-frontend\src\styles\editor.css", "PostCSS", 115, 0, 0, 4, 22, 141
+"c:\examiniser\examiniser-frontend\src\styles\fonts.css", "PostCSS", 96, 0, 0, 0, 16, 112
+"c:\examiniser\examiniser-frontend\src\styles\globals.css", "PostCSS", 37, 0, 0, 4, 8, 49
+"c:\examiniser\examiniser-frontend\src\styles\landing.css", "PostCSS", 155, 0, 0, 4, 15, 174
+"c:\examiniser\examiniser-frontend\src\styles\questionCreator.css", "PostCSS", 5, 0, 0, 4, 1, 10
+"c:\examiniser\examiniser-frontend\src\styles\start.css", "PostCSS", 85, 0, 0, 4, 12, 101
+"c:\examiniser\examiniser-frontend\src\types\pdf-worker.d.ts", "TypeScript", 0, 4, 0, 2, 2, 8
+"Total", "-", 601, 15, 5443, 251, 778, 7088

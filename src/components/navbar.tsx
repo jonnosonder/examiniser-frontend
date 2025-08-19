@@ -32,7 +32,7 @@ export default function Navbar() {
         <nav className="items-center bg-background relative w-[90vw] mx-auto">
           <div className="flex mx-auto items-center justify-between">
             <div className="inline flex-row pt-2">
-                <ReloadLink href="/" className="inline-flex items-center justify-center text-primary font-bold text-2xl sm:text-3xl lg:text-4xl cursor-pointer mr-8">
+                <ReloadLink href="/" className="inline-flex items-center justify-center text-primary font-inter text-2xl sm:text-3xl lg:text-4xl cursor-pointer mr-8">
                     Examiniser
                 </ReloadLink>
                 

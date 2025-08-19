@@ -10,29 +10,29 @@ Copyright © 2025 Jonathan Kwok
 @import "reinvented-color-wheel/css/reinvented-color-wheel.min.css";
 
 @font-face {
-  font-family: 'Nunito';
-  src: url('/fonts/Nunito-VariableFont_wght.ttf') format('truetype');
+  font-family: 'Nunito-500';
+  src: url('/fonts/website/Nunito-VariableFont_wght.ttf') format('truetype');
   font-weight: 500;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Roboto';
-  src: url('/fonts/Roboto-VariableFont_wdth_wght.ttf') format('truetype');
+  font-family: 'Roboto-500';
+  src: url('/fonts/website/Roboto-VariableFont_wdth_wght.ttf') format('truetype');
   font-weight: 500;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Inter';
-  src: url('/fonts/Inter-VariableFont_opsz_wght.ttf') format('truetype');
+  font-family: 'Inter-500';
+  src: url('/fonts/website/Inter-VariableFont_opsz_wght.ttf') format('truetype');
   font-weight: 500;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Inter-400';
-  src: url('/fonts/Inter-VariableFont_opsz_wght.ttf') format('truetype');
+  src: url('/fonts/website/Inter-VariableFont_opsz_wght.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
 }

@@ -10,7 +10,7 @@ const Custom404: React.FC = () => {
 
   return (
     <>
-      <div className='absolute left-0 top-0 p-2'>
+      <div className="absolute left-4 top-4 p-2 flex flex-col items-center justify-center backdrop-blur-[2px] border border-grey rounded-lg shadow-lg p-2">
         <p onClick={() => router.push('/')} className='text-2xl cursor-pointer'>Examiniser</p>
       </div>
       <div 
@@ -24,7 +24,7 @@ const Custom404: React.FC = () => {
           } as React.CSSProperties
         }
       >
-        <div className='flex flex-col items-center justify-center'>
+        <div className="flex flex-col items-center justify-center backdrop-blur-[2px] border border-grey rounded-lg shadow-lg p-8 hover:shadow-[0_0_0_1rem_theme('colors.accent')] transition-all duration-300 ease-in-out">
           <h1 className='text-6xl'>404</h1>
           <h2 className='text-2xl'>Woah, what page did you try to find?</h2>
           <p onClick={() => router.push('/')} className='underline cursor-pointer'>Back Home</p>

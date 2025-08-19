@@ -10,7 +10,7 @@ import AllStages from '@/components/allStages';
 import HoverExplainButton from '@/components/hoverExplainButton';
 import '@/styles/editor.css';
 
-import { addPageElement, addPageElementsInfo, addStage, addStageCopyPrevious, deleteAll, deletePageElement, deletePageElementInfo, duplicatePageElement, duplicatePageElementsInfo, getEstimatedPage, getPageElements, getSpecificStage, RENDER_PAGE, RENDER_PREVIEW, restoreHistoryRedo, restoreHistoryUndo, stagesLength } from '@/lib/stageStore';
+import { addPageElement, addPageElementsInfo, addStage, addStageCopyPrevious, addToHistoryUndo, deleteAll, deletePageElement, deletePageElementInfo, duplicatePageElement, duplicatePageElementsInfo, getEstimatedPage, getPageElements, getSpecificStage, historyData, pageElements, pageElementsInfo, RENDER_PAGE, RENDER_PREVIEW, restoreHistoryRedo, restoreHistoryUndo, stagesLength } from '@/lib/stageStore';
 import QuestionCreator from '@/components/questionCreator';
 import { ShapeData } from '@/lib/shapeData';
 import EditorSidePanel from '@/components/editorSidePanel';
@@ -94,6 +94,14 @@ function EditorPage() {
             const pageIndex = selectIndex.current.pageIndex;
             const groupIndex = selectIndex.current.groupIndex;
             if (e.key === 'Delete' && pageIndex !== null && groupIndex !== null) {
+                addToHistoryUndo({
+                    command: "delete",
+                    pageIndex: pageIndex,
+                    groupIndex: groupIndex,
+                    from: pageElementsInfo[pageIndex][groupIndex],
+                    to: {},
+                    contentsFrom: pageElements[pageIndex][groupIndex]
+                } as historyData);
                 deletePageElement(pageIndex, groupIndex);
                 deletePageElementInfo(pageIndex, groupIndex);
                 RENDER_PAGE();
@@ -411,9 +419,11 @@ function EditorPage() {
             border: "",
             borderWeight: 0,
         };
-        addPageElementsInfo({id: "g-"+Date.now(), widestX: newText.width, widestY: newText.height, x:0, y:0, rotation: 0}, pageToAddIt);
-        addPageElement([newText], pageToAddIt);
-        RENDER_PAGE();
+        document.fonts.load('12px Inter-400').then(() => {
+            addPageElementsInfo({id: "g-"+Date.now(), widestX: newText.width, widestY: newText.height, x:0, y:0, rotation: 0}, pageToAddIt);
+            addPageElement([newText], pageToAddIt);
+            RENDER_PAGE();
+        });
     }
 
     const showAddImageHandler = () => {
@@ -521,13 +531,13 @@ function EditorPage() {
         <div className="w-full h-full flex overflow-hidden">
             <div className='flex flex-col h-full w-[12rem]'>
                 <div className='flex w-full'>
-                    <button className='flex flex-col flex-1 p-1 border border-grey border-l-0 text-center items-center justify-center' onClick={() => {setLeftSidePanelToggle(true);}}>
+                    <button className='flex flex-col flex-1 p-1 pt-2 border border-grey border-l-0 text-center items-center justify-center' onClick={() => {setLeftSidePanelToggle(true);}}>
                         Preview
                         <div className={`flex w-full justify-center`}>
                             <div className={`mx-2 ${leftSidePanelToggle ? 'w-full' : 'w-0'} bg-accent h-1 rounded-full transition-all duration-300`}></div>
                         </div>
                     </button>
-                    <button className='flex flex-col flex-1 p-1 border border-grey border-r-0 text-center items-center justify-center' onClick={() => setLeftSidePanelToggle(false)}>
+                    <button className='flex flex-col flex-1 p-1 pt-2 border border-grey border-r-0 text-center items-center justify-center' onClick={() => setLeftSidePanelToggle(false)}>
                         Editor
                         <div className={`flex w-full justify-center`}>
                             <div className={`flex mx-2 ${!leftSidePanelToggle ? 'w-full' : 'w-0'} bg-contrast h-1 rounded-full transition-all duration-300`}></div>
@@ -543,7 +553,7 @@ function EditorPage() {
                     </div>
                 </div>
             </div>
-            <div className="flex relative bg-grey w-full items-center justify-center">
+            <div className="flex w-full relative bg-grey items-center justify-center p-1 overflow-x-auto"> 
                 <AllStages manualScaler={manualScaler} previewStyle={false} editQuestionButtonHandler={editQuestionButtonHandler}/>
                 <div className='absolute flex bottom-[1px] right-[1px]'>
                     <button className='w-4 h-4' onClick={RENDER_PAGE}>
