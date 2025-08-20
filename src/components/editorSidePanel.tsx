@@ -815,9 +815,9 @@ export default function EditorSidePanel() {
             <p className='p-2 pb-1 text-sm'>Background</p>
             <div className='flex flex-col px-4 space-y-2'>
                 <p className="text-xs">Colour</p>
-                <button style={{background: selectedBackgroundColor}} className='w-full h-5 border border-primary rounded-lg' onClick={toggleDisplayColorSelector}></button>
+                <button style={{background: selectedBackgroundColor}} className='w-full h-5 border border-grey shadow rounded-lg' onClick={toggleDisplayColorSelector}></button>
                 {displayColorSelector && (
-                    <div className='absolute flex items-center justify-center left-[25vw]'>
+                    <div className='absolute flex items-center justify-center top-[20vh] left-[13rem]'>
                         <ColorSelectorSection onClose={() => setDisplayColorSelector(false)} passColorValue={setSelectedBackgroundColor} startingColor={selectedBackgroundColor} />
                     </div>
                 )}

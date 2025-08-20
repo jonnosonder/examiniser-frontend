@@ -530,7 +530,7 @@ function EditorPage() {
         </div>
         <div className="w-full h-full flex overflow-hidden">
             <div className='flex flex-col h-full w-[12rem]'>
-                <div className='flex w-full'>
+                <div className='flex w-full font-nunito'>
                     <button className='flex flex-col flex-1 p-1 pt-2 border border-grey border-l-0 text-center items-center justify-center' onClick={() => {setLeftSidePanelToggle(true);}}>
                         Preview
                         <div className={`flex w-full justify-center`}>
@@ -577,7 +577,7 @@ function EditorPage() {
                     </div>)}
                 </button>
 
-                <nav className="w-full mt-4">
+                <nav className="w-full mt-4 font-nunito">
                     <button onClick={createQuestionButtonHandler} className="flex text-center items-center justify-start w-full p-3 focus:outline-none">
                         <div className="w-8 h-8 items-center justify-center">
                             <svg className='w-full h-full' clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m21 3.998c0-.478-.379-1-1-1h-16c-.62 0-1 .519-1 1v16c0 .621.52 1 1 1h16c.478 0 1-.379 1-1zm-16.5.5h15v15h-15zm6.75 6.752h-3.5c-.414 0-.75.336-.75.75s.336.75.75.75h3.5v3.5c0 .414.336.75.75.75s.75-.336.75-.75v-3.5h3.5c.414 0 .75-.336.75-.75s-.336-.75-.75-.75h-3.5v-3.5c0-.414-.336-.75-.75-.75s-.75.336-.75.75z" fillRule="nonzero"/></svg>

@@ -163,7 +163,7 @@ const AllStages = ({ manualScaler=1, previewStyle, editQuestionButtonHandler} : 
     {true && (() => {console.log(previewStyle ? "Preview Render Called" : "Main Render Called");})()}
     <div 
       ref={wholeContainerRef}
-      className='overflow-auto relative custom-scroll h-full w-full flex flex-col items-center justify-start space-y-2 p-4'
+      className='relative custom-scroll h-full w-full flex flex-col items-center justify-start space-y-2 p-4 overflow-y-auto'
       id={!previewStyle ? `wholeStageContainerScroller` : ''}
       >
       {stages.map((stage, pageNumber) => {
@@ -199,7 +199,7 @@ const AllStages = ({ manualScaler=1, previewStyle, editQuestionButtonHandler} : 
           {!previewStyle && (
             <p 
               key={stage.id+"p"}
-              className='flex w-full items-center justify-center text-darkGrey text-[0.6rem] text-center select-none cursor-default'
+              className='flex items-center justify-center text-darkGrey text-[0.6rem] text-center select-none cursor-default'
               >{stage.width}px x {stage.height}px</p>
           )}
           <div ref={stageContainerRef} key={stage.id+"div"} onClick={() => previewPageOnClickHanlder?.(pageNumber)} className='flex flex-col flex-shrink-0 relative w-full h-full items-center justify-start'>

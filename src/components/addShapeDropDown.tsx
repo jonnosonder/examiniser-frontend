@@ -202,7 +202,7 @@ const AddShapeDropDown: React.FC = () => {
           onMouseLeave={hideDropdown}
         >
             <div className='flex flex-col bg-background mt-2 p-2 rounded shadow text-primary border border-grey'>
-                <p className='whitespace-nowrap text-left mb-2'>Add Shape</p>
+                <p className='whitespace-nowrap text-left mb-2 font-nunito'>Add Shape</p>
                 <div className='flex h-10 items-center justify-center space-x-2'>
                   {/* Square */}
                   <button className='h-full' onClick={addSquareToPageButtonHandler}>

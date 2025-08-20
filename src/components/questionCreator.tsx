@@ -832,7 +832,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                             </button>
                         </div>
                         <span className='flex w-full flex-1' />
-                        <div className='flex flex-row w-full h-10 my-2'>
+                        <div className='flex flex-row w-full h-10 my-2 space-x-2 overflow-x-auto'>
                             {/* Add Text */}
                             <button onClick={addTextHandle}>
                                 <svg className='h-full' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -848,22 +848,19 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                             {/* Add Square */}
                             <button className='w-10 h-full' onClick={addSquareHandle}>
                                 <svg className='h-full' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <rect x="5.5" y="5.5" width="13" height="13" rx="0.5" stroke="black"/>
-                                    <path d="M23.4847 3.196H21.2047V5.524H20.7847V3.196H18.5167V2.8H20.7847V0.46H21.2047V2.8H23.4847V3.196Z" fill="black"/>
+                                    <rect x="2.5" y="2.5" width="19" height="19" stroke="black"/>
                                 </svg>
                             </button>
                             {/* Add Circle */}
                             <button className='w-10 h-full' onClick={addCircleHandle}>
                                 <svg className='h-full' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M23.4847 3.196H21.2047V5.524H20.7847V3.196H18.5167V2.8H20.7847V0.46H21.2047V2.8H23.4847V3.196Z" fill="black"/>
-                                    <circle cx="12" cy="12" r="6.5" stroke="black"/>
+                                    <circle cx="12" cy="12" r="9.5" stroke="black"/>
                                 </svg>
                             </button>
                             {/* Add Triangle */}
                             <button className='w-10 h-full' onClick={addTriangleHandle}>
                                 <svg className='h-full' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M23.4847 3.196H21.2047V5.524H20.7847V3.196H18.5167V2.8H20.7847V0.46H21.2047V2.8H23.4847V3.196Z" fill="black"/>
-                                    <path d="M19.7949 18.5H4.20508L12 4.99902L19.7949 18.5Z" stroke="black"/>
+                                    <path d="M22.0264 20.5H2.97363L12.5 3.99902L22.0264 20.5Z" stroke="black"/>
                                 </svg>
                             </button>
                             {/* Right Angle Triangle */}
@@ -875,12 +872,11 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                             {/* Add Star */}
                             <button className='w-10 h-full' onClick={addStarHandle}>
                                 <svg className='h-full' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M23.4847 3.196H21.2047V5.524H20.7847V3.196H18.5167V2.8H20.7847V0.46H21.2047V2.8H23.4847V3.196Z" fill="black"/>
-                                    <path d="M11.5254 5.31168C11.6136 5.12084 11.7984 5 12 5C12.2023 5 12.3864 5.12084 12.4746 5.31168C13.1564 6.78389 14.3296 9.32011 14.3296 9.32011C14.3296 9.32011 16.9973 9.70621 18.545 9.93095C18.8271 9.97147 19 10.2227 19 10.4814C19 10.6214 18.9496 10.7636 18.8383 10.8763C17.7113 12.0096 15.7709 13.9644 15.7709 13.9644C15.7709 13.9644 16.2448 16.7401 16.5192 18.3501C16.5773 18.6905 16.3267 19 15.9998 19C15.9144 19 15.829 18.9786 15.7513 18.9344C14.3737 18.1622 12 16.8337 12 16.8337C12 16.8337 9.6263 18.1622 8.2487 18.9344C8.171 18.9786 8.0849 19 7.9995 19C7.674 19 7.422 18.6898 7.4808 18.3501C7.7559 16.7401 8.2298 13.9644 8.2298 13.9644C8.2298 13.9644 6.2887 12.0096 5.1624 10.8763C5.0504 10.7636 5 10.6214 5 10.4821C5 10.2227 5.1743 9.97074 5.4557 9.93095C7.0034 9.70621 9.6704 9.32011 9.6704 9.32011C9.6704 9.32011 10.8443 6.78389 11.5254 5.31168ZM12 6.80968L10.3473 10.3406L6.6751 10.8704L9.3687 13.5547L8.7051 17.4268L12 15.5811L15.2949 17.4268L14.6292 13.5687L17.3249 10.8704L13.6051 10.3134L12 6.80968Z" fill="black"/>
+                                    <path d="M14.3154 9.36914L14.4326 9.65137L14.7373 9.67578L20.748 10.1572L16.1689 14.0801L15.9365 14.2793L16.0078 14.5762L17.4062 20.4414L12.2607 17.2979L12 17.1387L11.7393 17.2979L6.59277 20.4414L7.99219 14.5762L8.06348 14.2793L7.83105 14.0801L3.25098 10.1572L9.2627 9.67578L9.56738 9.65137L9.68457 9.36914L12 3.80273L14.3154 9.36914Z" stroke="black"/>
                                 </svg>
                             </button>
                             <span className='w-full flex' />
-                            {/* Add Star */}
+                            {/* Delete Button */}
                             <button className='w-10 h-full' onClick={deleteButtonHandler}>
                                 <svg className='h-full p-2' viewBox='0 0 24 24' xmlns="http://www.w3.org/2000/svg" fillRule="evenodd" clipRule="evenodd"><path d="M19 24h-14c-1.104 0-2-.896-2-2v-17h-1v-2h6v-1.5c0-.827.673-1.5 1.5-1.5h5c.825 0 1.5.671 1.5 1.5v1.5h6v2h-1v17c0 1.104-.896 2-2 2zm0-19h-14v16.5c0 .276.224.5.5.5h13c.276 0 .5-.224.5-.5v-16.5zm-9 4c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm6 0c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm-2-7h-4v1h4v-1z"/></svg>
                             </button>

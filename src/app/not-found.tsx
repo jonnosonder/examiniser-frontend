@@ -11,7 +11,7 @@ const Custom404: React.FC = () => {
   return (
     <>
       <div className="absolute left-4 top-4 p-2 flex flex-col items-center justify-center backdrop-blur-[2px] border border-grey rounded-lg shadow-lg p-2">
-        <p onClick={() => router.push('/')} className='text-2xl cursor-pointer'>Examiniser</p>
+        <p onClick={() => router.push('/')} className='text-2xl font-nunito cursor-pointer'>Examiniser</p>
       </div>
       <div 
         className="w-screen h-screen flex items-center justify-center text-primary"
