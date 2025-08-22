@@ -183,6 +183,9 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                 setEditorTextSizeValue(String(shape.fontSize));
                 setEditorTextAlignValue(String(shape.align));
             }
+            if (shape.type === 'star') {
+                setEditorStarNumPointsValue(String(shape.numPoints));
+            }
             setSelectedFillColorViaDisplay(shape.fill);
             setSelectedStrokeColorViaDisplay(shape.stroke);
         } else {
@@ -463,6 +466,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
     const [editorStrokeWeightValue, setEditorStrokeWeightValue] = useState<string>("0");
     const [editorTextSizeValue, setEditorTextSizeValue] = useState<string>("0");
     const [editorTextAlignValue, setEditorTextAlignValue] = useState<string>("left");
+    const [editorStarNumPointsValue, setEditorStarNumPointsValue] = useState<string>("0");
 
     const editorXpositionHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
@@ -757,6 +761,45 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                     prevShapes.map(shape => {
                     if (shape.id === selectedId) {
                         return { ...shape, fontSize: roundedValue };
+                    }
+                    return shape;
+                    })
+                );
+            }
+        }
+    }
+
+    const editorStarNumPointsValueHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+
+        if (/^\d*\.?\d*$/.test(value)) {
+            if (value === "") {
+                setEditorStarNumPointsValue("");
+            } else if (Number(value) === 0) {
+                setEditorStarNumPointsValue(value);
+                setShapes(prevShapes =>
+                    prevShapes.map(shape => {
+                    if (shape.id === selectedId) {
+                        return { ...shape, numPoints: 0 };
+                    }
+                    return shape;
+                    })
+                );
+            } else {
+                if (Number(value) <= 0) {
+                    return;
+                }
+                const roundedValue = Math.trunc((Number(value) + Number.EPSILON) * 10000) / 10000;
+                if (value.endsWith(".")) {
+                    setEditorStarNumPointsValue(String(roundedValue)+".");
+                } else {
+                    setEditorStarNumPointsValue(String(roundedValue));
+                }
+            
+                setShapes(prevShapes =>
+                    prevShapes.map(shape => {
+                    if (shape.id === selectedId) {
+                        return { ...shape, numPoints: roundedValue };
                     }
                     return shape;
                     })
@@ -1175,6 +1218,51 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                                                 <svg clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m7 17.75c0-.414.336-.75.75-.75h13.5c.414 0 .75.336.75.75s-.336.75-.75.75h-13.5c-.414 0-.75-.336-.75-.75zm-5-4c0-.414.336-.75.75-.75h18.5c.414 0 .75.336.75.75s-.336.75-.75.75h-18.5c-.414 0-.75-.336-.75-.75zm9-4c0-.414.336-.75.75-.75h9.5c.414 0 .75.336.75.75s-.336.75-.75.75h-9.5c-.414 0-.75-.336-.75-.75zm-7-4c0-.414.336-.75.75-.75h16.5c.414 0 .75.336.75.75s-.336.75-.75.75h-16.5c-.414 0-.75-.336-.75-.75z" fillRule="nonzero"/></svg>
                                             </button>
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Text Aditional Features */}
+                        {selectedShapeType === "star" && (
+
+                            <div className="w-full">
+                                <button
+                                    className="w-full flex justify-between items-center py-1 bg-transparent text-primary text-base transition cursor-pointer"
+                                    onClick={() => toggleParameterPanelSection(4)}
+                                >
+                                    Star
+                                    {checkParameterPanelSection(4) ? (
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" />
+                                    </svg>
+                                    ) : (
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M6 15L12 9L18 15" stroke="currentColor" strokeWidth="2" />
+                                    </svg>
+                                    )}
+                                </button>
+
+                                <div
+                                    className={`flex flex-col overflow-hidden transition-all duration-400 ease-linear space-y-2 ${
+                                    checkParameterPanelSection(4) ? 'm-2' : 'max-h-0 p-0 border-0'
+                                    }`}
+                                >
+                                    <div className='flex w-full flex-col items-center justify-center'>
+                                        <div className='flex w-full h-10 flex-row items-center justify-center space-x-2'>
+                                            {/* Text Size Input */}
+                                            <p>Corners</p>
+                                            <input className='w-20 rounded-sm border border-primary px-1' onChange={editorStarNumPointsValueHandler} value={editorStarNumPointsValue}></input>
+                                            {/*
+                                            <button className='h-8' onClick={increaseFontSizeHandle}>  
+                                                <svg className='h-full' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M6.67406 6.4H17.3141V9.66H16.7941L16.2141 7.56C16.1741 7.4 16.1274 7.28667 16.0741 7.22C16.0341 7.14 15.9474 7.09333 15.8141 7.08C15.6807 7.05333 15.4541 7.04 15.1341 7.04H12.8741V18.38C12.8741 18.8467 12.8941 19.12 12.9341 19.2C12.9741 19.28 13.1007 19.3333 13.3141 19.36L14.4141 19.48V20H9.59406V19.48L10.6941 19.36C10.9074 19.3333 11.0341 19.28 11.0741 19.2C11.1141 19.12 11.1341 18.8467 11.1341 18.38V7.04H8.85406C8.5474 7.04 8.32073 7.05333 8.17406 7.08C8.04073 7.09333 7.9474 7.14 7.89406 7.22C7.85406 7.28667 7.81406 7.4 7.77406 7.56L7.19406 9.66H6.67406V6.4Z" fill="black"/>
+                                                    <path d="M23.1007 6.664L22.7047 6.808L20.9887 2.464L19.2607 6.808L18.9007 6.664L20.8327 1.84H21.1687L23.1007 6.664Z" fill="black"/>
+                                                </svg>
+                                            </button>
+                                            */}
+                                        </div>
+
                                     </div>
                                 </div>
                             </div>
