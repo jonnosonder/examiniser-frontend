@@ -197,7 +197,7 @@ const AddShapeDropDown: React.FC = () => {
 
       {open && (
         <div
-          className="absolute left-0 top-12 z-10"
+          className="absolute left-0 top-full z-10"
           onMouseEnter={showDropdown}
           onMouseLeave={hideDropdown}
         >

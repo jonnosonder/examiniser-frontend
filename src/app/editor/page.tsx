@@ -473,7 +473,7 @@ function EditorPage() {
     )}
     {showQuestionCreator && <QuestionCreator onClose={handleQuestionCreatorClose} newQuestionCreating={newQuestionCreating} shapes={questionCreatorShapes} setShapes={setQuestionCreatorShapes} questionEditingID={questionEditingID}/>}
     <div className="flex flex-col w-full h-full">
-        <div className="flex h-12 border-b-1 border-primary">
+        <div className="flex flex-shrink-0 relative h-12 border-b-1 border-primary">
             <div className='flex m-1'>
                 <input className='border-2 bg-background border-background rounded-lg p-1 text-ellipsis overflow-hidden whitespace-nowrap outline-none focus:border-accent' type="text" onChange={fileNameOnChangeHandler} onBlur={(e) => {e.target.setSelectionRange(0, 0);}} value={projectNameValue} placeholder='Project Name'></input>
             </div>
@@ -553,7 +553,7 @@ function EditorPage() {
                     </div>
                 </div>
             </div>
-            <div className="flex w-full relative bg-grey items-center justify-center p-1 overflow-x-auto"> 
+            <div className="flex-1 min-w-0 flex relative bg-grey items-center justify-center p-1 overflow-none">
                 <AllStages manualScaler={manualScaler} previewStyle={false} editQuestionButtonHandler={editQuestionButtonHandler}/>
                 <div className='absolute flex bottom-[1px] right-[1px]'>
                     <button className='w-4 h-4' onClick={RENDER_PAGE}>
@@ -563,7 +563,7 @@ function EditorPage() {
             </div>
             <div
                 className={`flex flex-col text-primary transition-width duration-300 ease-in-out h-full border-t border-grey
-                    ${!actionWindow ? 'w-16' : 'w-56'}`}
+                    ${!actionWindow ? 'w-16' : 'w-42'}`}
                 >
                 <button
                     onClick={() => setActionWindow(!actionWindow)}
@@ -578,28 +578,28 @@ function EditorPage() {
                 </button>
 
                 <nav className="w-full mt-4 font-nunito">
-                    <button onClick={createQuestionButtonHandler} className="flex text-center items-center justify-start w-full p-3 focus:outline-none">
+                    <button onClick={createQuestionButtonHandler} className={`flex text-center items-center ${actionWindow ? "justify-start" : "justify-center"} w-full p-3 focus:outline-none`}>
                         <div className="w-8 h-8 items-center justify-center">
                             <svg className='w-full h-full' clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m21 3.998c0-.478-.379-1-1-1h-16c-.62 0-1 .519-1 1v16c0 .621.52 1 1 1h16c.478 0 1-.379 1-1zm-16.5.5h15v15h-15zm6.75 6.752h-3.5c-.414 0-.75.336-.75.75s.336.75.75.75h3.5v3.5c0 .414.336.75.75.75s.75-.336.75-.75v-3.5h3.5c.414 0 .75-.336.75-.75s-.336-.75-.75-.75h-3.5v-3.5c0-.414-.336-.75-.75-.75s-.75.336-.75.75z" fillRule="nonzero"/></svg>
                         </div>
                         {actionWindow && <span className="ml-3 text-sm lg:text-sm">Add Question</span>}
                     </button>
 
-                    <button ref={editButtonRef} onClick={() => editQuestionButtonHandler()} className="flex text-center items-center justify-start  w-full p-3 focus:outline-none">
+                    <button ref={editButtonRef} onClick={() => editQuestionButtonHandler()} className={`flex text-center items-center ${actionWindow ? "justify-start" : "justify-center"} w-full p-3 focus:outline-none`}>
                         <div className="w-8 h-8 items-center justify-center">
                             <svg className='w-full h-full' clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m11.25 6c.398 0 .75.352.75.75 0 .414-.336.75-.75.75-1.505 0-7.75 0-7.75 0v12h17v-8.749c0-.414.336-.75.75-.75s.75.336.75.75v9.249c0 .621-.522 1-1 1h-18c-.48 0-1-.379-1-1v-13c0-.481.38-1 1-1zm1.521 9.689 9.012-9.012c.133-.133.217-.329.217-.532 0-.179-.065-.363-.218-.515l-2.423-2.415c-.143-.143-.333-.215-.522-.215s-.378.072-.523.215l-9.027 8.996c-.442 1.371-1.158 3.586-1.264 3.952-.126.433.198.834.572.834.41 0 .696-.099 4.176-1.308zm-2.258-2.392 1.17 1.171c-.704.232-1.274.418-1.729.566zm.968-1.154 7.356-7.331 1.347 1.342-7.346 7.347z" fillRule="nonzero"/></svg>
                         </div>
                         {actionWindow && <span className="ml-3 text-sm lg:text-sm">Edit Question</span>}
                     </button>
 
-                    <button ref={duplicateButtonRef} onClick={duplicateQuestionButtonHandler} className="flex text-center items-center justify-start  w-full p-3 focus:outline-none">
+                    <button ref={duplicateButtonRef} onClick={duplicateQuestionButtonHandler} className={`flex text-center items-center ${actionWindow ? "justify-start" : "justify-center"} w-full p-3 focus:outline-none`}>
                         <div className="w-8 h-8 items-center justify-center">
                             <svg clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m20 20h-15.25c-.414 0-.75.336-.75.75s.336.75.75.75h15.75c.53 0 1-.47 1-1v-15.75c0-.414-.336-.75-.75-.75s-.75.336-.75.75zm-1-17c0-.478-.379-1-1-1h-15c-.62 0-1 .519-1 1v15c0 .621.52 1 1 1h15c.478 0 1-.379 1-1zm-15.5.5h14v14h-14zm6.25 6.25h-3c-.414 0-.75.336-.75.75s.336.75.75.75h3v3c0 .414.336.75.75.75s.75-.336.75-.75v-3h3c.414 0 .75-.336.75-.75s-.336-.75-.75-.75h-3v-3c0-.414-.336-.75-.75-.75s-.75.336-.75.75z" fillRule="nonzero"/></svg>
                         </div>
                         {actionWindow && <span className="ml-3 text-sm lg:text-sm">Duplicate</span>}
                     </button>
                     
-                    <button onClick={premadeButtonHandler} className="flex text-center items-center justify-start  w-full p-3 focus:outline-none">
+                    <button onClick={premadeButtonHandler} className={`flex text-center items-center ${actionWindow ? "justify-start" : "justify-center"} w-full p-3 focus:outline-none`}>
                         <div className="w-8 h-8 items-center justify-center"> 
                             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><mask id="path-1-inside-1_38_2" fill="white"><rect x="3" y="3" width="18" height="18" rx="1"/></mask><rect x="3" y="3" width="18" height="18" rx="1" stroke="black" strokeWidth="3" mask="url(#path-1-inside-1_38_2)"/><path d="M7.46967 15.4697C7.17678 15.7626 7.17678 16.2374 7.46967 16.5303C7.76256 16.8232 8.23744 16.8232 8.53033 16.5303L7.46967 15.4697ZM16.75 8C16.75 7.58579 16.4142 7.25 16 7.25H9.25C8.83579 7.25 8.5 7.58579 8.5 8C8.5 8.41421 8.83579 8.75 9.25 8.75H15.25V14.75C15.25 15.1642 15.5858 15.5 16 15.5C16.4142 15.5 16.75 15.1642 16.75 14.75V8ZM8 16L8.53033 16.5303L16.5303 8.53033L16 8L15.4697 7.46967L7.46967 15.4697L8 16Z" fill="black"/></svg>
                         </div>

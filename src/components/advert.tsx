@@ -25,7 +25,7 @@ const Advert: React.FC<AdSenseTestProps> = ({ slot }) => {
     ins.setAttribute('data-ad-slot', slot);
     ins.setAttribute('data-ad-format', 'auto');
     ins.setAttribute('data-full-width-responsive', 'true');
-    ins.setAttribute('data-adtest', 'true'); // testing only
+    //ins.setAttribute('data-adtest', 'true'); // testing only
 
     containerRef.current.appendChild(ins);
 
