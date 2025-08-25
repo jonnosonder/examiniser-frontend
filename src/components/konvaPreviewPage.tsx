@@ -5,7 +5,7 @@ import { ShapeData } from "@/lib/shapeData";
 import React, { memo, useEffect, useState } from "react";
 import { Group, Layer, Rect, Stage } from "react-konva";
 import DrawElement from "./drawElement";
-import { getMarginValue, getViewMargin, StageData, stageGroupInfoData } from "@/lib/stageStore";
+import { StageData, stageGroupInfoData } from "@/lib/stageStore";
 
 
 interface KonvaPreviewPageProps {
@@ -20,9 +20,6 @@ interface KonvaPreviewPageProps {
 const KonvaPreviewPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pageGroupsInfo }: KonvaPreviewPageProps) => {
     const [groupShapes, setGroupShapes] = useState<ShapeData[][]>(pageGroups);
     const [groupInfo, setGroupInfo] = useState<stageGroupInfoData[]>(pageGroupsInfo);
-
-    const marginValue = getMarginValue();
-    const viewMargin = getViewMargin();
 
     // Sync props -> state
     useEffect(() => {
@@ -50,17 +47,6 @@ const KonvaPreviewPage = ({ stage, stageScale, manualScaler, pageIndex, pageGrou
                     height={stage.height}
                     fill={stage.background || '#ffffff'}
                 />
-                { viewMargin && ( 
-                <Rect 
-                    x={marginValue}
-                    y={marginValue}
-                    width={stage.width-(marginValue*2)}
-                    height={stage.height-(marginValue*2)}
-                    fill={"transparent"}
-                    stroke={"black"}
-                    strokeWidth={2}
-                />
-                )}
                 {groupShapes.map((shapes, groupIndex) => {
                     const focusGroupInfo = groupInfo[groupIndex];
                     return (

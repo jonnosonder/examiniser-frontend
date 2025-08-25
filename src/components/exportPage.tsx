@@ -6,7 +6,6 @@
 import { useState } from 'react';
 import { getPageElements, getPageElementsInfo, getStages } from '@/lib/stageStore';
 import { jsPDF } from "jspdf";
-import Advert from './advert';
 
 type ExportPageProps = {
   onClose: () => void;
@@ -202,35 +201,30 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
               <svg className='w-6 h-6' clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m12 10.93 5.719-5.72c.146-.146.339-.219.531-.219.404 0 .75.324.75.749 0 .193-.073.385-.219.532l-5.72 5.719 5.719 5.719c.147.147.22.339.22.531 0 .427-.349.75-.75.75-.192 0-.385-.073-.531-.219l-5.719-5.719-5.719 5.719c-.146.146-.339.219-.531.219-.401 0-.75-.323-.75-.75 0-.192.073-.384.22-.531l5.719-5.719-5.72-5.719c-.146-.147-.219-.339-.219-.532 0-.425.346-.749.75-.749.192 0 .385.073.531.219z"/></svg>
             </button>
           </div>
-          <div className='flex flex-col px-10 items-center justify-center w-full h-full'>
-            <div className='flex flex-col space-y-4'>
-              <div className="flex flex-row w-full items-center">
-                <p className='p-2 whitespace-nowrap'>File Name: </p>
-                <input value={fileName} onChange={handleFileNameChange} className="w-full max-w-[15rem] border-2 border-primary rounded px-2 py-1 transition-shadow duration-300 focus:shadow-[0_0_0_0.4rem_theme('colors.accent')] focus:outline-none" placeholder='Maths Exam' type="text"></input>
-              </div>
-              <div className="flex flex-row w-full items-center">
-                <p className='flex text-center p-2 pr-7'>Quality: </p>
-                <select value={qualityValue} onChange={handleQualityDropDownChange} className="border-2 border-primary rounded p-2 bg-background cursor-pointer transition-shadow duration-300 focus:shadow-[0_0_0_0.4rem_theme('colors.accent')] focus:outline-none">
-                  <option value="high">High</option>
-                  <option value="medium">Medium</option>
-                  <option value="low">Low</option>
-                </select>
-              </div>
-              <div className="flex flex-row w-full items-center">
-                <p className='flex text-center p-2 pr-7'>Compression: </p>
-                <select value={compressionValue} onChange={handleCompressionDropDownChange} className="border-2 border-primary rounded p-2 bg-background cursor-pointer transition-shadow duration-300 focus:shadow-[0_0_0_0.4rem_theme('colors.accent')] focus:outline-none">
-                  <option value="high">High</option>
-                  <option value="medium">Medium</option>
-                  <option value="low">Low</option>
-                  <option value="none">None</option>
-                </select>
-              </div>
-              <div className="flex flex-row w-full items-center">
-                <p className='flex text-center p-2 pr-7'>File Type: </p>
-                <select className="border-2 border-primary rounded p-2 bg-background cursor-pointer transition-shadow duration-300 focus:shadow-[0_0_0_0.4rem_theme('colors.accent')] focus:outline-none">
-                  <option value="pdf">pdf</option>
-                </select>
-              </div>
+          <div className='flex flex-col px-10 items-center justify-center h-full'>
+            <div className='flex-row items-center justify-center grid grid-cols-2 gap-y-2'>
+              <p className='text-left p-2 whitespace-nowrap'>File Name</p>
+              <input value={fileName} onChange={handleFileNameChange} className="w-full max-w-[15rem] border-2 border-primary rounded px-2 py-1 transition-shadow duration-300 focus:shadow-[0_0_0_0.4rem_theme('colors.accent')] focus:outline-none text-ellipsis" placeholder='Maths Exam' type="text" onBlur={(e) => {e.target.setSelectionRange(0, 0);}}></input>
+
+              <p className='text-left p-2'>Quality </p>
+              <select value={qualityValue} onChange={handleQualityDropDownChange} className="border-2 border-primary rounded p-2 bg-background cursor-pointer transition-shadow duration-300 focus:shadow-[0_0_0_0.4rem_theme('colors.accent')] focus:outline-none">
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+
+              <p className='text-left p-2'>Compression</p>
+              <select value={compressionValue} onChange={handleCompressionDropDownChange} className="border-2 border-primary rounded p-2 bg-background cursor-pointer transition-shadow duration-300 focus:shadow-[0_0_0_0.4rem_theme('colors.accent')] focus:outline-none">
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+                <option value="none">None</option>
+              </select>
+
+              <p className='text-left p-2'>File Type</p>
+              <select className="border-2 border-primary rounded p-2 bg-background cursor-pointer transition-shadow duration-300 focus:shadow-[0_0_0_0.4rem_theme('colors.accent')] focus:outline-none">
+                <option value="pdf">pdf</option>
+              </select>
             </div>
           </div>
           <div className="flex w-full items-center justify-center justify-between">
@@ -238,9 +232,11 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
               <button className="border-2 border-primary text-primary text-lg rounded-lg py-2 px-4 transition-shadow duration-300 hover:shadow-[0_0_0_0.4rem_theme('colors.accent')] hover:outline-none" onClick={exportToPDF}>Export</button>
           </div>
         </div>
+        {/* 
         <div className='absolute bottom-0 items-center justify-center max-h-[18%] z-10000'>
           <Advert slot="8527418128" />
         </div>
+        */}
       </div>
   );
 }

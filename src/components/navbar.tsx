@@ -32,14 +32,14 @@ export default function Navbar() {
         <nav className="items-center bg-background relative w-[90vw] mx-auto">
           <div className="flex mx-auto items-center justify-between">
             <div className="inline flex-row pt-2">
-                <ReloadLink href="/" className="inline-flex items-center justify-center text-primary font-nunito text-2xl sm:text-3xl lg:text-4xl cursor-pointer mr-8">
+                <ReloadLink href="/" router={router} className="inline-flex items-center justify-center text-primary font-nunito text-2xl sm:text-3xl lg:text-4xl cursor-pointer mr-8">
                     Examiniser
                 </ReloadLink>
                 
                 <div className="inline-flex">
                 {navLinks.map((link, index) => (
                     <div key={index} className="inline p-5">
-                    <ReloadLink  href={link.href} className="inline-flex p-1">
+                    <ReloadLink  href={link.href} router={router} className="inline-flex p-1">
                         {link.title}
                     </ReloadLink>
                     </div>

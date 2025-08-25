@@ -40,7 +40,7 @@ const AllStages = ({ manualScaler=1, previewStyle, editQuestionButtonHandler} : 
   useEffect(() => {
     if (previewStyle) {
       const unsubscribeStage = subscribePreviewStage(() => {
-        console.log('Preview update triggered');
+        //console.log('Preview update triggered');
         setStages(getStages());
         setAllShapes(pageElements);
         setAllShapesInfo(pageElementsInfo);
@@ -52,7 +52,7 @@ const AllStages = ({ manualScaler=1, previewStyle, editQuestionButtonHandler} : 
   useEffect(() => {
     if (!previewStyle) {
       const unsubscribeStage = subscribeStage(() => {
-        console.log('Stage update triggered');
+        //console.log('Stage update triggered');
         setStages(getStages());
         setAllShapes(pageElements);
         setAllShapesInfo(pageElementsInfo);
@@ -107,10 +107,12 @@ const AllStages = ({ manualScaler=1, previewStyle, editQuestionButtonHandler} : 
     transformerRefs.current.push(React.createRef<Konva.Transformer | null>());
   }
 
-  stages.forEach((stage, stageIndex) => {
-    stage.stageRef = stageRefs.current[stageIndex];
-    stage.transformerRef = transformerRefs.current[stageIndex];
-  });
+  useEffect(() => {
+    stages.forEach((stage, stageIndex) => {
+      stage.stageRef = stageRefs.current[stageIndex];
+      stage.transformerRef = transformerRefs.current[stageIndex];
+    });
+  }, [stages]);
 
   let previewPageOnClickHanlder: ((pageNumber: number) => void) | undefined;
   
@@ -160,7 +162,7 @@ const AllStages = ({ manualScaler=1, previewStyle, editQuestionButtonHandler} : 
 
   return (
     <>
-    {true && (() => {console.log(previewStyle ? "Preview Render Called" : "Main Render Called");})()}
+    {/*true && (() => {console.log(previewStyle ? "Preview Render Called" : "Main Render Called");})()*/}
     <div 
       ref={wholeContainerRef}
       className='relative custom-scroll h-full w-full flex flex-col items-start justify-start space-y-2 p-4 overflow-auto'

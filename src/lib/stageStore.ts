@@ -46,18 +46,18 @@ const stageHistoryLimit = 50;
 export const newShapeSizePercent = 0.1;
 
 export function RENDER_PAGE() {
-  console.log("Call to render");
+  //console.log("Call to render");
   stageListeners.forEach((fn) => fn());
   previewStageListeners.forEach((fn) => fn());
 };
 
 export function RENDER_MAIN() {
-  console.log("Call to render");
+  //console.log("Call to render");
   stageListeners.forEach((fn) => fn());
 };
 
 export function RENDER_PREVIEW() {
-  console.log("Call to render");
+  //console.log("Call to render");
   previewStageListeners.forEach((fn) => fn());
 };
 

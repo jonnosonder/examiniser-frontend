@@ -3,18 +3,21 @@
 
 'use client';
 
+import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import Link from 'next/link';
 
 interface Props {
   href: string;
   children: React.ReactNode;
+  router: AppRouterInstance;
   className?: string;
 }
 
-export function ReloadLink({ href, children, className }: Props) {
+export function ReloadLink({ href, children, router, className }: Props) {
+
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();           // Prevent Next.js client routing
-    window.location.href = href;  // Force full page reload
+    e.preventDefault();
+    router.push(href);
   };
 
   return (

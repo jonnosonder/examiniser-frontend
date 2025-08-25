@@ -23,7 +23,6 @@ import { useNotification } from '@/context/notificationContext';
 import AddShapeDropDown from '@/components/addShapeDropDown';
 import TemplatePage from '@/components/templatePage';
 import { AddImage } from '@/components/addImage';
-import Advert from '@/components/advert';
 import { EditorContextProvider, useSelectRef } from '@/components/editorContextProvider';
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@5.3.93/build/pdf.worker.mjs`;
 
@@ -93,7 +92,7 @@ function EditorPage() {
         const handleKeyDown = (e: KeyboardEvent) => {
             const pageIndex = selectIndex.current.pageIndex;
             const groupIndex = selectIndex.current.groupIndex;
-            if (e.key === 'Delete' && pageIndex !== null && groupIndex !== null) {
+            if (e.key === 'Delete' && !showQuestionCreator && pageIndex !== null && groupIndex !== null) {
                 addToHistoryUndo({
                     command: "delete",
                     pageIndex: pageIndex,
@@ -114,14 +113,14 @@ function EditorPage() {
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, []);
+    }, [showQuestionCreator]);
 
     useEffect(() => {
         if (stagesLength() === 0 && !fileUploaded){
             if (pageFormatData?.newProject != null && pageFormatData?.projectName != null ) {
                 setProjectNameValue(pageFormatData.projectName);
             }
-            console.log("DEFAULT ADD PAGE");
+            //console.log("DEFAULT ADD PAGE");
             const width = pageFormatData?.width != null
                 ? Math.round(Number(pageFormatData.width))
                 : Number(2480);
@@ -465,10 +464,11 @@ function EditorPage() {
                 <div ref={progressBarDiv} style={{width: '0%'}} className='absolute top-0 left-0 bottom-0 bg-contrast rounded-full' />
                 <p ref={progressText} className='absolute flex top-0 bottom-0 left-0 right-0 text-center items-center justify-center'></p>
             </div>
-            
+            {/* 
             <div className='absolute flex bottom-0 left-0 right-0 items-center justify-center z-10000 max-h-[15%]'>
                 <Advert slot="2931099214" />
             </div>
+            */}
         </div>
     )}
     {showQuestionCreator && <QuestionCreator onClose={handleQuestionCreatorClose} newQuestionCreating={newQuestionCreating} shapes={questionCreatorShapes} setShapes={setQuestionCreatorShapes} questionEditingID={questionEditingID}/>}
@@ -503,7 +503,7 @@ function EditorPage() {
                     explanation={'Add Image'}
                     onClick={showAddImageHandler}
                 />
-                {showAddImagePage && (<AddImage onClose={() => setShowAddImagePage(false)} showAdvert={true} mainPageMode={true}/>)}
+                {showAddImagePage && (<AddImage onClose={() => setShowAddImagePage(false)} mainPageMode={true}/>)}
 
                 <AddShapeDropDown />
             </div>

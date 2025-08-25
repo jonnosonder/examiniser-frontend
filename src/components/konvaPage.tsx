@@ -31,8 +31,9 @@ const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pag
 
     useEffect(() => {
         const handleChange = () => {
-            console.log("select index update");
-            const transformer = transformerRef?.current;
+            //console.log("select index update");
+            const transformer = stage.transformerRef?.current;
+            //console.log("Page "+pageIndex+" recieved index change, "+transformer);
             if (transformer && transformer.nodes().length !== 0 && selectIndex.current.pageIndex !== pageIndex) {
                 transformer.nodes([]);
                 transformer.getLayer()?.batchDraw();
@@ -47,7 +48,7 @@ const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pag
     }, []);
 
     const groupRefs =  useRef<(Konva.Group | null)[]>([]);
-    const transformerRef = stage.transformerRef
+    const transformerRef = stage.transformerRef;
 
     const marginValue = getMarginValue();
     const viewMargin = getViewMargin();
@@ -57,6 +58,20 @@ const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pag
         setGroupShapes(pageGroups);
         setGroupInfo(pageGroupsInfo);
     }, [pageGroups, pageGroupsInfo]);
+
+    useEffect(() => {
+        const transformer = stage.transformerRef?.current;
+        const groupIndex = selectIndex.current.groupIndex;
+        if (!transformer || groupIndex === null) return;
+
+        if (transformer.nodes().length === 0 && selectIndex.current.pageIndex === pageIndex) {
+            const focusGroup = groupRefs.current[groupIndex];
+            console.log(focusGroup);
+            if (!focusGroup) return;
+            transformer.nodes([focusGroup]);
+            transformer.getLayer()?.batchDraw();
+        }
+    }, [groupInfo.length]);
 
     const groupOnClick = (e: KonvaEventObject<MouseEvent, Node<NodeConfig>> | KonvaEventObject<Event, Node<NodeConfig>>, groupIndex: number) => {
         const clickedNode = e.target.getParent();
@@ -152,7 +167,7 @@ const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pag
                     return (
                     <Group
                     key={focusGroupInfo.id}
-                    ref={(el) => {groupRefs.current[groupIndex] = el;}}
+                    ref={(node) => {groupRefs.current[groupIndex] = node}}
                     draggable={true}
                     listening={true}
                     x={focusGroupInfo.x}
@@ -273,8 +288,8 @@ const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pag
                     <Rect
                         x={0}
                         y={0}
-                        width={groupInfo[groupIndex].widestX}
-                        height={groupInfo[groupIndex].widestY}
+                        width={focusGroupInfo.widestX}
+                        height={focusGroupInfo.widestY}
                         fill="rgba(0,0,0,0)" // invisible but interactive
                         listening={true}
                         draggable={false}

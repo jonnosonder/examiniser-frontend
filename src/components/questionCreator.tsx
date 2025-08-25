@@ -431,6 +431,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
         } else {
             if (questionEditingID.page !== null && questionEditingID.groupID !== null) {
                 const previousGroupInfo = getSpecificPageElementsInfo(questionEditingID.page, questionEditingID.groupID);
+                console.log(previousGroupInfo);
                 const newGroupInfo = {id: previousGroupInfo.id, widestX, widestY, x: previousGroupInfo.x, y: previousGroupInfo.y, rotation: previousGroupInfo.rotation} as stageGroupInfoData;
                 setPageElementsInfo(newGroupInfo, questionEditingID.page, questionEditingID.groupID);
                 setPageElement(shapes, questionEditingID.page, questionEditingID.groupID);
@@ -855,6 +856,8 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
 
     const fontNames = getFontNamesArray();
 
+    const defaultInputClassName = "text-base max-w-20 shadow-md rounded-md border border-grey px-1 transition-shadow duration-300 focus:shadow-[0_0_0_0.2rem_theme('colors.contrast')] focus:outline-none focus:border-transparent";
+
     return(
         <>
         <div onContextMenu={handleContextMenu}>
@@ -866,8 +869,8 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                 onSelect={handleSelect}
             />
             <div className='absolute flex z-10 w-full h-full bg-opacity-50 backdrop-blur-sm justify-center'>
-                <div className='absolute flex top-5 w-full items-center justify-center h-[85%]'>
-                    <div className='bg-background flex flex-col rounded-lg p-2 m-2 border-2 border-primary rounded-xl w-[75vw] h-full'>
+                <div className='absolute flex top-5 w-full items-center justify-center h-[85%] p-4'>
+                    <div className='bg-background flex flex-col rounded-lg p-2 m-2 border-2 border-primary rounded-xl w-full h-full'>
                         <div className='flex justify-between items-center justify-center'>
                             <h3 className='text-lg'>Question Creator Editor</h3>
                             <button onClick={onClose} className='w-6 h-6'>
@@ -1032,13 +1035,13 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                             </button>
                         </div>
                     </div>
-                    <div className='bg-background rounded-lg p-2 m-2 border-2 border-primary rounded-xl w-[20rem] h-full'>
+                    <div className='bg-background rounded-lg p-2 m-2 border-2 border-primary rounded-xl min-w-[14rem] max-w-[20rem] h-full scroll-y-auto'>
                         <h3 className='text-center text-primary text-lg'>Parameters</h3>
                         
                         {/* Default Parameters */}
                         <div className="w-full">
                             <button
-                                className="w-full flex justify-between items-center py-1 bg-transparent text-primary text-base transition cursor-pointer"
+                                className="w-full flex justify-between items-center bg-transparent text-primary text-base text-md transition cursor-pointer"
                                 onClick={() => toggleParameterPanelSection(1)}
                             >
                                 Transform
@@ -1055,30 +1058,28 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
 
                             <div
                                 className={`flex flex-col overflow-hidden transition-all duration-400 ease-linear space-y-2 ${
-                                checkParameterPanelSection(1) ? 'm-2' : 'max-h-0 p-0 border-0'
+                                checkParameterPanelSection(1) ? '' : 'max-h-0 p-0 border-0'
                                 }`}
                             >       
-                                <div className='flex w-full flex-row items-center justify-center'>
-                                    <div className='flex flex-col space-y-2 items-start justify-center p-2'>
-                                        <p className='text-primary'>x</p>
-                                        <p className='text-primary'>w</p>
+                                <div className='flex w-full items-center justify-center p-2 px-4'>
+                                    <div className='flex-row items-center justify-center grid grid-cols-2 gap-x-4  text-sm'>
+                                        <p className='text-primary pl-1'>X</p>
+                                        <p className='text-primary pl-1'>Y</p>
+                                        <input className={defaultInputClassName} value={editorXpositionValue} onChange={editorXpositionHandler}></input>
+                                        <input className={defaultInputClassName} value={editorWidthValue} onChange={editorWidthValueHandler}></input>
+                                        <span className='h-1' />
+                                        <span className='h-1' />
+                                        <p className='text-primary pl-1'>Width</p>
+                                        <p className='text-primary pl-1'>Height</p>
+                                        <input className={defaultInputClassName} value={editorYpositionValue} onChange={editorYpositionHandler}></input>
+                                        <input className={defaultInputClassName} value={editorHeightValue} onChange={editorHeightValueHandler}></input>
+                                        <span className='h-1' />
+                                        <span className='h-1' />
+                                        <span className='h-1' />
+                                        <p className='text-primary pl-1'>Rotation</p>
+                                        <span className='h-1' />
+                                        <input className={defaultInputClassName} value={editorRotateValue} onChange={editorRotateValueHandler}></input>
                                     </div>
-                                    <div className='flex flex-col w-full space-y-2 items-start justify-center'>
-                                        <input className='w-20 rounded-sm border border-primary px-1' value={editorXpositionValue} onChange={editorXpositionHandler}></input>
-                                        <input className='w-20 rounded-sm border border-primary px-1' value={editorWidthValue} onChange={editorWidthValueHandler}></input>
-                                    </div>
-                                    <div className='flex flex-col space-y-2 items-start justify-center p-2'>
-                                        <p className='text-primary'>y</p>
-                                        <p className='text-primary'>h</p>
-                                    </div>
-                                    <div className='flex flex-col w-full space-y-2 items-start justify-center'>
-                                        <input className='w-20 rounded-sm border border-primary px-1' value={editorYpositionValue} onChange={editorYpositionHandler}></input>
-                                        <input className='w-20 rounded-sm border border-primary px-1' value={editorHeightValue} onChange={editorHeightValueHandler}></input>
-                                    </div>
-                                </div>
-                                <div className='flex flex-row w-full space-x-2 items-center justify-center pb-1'>
-                                    <svg className='w-4 h-4' version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 122.88 103.56"><g><path d="M59.49,1.72c1.03-1.69,3.24-2.23,4.94-1.2c1.69,1.03,2.23,3.24,1.2,4.94L34.75,55.92c6.65,4.72,12.18,10.9,16.11,18.07 c3.69,6.72,5.99,14.31,6.51,22.37h61.91c1.99,0,3.6,1.61,3.6,3.6c0,1.99-1.61,3.6-3.6,3.6H3.59v-0.01c-0.64,0-1.29-0.17-1.87-0.53 c-1.69-1.03-2.23-3.24-1.2-4.94L59.49,1.72L59.49,1.72z M31,62.05L10.01,96.36h40.14c-0.51-6.82-2.47-13.23-5.59-18.91 C41.22,71.36,36.57,66.1,31,62.05L31,62.05z"/></g></svg>
-                                    <input className='w-20 rounded-sm border border-primary px-1' value={editorRotateValue} onChange={editorRotateValueHandler}></input>
                                 </div>
                             </div>
                         </div>
@@ -1103,43 +1104,35 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
 
                             <div
                                 className={`flex flex-col overflow-hidden transition-all duration-400 ease-linear space-y-2 ${
-                                checkParameterPanelSection(2) ? 'm-2' : 'max-h-0 p-0 border-0'
+                                checkParameterPanelSection(2) ? '' : 'max-h-0 p-0 border-0'
                                 }`}
                             >
-                                <div className='flex w-full flex-row items-center justify-center h-20'>
-                                    <div className='flex flex-col items-left justify-center'>
-                                        <p className='p-2 text-start'>Fill</p>
-                                        <p className='p-2 text-start'>Stroke</p>
-                                    </div>
-                                    <div className='flex flex-col items-center justify-center'>
-                                        {/* Fill Colour */}
-                                        <button onClick={toggleDisplayFillColorSelector} className='w-16 h-10 p-2'>
-                                            <div ref={colourFillButtonDivRef} style={{background: selectedFillColorViaDisplay || 'white'}} className='w-full h-full border border-primary flex items-center justify-center rounded-sm'></div>
+                                <div className='flex w-full items-center justify-center p-2 px-4'>
+                                    <div className='flex-row items-center justify-center grid grid-cols-2 gap-x-4 text-sm'>
+                                        <p className='text-start pl-1'>Fill</p>
+                                        <p className='text-start pl-1'>Stroke</p>
+                                        <button onClick={toggleDisplayFillColorSelector} className='h-6'>
+                                            <div ref={colourFillButtonDivRef} style={{background: selectedFillColorViaDisplay || 'white'}} className='w-full h-full border border-primary flex items-center justify-center rounded-md'></div>
                                         </button>
                                         {displayFillColorSelector && (
                                         <div className='absolute flex items-center justify-center left-[22vw]'>
                                             <ColorSelectorSection onClose={() => setDisplayFillColorSelector(false)} passColorValue={setSelectedFillColorViaDisplay} startingColor={selectedFillColorViaDisplay}/>
                                         </div>
                                         )}
-                                        {/* Stroke Colour */}
-                                        <button onClick={toggleDisplayStrokeColorSelector} className='w-16 h-10 p-2'>
-                                            <div ref={colourStrokeButtonDivRef} style={{background: selectedStrokeColorViaDisplay || 'black'}} className='w-full h-full border border-primary flex items-center justify-center rounded-sm'></div>
+                                        <button onClick={toggleDisplayStrokeColorSelector} className='h-6'>
+                                            <div ref={colourStrokeButtonDivRef} style={{background: selectedStrokeColorViaDisplay || 'black'}} className='w-full h-full border border-primary flex items-center justify-center rounded-md'></div>
                                         </button>
                                         {displayStrokeColorSelector && (
                                         <div className='absolute flex items-center justify-center left-[25vw]'>
                                             <ColorSelectorSection onClose={() => setDisplayStrokeColorSelector(false)} passColorValue={setSelectedStrokeColorViaDisplay} startingColor={selectedStrokeColorViaDisplay}/>
                                         </div>
                                         )}
-                                    </div>
-                                    <div className='flex flex-col items-left justify-center'>
-                                        <p className='p-2 text-start'>Belve (%)</p>
-                                        <p className='p-2 text-start'>Weight</p>
-                                    </div>
-                                    <div className="flex flex-col items-left justify-center">
-                                        {/* Belve Weight */}
-                                        <input className='w-12 rounded-sm border border-primary px-1 m-2' value={editorCornerRadiusValue} onChange={editorCornerRadiusValueHandler}></input>
-                                        {/* Stroke Weight */}
-                                        <input className='w-12 rounded-sm border border-primary px-1 m-2' value={editorStrokeWeightValue} onChange={editorStrokeWeightValueHandler}></input>
+                                        <span className='h-1' />
+                                        <span className='h-1' />
+                                        <p className='text-start pl-1'>Belve <span className='text-xs'>(%)</span></p>
+                                        <p className='text-start pl-1'>Weight</p>
+                                        <input className={defaultInputClassName} value={editorCornerRadiusValue} onChange={editorCornerRadiusValueHandler}></input>
+                                        <input className={defaultInputClassName} value={editorStrokeWeightValue} onChange={editorStrokeWeightValueHandler}></input>
                                     </div>
                                 </div>
                             </div>
@@ -1170,54 +1163,43 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                                     checkParameterPanelSection(3) ? 'm-2' : 'max-h-0 p-0 border-0'
                                     }`}
                                 >
-                                    <div className='flex w-full flex-col items-center justify-center'>
-                                        <div className='flex w-full h-10 flex-row items-center justify-center space-x-2'>
-                                            <p>Font</p>
-                                            <select className='p-1 flex rounded-md border border-grey' value={selectedFont} onChange={onFontSelectChangeHandler} style={{fontFamily: selectedFont}}>
+                                    <div className='flex w-full flex-col items-center justify-center p-2 px-4'>
+                                        <div className='flex w-full flex-col items-center justify-center'>
+                                            <p className='text-left w-full pl-1'>Font Family</p>
+                                            <select className='p-1 flex w-full rounded-md border border-grey' value={selectedFont} onChange={onFontSelectChangeHandler} style={{fontFamily: selectedFont}}>
                                                 {fontNames.map((font) => (
                                                 <option key={font} value={font} style={{fontFamily: font}}>
                                                     {font.replace("-", " ")}
                                                 </option>
                                                 ))}
                                             </select>
-                                        </div>
-                                        <div className='flex w-full h-10 flex-row items-center justify-center space-x-2'>
-                                            {/*<p className='whitespace-nowrap'>Font Size</p>*/}
-                                            
-                                            <svg className='h-10' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M3.88109 6.4H14.5211V9.66H14.0011L13.4211 7.56C13.3811 7.4 13.3344 7.28667 13.2811 7.22C13.2411 7.14 13.1544 7.09333 13.0211 7.08C12.8878 7.05333 12.6611 7.04 12.3411 7.04H10.0811V18.38C10.0811 18.8467 10.1011 19.12 10.1411 19.2C10.1811 19.28 10.3078 19.3333 10.5211 19.36L11.6211 19.48V20H6.80109V19.48L7.90109 19.36C8.11443 19.3333 8.24109 19.28 8.28109 19.2C8.32109 19.12 8.34109 18.8467 8.34109 18.38V7.04H6.06109C5.75443 7.04 5.52776 7.05333 5.38109 7.08C5.24776 7.09333 5.15443 7.14 5.10109 7.22C5.06109 7.28667 5.02109 7.4 4.98109 7.56L4.40109 9.66H3.88109V6.4ZM14.923 13.2H20.243V14.83H19.983L19.693 13.78C19.673 13.7 19.6496 13.6433 19.623 13.61C19.603 13.57 19.5596 13.5467 19.493 13.54C19.4263 13.5267 19.313 13.52 19.153 13.52H18.023V19.19C18.023 19.4233 18.033 19.56 18.053 19.6C18.073 19.64 18.1363 19.6667 18.243 19.68L18.793 19.74V20H16.383V19.74L16.933 19.68C17.0396 19.6667 17.103 19.64 17.123 19.6C17.143 19.56 17.153 19.4233 17.153 19.19V13.52H16.013C15.8596 13.52 15.7463 13.5267 15.673 13.54C15.6063 13.5467 15.5596 13.57 15.533 13.61C15.513 13.6433 15.493 13.7 15.473 13.78L15.183 14.83H14.923V13.2Z" fill="black"/>
-                                            </svg>
 
-                                            {/*
-                                            <button className='h-8' onClick={decreaseFontSizeHandle}>
-                                                <svg className='h-full' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <span className='h-4' />
+                                            
+                                            <div className='flex flex-row'>
+                                                <svg className='h-10' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M3.88109 6.4H14.5211V9.66H14.0011L13.4211 7.56C13.3811 7.4 13.3344 7.28667 13.2811 7.22C13.2411 7.14 13.1544 7.09333 13.0211 7.08C12.8878 7.05333 12.6611 7.04 12.3411 7.04H10.0811V18.38C10.0811 18.8467 10.1011 19.12 10.1411 19.2C10.1811 19.28 10.3078 19.3333 10.5211 19.36L11.6211 19.48V20H6.80109V19.48L7.90109 19.36C8.11443 19.3333 8.24109 19.28 8.28109 19.2C8.32109 19.12 8.34109 18.8467 8.34109 18.38V7.04H6.06109C5.75443 7.04 5.52776 7.05333 5.38109 7.08C5.24776 7.09333 5.15443 7.14 5.10109 7.22C5.06109 7.28667 5.02109 7.4 4.98109 7.56L4.40109 9.66H3.88109V6.4ZM14.923 13.2H20.243V14.83H19.983L19.693 13.78C19.673 13.7 19.6496 13.6433 19.623 13.61C19.603 13.57 19.5596 13.5467 19.493 13.54C19.4263 13.5267 19.313 13.52 19.153 13.52H18.023V19.19C18.023 19.4233 18.033 19.56 18.053 19.6C18.073 19.64 18.1363 19.6667 18.243 19.68L18.793 19.74V20H16.383V19.74L16.933 19.68C17.0396 19.6667 17.103 19.64 17.123 19.6C17.143 19.56 17.153 19.4233 17.153 19.19V13.52H16.013C15.8596 13.52 15.7463 13.5267 15.673 13.54C15.6063 13.5467 15.5596 13.57 15.533 13.61C15.513 13.6433 15.493 13.7 15.473 13.78L15.183 14.83H14.923V13.2Z" fill="black"/>
                                                 </svg>
-                                            </button>
-                                            */}
-                                            {/* Text Size Input */}
-                                            <input className='flex w-10' type="number" onChange={editorTextSizeValueHandler} value={editorTextSizeValue}></input>
-                                            {/*
-                                            <button className='h-8' onClick={increaseFontSizeHandle}>  
-                                                <svg className='h-full' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M6.67406 6.4H17.3141V9.66H16.7941L16.2141 7.56C16.1741 7.4 16.1274 7.28667 16.0741 7.22C16.0341 7.14 15.9474 7.09333 15.8141 7.08C15.6807 7.05333 15.4541 7.04 15.1341 7.04H12.8741V18.38C12.8741 18.8467 12.8941 19.12 12.9341 19.2C12.9741 19.28 13.1007 19.3333 13.3141 19.36L14.4141 19.48V20H9.59406V19.48L10.6941 19.36C10.9074 19.3333 11.0341 19.28 11.0741 19.2C11.1141 19.12 11.1341 18.8467 11.1341 18.38V7.04H8.85406C8.5474 7.04 8.32073 7.05333 8.17406 7.08C8.04073 7.09333 7.9474 7.14 7.89406 7.22C7.85406 7.28667 7.81406 7.4 7.77406 7.56L7.19406 9.66H6.67406V6.4Z" fill="black"/>
-                                                    <path d="M23.1007 6.664L22.7047 6.808L20.9887 2.464L19.2607 6.808L18.9007 6.664L20.8327 1.84H21.1687L23.1007 6.664Z" fill="black"/>
-                                                </svg>
-                                            </button>
-                                            */}
+
+                                                {/* Text Size Input */}
+                                                <input className={'flex w-10' + defaultInputClassName} type="number" onChange={editorTextSizeValueHandler} value={editorTextSizeValue}></input>
+                                            </div>
+                                            
+                                            <span className='h-4' />
+                                            <p className='flex w-full pl-1'>Align</p>
+                                            <div className='flex w-full h-10 flex-row items-center justify-center space-x-2 m-2'>    
+                                                <button onClick={() => editorTextAlignHanlder("left")} className={`number-input w-10 transition-all duration-200 ease-in-out ${editorTextAlignValue === "left" && "[box-shadow:inset_4px_4px_10px_#bcbcbc,inset_-4px_-4px_10px_#ffffff]"}`}>
+                                                    <svg clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m17 17.75c0-.414-.336-.75-.75-.75h-13.5c-.414 0-.75.336-.75.75s.336.75.75.75h13.5c.414 0 .75-.336.75-.75zm5-4c0-.414-.336-.75-.75-.75h-18.5c-.414 0-.75.336-.75.75s.336.75.75.75h18.5c.414 0 .75-.336.75-.75zm-9-4c0-.414-.336-.75-.75-.75h-9.5c-.414 0-.75.336-.75.75s.336.75.75.75h9.5c.414 0 .75-.336.75-.75zm7-4c0-.414-.336-.75-.75-.75h-16.5c-.414 0-.75.336-.75.75s.336.75.75.75h16.5c.414 0 .75-.336.75-.75z" fillRule="nonzero"/></svg>
+                                                </button>
+                                                <button onClick={() => editorTextAlignHanlder("center")} className={`number-input w-10 transition-all duration-200 ease-in-out ${editorTextAlignValue === "center" && "[box-shadow:inset_4px_4px_10px_#bcbcbc,inset_-4px_-4px_10px_#ffffff]"}`}>
+                                                    <svg clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m6 17.75c0-.414.336-.75.75-.75h10.5c.414 0 .75.336.75.75s-.336.75-.75.75h-10.5c-.414 0-.75-.336-.75-.75zm-4-4c0-.414.336-.75.75-.75h18.5c.414 0 .75.336.75.75s-.336.75-.75.75h-18.5c-.414 0-.75-.336-.75-.75zm0-4c0-.414.336-.75.75-.75h18.5c.414 0 .75.336.75.75s-.336.75-.75.75h-18.5c-.414 0-.75-.336-.75-.75zm4-4c0-.414.336-.75.75-.75h10.5c.414 0 .75.336.75.75s-.336.75-.75.75h-10.5c-.414 0-.75-.336-.75-.75z" fillRule="nonzero"/></svg>
+                                                </button>
+                                                <button onClick={() => editorTextAlignHanlder("right")} className={`number-input w-10 transition-all duration-200 ease-in-out ${editorTextAlignValue === "right" && "[box-shadow:inset_4px_4px_10px_#bcbcbc,inset_-4px_-4px_10px_#ffffff]"}`}>
+                                                    <svg clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m7 17.75c0-.414.336-.75.75-.75h13.5c.414 0 .75.336.75.75s-.336.75-.75.75h-13.5c-.414 0-.75-.336-.75-.75zm-5-4c0-.414.336-.75.75-.75h18.5c.414 0 .75.336.75.75s-.336.75-.75.75h-18.5c-.414 0-.75-.336-.75-.75zm9-4c0-.414.336-.75.75-.75h9.5c.414 0 .75.336.75.75s-.336.75-.75.75h-9.5c-.414 0-.75-.336-.75-.75zm-7-4c0-.414.336-.75.75-.75h16.5c.414 0 .75.336.75.75s-.336.75-.75.75h-16.5c-.414 0-.75-.336-.75-.75z" fillRule="nonzero"/></svg>
+                                                </button>
+                                            </div>
                                         </div>
-                                        <div className='flex w-full h-10 flex-row items-center justify-center space-x-2'>
-                                            <p>Align</p>
-                                            <button onClick={() => editorTextAlignHanlder("left")} className={`number-input w-10 transition-all duration-200 ease-in-out ${editorTextAlignValue === "left" && "[box-shadow:inset_4px_4px_10px_#bcbcbc,inset_-4px_-4px_10px_#ffffff]"}`}>
-                                                <svg clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m17 17.75c0-.414-.336-.75-.75-.75h-13.5c-.414 0-.75.336-.75.75s.336.75.75.75h13.5c.414 0 .75-.336.75-.75zm5-4c0-.414-.336-.75-.75-.75h-18.5c-.414 0-.75.336-.75.75s.336.75.75.75h18.5c.414 0 .75-.336.75-.75zm-9-4c0-.414-.336-.75-.75-.75h-9.5c-.414 0-.75.336-.75.75s.336.75.75.75h9.5c.414 0 .75-.336.75-.75zm7-4c0-.414-.336-.75-.75-.75h-16.5c-.414 0-.75.336-.75.75s.336.75.75.75h16.5c.414 0 .75-.336.75-.75z" fillRule="nonzero"/></svg>
-                                            </button>
-                                            <button onClick={() => editorTextAlignHanlder("center")} className={`number-input w-10 transition-all duration-200 ease-in-out ${editorTextAlignValue === "center" && "[box-shadow:inset_4px_4px_10px_#bcbcbc,inset_-4px_-4px_10px_#ffffff]"}`}>
-                                                <svg clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m6 17.75c0-.414.336-.75.75-.75h10.5c.414 0 .75.336.75.75s-.336.75-.75.75h-10.5c-.414 0-.75-.336-.75-.75zm-4-4c0-.414.336-.75.75-.75h18.5c.414 0 .75.336.75.75s-.336.75-.75.75h-18.5c-.414 0-.75-.336-.75-.75zm0-4c0-.414.336-.75.75-.75h18.5c.414 0 .75.336.75.75s-.336.75-.75.75h-18.5c-.414 0-.75-.336-.75-.75zm4-4c0-.414.336-.75.75-.75h10.5c.414 0 .75.336.75.75s-.336.75-.75.75h-10.5c-.414 0-.75-.336-.75-.75z" fillRule="nonzero"/></svg>
-                                            </button>
-                                            <button onClick={() => editorTextAlignHanlder("right")} className={`number-input w-10 transition-all duration-200 ease-in-out ${editorTextAlignValue === "right" && "[box-shadow:inset_4px_4px_10px_#bcbcbc,inset_-4px_-4px_10px_#ffffff]"}`}>
-                                                <svg clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m7 17.75c0-.414.336-.75.75-.75h13.5c.414 0 .75.336.75.75s-.336.75-.75.75h-13.5c-.414 0-.75-.336-.75-.75zm-5-4c0-.414.336-.75.75-.75h18.5c.414 0 .75.336.75.75s-.336.75-.75.75h-18.5c-.414 0-.75-.336-.75-.75zm9-4c0-.414.336-.75.75-.75h9.5c.414 0 .75.336.75.75s-.336.75-.75.75h-9.5c-.414 0-.75-.336-.75-.75zm-7-4c0-.414.336-.75.75-.75h16.5c.414 0 .75.336.75.75s-.336.75-.75.75h-16.5c-.414 0-.75-.336-.75-.75z" fillRule="nonzero"/></svg>
-                                            </button>
-                                        </div>
+                                       
                                     </div>
                                 </div>
                             </div>
@@ -1245,23 +1227,13 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
 
                                 <div
                                     className={`flex flex-col overflow-hidden transition-all duration-400 ease-linear space-y-2 ${
-                                    checkParameterPanelSection(4) ? 'm-2' : 'max-h-0 p-0 border-0'
+                                    checkParameterPanelSection(4) ? '' : 'max-h-0 p-0 border-0'
                                     }`}
                                 >
-                                    <div className='flex w-full flex-col items-center justify-center'>
-                                        <div className='flex w-full h-10 flex-row items-center justify-center space-x-2'>
-                                            {/* Text Size Input */}
-                                            <p>Corners</p>
-                                            <input className='w-20 rounded-sm border border-primary px-1' onChange={editorStarNumPointsValueHandler} value={editorStarNumPointsValue}></input>
-                                            {/*
-                                            <button className='h-8' onClick={increaseFontSizeHandle}>  
-                                                <svg className='h-full' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M6.67406 6.4H17.3141V9.66H16.7941L16.2141 7.56C16.1741 7.4 16.1274 7.28667 16.0741 7.22C16.0341 7.14 15.9474 7.09333 15.8141 7.08C15.6807 7.05333 15.4541 7.04 15.1341 7.04H12.8741V18.38C12.8741 18.8467 12.8941 19.12 12.9341 19.2C12.9741 19.28 13.1007 19.3333 13.3141 19.36L14.4141 19.48V20H9.59406V19.48L10.6941 19.36C10.9074 19.3333 11.0341 19.28 11.0741 19.2C11.1141 19.12 11.1341 18.8467 11.1341 18.38V7.04H8.85406C8.5474 7.04 8.32073 7.05333 8.17406 7.08C8.04073 7.09333 7.9474 7.14 7.89406 7.22C7.85406 7.28667 7.81406 7.4 7.77406 7.56L7.19406 9.66H6.67406V6.4Z" fill="black"/>
-                                                    <path d="M23.1007 6.664L22.7047 6.808L20.9887 2.464L19.2607 6.808L18.9007 6.664L20.8327 1.84H21.1687L23.1007 6.664Z" fill="black"/>
-                                                </svg>
-                                            </button>
-                                            */}
-                                        </div>
+                                    <div className='flex-row items-center justify-center grid grid-cols-2 gap-x-4 text-sm p-2 px-4'>
+                                            <p className='flex w-full text-left pl-1'>Corners</p>
+                                            <input className={defaultInputClassName} onChange={editorStarNumPointsValueHandler} value={editorStarNumPointsValue}></input>
+
 
                                     </div>
                                 </div>
@@ -1275,7 +1247,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                 </div>
             </div>
         </div>
-        {showAddImagePage && (<AddImage onClose={() => setShowAddImagePage(false)} showAdvert={false} mainPageMode={false} setShapes={setShapes} setSelectedId={setSelectedId}/>)}
+        {showAddImagePage && (<AddImage onClose={() => setShowAddImagePage(false)} mainPageMode={false} setShapes={setShapes} setSelectedId={setSelectedId}/>)}
         </>
     );
 }

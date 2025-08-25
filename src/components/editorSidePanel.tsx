@@ -2,7 +2,7 @@
 // Copyright © 2025 Jonathan Kwok
 
 import { useEffect, useState } from 'react';
-import { getMarginValue, getViewMargin, setMarginValue, setViewMargin, getStagesBackground, setAllStagesBackground, RENDER_MAIN, stageGroupInfoData, getSpecificPageElementsInfo, pageElementsInfo, getSpecificStage, addToHistoryUndo, historyData, pageElements } from '@/lib/stageStore';
+import { getMarginValue, getViewMargin, setMarginValue, setViewMargin, getStagesBackground, setAllStagesBackground, RENDER_MAIN, stageGroupInfoData, getSpecificPageElementsInfo, pageElementsInfo, getSpecificStage, addToHistoryUndo, historyData, pageElements, changePageOfElement, changePageOfElementInfo, groupsOnPage } from '@/lib/stageStore';
 import ColorSelectorSection from '@/components/colorSelectorSection';
 import { useSelectRef } from './editorContextProvider';
 
@@ -32,12 +32,13 @@ type shapeOnTransformType = {
     rotation: number;
 }
 
-type visualXYWHR = {
+type visualXYWHRP = {
     x: string;
     y: string;
     width: string;
     height: string;
     rotation: string;
+    page: string;
 }
 
 export default function EditorSidePanel() {
@@ -49,14 +50,14 @@ export default function EditorSidePanel() {
     const toggleViewMargin = () => {setViewMarginEditor(!viewMarginEditor); setViewMargin(!viewMarginEditor); RENDER_MAIN();};
     const [marginEditorVisual, setMarginEditorVisual] = useState<string>(String(getMarginValue()));
 
-    const { selectIndex } = useSelectRef();
+    const { selectIndex, setSelectIndex } = useSelectRef();
 
     const [groupInformation, setGroupInformation] = useState<stageGroupInfoData | null>(null);
     const [groupClientRect, setGroupClientRect] = useState<shapeXYWH | null>(null);
 
     const [lockWHRatio, setLockWHRatio] = useState<boolean>(false);
 
-    const [visualInformation, setVisualInformation] = useState<visualXYWHR | null>(null);
+    const [visualInformation, setVisualInformation] = useState<visualXYWHRP | null>(null);
 
     const round4 = (num: number) => Math.round((num + Number.EPSILON) * 10000) / 10000;
 
@@ -70,8 +71,9 @@ export default function EditorSidePanel() {
                     y: String(elementInfo.y),
                     width: String(elementInfo.widestX),
                     height: String(elementInfo.widestY),
-                    rotation: String(elementInfo.rotation)
-                } as visualXYWHR);
+                    rotation: String(elementInfo.rotation),
+                    page: String(selectIndex.current.pageIndex+1),
+                } as visualXYWHRP);
             } else {
                 setGroupInformation(null);
                 setVisualInformation(null);
@@ -98,7 +100,7 @@ export default function EditorSidePanel() {
                 ...prev,
                 x: String(customEvent.detail.x),
                 y: String(customEvent.detail.y)
-                } as visualXYWHR));
+                } as visualXYWHRP));
             };
 
         window.addEventListener('shapeOnDrag', handler);
@@ -121,7 +123,7 @@ export default function EditorSidePanel() {
                 width: String(customEvent.detail.width),
                 height: String(customEvent.detail.height),
                 rotation: String(customEvent.detail.rotation),
-            } as visualXYWHR));
+            } as visualXYWHRP));
         };
 
         window.addEventListener('shapeOnTransform', handler);
@@ -226,7 +228,7 @@ export default function EditorSidePanel() {
         setVisualInformation({
             ...visualInformation,
             x: String(shift)
-        } as visualXYWHR);
+        } as visualXYWHRP);
         RENDER_MAIN();
         setGroupClientRect({
             ...groupClientRect,
@@ -258,7 +260,7 @@ export default function EditorSidePanel() {
         setVisualInformation({
             ...visualInformation,
             x: String(newValue)
-        } as visualXYWHR);
+        } as visualXYWHRP);
         RENDER_MAIN();
         setGroupClientRect({
             ...groupClientRect,
@@ -291,7 +293,7 @@ export default function EditorSidePanel() {
         setVisualInformation({
             ...visualInformation,
             x: String(newValue)
-        } as visualXYWHR);
+        } as visualXYWHRP);
         RENDER_MAIN();
         setGroupClientRect({
             ...groupClientRect,
@@ -321,7 +323,7 @@ export default function EditorSidePanel() {
         setVisualInformation({
             ...visualInformation,
             y: String(shift)
-        } as visualXYWHR);
+        } as visualXYWHRP);
         setGroupClientRect({
             ...groupClientRect,
             y: 0,
@@ -353,7 +355,7 @@ export default function EditorSidePanel() {
         setVisualInformation({
             ...visualInformation,
             y: String(newValue)
-        } as visualXYWHR);
+        } as visualXYWHRP);
         RENDER_MAIN();
         setGroupClientRect({
             ...groupClientRect,
@@ -386,7 +388,7 @@ export default function EditorSidePanel() {
         setVisualInformation({
             ...visualInformation,
             y: String(newValue)
-        } as visualXYWHR);
+        } as visualXYWHRP);
         RENDER_MAIN();
         setGroupClientRect({
             ...groupClientRect,
@@ -417,7 +419,7 @@ export default function EditorSidePanel() {
             setVisualInformation({
                 ...visualInformation,
                 x: value
-            } as visualXYWHR);
+            } as visualXYWHRP);
             setGroupInformation({
                 ...groupInformation,
                 x: numberValue,
@@ -432,7 +434,7 @@ export default function EditorSidePanel() {
             setVisualInformation({
                 ...visualInformation,
                 x: value
-            } as visualXYWHR);
+            } as visualXYWHRP);
         }
     }
 
@@ -452,7 +454,7 @@ export default function EditorSidePanel() {
             setVisualInformation({
                 ...visualInformation,
                 y: value
-            } as visualXYWHR);
+            } as visualXYWHRP);
             setGroupInformation({
                 ...groupInformation,
                 y: numberValue,
@@ -467,7 +469,7 @@ export default function EditorSidePanel() {
             setVisualInformation({
                 ...visualInformation,
                 y: value
-            } as visualXYWHR);
+            } as visualXYWHRP);
         }
     }
 
@@ -505,7 +507,7 @@ export default function EditorSidePanel() {
                     ...visualInformation,
                     width: String(widthNumberValue),
                     height: String(newHieghtValue)
-                } as visualXYWHR);
+                } as visualXYWHRP);
                 setGroupInformation({
                     ...groupInformation,
                     widestX: widthNumberValue,
@@ -522,7 +524,7 @@ export default function EditorSidePanel() {
                 setVisualInformation({
                     ...visualInformation,
                     width: String(widthNumberValue)
-                } as visualXYWHR);
+                } as visualXYWHRP);
                 setGroupInformation({
                     ...groupInformation,
                     widestX: widthNumberValue,
@@ -539,12 +541,12 @@ export default function EditorSidePanel() {
                     ...visualInformation,
                     width: widthValue,
                     height: ""
-                } as visualXYWHR);
+                } as visualXYWHRP);
             } else {
                 setVisualInformation({
                     ...visualInformation,
                     width: widthValue
-                } as visualXYWHR);
+                } as visualXYWHRP);
             }
         }
     }
@@ -583,7 +585,7 @@ export default function EditorSidePanel() {
                     ...visualInformation,
                     width: String(newWidthValue),
                     height: String(heightNumberValue)
-                } as visualXYWHR);
+                } as visualXYWHRP);
                 setGroupInformation({
                     ...groupInformation,
                     widestX: newWidthValue,
@@ -600,7 +602,7 @@ export default function EditorSidePanel() {
                 setVisualInformation({
                     ...visualInformation,
                     height: String(heightNumberValue)
-                } as visualXYWHR);
+                } as visualXYWHRP);
                 setGroupInformation({
                     ...groupInformation,
                     widestY: heightNumberValue,
@@ -617,12 +619,12 @@ export default function EditorSidePanel() {
                     ...visualInformation,
                     width: "",
                     height: heightValue
-                } as visualXYWHR);
+                } as visualXYWHRP);
             } else {
                 setVisualInformation({
                     ...visualInformation,
                     height: heightValue
-                } as visualXYWHR);
+                } as visualXYWHRP);
             }
         }
     }
@@ -642,7 +644,7 @@ export default function EditorSidePanel() {
             setVisualInformation({
                 ...visualInformation,
                 rotation: value
-            } as visualXYWHR);
+            } as visualXYWHRP);
             setGroupInformation({
                 ...groupInformation,
                 rotation: numberValue,
@@ -653,7 +655,67 @@ export default function EditorSidePanel() {
             setVisualInformation({
                 ...visualInformation,
                 rotation: value
-            } as visualXYWHR);
+            } as visualXYWHRP);
+        }
+    }
+
+    const changePageOnInputHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        const focusSelectIndex = selectIndex.current;
+        
+        if (focusSelectIndex.pageIndex === null || focusSelectIndex.groupIndex === null || !groupClientRect || !/^-?\d*\.?\d*$/.test(value)) { return; }
+
+        const numberValue = Number(value)-1;
+
+        const currentValue = focusSelectIndex.pageIndex;
+
+        const pageIndex = selectIndex.current.pageIndex;
+        const groupIndex = selectIndex.current.groupIndex;
+
+        if (pageIndex !== null && groupIndex !== null && numberValue !== currentValue && !isNaN(numberValue) && numberValue >= 0 && numberValue < pageElementsInfo.length) {
+            setVisualInformation({
+                ...visualInformation,
+                page: value
+            } as visualXYWHRP);
+            changePageOfElement(pageIndex, groupIndex, numberValue);
+            changePageOfElementInfo(pageIndex, groupIndex, numberValue);
+            setSelectIndex({groupIndex: groupsOnPage(numberValue)-1, pageIndex: numberValue});
+            RENDER_MAIN();
+        } else {
+            setVisualInformation({
+                ...visualInformation,
+                page: value
+            } as visualXYWHRP);
+        }
+    }
+
+    const movePageOnDownButtonHandler = () => {
+        const pageIndex = selectIndex.current.pageIndex;
+        const groupIndex = selectIndex.current.groupIndex;
+        if (pageIndex !== null && groupIndex !== null && pageIndex < pageElementsInfo.length-1) {
+            setVisualInformation({
+                ...visualInformation,
+                page: String(pageIndex+2)
+            } as visualXYWHRP);
+            changePageOfElement(pageIndex, groupIndex, pageIndex+1);
+            changePageOfElementInfo(pageIndex, groupIndex, pageIndex+1);
+            setSelectIndex({groupIndex: groupsOnPage(pageIndex+1)-1, pageIndex: pageIndex+1});
+            RENDER_MAIN();
+        }
+    }
+
+    const movePageOnUpButtonHandler = () => {
+        const pageIndex = selectIndex.current.pageIndex;
+        const groupIndex = selectIndex.current.groupIndex;
+        if (pageIndex !== null && groupIndex !== null && pageIndex > 0) {
+            setVisualInformation({
+                ...visualInformation,
+                page: String(pageIndex)
+            } as visualXYWHRP);
+            changePageOfElement(pageIndex, groupIndex, pageIndex-1);
+            changePageOfElementInfo(pageIndex, groupIndex, pageIndex-1);
+            setSelectIndex({groupIndex: groupsOnPage(pageIndex-1)-1, pageIndex: pageIndex-1});
+            RENDER_MAIN();
         }
     }
 
@@ -680,7 +742,7 @@ export default function EditorSidePanel() {
             setVisualInformation({
                 ...visualInformation,
                 x: String(newValue)
-            } as visualXYWHR);
+            } as visualXYWHRP);
             RENDER_MAIN();
             setGroupClientRect({
                 ...groupClientRect,
@@ -691,7 +753,7 @@ export default function EditorSidePanel() {
             setVisualInformation({
                 ...visualInformation,
                 x: String(newValue)
-            } as visualXYWHR);
+            } as visualXYWHRP);
         }
     }
 
@@ -718,7 +780,7 @@ export default function EditorSidePanel() {
             setVisualInformation({
                 ...visualInformation,
                 y: String(newValue)
-            } as visualXYWHR);
+            } as visualXYWHRP);
             RENDER_MAIN();
             setGroupClientRect({
                 ...groupClientRect,
@@ -729,7 +791,7 @@ export default function EditorSidePanel() {
             setVisualInformation({
                 ...visualInformation,
                 y: String(newValue)
-            } as visualXYWHR);
+            } as visualXYWHRP);
         }
     }
 
@@ -741,10 +803,24 @@ export default function EditorSidePanel() {
         setVisualInformation({
             ...visualInformation,
             rotation: String(numberValue)
-        } as visualXYWHR);
+        } as visualXYWHRP);
         
     }
 
+    const pageOnBlurCleanUpHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!visualInformation) { return; }
+
+        const numberValue = Math.min(1, Math.max(pageElementsInfo.length , Number(e.target.value)));
+
+        setVisualInformation({
+            ...visualInformation,
+            page: String(numberValue)
+        } as visualXYWHRP);
+        
+    }
+
+    const defaultInputClassName = "flex text-sm w-full px-[2px] rounded-md border border-grey shadow-sm transition-shadow duration-300 focus:shadow-[0_0_0_0.15rem_theme('colors.contrast')] focus:outline-none focus:border-transparent";
+    
     return (
         <div className='w-full h-full'>
             {visualInformation !== null && selectIndex.current.pageIndex !== null && (
@@ -786,13 +862,13 @@ export default function EditorSidePanel() {
                 <div className='w-full px-4 flex flex-col grid grid-cols-2 gap-x-2 text-xs text-primary'>
                     <p className='text-xs ml-1'>X</p>
                     <p className='text-xs ml-1'>Y</p>
-                    <input value={visualInformation.x ?? ''} onChange={changeXInputHandler} onBlur={inputXBlurCleanUpHandler} className="flex text-sm w-full px-[2px] rounded-md border border-grey shadow-sm transition-shadow duration-300 focus:shadow-[0_0_0_0.2rem_theme('colors.contrast')] focus:outline-none focus:border-transparent"></input>
-                    <input value={visualInformation.y ?? ''} onChange={changeYInputHandler} onBlur={inputYBlurCleanUpHandler} className="flex text-sm w-full px-[2px] rounded-md border border-grey shadow-sm transition-shadow duration-300 focus:shadow-[0_0_0_0.2rem_theme('colors.contrast')] focus:outline-none focus:border-transparent"></input>
+                    <input value={visualInformation.x ?? ''} onChange={changeXInputHandler} onBlur={inputXBlurCleanUpHandler} className={defaultInputClassName}></input>
+                    <input value={visualInformation.y ?? ''} onChange={changeYInputHandler} onBlur={inputYBlurCleanUpHandler} className={defaultInputClassName}></input>
 
                     <p className='text-xs ml-1 mt-1'>Width</p>
                     <p className='text-xs ml-1 mt-1'>Height</p>
-                    <input value={visualInformation.width ?? ''} onChange={changeWidthInputHandler} className="flex text-sm w-full px-[2px] rounded-md border border-grey shadow-sm transition-shadow duration-300 focus:shadow-[0_0_0_0.2rem_theme('colors.contrast')] focus:outline-none focus:border-transparent"></input>
-                    <input value={visualInformation.height ?? ''} onChange={changeHeightInputHandler} className="flex text-sm w-full px-[2px] rounded-md border border-grey shadow-sm transition-shadow duration-300 focus:shadow-[0_0_0_0.2rem_theme('colors.contrast')] focus:outline-none focus:border-transparent"></input>
+                    <input value={visualInformation.width ?? ''} onChange={changeWidthInputHandler} className={defaultInputClassName}></input>
+                    <input value={visualInformation.height ?? ''} onChange={changeHeightInputHandler} className={defaultInputClassName}></input>
 
                     <p className='text-xs ml-1 mt-1'>W:H Ratio</p>
                     <p className='text-xs ml-1 mt-1'>Rotation</p>
@@ -803,7 +879,20 @@ export default function EditorSidePanel() {
                             <svg xmlns="http://www.w3.org/2000/svg" className='w-5 h-5 p-[1px]' viewBox="0 0 24 24"><path d="M15.193 17.331l-4.909 4.91c-2.346 2.346-6.148 2.345-8.495 0-2.345-2.346-2.345-6.148 0-8.494l4.911-4.91 1.416 1.415-4.911 4.91c-1.56 1.562-1.56 4.102 0 5.663 1.562 1.561 4.102 1.561 5.663 0l4.91-4.91 1.415 1.416zm-1.415-15.572l-4.954 4.954 1.416 1.416 4.954-4.955c1.562-1.561 4.102-1.561 5.663 0s1.561 4.101 0 5.662l-4.955 4.955 1.417 1.416 4.955-4.955c2.344-2.345 2.344-6.148 0-8.494-2.347-2.345-6.15-2.344-8.496.001z"/></svg>
                         )}
                     </button>
-                    <input value={visualInformation.rotation ?? ''} onChange={changeRotationInputHandler} onBlur={inputRotationBlurCleanUpHandler} className="flex text-sm w-full px-[2px] rounded-md border border-grey shadow-sm transition-shadow duration-300 focus:shadow-[0_0_0_0.2rem_theme('colors.contrast')] focus:outline-none focus:border-transparent"></input>
+                    <input value={visualInformation.rotation ?? ''} onChange={changeRotationInputHandler} onBlur={inputRotationBlurCleanUpHandler} className={defaultInputClassName}></input>
+                    
+                    <p className='text-xs ml-1 mt-1'>Page On</p>
+                    <span className='w-full' />
+                    <input value={visualInformation.page ?? ''} onChange={changePageOnInputHandler} onBlur={pageOnBlurCleanUpHandler} className={defaultInputClassName}></input>
+                    <div className='flex w-full items-center justify-center border border-grey rounded-md'>
+                        <button onClick={movePageOnDownButtonHandler} className='flex w-full items-center justify-center'>
+                            <svg className="w-5 h-5" clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m5.214 14.522s4.505 4.502 6.259 6.255c.146.147.338.22.53.22s.384-.073.53-.22c1.754-1.752 6.249-6.244 6.249-6.244.144-.144.216-.334.217-.523 0-.193-.074-.386-.221-.534-.293-.293-.766-.294-1.057-.004l-4.968 4.968v-14.692c0-.414-.336-.75-.75-.75s-.75.336-.75.75v14.692l-4.979-4.978c-.289-.289-.761-.287-1.054.006-.148.148-.222.341-.221.534 0 .189.071.377.215.52z" fill="#000" fillRule="nonzero"stroke="#000" strokeWidth="0.2" strokeLinejoin="round"/></svg>
+                        </button>
+                        <div className='w-[1px] h-full bg-grey' />
+                        <button onClick={movePageOnUpButtonHandler} className='flex w-full items-center justify-center'>
+                            <svg className="w-5 h-5" clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m18.787 9.473s-4.505-4.502-6.259-6.255c-.147-.146-.339-.22-.53-.22-.192 0-.384.074-.531.22-1.753 1.753-6.256 6.252-6.256 6.252-.147.147-.219.339-.217.532.001.19.075.38.221.525.292.293.766.295 1.056.004l4.977-4.976v14.692c0 .414.336.75.75.75.413 0 .75-.336.75-.75v-14.692l4.978 4.978c.289.29.762.287 1.055-.006.145-.145.219-.335.221-.525.002-.192-.07-.384-.215-.529z" fill="#000" fillRule="nonzero"stroke="#000" strokeWidth="0.2" strokeLinejoin="round"/></svg>
+                        </button>
+                    </div>
                 </div>
 
                 <div className='w-full mt-2 h-[1px] bg-grey' />
