@@ -6,15 +6,17 @@ import { addPageElement, addPageElementsInfo, getEstimatedPage, RENDER_PAGE } fr
 import { ShapeData } from "@/lib/shapeData";
 import "@/styles/addImage.css"
 import { useDropzone } from "react-dropzone";
+import Advert from "./advert";
 
 type AddImageProps = {
   onClose: () => void;
+  showAdvert: boolean;
   mainPageMode: boolean;
   setShapes?: React.Dispatch<React.SetStateAction<ShapeData[]>>;
   setSelectedId?: React.Dispatch<React.SetStateAction<string | null>>;
 };
 
-export const AddImage: React.FC<AddImageProps>  = ({onClose, mainPageMode, setShapes, setSelectedId}) => {
+export const AddImage: React.FC<AddImageProps>  = ({onClose, showAdvert, mainPageMode, setShapes, setSelectedId}) => {
     const imageUrlRef = useRef<HTMLInputElement>(null);
     const fileDropRef = useRef<HTMLDivElement>(null);
     const [imageUrlValue, setImageUrlValue] = useState<string>("");
@@ -303,13 +305,13 @@ export const AddImage: React.FC<AddImageProps>  = ({onClose, mainPageMode, setSh
                     <button onClick={addButtonHandler} className="border-2 border-primary text-primary text-lg rounded-lg py-1 px-4 transition-shadow duration-300 hover:shadow-[0_0_0_0.4rem_theme('colors.accent')] hover:outline-none">Add</button>
                 </div>
             </div>
-            {/* 
+            
             {showAdvert && (
                 <div className="absolute bottom-0 max-h-[10%]">
-                    <Advert slot="1021151555" />
+                    <Advert className='l865f95b84e' dataAffquery='/5826b20c68e0c83eb16d/865f95b84e/?placementName=addImage' />
                 </div>
             )}
-            */}
+            
         </div>
     );
 } 

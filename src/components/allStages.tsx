@@ -238,7 +238,7 @@ const AllStages = ({ manualScaler=1, previewStyle, editQuestionButtonHandler} : 
               ))}
             </div>
             {previewStyle && (
-              <p key={stage.id+"previewPageNumber"} className='flex text-primary text-[0.8rem] text-left pt-1'>{pageNumber+1}</p>
+              <p key={stage.id+"previewPageNumber"} className='flex text-primary text-[0.8rem] text-center select-none pt-1'>{pageNumber+1}</p>
             )}
           </div>
           </div>

@@ -29,7 +29,6 @@ export default function RootLayout({
         <meta property="og:url" content="https://examiniser.com" />
 
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"></meta>
-        <meta name="google-adsense-account" content="ca-pub-6195862060195022"></meta>
         {/* Standard Favicon */}
         <link rel="icon" href="/icons/favicon-16x16.png" sizes="16x16" />
         <link rel="icon" href="/icons/favicon-32x32.png" sizes="32x32" />
@@ -51,10 +50,6 @@ export default function RootLayout({
         {/* Additional Apple Touch Icons (for iOS) */}
         <link rel="apple-touch-icon" sizes="152x152" href="/icons/favicon-152x152.png" />
       </head>
-      <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
-      ></script>
       <body>
         <DataProvider>{children}</DataProvider>
       </body>

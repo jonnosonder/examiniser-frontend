@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { addPageElement, addPageElementsInfo, addToHistoryUndo, getEstimatedPage, getSpecificStage, historyData, pageElementsInfo, RENDER_PAGE, stageGroupInfoData } from "@/lib/stageStore";
 import { ShapeData } from "@/lib/shapeData";
+import Advert from "./advert";
 
 type TemplatePageProps = {
   onClose: () => void;
@@ -32,7 +33,7 @@ const TemplatePage: React.FC<TemplatePageProps> = ({ onClose }) => {
         return metrics.width;
     }
 
-    const headers_nameAndDate = () => {
+    const headers_nameAndDateDoted = () => {
         const focusStage = getSpecificStage(pageOn);
         const padding = focusStage.width * 0.1
 
@@ -41,9 +42,9 @@ const TemplatePage: React.FC<TemplatePageProps> = ({ onClose }) => {
             type: 'text',
             x: 0,
             y: 0,
-            text: 'Name:................',
+            text: 'Name:................................',
             fontFamily: 'Inter-400',
-            width: measureTextWidth('Name:................', scale*12+'px Inter-400'),
+            width: measureTextWidth('Name:................................', scale*12+'px Inter-400'),
             height: 12*scale,
             rotation: 0,
             fontSize: 12,
@@ -58,11 +59,11 @@ const TemplatePage: React.FC<TemplatePageProps> = ({ onClose }) => {
         const textDate: ShapeData = {
             id: 't'+Date.now()+1,
             type: 'text',
-            x: focusStage.width - measureTextWidth('Date:................', scale*12+'px Inter-400') - padding*2,
+            x: focusStage.width - measureTextWidth('Date:................................', scale*12+'px Inter-400') - padding*2,
             y: 0,
-            text: 'Date:................',
+            text: 'Date:................................',
             fontFamily: 'Inter-400',
-            width: measureTextWidth('Date:................', scale*12+'px Inter-400'),
+            width: measureTextWidth('Date:................................', scale*12+'px Inter-400'),
             height: 12*scale,
             rotation: 0,
             fontSize: 12,
@@ -94,6 +95,72 @@ const TemplatePage: React.FC<TemplatePageProps> = ({ onClose }) => {
         });
     }
 
+    /*
+    const headers_nameAndDateLined = () => {
+        const focusStage = getSpecificStage(pageOn);
+        const padding = focusStage.width * 0.1
+
+        const textName: ShapeData = {
+            id: 't'+Date.now(),
+            type: 'text',
+            x: 0,
+            y: 0,
+            text: 'Name:',
+            fontFamily: 'Inter-400',
+            width: measureTextWidth('Name:', scale*12+'px Inter-400'),
+            height: 12*scale,
+            rotation: 0,
+            fontSize: 12,
+            fill: 'black',
+            background: '',
+            stroke: 'black',
+            strokeWidth: 0,
+            align: "left",
+            border: "",
+            borderWeight: 0,
+        };
+
+        const textDate: ShapeData = {
+            id: 't'+Date.now()+1,
+            type: 'text',
+            x: focusStage.width - measureTextWidth('Date:', scale*12+'px Inter-400') - padding*2,
+            y: 0,
+            text: 'Date:',
+            fontFamily: 'Inter-400',
+            width: measureTextWidth('Date:', scale*12+'px Inter-400'),
+            height: 12*scale,
+            rotation: 0,
+            fontSize: 12,
+            fill: 'black',
+            background: '',
+            stroke: 'black',
+            strokeWidth: 0,
+            align: "left",
+            border: "",
+            borderWeight: 0,
+        };
+        
+        const newGroupInfo = {id: "g-"+Date.now(), widestX:( focusStage.width - (padding*2)), widestY: 12*scale, x: padding, y: padding*0.5, rotation: 0} as stageGroupInfoData
+
+        document.fonts.load('12px Inter-400').then(() => {
+            const newData = [textName, textDate];
+            addPageElementsInfo(newGroupInfo, pageOn);
+            addPageElement(newData, pageOn);
+            RENDER_PAGE();
+            addToHistoryUndo({
+              command: "create",
+              pageIndex: pageOn,
+              groupIndex: pageElementsInfo[pageOn].length-1,
+              from: {},
+              to: newGroupInfo,
+              contentsTo: newData
+            } as historyData);
+            onClose();
+        });
+    }
+
+    */
+
     return(
         <div className="absolute flex w-screen h-screen bg-opacity-50 backdrop-blur-sm items-center justify-center left-0 top-0">
             <div className="flex flex-col h-3/4 w-3/4 bg-background border border-grey shadow rounded-lg">
@@ -119,29 +186,34 @@ const TemplatePage: React.FC<TemplatePageProps> = ({ onClose }) => {
                     </div>
                     <div className="w-full h-full flex flex-col p-4">
                     {selectedSection === 0 && (
-                        <div className="flex w-full">
-                            <button className="flex flex-row w-1/3 p-4 border border-primary rounded-lg hover:bg-lightGrey" onClick={headers_nameAndDate}>
-                                <p className="text-[1vw] whitespace-nowrap select-none">Name:................</p>
+                        <>
+                        <div className="flex w-full space-x-2">
+                            <button className="flex flex-row w-1/3 p-4 border border-primary rounded-lg hover:bg-lightGrey" onClick={headers_nameAndDateDoted}>
+                                <p className="text-[1vw] whitespace-nowrap select-none">Name:....................</p>
                                 <span className="w-full" />
-                                <p className="text-[1vw] whitespace-nowrap select-none">Date:................</p>
+                                <p className="text-[1vw] whitespace-nowrap select-none">Date:....................</p>
                             </button>
+                            {/* 
+                            <button className="flex flex-row w-1/3 p-4 border border-primary rounded-lg hover:bg-lightGrey" onClick={headers_nameAndDateLined}>
+                                <p className="text-[1vw] whitespace-nowrap select-none">Name:__________</p>
+                                <span className="w-full" />
+                                <p className="text-[1vw] whitespace-nowrap select-none">Date:__________</p>
+                            </button>
+                            */}
                         </div>
+                        </>
                     )}
                     {selectedSection !== 0 && (
                         <div className="w-full h-full items-center justify-center p-4">
-                            <p>Email in your ideas to <p onClick={() => window.location.href = `mailto:examiniser@gmail.com`} className='text-blue-500 cursor-pointer'>examiniser@gmail.com</p></p>
+                            <p>Email in your ideas to <span onClick={() => window.location.href = `mailto:examiniser@gmail.com`} className='text-blue-500 cursor-pointer'>examiniser@gmail.com</span></p>
                         </div>
                     )}
                     </div>
                 </div>
-                
-                
             </div>
-            {/* 
             <div className='absolute bottom-0 items-center justify-center max-h-[10%] z-10000'>
-                <Advert slot="6036970249" />
+                <Advert className="qda754c02b5" dataAffquery="/5826b20c68e0c83eb16d/da754c02b5/?placementName=templates" />
             </div>
-            */}
         </div>
     );
 }

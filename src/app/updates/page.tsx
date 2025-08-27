@@ -31,6 +31,41 @@ export default function Contact() {
                             <div className="w-full md:w-[80vw] lg:w-[70vw] border border-primary rounded-xl">
                                 <button
                                     className="w-full text-2xl flex justify-between items-center px-4 py-2 bg-transparent text-primary text-base transition cursor-pointer"
+                                    onClick={() => toggleEditPanelSection(3)}
+                                >   
+                                    <div>
+                                        0.0.3 <span className='text-grey ml-1 text-sm'>— 27/08/2025</span>
+                                    </div>
+                                    {editPanelIndex === 3 ? (
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" />
+                                    </svg>
+                                    ) : (
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M6 15L12 9L18 15" stroke="currentColor" strokeWidth="2" />
+                                    </svg>
+                                    )}
+                                </button>
+
+                                <div
+                                    className={`flex flex-col px-2 overflow-hidden transition-all duration-400 ease-linear space-y-2 ${
+                                    editPanelIndex === 3 ? 'm-2 mt-0' : 'max-h-0 p-0 border-0'
+                                    }`}
+                                >   
+                                    <p className="text-sm">
+                                        - Colour page updated (default colours, colour history, enter hex value) <br/>
+                                        - Adverts updated <br/>
+                                        - Backend caching fixed <br/>
+                                        - Can move elements to the back or front on each page <br/>
+                                        - Updated landing page UI <br/>
+                                        - Updated navigation bar UI <br/>
+                                    </p>
+                                    
+                                </div>
+                            </div>
+                            <div className="w-full md:w-[80vw] lg:w-[70vw] border border-primary rounded-xl">
+                                <button
+                                    className="w-full text-2xl flex justify-between items-center px-4 py-2 bg-transparent text-primary text-base transition cursor-pointer"
                                     onClick={() => toggleEditPanelSection(2)}
                                 >   
                                     <div>

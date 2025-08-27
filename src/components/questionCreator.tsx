@@ -1243,11 +1243,11 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                     </div>
                 </div>
                 <div className='absolute bottom-0 items-center justify-center max-h-[10vh] z-30'>
-                    <Advert slot="4588173114" />
+                    <Advert className='z0b896f5460' dataAffquery='/5826b20c68e0c83eb16d/0b896f5460/?placementName=questionCreater'/>
                 </div>
             </div>
         </div>
-        {showAddImagePage && (<AddImage onClose={() => setShowAddImagePage(false)} mainPageMode={false} setShapes={setShapes} setSelectedId={setSelectedId}/>)}
+        {showAddImagePage && (<AddImage onClose={() => setShowAddImagePage(false)} showAdvert={false} mainPageMode={false} setShapes={setShapes} setSelectedId={setSelectedId}/>)}
         </>
     );
 }

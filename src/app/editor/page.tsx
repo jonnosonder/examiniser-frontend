@@ -503,7 +503,7 @@ function EditorPage() {
                     explanation={'Add Image'}
                     onClick={showAddImageHandler}
                 />
-                {showAddImagePage && (<AddImage onClose={() => setShowAddImagePage(false)} mainPageMode={true}/>)}
+                {showAddImagePage && (<AddImage onClose={() => setShowAddImagePage(false)} showAdvert={true} mainPageMode={true}/>)}
 
                 <AddShapeDropDown />
             </div>

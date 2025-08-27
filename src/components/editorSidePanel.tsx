@@ -819,6 +819,30 @@ export default function EditorSidePanel() {
         
     }
 
+    const moveElementToTheBack = () => {
+        const pageIndex = selectIndex.current.pageIndex;
+        const groupIndex = selectIndex.current.groupIndex;
+        if (pageIndex === null || groupIndex === null || groupIndex < 1) return;
+        const [item] = pageElements[pageIndex].splice(groupIndex, 1);
+        const [itemInfo] = pageElementsInfo[pageIndex].splice(groupIndex, 1);
+        pageElements[pageIndex].unshift(item);
+        pageElementsInfo[pageIndex].unshift(itemInfo);
+        setSelectIndex({pageIndex: pageIndex, groupIndex: 0});
+        RENDER_MAIN();
+    }
+
+    const moveElementToTheFront = () => {
+        const pageIndex = selectIndex.current.pageIndex;
+        const groupIndex = selectIndex.current.groupIndex;
+        if (pageIndex === null || groupIndex === null || groupIndex > pageElements[pageIndex].length-1) return;
+        const [item] = pageElements[pageIndex].splice(groupIndex, 1);
+        const [itemInfo] = pageElementsInfo[pageIndex].splice(groupIndex, 1);
+        pageElements[pageIndex].push(item);
+        pageElementsInfo[pageIndex].push(itemInfo);
+        setSelectIndex({pageIndex: pageIndex, groupIndex: pageElementsInfo.length});
+        RENDER_MAIN();
+    }
+
     const defaultInputClassName = "flex text-sm w-full px-[2px] rounded-md border border-grey shadow-sm transition-shadow duration-300 focus:shadow-[0_0_0_0.15rem_theme('colors.contrast')] focus:outline-none focus:border-transparent";
     
     return (
@@ -894,6 +918,19 @@ export default function EditorSidePanel() {
                         </button>
                     </div>
                 </div>
+
+                <p className='p-2 pb-0 text-sm'>Order</p>
+                <div className='w-full px-4 flex flex-col grid grid-cols-2 gap-x-2 text-xs text-primary'>
+                    <p className='text-xs ml-1 my-1'>To the back</p>
+                    <p className='text-xs ml-1 my-1'>To the front</p>
+                    <button onClick={moveElementToTheBack} className='flex w-full items-center justify-center border border-grey rounded-md p-1'>
+                        <svg className='h-6' viewBox="0 0 52 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="19.5" y="5.5" width="13" height="13" fill="#88CFCF" stroke="#88CFCF"/><rect x="10.5" y="2.5" width="13" height="13" fill="black" stroke="black"/><circle cx="36" cy="14" r="6.5" fill="black" stroke="black"/></svg>
+                    </button>
+                    <button onClick={moveElementToTheFront} className='flex w-full items-center justify-center border border-grey rounded-md p-1'>
+                        <svg className='h-6' viewBox="0 0 52 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10.5" y="2.5" width="13" height="13" fill="black" stroke="black"/><circle cx="36" cy="14" r="6.5" fill="black" stroke="black"/><rect x="19.5" y="5.5" width="13" height="13" fill="#88CFCF" stroke="#88CFCF"/></svg>
+                    </button>
+                </div>
+                
 
                 <div className='w-full mt-2 h-[1px] bg-grey' />
                 </>

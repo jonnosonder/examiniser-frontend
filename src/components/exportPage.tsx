@@ -6,6 +6,7 @@
 import { useState } from 'react';
 import { getPageElements, getPageElementsInfo, getStages } from '@/lib/stageStore';
 import { jsPDF } from "jspdf";
+import Advert from './advert';
 
 type ExportPageProps = {
   onClose: () => void;
@@ -232,11 +233,9 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
               <button className="border-2 border-primary text-primary text-lg rounded-lg py-2 px-4 transition-shadow duration-300 hover:shadow-[0_0_0_0.4rem_theme('colors.accent')] hover:outline-none" onClick={exportToPDF}>Export</button>
           </div>
         </div>
-        {/* 
         <div className='absolute bottom-0 items-center justify-center max-h-[18%] z-10000'>
-          <Advert slot="8527418128" />
+          <Advert className='n24c6c807bc' dataAffquery='/5826b20c68e0c83eb16d/24c6c807bc/?placementName=export' />
         </div>
-        */}
       </div>
   );
 }

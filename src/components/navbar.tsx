@@ -27,9 +27,9 @@ export default function Navbar() {
   }, []);
 
   return (
-    <div className='absolute w-full'>
+    <div className='absolute w-full z-[20]'>
       {!isMobile ? (
-        <nav className="items-center bg-background relative w-[90vw] mx-auto">
+        <nav className="items-center bg-background relative w-[95vw] px-5 mx-auto border border-grey border-t-0 rounded-b-2xl shadow-md">
           <div className="flex mx-auto items-center justify-between">
             <div className="inline flex-row pt-2">
                 <ReloadLink href="/" router={router} className="inline-flex items-center justify-center text-primary font-nunito text-2xl sm:text-3xl lg:text-4xl cursor-pointer mr-8">
@@ -38,7 +38,7 @@ export default function Navbar() {
                 
                 <div className="inline-flex">
                 {navLinks.map((link, index) => (
-                    <div key={index} className="inline p-5">
+                    <div key={index} className="inline p-5 py-3">
                     <ReloadLink  href={link.href} router={router} className="inline-flex p-1">
                         {link.title}
                     </ReloadLink>
@@ -63,7 +63,7 @@ export default function Navbar() {
       ) : (
         <nav className="bg-background w-full">
           <div className="mx-auto flex justify-between items-center py-4 px-4">
-            <div className="flex items-center justify-center text-primary font-bold text-2xl sm:text-3xl lg:text-5xl cursor-pointer">Examiniser</div>
+            <div className="flex items-center justify-center text-primary font-nunito text-2xl sm:text-3xl lg:text-5xl cursor-pointer">Examiniser</div>
             <div className="flex justify-end items-center gap-6 text-white cursor-pointer">
               {/* Mobile nav actions */}
             </div>

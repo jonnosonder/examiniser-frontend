@@ -8,6 +8,7 @@ import Decimal from 'decimal.js';
 import { useDropzone } from 'react-dropzone';
 import { useData } from "@/context/dataContext";
 import { useFileStore } from '@/store/useFileStore';
+import Advert from '@/components/advert';
 
 const paperSizes = {
   A3: [
@@ -640,6 +641,9 @@ export default function StartPage() {
                     <p className='text-primary text-center text-lg sm:text-1xl lg:text-2xl font-nunito'>Start</p>
                 </button>
             </div>
+        </div>
+        <div className='absolute flex bottom-0 left-0 right-0 items-center justify-center z-10000 max-h-[15%]'>
+            <Advert className='jbc2f439b4a' dataAffquery='/5826b20c68e0c83eb16d/bc2f439b4a/?placementName=start' />
         </div>
     </div>
 );

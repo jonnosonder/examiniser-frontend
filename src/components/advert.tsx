@@ -1,46 +1,31 @@
-import { useEffect, useRef } from 'react';
+"use client";
 
-interface AdSenseTestProps {
-  slot: string;
+import { useEffect } from "react";
+
+interface AdverticaAdProps {
+  className?: string;
+  dataAffquery: string;
 }
 
-declare global {
-  interface Window {
-    adsbygoogle: Array<Record<string, unknown>>;
-  }
-}
-
-const Advert: React.FC<AdSenseTestProps> = ({ slot }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
+export default function Advert({ className = "", dataAffquery }: AdverticaAdProps) {
 
   useEffect(() => {
-    if (!containerRef.current) return;
-
-    containerRef.current.innerHTML = '';
-
-    const ins = document.createElement('ins');
-    ins.className = 'adsbygoogle';
-    ins.style.display = 'block';
-    ins.setAttribute('data-ad-client', 'ca-pub-6195862060195022');
-    ins.setAttribute('data-ad-slot', slot);
-    ins.setAttribute('data-ad-format', 'auto');
-    ins.setAttribute('data-full-width-responsive', 'true');
-    //ins.setAttribute('data-adtest', 'true'); // testing only
-
-    containerRef.current.appendChild(ins);
-
-    try {
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
-    } catch (e) {
-      console.error('AdSense error:', e);
+    const container = document.getElementById("ad-container-"+className);
+    if (container) {
+      container.innerHTML = `
+        <ins style="width:0px;height:0px"
+             data-width="0"
+             data-height="0"
+             class="${className}"
+             data-domain="//data684.click"
+             data-affquery="${dataAffquery}">
+          <script src="//data684.click/js/responsive.js" async></script>
+        </ins>
+      `;
     }
   }, []);
 
-  if (process.env.NODE_ENV === 'development') {
-    return <div className='text-center p-[20px]' style={{ backgroundColor: '#eee'}}>Ad placeholder (development mode)</div>;
-  }
-
-  return <div><div ref={containerRef} /></div>;
-};
-
-export default Advert;
+  return (
+    <div id={"ad-container-"+className}></div>
+  );
+}
