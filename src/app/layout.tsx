@@ -5,7 +5,8 @@ import type { Metadata } from "next";
 import '../styles/globals.css';
 import '../styles/colors.css';
 import { DataProvider } from "../context/dataContext";
-// import Script from 'next/script'
+import Script from 'next/script'
+import Analytics from "@/components/analytics";
 
 export const metadata: Metadata = {
   title: "Examiniser",
@@ -21,6 +22,23 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <Script
+          strategy="afterInteractive"
+          src="https://www.googletagmanager.com/gtag/js?id=G-JEH2HSSNE3"
+        />
+        <Script
+          id="gtag-init"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-JEH2HSSNE3');
+            `,
+          }}
+        />
+
         <meta name="description" content="Create exam papers quick and easy" />
         <meta name="keywords" content="exam, paper, edit, school, editor, question, maths, mathematics" />
         <meta property="og:title" content="Examiniser" />
@@ -51,6 +69,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" sizes="152x152" href="/icons/favicon-152x152.png" />
       </head>
       <body>
+        <Analytics />
         <DataProvider>{children}</DataProvider>
       </body>
     </html>

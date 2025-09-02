@@ -2,13 +2,17 @@
 // Copyright © 2025 Jonathan Kwok
 
 import { useEffect, useState } from 'react';
-import { getMarginValue, getViewMargin, setMarginValue, setViewMargin, getStagesBackground, setAllStagesBackground, RENDER_MAIN, stageGroupInfoData, getSpecificPageElementsInfo, pageElementsInfo, getSpecificStage, addToHistoryUndo, historyData, pageElements, changePageOfElement, changePageOfElementInfo, groupsOnPage } from '@/lib/stageStore';
+import { getMarginValue, getViewMargin, setMarginValue, setViewMargin, setAllStagesBackground, RENDER_MAIN, stageGroupInfoData, getSpecificPageElementsInfo, pageElementsInfo, getSpecificStage, addToHistoryUndo, historyData, pageElements, changePageOfElement, changePageOfElementInfo, groupsOnPage, getEstimatedPage, StageData, setStageBackground, deleteStageAndElements, swapStagesAndElements, stagesLength, getStages } from '@/lib/stageStore';
 import ColorSelectorSection from '@/components/colorSelectorSection';
 import { useSelectRef } from './editorContextProvider';
 
 type shapeXY = {
     x: number;
     y: number;
+}
+
+type pageOnP = {
+    page: number;
 }
 
 type shapeXYWH = {
@@ -44,7 +48,6 @@ type visualXYWHRP = {
 export default function EditorSidePanel() {
     const [displayColorSelector, setDisplayColorSelector] = useState<boolean>(false);
     const toggleDisplayColorSelector = () => {setDisplayColorSelector(!displayColorSelector)}
-    const [selectedBackgroundColor, setSelectedBackgroundColor] = useState<string>(getStagesBackground());
 
     const [viewMarginEditor, setViewMarginEditor] = useState(getViewMargin());
     const toggleViewMargin = () => {setViewMarginEditor(!viewMarginEditor); setViewMargin(!viewMarginEditor); RENDER_MAIN();};
@@ -58,6 +61,12 @@ export default function EditorSidePanel() {
     const [lockWHRatio, setLockWHRatio] = useState<boolean>(false);
 
     const [visualInformation, setVisualInformation] = useState<visualXYWHRP | null>(null);
+
+    const [estimatedPage, setEstimatedPage] = useState<number>(getEstimatedPage());
+    const [estimatedPageVisualValue, setEstimatedPageVisualValue] = useState<string>(String(getEstimatedPage()));
+
+    const [stageInformation, setStageInformation] = useState<StageData | null>();
+    const [selectedBackgroundColor, setSelectedBackgroundColor] = useState<string>("");
 
     const round4 = (num: number) => Math.round((num + Number.EPSILON) * 10000) / 10000;
 
@@ -87,6 +96,23 @@ export default function EditorSidePanel() {
         };
     }, []);
 
+    useEffect(() => {
+        const handleChange = (e: Event) => {
+            const customEvent = e as CustomEvent<pageOnP>;
+            const newPage = customEvent.detail.page;
+            setEstimatedPage(newPage);
+            setEstimatedPageVisualValue(String(newPage+1));
+            const specificStateInfo = getSpecificStage(newPage);
+            setStageInformation(specificStateInfo);
+            setSelectedBackgroundColor(specificStateInfo.background);
+        };
+
+        window.addEventListener('newEstimatedPage', handleChange);
+
+        return () => {
+            window.removeEventListener('newEstimatedPage', handleChange);
+        };
+    }, []);
 
     useEffect(() => {
         const handler = (e: Event) => {
@@ -162,8 +188,11 @@ export default function EditorSidePanel() {
     }
 
     useEffect(() => {
-        setAllStagesBackground(selectedBackgroundColor);
-        RENDER_MAIN();
+        if (stageInformation) { 
+            setStageInformation({...stageInformation, background: selectedBackgroundColor} as StageData);
+            setStageBackground(estimatedPage, selectedBackgroundColor);
+            RENDER_MAIN();
+        }
     }, [selectedBackgroundColor])
 
     /*
@@ -276,7 +305,6 @@ export default function EditorSidePanel() {
     }
 
     const rightXAlignButtonHanlder = () => {
-        console.log(groupClientRect);
         const focusSelectIndex = selectIndex.current;
         if (focusSelectIndex.pageIndex === null || focusSelectIndex.groupIndex === null || !groupInformation || !groupClientRect) { return; }
 
@@ -428,7 +456,6 @@ export default function EditorSidePanel() {
                 ...groupClientRect,
                 x: numberValue + shift,
             });
-            console.log();
             RENDER_MAIN();
         } else {
             setVisualInformation({
@@ -463,7 +490,6 @@ export default function EditorSidePanel() {
                 ...groupClientRect,
                 y: numberValue + shift,
             });
-            console.log();
             RENDER_MAIN();
         } else {
             setVisualInformation({
@@ -491,7 +517,6 @@ export default function EditorSidePanel() {
                 pageElements[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex][x].width *= scaleX;
             }
             pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].widestX = widthNumberValue;
-            console.log("VS W: "+ widthValue);
             
             if (lockWHRatio) {
                 const heightValue = Math.trunc(pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].widestY);
@@ -518,8 +543,6 @@ export default function EditorSidePanel() {
                     width: widthNumberValue + shiftWidth,
                     height: newHieghtValue + shiftHeight,
                 });
-                console.log(scaleY);
-                console.log({width: String(widthNumberValue), height: String(newHieghtValue)});
             } else {
                 setVisualInformation({
                     ...visualInformation,
@@ -569,7 +592,6 @@ export default function EditorSidePanel() {
                 pageElements[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex][x].height *= scaleY;
             }
             pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].widestY = heightNumberValue;
-            console.log("VS W: "+ heightValue);
             
             if (lockWHRatio) {
                 const widthValue = Math.trunc(pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].widestX);
@@ -596,8 +618,6 @@ export default function EditorSidePanel() {
                     width: newWidthValue + shiftWidth,
                     height: heightNumberValue + shiftHeight,
                 });
-                console.log(scaleY);
-                console.log({width: String(newWidthValue), height: String(heightNumberValue)});
             } else {
                 setVisualInformation({
                     ...visualInformation,
@@ -649,7 +669,6 @@ export default function EditorSidePanel() {
                 ...groupInformation,
                 rotation: numberValue,
             } as stageGroupInfoData);
-            console.log();
             RENDER_MAIN();
         } else {
             setVisualInformation({
@@ -672,7 +691,7 @@ export default function EditorSidePanel() {
         const pageIndex = selectIndex.current.pageIndex;
         const groupIndex = selectIndex.current.groupIndex;
 
-        if (pageIndex !== null && groupIndex !== null && numberValue !== currentValue && !isNaN(numberValue) && numberValue >= 0 && numberValue < pageElementsInfo.length) {
+        if (pageIndex !== null && groupIndex !== null && numberValue !== currentValue && !isNaN(numberValue) && numberValue >= 0 && numberValue < stagesLength()) {
             setVisualInformation({
                 ...visualInformation,
                 page: value
@@ -692,7 +711,7 @@ export default function EditorSidePanel() {
     const movePageOnDownButtonHandler = () => {
         const pageIndex = selectIndex.current.pageIndex;
         const groupIndex = selectIndex.current.groupIndex;
-        if (pageIndex !== null && groupIndex !== null && pageIndex < pageElementsInfo.length-1) {
+        if (pageIndex !== null && groupIndex !== null && pageIndex < stagesLength()-1) {
             setVisualInformation({
                 ...visualInformation,
                 page: String(pageIndex+2)
@@ -748,7 +767,6 @@ export default function EditorSidePanel() {
                 ...groupClientRect,
                 x: newValue - shift,
             });
-            console.log(newValue - shift);
         } else {
             setVisualInformation({
                 ...visualInformation,
@@ -786,7 +804,6 @@ export default function EditorSidePanel() {
                 ...groupClientRect,
                 y: newValue - shift,
             });
-            console.log(newValue - shift);
         } else {
             setVisualInformation({
                 ...visualInformation,
@@ -810,7 +827,7 @@ export default function EditorSidePanel() {
     const pageOnBlurCleanUpHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!visualInformation) { return; }
 
-        const numberValue = Math.min(1, Math.max(pageElementsInfo.length , Number(e.target.value)));
+        const numberValue = Math.min(1, Math.max(stagesLength() , Number(e.target.value)));
 
         setVisualInformation({
             ...visualInformation,
@@ -834,12 +851,64 @@ export default function EditorSidePanel() {
     const moveElementToTheFront = () => {
         const pageIndex = selectIndex.current.pageIndex;
         const groupIndex = selectIndex.current.groupIndex;
-        if (pageIndex === null || groupIndex === null || groupIndex > pageElements[pageIndex].length-1) return;
+        if (pageIndex === null || groupIndex === null || groupIndex > pageElements[pageIndex].length-2) return;
         const [item] = pageElements[pageIndex].splice(groupIndex, 1);
         const [itemInfo] = pageElementsInfo[pageIndex].splice(groupIndex, 1);
         pageElements[pageIndex].push(item);
         pageElementsInfo[pageIndex].push(itemInfo);
-        setSelectIndex({pageIndex: pageIndex, groupIndex: pageElementsInfo.length});
+        setSelectIndex({pageIndex: pageIndex, groupIndex: stagesLength()});
+        RENDER_MAIN();
+    }
+
+    const applyBackgroundToAllStages = () => {
+        setAllStagesBackground(selectedBackgroundColor);
+        RENDER_MAIN();
+    }
+
+    const movePageInputHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        const numberValue = Math.max(1, Math.min(stagesLength() , Number(value)));
+        if (value !== "" && numberValue) {
+            swapStagesAndElements(estimatedPage, numberValue-1);
+            RENDER_MAIN();
+            const focusStageRef = getStages()[estimatedPage].stageRef?.current;
+            if (focusStageRef) {
+                focusStageRef.container().scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            setEstimatedPage(numberValue);
+        }
+        setEstimatedPageVisualValue(value);
+    }
+
+    const movePageBlurCleanUpHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const numberValue = Math.max(1, Math.min(stagesLength(), Number(e.target.value)));
+        setEstimatedPageVisualValue(String(numberValue));
+    }
+
+    const moveStageDownButtonHandler = () => {
+        if (estimatedPage < stagesLength()-1) {
+            swapStagesAndElements(estimatedPage, estimatedPage+1);
+            RENDER_MAIN();
+            const focusStageRef = getStages()[estimatedPage].stageRef?.current;
+            if (focusStageRef) {
+                focusStageRef.container().scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+    }
+
+    const moveStageUpButtonHandler = () => {
+        if (estimatedPage > 0) {
+            swapStagesAndElements(estimatedPage, estimatedPage-1);
+            RENDER_MAIN();
+            const focusStageRef = getStages()[estimatedPage].stageRef?.current;
+            if (focusStageRef) {
+                focusStageRef.container().scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+    }
+
+    const deleteStageButtonHandler = () => {
+        deleteStageAndElements(estimatedPage);
         RENDER_MAIN();
     }
 
@@ -849,7 +918,7 @@ export default function EditorSidePanel() {
         <div className='w-full h-full'>
             {visualInformation !== null && selectIndex.current.pageIndex !== null && (
                 <>
-                <p className='p-2 pb-1 text-md'>Position</p>
+                <p className='p-2 pb-1 text-md'>Element</p>
 
                 <p className='p-2 pb-1 text-sm'>Align</p>
                 <div className='flex flex-col px-4 w-full items-center justify-center space-y-2'>
@@ -908,7 +977,7 @@ export default function EditorSidePanel() {
                     <p className='text-xs ml-1 mt-1'>Page On</p>
                     <span className='w-full' />
                     <input value={visualInformation.page ?? ''} onChange={changePageOnInputHandler} onBlur={pageOnBlurCleanUpHandler} className={defaultInputClassName}></input>
-                    <div className='flex w-full items-center justify-center border border-grey rounded-md'>
+                    <div className='flex w-full items-center justify-center border border-grey rounded-md shadow-sm'>
                         <button onClick={movePageOnDownButtonHandler} className='flex w-full items-center justify-center'>
                             <svg className="w-5 h-5" clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m5.214 14.522s4.505 4.502 6.259 6.255c.146.147.338.22.53.22s.384-.073.53-.22c1.754-1.752 6.249-6.244 6.249-6.244.144-.144.216-.334.217-.523 0-.193-.074-.386-.221-.534-.293-.293-.766-.294-1.057-.004l-4.968 4.968v-14.692c0-.414-.336-.75-.75-.75s-.75.336-.75.75v14.692l-4.979-4.978c-.289-.289-.761-.287-1.054.006-.148.148-.222.341-.221.534 0 .189.071.377.215.52z" fill="#000" fillRule="nonzero"stroke="#000" strokeWidth="0.2" strokeLinejoin="round"/></svg>
                         </button>
@@ -923,10 +992,10 @@ export default function EditorSidePanel() {
                 <div className='w-full px-4 flex flex-col grid grid-cols-2 gap-x-2 text-xs text-primary'>
                     <p className='text-xs ml-1 my-1'>To the back</p>
                     <p className='text-xs ml-1 my-1'>To the front</p>
-                    <button onClick={moveElementToTheBack} className='flex w-full items-center justify-center border border-grey rounded-md p-1'>
+                    <button onClick={moveElementToTheBack} className='flex w-full items-center justify-center border border-grey rounded-md p-1 shadow-sm'>
                         <svg className='h-6' viewBox="0 0 52 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="19.5" y="5.5" width="13" height="13" fill="#88CFCF" stroke="#88CFCF"/><rect x="10.5" y="2.5" width="13" height="13" fill="black" stroke="black"/><circle cx="36" cy="14" r="6.5" fill="black" stroke="black"/></svg>
                     </button>
-                    <button onClick={moveElementToTheFront} className='flex w-full items-center justify-center border border-grey rounded-md p-1'>
+                    <button onClick={moveElementToTheFront} className='flex w-full items-center justify-center border border-grey rounded-md p-1 shadow-sm'>
                         <svg className='h-6' viewBox="0 0 52 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10.5" y="2.5" width="13" height="13" fill="black" stroke="black"/><circle cx="36" cy="14" r="6.5" fill="black" stroke="black"/><rect x="19.5" y="5.5" width="13" height="13" fill="#88CFCF" stroke="#88CFCF"/></svg>
                     </button>
                 </div>
@@ -935,25 +1004,55 @@ export default function EditorSidePanel() {
                 <div className='w-full mt-2 h-[1px] bg-grey' />
                 </>
             )}
-
-            <p className='p-2 pb-1 text-md'>Page</p>
-
-            <p className='p-2 pb-1 text-sm'>Background</p>
-            <div className='flex flex-col px-4 space-y-2'>
-                <p className="text-xs">Colour</p>
-                <button style={{background: selectedBackgroundColor}} className='w-full h-5 border border-grey shadow rounded-lg' onClick={toggleDisplayColorSelector}></button>
-                {displayColorSelector && (
-                    <div className='absolute flex items-center justify-center top-[20vh] left-[13rem]'>
-                        <ColorSelectorSection onClose={() => setDisplayColorSelector(false)} passColorValue={setSelectedBackgroundColor} startingColor={selectedBackgroundColor} />
+            
+            {stageInformation !== null && estimatedPage !== -1 && selectedBackgroundColor && (
+                <>
+                <p className='p-2 pb-1 text-md'>Page {estimatedPage+1}</p>
+                <div className='flex flex-col px-4'>
+                    <p className="text-xs ml-1 my-1">Colour</p>
+                    <button style={{background: selectedBackgroundColor}} className='w-full h-5 border border-grey shadow rounded-lg' onClick={toggleDisplayColorSelector}></button>
+                    {displayColorSelector && (
+                        <div className='absolute flex items-center justify-center top-[20vh] left-[13rem]'>
+                            <ColorSelectorSection onClose={() => setDisplayColorSelector(false)} passColorValue={setSelectedBackgroundColor} startingColor={selectedBackgroundColor} />
+                        </div>
+                    )}
+                    <div className='w-full flex items-center justify-start mt-1'>
+                        <button className='flex rounded-md border border-grey text-xs p-1 shadow-sm' onClick={applyBackgroundToAllStages}>Apply to All</button>
                     </div>
-                )}
-                <p className="text-xs">View Margin</p>
-                <button className='rounded-md hover:bg-gray-200 transition duration-300' onClick={toggleViewMargin}>
-                        {viewMarginEditor ? 'Showing' : 'Hiding'}
-                </button>
-                <p className="text-xs">Margin Size (px)</p>
-                <input className="px-2 border border-grey rounded-md shadow-sm transition-shadow duration-300 focus:shadow-[0_0_0_0.2rem_theme('colors.contrast')] focus:outline-none focus:border-transparent" value={marginEditorVisual} onChange={marginValueInputHandler} placeholder='300px'></input>
-            </div>
+                    <span className='w-full h-2' />
+
+                    <p className="text-xs ml-1 my-1">Move Page</p>
+                    <div className='flex w-full space-x-2'>
+                        <input value={estimatedPageVisualValue} onChange={movePageInputHandler} onBlur={movePageBlurCleanUpHandler} className={defaultInputClassName}></input>
+                        <div className='flex w-full items-center justify-center border border-grey rounded-md shadow-sm'>
+                            <button onClick={moveStageDownButtonHandler} className='flex w-full items-center justify-center'>
+                                <svg className="w-5 h-5" clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m5.214 14.522s4.505 4.502 6.259 6.255c.146.147.338.22.53.22s.384-.073.53-.22c1.754-1.752 6.249-6.244 6.249-6.244.144-.144.216-.334.217-.523 0-.193-.074-.386-.221-.534-.293-.293-.766-.294-1.057-.004l-4.968 4.968v-14.692c0-.414-.336-.75-.75-.75s-.75.336-.75.75v14.692l-4.979-4.978c-.289-.289-.761-.287-1.054.006-.148.148-.222.341-.221.534 0 .189.071.377.215.52z" fill="#000" fillRule="nonzero"stroke="#000" strokeWidth="0.2" strokeLinejoin="round"/></svg>
+                            </button>
+                            <div className='w-[2px] h-full bg-grey' />
+                            <button onClick={moveStageUpButtonHandler} className='flex w-full items-center justify-center'>
+                                <svg className="w-5 h-5" clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m18.787 9.473s-4.505-4.502-6.259-6.255c-.147-.146-.339-.22-.53-.22-.192 0-.384.074-.531.22-1.753 1.753-6.256 6.252-6.256 6.252-.147.147-.219.339-.217.532.001.19.075.38.221.525.292.293.766.295 1.056.004l4.977-4.976v14.692c0 .414.336.75.75.75.413 0 .75-.336.75-.75v-14.692l4.978 4.978c.289.29.762.287 1.055-.006.145-.145.219-.335.221-.525.002-.192-.07-.384-.215-.529z" fill="#000" fillRule="nonzero"stroke="#000" strokeWidth="0.2" strokeLinejoin="round"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <span className='w-full h-2' />
+
+                    <p className="text-xs ml-1 my-1">View Margin</p>
+                    <button className='rounded-md hover:bg-gray-200 transition duration-300 text-sm' onClick={toggleViewMargin}>
+                            {viewMarginEditor ? 'Showing' : 'Hiding'}
+                    </button>
+                    <p className="text-xs ml-1 my-1">Margin Size (px)</p>
+                    <input className="px-2 border border-grey rounded-md shadow-sm transition-shadow duration-300 focus:shadow-[0_0_0_0.2rem_theme('colors.contrast')] focus:outline-none focus:border-transparent" value={marginEditorVisual} onChange={marginValueInputHandler} placeholder='300px'></input>
+                    <span className='w-full h-4' />
+
+                    <button className='flex w-full rounded-md border border-grey text-red items-center justify-center shadow-sm' onClick={deleteStageButtonHandler}>
+                        <svg className='w-6 h-6 p-1' viewBox='0 0 24 24' xmlns="http://www.w3.org/2000/svg" fill="currentColor" stroke='none' fillRule="evenodd" clipRule="evenodd"><path d="M19 24h-14c-1.104 0-2-.896-2-2v-17h-1v-2h6v-1.5c0-.827.673-1.5 1.5-1.5h5c.825 0 1.5.671 1.5 1.5v1.5h6v2h-1v17c0 1.104-.896 2-2 2zm0-19h-14v16.5c0 .276.224.5.5.5h13c.276 0 .5-.224.5-.5v-16.5zm-9 4c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm6 0c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm-2-7h-4v1h4v-1z"/></svg>
+                        <p className='mr-1 text-sm'>Delete</p>
+                    </button>
+                </div>
+                </>
+            )}
+
+            <span className='flex w-full h-4' />
         </div>
     );
 }

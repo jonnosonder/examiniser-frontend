@@ -13,7 +13,6 @@ import { ShapeData } from '@/lib/shapeData';
 import { addPageElement, addPageElementsInfo, addToHistoryUndo, deletePageElement, deletePageElementInfo, getEstimatedPage, getSpecificPageElementsInfo, getStageDimension, historyData, pageElementsInfo, RENDER_PAGE, setPageElement, setPageElementsInfo, stageGroupInfoData } from '@/lib/stageStore';
 import ColorSelectorSection from '@/components/colorSelectorSection';
 import { KonvaEventObject } from 'konva/lib/Node';
-import Advert from './advert';
 import '@/styles/QuestionCreator.css'
 import { AddImage } from './addImage';
 import { getFontNamesArray } from '@/lib/fontData';
@@ -1243,7 +1242,6 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                     </div>
                 </div>
                 <div className='absolute bottom-0 items-center justify-center max-h-[10vh] z-30'>
-                    <Advert className='z0b896f5460' dataAffquery='/5826b20c68e0c83eb16d/0b896f5460/?placementName=questionCreater'/>
                 </div>
             </div>
         </div>

@@ -4,7 +4,6 @@
 import { useState } from "react";
 import { addPageElement, addPageElementsInfo, addToHistoryUndo, getEstimatedPage, getSpecificStage, historyData, pageElementsInfo, RENDER_PAGE, stageGroupInfoData } from "@/lib/stageStore";
 import { ShapeData } from "@/lib/shapeData";
-import Advert from "./advert";
 
 type TemplatePageProps = {
   onClose: () => void;
@@ -212,7 +211,6 @@ const TemplatePage: React.FC<TemplatePageProps> = ({ onClose }) => {
                 </div>
             </div>
             <div className='absolute bottom-0 items-center justify-center max-h-[10%] z-10000'>
-                <Advert className="qda754c02b5" dataAffquery="/5826b20c68e0c83eb16d/da754c02b5/?placementName=templates" />
             </div>
         </div>
     );

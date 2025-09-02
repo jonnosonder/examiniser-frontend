@@ -6,7 +6,6 @@ import { addPageElement, addPageElementsInfo, getEstimatedPage, RENDER_PAGE } fr
 import { ShapeData } from "@/lib/shapeData";
 import "@/styles/addImage.css"
 import { useDropzone } from "react-dropzone";
-import Advert from "./advert";
 
 type AddImageProps = {
   onClose: () => void;
@@ -308,7 +307,6 @@ export const AddImage: React.FC<AddImageProps>  = ({onClose, showAdvert, mainPag
             
             {showAdvert && (
                 <div className="absolute bottom-0 max-h-[10%]">
-                    <Advert className='l865f95b84e' dataAffquery='/5826b20c68e0c83eb16d/865f95b84e/?placementName=addImage' />
                 </div>
             )}
             

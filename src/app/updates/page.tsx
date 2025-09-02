@@ -31,6 +31,42 @@ export default function Contact() {
                             <div className="w-full md:w-[80vw] lg:w-[70vw] border border-primary rounded-xl">
                                 <button
                                     className="w-full text-2xl flex justify-between items-center px-4 py-2 bg-transparent text-primary text-base transition cursor-pointer"
+                                    onClick={() => toggleEditPanelSection(4)}
+                                >   
+                                    <div>
+                                        0.0.4 <span className='text-grey ml-1 text-sm'>— 02/09/2025</span>
+                                    </div>
+                                    {editPanelIndex === 4 ? (
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" />
+                                    </svg>
+                                    ) : (
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M6 15L12 9L18 15" stroke="currentColor" strokeWidth="2" />
+                                    </svg>
+                                    )}
+                                </button>
+
+                                <div
+                                    className={`flex flex-col px-2 overflow-hidden transition-all duration-400 ease-linear space-y-2 ${
+                                    editPanelIndex === 4 ? 'm-2 mt-0' : 'max-h-0 p-0 border-0'
+                                    }`}
+                                >   
+                                    <p className="text-sm">
+                                        - Google Analytics implimented <br/>
+                                        - Adverts removed <br/>
+                                        - Fixed moving elements to front bug <br/>
+                                        - Can move and delete pages <br/>
+                                        - Duplication element id bug fix <br/>
+                                        - Fixed add page button when no pages are stored <br/>
+                                        - Fixed unable to select elements whilst margin is showing <br/>
+                                    </p>
+                                    
+                                </div>
+                            </div>
+                            <div className="w-full md:w-[80vw] lg:w-[70vw] border border-primary rounded-xl">
+                                <button
+                                    className="w-full text-2xl flex justify-between items-center px-4 py-2 bg-transparent text-primary text-base transition cursor-pointer"
                                     onClick={() => toggleEditPanelSection(3)}
                                 >   
                                     <div>

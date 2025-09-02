@@ -96,6 +96,19 @@ export function addStageCopyPrevious(id: string) {
         });
         pageElements.push([]);
         pageElementsInfo.push([]);
+    } else {
+      const width = Number(2480);
+      const height = Number(3508);
+      const backgroundColor = '#ffffff';
+      
+      stages.push({
+            id: id,
+            width: width,
+            height: height,
+            background: backgroundColor,
+        });
+        pageElements.push([]);
+        pageElementsInfo.push([]);
     }
 }
 
@@ -141,14 +154,11 @@ export function minWidthHeight() {
   return {minWidth, minHeight};
 };
 
-export function getStagesBackground():string {
-  if (stages.length !== 0){
-    return stages[0].background;
-  }
-  return '';
-};
+export function setStageBackground(page: number, newBackground: string) {
+  stages[page].background = newBackground;
+}
 
-export function setAllStagesBackground(newBackground:string) {
+export function setAllStagesBackground(newBackground: string) {
   stages.forEach(stage => {
     stage.background = newBackground;
   });
@@ -192,7 +202,11 @@ export function addPageElement(newShape: ShapeData[], page:number) {
 };
 
 export function duplicatePageElement(page: number, groupID: number) {
-  pageElements[page].push(pageElements[page][groupID]);
+  const duplicateElements = [...pageElements[page][groupID]]
+  for (let x = 0; x < duplicateElements.length; x++) {
+    duplicateElements[x].id = String(Date.now()+x);
+  }
+  pageElements[page].push(duplicateElements);
 };
 
 export function setPageElement(newShape: ShapeData[], page: number, groupID: number) {
@@ -244,6 +258,7 @@ export function addPageElementsInfo(newStageGroupInfo: stageGroupInfoData, page:
 export function duplicatePageElementsInfo(page: number, groupID: number) {
   const original = pageElementsInfo[page][groupID];
   const copy = { ...original }; // shallow clone
+  copy.id = "g-"+Date.now();
   copy.x = 0;
   copy.y = 0;
 
@@ -291,8 +306,25 @@ export function getEstimatedPage():number {
 };
 
 export function setEstimatedPage(page: number) {
-  estimatedPage = page;
+  if (page !== estimatedPage) { 
+    estimatedPage = page;
+    window.dispatchEvent(new CustomEvent('newEstimatedPage', {  detail: {page: estimatedPage} }));
+  }
 };
+
+//////////////////////////////////////////////////////////////
+
+export function deleteStageAndElements(page: number) {
+  stages.splice(page, 1);
+  pageElements.splice(page, 1);
+  pageElementsInfo.splice(page, 1);
+}
+
+export function swapStagesAndElements(startIndex: number, endIndex: number) {
+  [stages[startIndex], stages[endIndex]] = [stages[endIndex], stages[startIndex]];
+  [pageElements[startIndex], pageElements[endIndex]] = [pageElements[endIndex], pageElements[startIndex]];
+  [pageElementsInfo[startIndex], pageElementsInfo[endIndex]] = [pageElementsInfo[endIndex], pageElementsInfo[startIndex]];
+}
 
 //////////////////////////////////////////////////////////////
 

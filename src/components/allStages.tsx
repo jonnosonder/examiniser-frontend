@@ -129,7 +129,6 @@ const AllStages = ({ manualScaler=1, previewStyle, editQuestionButtonHandler} : 
     }
   }
 
-
   const [pagesInsightValue, setPagesInsightValue] = useState<number>(1);
   const [pagesInsightValuePreview, setPagesInsightValuePreview] = useState<number>(1);
   const preloadAhead = 1;
@@ -207,7 +206,7 @@ const AllStages = ({ manualScaler=1, previewStyle, editQuestionButtonHandler} : 
           <div ref={stageContainerRef} key={stage.id+"div"} onClick={() => previewPageOnClickHanlder?.(pageNumber)} className='flex flex-col flex-shrink-0 relative items-center justify-start'>
               <div
                 ref={stageWrapRef}
-                className={`flex flex-shrink-0 ${previewStyle && `border border-primary rounded-sm transition-shadow duration-300 hover:shadow-[0_0_0_0.2rem_theme('colors.contrast')]`} overflow-hidden`}
+                className={`flex flex-shrink-0 ${previewStyle && `border border-primary rounded-sm transition-shadow duration-300 hover:shadow-[0_0_0_0.2rem_theme('colors.contrast')] `} overflow-hidden`}
                 style={{
                   width: stage.width * scale * manualScaler,
                   height: stage.height * scale * manualScaler,
@@ -236,9 +235,12 @@ const AllStages = ({ manualScaler=1, previewStyle, editQuestionButtonHandler} : 
                   pageGroupsInfo={[...allShapesInfo[pageNumber]]}
                 />
               ))}
+                
             </div>
             {previewStyle && (
-              <p key={stage.id+"previewPageNumber"} className='flex text-primary text-[0.8rem] text-center select-none pt-1'>{pageNumber+1}</p>
+              <div className='w-full mt-1'>
+                <p key={stage.id+"previewPageNumber"} className='text-primary text-[0.9rem] text-center select-none'>{pageNumber+1}</p>
+              </div>
             )}
           </div>
           </div>

@@ -66,7 +66,6 @@ const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pag
 
         if (transformer.nodes().length === 0 && selectIndex.current.pageIndex === pageIndex) {
             const focusGroup = groupRefs.current[groupIndex];
-            console.log(focusGroup);
             if (!focusGroup) return;
             transformer.nodes([focusGroup]);
             transformer.getLayer()?.batchDraw();
@@ -122,8 +121,8 @@ const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pag
                 transformOrigin: 'top left',
             }}
             onClick={(e) => {
-                const target = e.target as Konva.Node;
-                if (target.id() === "background-rect") {
+                const target = (e.target as Konva.Node).id();
+                if (target === "background-rect" || target === 'margin-rect') {
                     const transformer = transformerRef?.current;
                     transformer?.nodes([]);
                     transformer?.getLayer()?.batchDraw();
@@ -152,7 +151,8 @@ const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pag
                     fill={stage.background || '#ffffff'}
                 />
                 { viewMargin && ( 
-                <Rect 
+                <Rect
+                    id='margin-rect'
                     x={marginValue}
                     y={marginValue}
                     width={stage.width-(marginValue*2)}

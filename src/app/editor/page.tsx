@@ -137,7 +137,8 @@ function EditorPage() {
                 height: height,
                 background: backgroundColor,
             });
-            RENDER_PAGE();            
+            RENDER_PAGE();     
+            window.dispatchEvent(new CustomEvent('newEstimatedPage', {  detail: {page: 0} }));       
         }
     }, [pageFormatData, fileUploaded]);
 
