@@ -1,0 +1,83 @@
+{
+  "home": {
+    "description": "Un éditeur spécialisé dans la création de questions et de sujets d'examen. Facile à créer et à naviguer avec des modèles intégrés, le tout gratuitement !",
+    "Start-Now": "Commence Maintenant",
+    "CEP": "Créez des sujets d'examen",
+    "quick": "Rapides",
+    "and": "et",
+    "easy": "Faciles"
+  },
+  "navBar": {
+    "product": "Produit",
+    "about": "À propos",
+    "updates": "Mises à jour",
+    "Start-Creating": "Commence à Créer"
+  },
+  "about": {
+    "about": "À propos",
+    "description": "Ce site web est créé par un développeur seul dans le but d'aider les personnes affiliées à l'éducation à créer des sujets d'examen. L'objectif est de tout regrouper au même endroit et de le rendre accessible à tous.",
+    "contact": "Contact",
+    "contactInfo": "N'hésitez pas à envoyer un e-mail pour toute suggestion ou problème."
+  },
+  "updates": {
+    "updates": "Mises à jour",
+    "description": "Voici un suivi de chaque mise à jour du site web, n'hésitez pas à envoyer un e-mail pour suggérer des idées ou signaler des problèmes.",
+    "sideNote": "(Ce site web est actuellement en version bêta, ce qui signifie que ce n'est pas encore la version finale du produit.)",
+    "beta-releases": "Versions Bêta (Uniquement en Anglais)",
+    "version": "Version"
+  },
+  "start": {
+    "CNP": "Créer un nouveau sujet d'examen",
+    "create-file": "Créer un fichier",
+    "file-name": "Nom du Fichier",
+    "math-exam": "Examen de Mathématiques",
+    "file-dimension": "Dimension du Fichier",
+    "custom": "Personnalisé",
+    "units": "Unités",
+    "width": "Largeur",
+    "height": "Hauteur",
+    "vertical": "Verticale",
+    "landscape": "Paysage",
+    "create": "Créer",
+    "UAP": "Télécharger un sujet d'examen",
+    "upload-file": "Télécharger un fichier",
+    "upload-description": "Continuez à modifier votre fichier en l'ajoutant ci-dessous!",
+    "drag-drop-file": "Glissez-déposez un fichier ici, ou cliquez pour en sélectionner un",
+    "coming-soon": "Bientôt disponible",
+    "start": "Commencer"
+  },
+  "editor": {
+    "project-name": "Nom du projet",
+    "preview": "Aperçu",
+    "editor": "Éditeur",
+    "undo": "Annuler",
+    "redo": "Rétablir",
+    "add-new-page": "Ajouter une Nouvelle Page",
+    "add-text": "Ajouter du Texte",
+    "zoom-out": "Réduire",
+    "zoom-in": "Agrandir",
+    "export": "Exporter",
+    "add-question": "Ajouter une question",
+    "edit-question": "Modifier la question",
+    "duplicate": "Dupliquer",
+    "templates": "Modèles",
+    "page": "Page",
+    "element": "Élément",
+    "add-shape": "Ajouter une forme",
+    "question-creator-editor": "Éditeur de création de questions",
+    "parameters": "Paramètres",
+    "templates-description": "Cliquez sur un modèle pour l'ajouter à la page actuelle" 
+  },
+  "add-image": {
+    "add-image": "Ajouter une image",
+    "image-url": "URL de l'image",
+    "or": "Ou",
+    "add": "Ajouter"  
+  },
+  "notification": {
+    "file-format-not-recognised": "Format de fichier non reconnu",
+    "server-side-fail-please-try-again-later": "Échec côté serveur, veuillez réessayer plus tard",
+    "please-select-or-double-click-an-element": "Veuillez sélectionner ou double-cliquer sur un élément",
+    "please-select-an-element": "Veuillez sélectionner un élément"
+  }
+}

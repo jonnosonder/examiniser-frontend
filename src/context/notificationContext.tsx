@@ -68,7 +68,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
           }
 
           return (
-            <div key={n.id} className={`${notificationClass} flex p-3 rounded-lg shadow-lg items-center justify-center ${animationClass}`}>
+            <div key={n.id} className={`${notificationClass} flex p-3 rounded-lg shadow-lg items-center justify-left ${animationClass}`}>
               <div className='w-5 h-5 flex items-center justify-center'>
                 {renderIcon(n.type)}
               </div>

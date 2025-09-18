@@ -5,8 +5,11 @@
 import { ShapeData } from '@/lib/shapeData';
 import { addPageElement, addPageElementsInfo, addToHistoryUndo, getEstimatedPage, getSpecificStage, historyData, newShapeSizePercent, pageElementsInfo, RENDER_PAGE, stageGroupInfoData } from '@/lib/stageStore';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const AddShapeDropDown: React.FC = () => {
+  const { t } = useTranslation();
+
   const [open, setOpen] = useState(false);
 
   const showDropdown = () => {
@@ -202,7 +205,7 @@ const AddShapeDropDown: React.FC = () => {
           onMouseLeave={hideDropdown}
         >
             <div className='flex flex-col bg-background mt-2 p-2 rounded shadow text-primary border border-grey'>
-                <p className='whitespace-nowrap text-left mb-2 font-nunito'>Add Shape</p>
+                <p className='whitespace-nowrap text-left mb-2 font-nunito'>{t('editor.add-shape')}</p>
                 <div className='flex h-10 items-center justify-center space-x-2'>
                   {/* Square */}
                   <button className='h-full' onClick={addSquareToPageButtonHandler}>

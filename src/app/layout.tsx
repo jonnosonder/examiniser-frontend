@@ -2,23 +2,16 @@
 // Copyright © 2025 Jonathan Kwok
 
 import type { Metadata } from "next";
+import Script from 'next/script'
 import '../styles/globals.css';
 import '../styles/colors.css';
-import { DataProvider } from "../context/dataContext";
-import Script from 'next/script'
-import Analytics from "@/components/analytics";
 
 export const metadata: Metadata = {
   title: "Examiniser",
   description: "Create exam papers",
 };
 
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head>
@@ -47,6 +40,7 @@ export default function RootLayout({
         <meta property="og:url" content="https://examiniser.com" />
 
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"></meta>
+        
         {/* Standard Favicon */}
         <link rel="icon" href="/icons/favicon-16x16.png" sizes="16x16" />
         <link rel="icon" href="/icons/favicon-32x32.png" sizes="32x32" />
@@ -68,10 +62,7 @@ export default function RootLayout({
         {/* Additional Apple Touch Icons (for iOS) */}
         <link rel="apple-touch-icon" sizes="152x152" href="/icons/favicon-152x152.png" />
       </head>
-      <body>
-        <Analytics />
-        <DataProvider>{children}</DataProvider>
-      </body>
+      {children}
     </html>
   );
 }

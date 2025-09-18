@@ -6,6 +6,7 @@
 import { useState } from 'react';
 import { getPageElements, getPageElementsInfo, getStages } from '@/lib/stageStore';
 import { jsPDF } from "jspdf";
+import { registerAllFont } from '@/util/jsDocFonts';
 
 type ExportPageProps = {
   onClose: () => void;
@@ -33,7 +34,7 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
 
   const pxTommScaler = 25.4/300;
 
-  const exportToPDF = () => {
+  async function exportToPDF() {
     const stages = getStages();
 
     const firstPageWidth = stages[0].width * pxTommScaler;
@@ -42,6 +43,8 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
         unit: 'mm',
         format: [firstPageWidth, firstPageHeight],
     });
+
+    await registerAllFont(doc);
 
     const quality = qualityMap[qualityValue];
     console.log(quality);
@@ -99,11 +102,13 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
               doc.triangle(groupX, groupY + element.height * pxTommScaler, groupX, groupY, groupX + element.width * pxTommScaler, groupY + element.height * pxTommScaler, "FD");
               break;
             case "text":
-              doc.setFontSize(element.fontSize);
+              doc.setFontSize(element.fontSize * ( 72 / 78 ) );
+              doc.setFont(element.fontFamily, "normal");
 
               const wrappedLines = doc.splitTextToSize(element.text, element.width);
-              const lineHeight = element.fontSize * (300/72) * pxTommScaler;
+              const lineHeight = element.fontSize * (72 / 300);
               const maxLines = Math.floor(element.height * pxTommScaler / lineHeight);
+              //const longestWidth = doc.getTextWidth(element.text);
               const visibleLines = wrappedLines.slice(0, maxLines);
               //const height = (visibleLines.length * lineHeight);
 
@@ -133,7 +138,7 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
               */
 
               doc.setTextColor(element.fill);
-              doc.text(visibleLines, xPosition, yPosition + lineHeight, { maxWidth: setWidth - 1, align: element.align });   
+              doc.text(visibleLines, xPosition, yPosition + lineHeight, { maxWidth: setWidth, align: element.align });   
               break;
             case "image":
               doc.addImage(element.image, "PNG", groupX + element.x * pxTommScaler, groupY + element.y * pxTommScaler, element.width * pxTommScaler, element.height * pxTommScaler, undefined, compressionSpeed, element.rotation);

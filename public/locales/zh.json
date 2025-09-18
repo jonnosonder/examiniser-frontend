@@ -1,0 +1,83 @@
+{
+  "home": {
+    "description": "一个专门制作试题和考试试卷的编辑器。易于创建和浏览，内置模板，全免费！",
+    "Start-Now": "现在开始",
+    "CEP": "创建考试试卷",
+    "quick": "快速",
+    "and": "和",
+    "easy": "轻松"
+  },
+  "navBar": {
+    "product": "产品",
+    "about": "关于",
+    "updates": "更新",
+    "Start-Creating": "开始创作"
+  },
+  "about": {
+    "about": "关于",
+    "description": "这个网站由一位独立开发者制作，旨在帮助与教育相关的人士制作考试试卷。目标是将一切集中在一个地方，并使其对所有人可访问。",
+    "contact": "联系",
+    "contactInfo": "如果有任何建议或问题，请随时发送电子邮件。"
+  },
+  "updates": {
+    "updates": "更新",
+    "description": "这是网站每次更新的记录，如果有任何建议或问题，请随时通过电子邮件联系我们。",
+    "sideNote": "(这个网站目前处于测试版，这意味着它还不是最终产品。)",
+    "beta-releases": "测试版发布（仅限英语)",
+    "version": "版本"
+  },
+  "start": {
+    "CNP": "创建新考试试卷",
+    "create-file": "创建文件",
+    "file-name": "文件名",
+    "math-exam": "数学考试",
+    "file-dimension": "文件尺寸",
+    "custom": "自定义",
+    "units": "单位",
+    "width": "宽度",
+    "height": "高度",
+    "vertical": "垂直",
+    "landscape": "横向",
+    "create": "创建",
+    "UAP": "上传试卷",
+    "upload-file": "上传文件",
+    "upload-description": "继续编辑您的文件，添加到下面!",
+    "drag-drop-file": "将文件拖放到此处，或点击选择一个文件",
+    "coming-soon": "即将推出",
+    "start": "开始"
+  },
+  "editor": {
+    "project-name": "项目名称",
+    "preview": "预览",
+    "editor": "编辑",
+    "undo": "撤销",
+    "redo": "重做",
+    "add-new-page": "添加新页面",
+    "add-text": "添加文本",
+    "zoom-out": "缩小",
+    "zoom-in": "放大",
+    "export": "导出",
+    "add-question": "添加问题",
+    "edit-question": "编辑问题",
+    "duplicate": "复制",
+    "templates": "模板",
+    "page": "页面",
+    "element": "元素",
+    "add-shape": "添加形状",
+    "question-creator-editor": "问题创建编辑器",
+    "parameters": "参数",
+    "templates-description": "点击模板将其添加到当前页面" 
+  },
+  "add-image": {
+    "add-image": "添加图片",
+    "image-url": "图片网址",
+    "or": "或者",
+    "add": "添加"  
+  },
+  "notification": {
+    "file-format-not-recognised": "文件格式无法识别",
+    "server-side-fail-please-try-again-later": "服务器故障，请稍后再试",
+    "please-select-or-double-click-an-element": "请选择或双击一个元素",
+    "please-select-an-element": "请选择一个元素"
+  }
+}

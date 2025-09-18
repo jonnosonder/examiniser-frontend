@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { getMarginValue, getViewMargin, setMarginValue, setViewMargin, setAllStagesBackground, RENDER_MAIN, stageGroupInfoData, getSpecificPageElementsInfo, pageElementsInfo, getSpecificStage, addToHistoryUndo, historyData, pageElements, changePageOfElement, changePageOfElementInfo, groupsOnPage, getEstimatedPage, StageData, setStageBackground, deleteStageAndElements, swapStagesAndElements, stagesLength, getStages } from '@/lib/stageStore';
 import ColorSelectorSection from '@/components/colorSelectorSection';
 import { useSelectRef } from './editorContextProvider';
+import { useTranslation } from 'react-i18next';
 
 type shapeXY = {
     x: number;
@@ -46,6 +47,8 @@ type visualXYWHRP = {
 }
 
 export default function EditorSidePanel() {
+    const { t } = useTranslation();
+
     const [displayColorSelector, setDisplayColorSelector] = useState<boolean>(false);
     const toggleDisplayColorSelector = () => {setDisplayColorSelector(!displayColorSelector)}
 
@@ -918,7 +921,7 @@ export default function EditorSidePanel() {
         <div className='w-full h-full'>
             {visualInformation !== null && selectIndex.current.pageIndex !== null && (
                 <>
-                <p className='p-2 pb-1 text-md'>Element</p>
+                <p className='p-2 pb-1 text-md'>{t('editor.element')}</p>
 
                 <p className='p-2 pb-1 text-sm'>Align</p>
                 <div className='flex flex-col px-4 w-full items-center justify-center space-y-2'>
@@ -1007,7 +1010,7 @@ export default function EditorSidePanel() {
             
             {stageInformation !== null && estimatedPage !== -1 && selectedBackgroundColor && (
                 <>
-                <p className='p-2 pb-1 text-md'>Page {estimatedPage+1}</p>
+                <p className='p-2 pb-1 text-md'>{t('editor.page')} {estimatedPage+1}</p>
                 <div className='flex flex-col px-4'>
                     <p className="text-xs ml-1 my-1">Colour</p>
                     <button style={{background: selectedBackgroundColor}} className='w-full h-5 border border-grey shadow rounded-lg' onClick={toggleDisplayColorSelector}></button>

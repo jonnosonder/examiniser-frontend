@@ -17,6 +17,7 @@ import '@/styles/QuestionCreator.css'
 import { AddImage } from './addImage';
 import { getFontNamesArray } from '@/lib/fontData';
 import '@/styles/fonts.css';
+import { useTranslation } from 'react-i18next';
 
 type QuestionCreatorProps = {
   onClose: () => void;
@@ -32,6 +33,8 @@ type questionEditingIDType = {
 };
 
 const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionCreating, shapes, setShapes, questionEditingID }) => {
+    const { t } = useTranslation();
+
     const [contextMenu, setContextMenu] = useState({ x: 0, y: 0, show: false });
     const [selectedOption, setSelectedOption] = useState<string>('');
 
@@ -181,6 +184,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
             if (shape.type === 'text') {
                 setEditorTextSizeValue(String(shape.fontSize));
                 setEditorTextAlignValue(String(shape.align));
+                setSelectedFont(shape.fontFamily);
             }
             if (shape.type === 'star') {
                 setEditorStarNumPointsValue(String(shape.numPoints));
@@ -229,8 +233,6 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                     width: stageDimension.width,
                     height: stageDimension.height,
                 });
-                console.log("width: "+ (stageDimension.width * scaleClac));
-                console.log("height: "+ (stageDimension.height * scaleClac));
             }
         };
 
@@ -871,7 +873,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                 <div className='absolute flex top-5 w-full items-center justify-center h-[85%] p-4'>
                     <div className='bg-background flex flex-col rounded-lg p-2 m-2 border-2 border-primary rounded-xl w-full h-full'>
                         <div className='flex justify-between items-center justify-center'>
-                            <h3 className='text-lg'>Question Creator Editor</h3>
+                            <h3 className='text-lg'>{t('editor.question-creator-editor')}</h3>
                             <button onClick={onClose} className='w-6 h-6'>
                                 <svg className='w-full h-full' clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m12 10.93 5.719-5.72c.146-.146.339-.219.531-.219.404 0 .75.324.75.749 0 .193-.073.385-.219.532l-5.72 5.719 5.719 5.719c.147.147.22.339.22.531 0 .427-.349.75-.75.75-.192 0-.385-.073-.531-.219l-5.719-5.719-5.719 5.719c-.146.146-.339.219-.531.219-.401 0-.75-.323-.75-.75 0-.192.073-.384.22-.531l5.719-5.719-5.72-5.719c-.146-.147-.219-.339-.219-.532 0-.425.346-.749.75-.749.192 0 .385.073.531.219z"/></svg>
                             </button>
@@ -1035,7 +1037,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                         </div>
                     </div>
                     <div className='bg-background rounded-lg p-2 m-2 border-2 border-primary rounded-xl min-w-[14rem] max-w-[20rem] h-full scroll-y-auto'>
-                        <h3 className='text-center text-primary text-lg'>Parameters</h3>
+                        <h3 className='text-center text-primary text-lg'>{t('editor.parameters')}</h3>
                         
                         {/* Default Parameters */}
                         <div className="w-full">
@@ -1204,7 +1206,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                             </div>
                         )}
 
-                        {/* Text Aditional Features */}
+                        {/* Star Aditional Features */}
                         {selectedShapeType === "star" && (
 
                             <div className="w-full">

@@ -1,6 +1,6 @@
 "use client";
 
-import '../../styles/start.css';
+import '../../../styles/start.css';
 import ArrowIcon from '@/components/arrowIcon';
 import { useRef, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -8,6 +8,9 @@ import Decimal from 'decimal.js';
 import { useDropzone } from 'react-dropzone';
 import { useData } from "@/context/dataContext";
 import { useFileStore } from '@/store/useFileStore';
+import { useTranslation } from 'react-i18next';
+import * as React from "react";
+import SwitchLanuageDropDown from '@/components/switchLanuageDropDown';
 
 const paperSizes = {
   A3: [
@@ -65,7 +68,12 @@ function getPaperHeight(sizeKey: PaperSizeKey, unit: Unit): Decimal | null {
   return found ? found.height : null;
 }
 
-export default function StartPage() {
+type Locale = "en" | "fr" | "zh";
+
+export default function StartPage({ params }: { params: Promise<{ lng: Locale }> }) {
+    const { t } = useTranslation();
+    const resolvedParams = React.use(params); // unwrap the promise
+    const { lng } = resolvedParams;
     const { setPageFormatData } = useData();
 
     const router = useRouter();
@@ -524,25 +532,28 @@ export default function StartPage() {
                 visualHeight: visualHeightValue,
             });
             setFile(null);
-            router.push("/editor");
+            router.push("/"+lng+"/editor");
         }
     } 
    
     return (
     <div id="wholeContainer" className="w-full h-full flex">
         {/* Setup Questions */}
-        <div onClick={() => router.push('/')} className="absolute bg-background z-[1] w-[3rem] sm:w-[3.5rem] lg:w-[4rem] h-[3rem] sm:h-[3.5rem] lg:h-[4rem] top-3 left-3 p-2 border-2 border-primary rounded-lg hover:shadow-[0_0_0_0.5rem_theme('colors.red')] transition-all duration-300 cursor-pointer">
-                <ArrowIcon className='w-full h-full'/>
+        <div onClick={() => router.push('/'+lng)} className="absolute bg-background z-[1] w-[3rem] sm:w-[3.5rem] lg:w-[4rem] h-[3rem] sm:h-[3.5rem] lg:h-[4rem] top-3 left-3 p-2 border-2 border-primary rounded-lg hover:shadow-[0_0_0_0.5rem_theme('colors.red')] transition-all duration-300 cursor-pointer">
+            <ArrowIcon className='w-full h-full'/>
+        </div>
+        <div className="absolute bg-background z-[1] top-3 right-3">
+            <SwitchLanuageDropDown current={lng}  />
         </div>
         {/* Setup Questions */}
         <div ref={firstQuestionDiv} className="absolute w-full h-full flex justify-center items-center">
             {/* First option: new paper or continue */}
             <div className="flex flex-col font-nunito sm:flex-row w-[80%] sm:w-[65%] lg:w-[50%] h-[20%] sm:h-[30%] lg:h-[40%] m-4 gap-8">
                 <button ref={firstQuestionLeft} onClick={questionToCreatePaperTransition} className="createNewPaperButtonWrapper bg-background relative hover:shadow-[0_0_0_1rem_theme('colors.accent')] transition-all duration-300 ease-in-out border-4 border-primary rounded-lg w-full sm:h-1/2 sm:w-1/2 sm:h-full p-4 items-center justify-center text-center text-lg sm:text-xl lg:text-2xl flex items-center justify-center">
-                    Create New Paper
+                    {t('start.CNP')}
                 </button>
                 <button ref={firstQuestionRight} onClick={questionToUploadPaperTransition} className="uploadPaperButtonWrapper bg-background relative hover:shadow-[0_0_0_1rem_theme('colors.contrast')] transition-all duration-300 ease-in-out border-4 border-primary rounded-lg w-full sm:h-1/2 sm:w-1/2 sm:h-full p-4 items-center justify-center text-center text-lg sm:text-xl lg:text-2xl flex items-center justify-center">
-                    Upload a Paper
+                    {t('start.UAP')}
                 </button>
             </div>
         </div>
@@ -551,20 +562,20 @@ export default function StartPage() {
             {/* First option: new paper or continue */}
             <div className="flex flex-col bg-background w-[80%] sm:w-[65%] lg:w-[50%] m-2  border-4 border-primary rounded-lg justify-center items-center">
                 <div className='flex flex-col p-8 gap-6'>
-                    <p className='text-center text-primary w-full text-xl sm:text-2xl lg:text-3xl font-nunito'>Create File</p>
+                    <p className='text-center text-primary w-full text-xl sm:text-2xl lg:text-3xl font-nunito'>{t('start.create-file')}</p>
                     <div className="inline-flex items-center space-x-4">
-                        <p className="text-primary">File Name:</p>
-                        <input ref={fileNameRef} type="text" value={fileNameValue} onChange={handleFileNameChange} className="w-full max-w-[15rem] border-2 border-primary rounded px-2 py-1 transition-shadow duration-300 focus:shadow-[0_0_0_0.4rem_theme('colors.accent')] focus:outline-none" placeholder="Maths Exam" />
+                        <p className="text-primary">{t('start.file-name')}:</p>
+                        <input ref={fileNameRef} type="text" value={fileNameValue} onChange={handleFileNameChange} className="w-full max-w-[15rem] border-2 border-primary rounded px-2 py-1 transition-shadow duration-300 focus:shadow-[0_0_0_0.4rem_theme('colors.accent')] focus:outline-none" placeholder={t('start.math-exam')} />
                     </div>
                     <div className='inline-flex items-center space-x-4'>
-                        <p className="text-primary">File Dimension:</p>
+                        <p className="text-primary">{t('start.file-dimension')}:</p>
                         <select id="fileDimensionDropBox" value={selectedFileDimension} onChange={setFileDimension} className="border-2 border-primary rounded p-2 bg-background cursor-pointer transition-shadow duration-300 focus:shadow-[0_0_0_0.4rem_theme('colors.accent')] focus:outline-none">
-                            <option value="Custom">Custom</option>
+                            <option value="Custom">{t('start.custom')}</option>
                             <option value="A3">A3</option>
                             <option value="A4">A4</option>
                             <option value="A5">A5</option>
                         </select>
-                        <p className="text-primary">Units:</p>
+                        <p className="text-primary">{t('start.units')}:</p>
                         <select onChange={handleUnitChange} value={selectedUnitValue} className="border-2 border-primary rounded p-2 bg-background cursor-pointer transition-shadow duration-300 focus:shadow-[0_0_0_0.4rem_theme('colors.accent')] focus:outline-none">
                             <option value="px">px</option>
                             <option value="in">in</option>
@@ -573,16 +584,16 @@ export default function StartPage() {
                         </select>
                     </div>
                     <div className='inline-flex items-center space-x-4'>
-                        <p className="text-primary">Width:</p>
+                        <p className="text-primary">{t('start.width')}:</p>
                         <input ref={widthInputRef} type="text" value={visualWidthValue} onChange={handleWidthChange} onBlur={handleWidthBlur} className="w-full max-w-[6rem] border-2 border-primary rounded px-2 py-1 transition-shadow duration-300 focus:shadow-[0_0_0_0.4rem_theme('colors.accent')] focus:outline-none" placeholder={widthPlaceHolder} />
-                        <p className="text-primary">Height:</p>
+                        <p className="text-primary">{t('start.height')}:</p>
                         <input ref={heightInputRef} type="text" value={visualHeightValue} onChange={handleHeightChange} onBlur={handleHeightBlur} className="w-full max-w-[6rem] border-2 border-primary rounded px-2 py-1 transition-shadow duration-300 focus:shadow-[0_0_0_0.4rem_theme('colors.accent')] focus:outline-none" placeholder={heightPlaceHolder} />
                     </div>
                     <div className='flex justify-center items-center'>
                         <div ref={orintationButtonContainerRef} onClick={switchWidthAndHeight} className='relative inline-block rounded-full cursor-pointer select-none mb-2'>
                             <div ref={orintationButtonBorderRef} className="absolute bg-transparent z-10 top-0 h-8 border-primary border-2 rounded-full transition-all duration-300 ease-in-out hover:shadow-[0_0_0_0.4rem_theme('colors.accent')] hover:outline-none"></div>
-                            <span ref={orintationLandscapeWordRef} className='relative top-1 px-3'>Vertical</span>
-                            <span ref={orintationVerticleWordRef} className='relative top-1 px-3'>Landscape</span>
+                            <span ref={orintationLandscapeWordRef} className='relative top-1 px-3'>{t('start.vertical')}</span>
+                            <span ref={orintationVerticleWordRef} className='relative top-1 px-3'>{t('start.landscape')}</span>
                         </div>
                     </div>
                 </div>
@@ -592,7 +603,7 @@ export default function StartPage() {
                     <ArrowIcon className='w-full h-full'/>
                 </button>
                 <button onClick={createButtonPressed} className="flex flex-grow bg-background w-full m-2 mr-0 p-2 border-4 border-primary rounded-lg justify-center items-center cursor-pointer hover:shadow-[0_0_0_0.5rem_theme('colors.accent')] transition-all duration-300 ease-in-out">
-                    <p className='text-primary text-center text-lg sm:text-1xl lg:text-2xl font-nunito'>Create</p>
+                    <p className='text-primary text-center text-lg sm:text-1xl lg:text-2xl font-nunito'>{t('start.create')}</p>
                 </button>
             </div>
         </div>
@@ -602,8 +613,8 @@ export default function StartPage() {
             {/* First option: new paper or continue */}
             <div className="flex flex-col relative bg-background w-[80%] sm:w-[65%] lg:w-[50%] m-2 border-4 border-primary rounded-lg justify-center items-center">
                 <div className='flex flex-col p-8 gap-6'>
-                    <p className='text-center text-primary w-full text-xl sm:text-2xl lg:text-3xl font-nunito'>Upload File</p>
-                    <p className='text-center text-primary w-full'>Continue editing your file by adding it bellow!</p>
+                    <p className='text-center text-primary w-full text-xl sm:text-2xl lg:text-3xl font-nunito'>{t('start.upload-file')}</p>
+                    <p className='text-center text-primary w-full'>{t('start.upload-description')}</p>
                     <div className="w-full max-w-md ">
                         <div
                             {...getRootProps()}
@@ -615,7 +626,7 @@ export default function StartPage() {
                             {isDragActive ? (
                                 <p className="text-blue-700">Drop the file here...</p>
                             ) : (
-                                <p className="text-gray-500">Drag & drop a file here, or click to select one</p>
+                                <p className="text-gray-500">{t('start.drag-drop-file')}</p>
                             )}
                             {file && (
                                 <div className="mt-4">
@@ -629,15 +640,16 @@ export default function StartPage() {
                 </div>
                 {/* TEMPORY UNTILL DEVELOPED */}
                 <div className='absolute flex w-full h-full z-10 backdrop-blur-sm items-center justify-center'>
-                    <p className='italic text-2xl font-inter'>Coming soon!</p>
+                    <p className='italic text-2xl font-inter'>{t('start.coming-soon')}</p>
                 </div>
+                
             </div>
             <div className='flex w-[80%] sm:w-[65%] lg:w-[50%] h-[8%] sm:h-[8%] lg:h-[10%]'>
                 <button onClick={uploadPaperToQuestionTransition} className="flex bg-background m-2 ml-0 p-2 border-4 border-primary rounded-lg justify-center items-center cursor-pointer hover:shadow-[0_0_0_0.5rem_theme('colors.accent')] transition-all duration-300">
                     <ArrowIcon className='w-full h-full'/>
                 </button>
-                <button onClick={() => router.push("/editor")} className="flex w-full bg-background m-2 mr-0 p-2 border-4 border-primary rounded-lg justify-center items-center cursor-pointer hover:shadow-[0_0_0_0.5rem_theme('colors.contrast')] transition-all duration-300 ease-in-out">
-                    <p className='text-primary text-center text-lg sm:text-1xl lg:text-2xl font-nunito'>Start</p>
+                <button onClick={() => router.push("/"+lng+"/editor")} className="flex w-full bg-background m-2 mr-0 p-2 border-4 border-primary rounded-lg justify-center items-center cursor-pointer hover:shadow-[0_0_0_0.5rem_theme('colors.contrast')] transition-all duration-300 ease-in-out">
+                    <p className='text-primary text-center text-lg sm:text-1xl lg:text-2xl font-nunito'>{t('start.start')}</p>
                 </button>
             </div>
         </div>

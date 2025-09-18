@@ -1,0 +1,83 @@
+{
+  "home": {
+    "description": "An editor specialised in making question and exam papers. Easy to create and navigate with inbuilt templates all for free!",
+    "Start-Now": "Start Now",
+    "CEP": "Create Exam Papers",
+    "quick": "Quick",
+    "and": "and",
+    "easy": "easy"
+  },
+  "navBar": {
+    "product": "Product",
+    "about": "About",
+    "updates": "Updates",
+    "Start-Creating": "Start Creating"
+  },
+  "about": {
+    "about": "About",
+    "description": "This website is made by a solo developer with the aim of helping people affiliated to eduction to make exam papers. The aim is to put everything in one place, and make it accessible to anyone.",
+    "contact": "Contact",
+    "contactInfo": "Feel free to email about any suggestions or problems."
+  },
+  "updates": {
+    "updates": "Updates",
+    "description": "Here is a track of each update to the website, feel free to email and suggest any ideas or problems.",
+    "sideNote": "(This website is currently in beta versions, meaning this is not close to the final product)",
+    "beta-releases": "Beta Releases",
+    "version": "Version"
+  },
+  "start": {
+    "CNP": "Create New Paper",
+    "create-file": "Create File",
+    "file-name": "File Name",
+    "math-exam": "Maths Exam",
+    "file-dimension": "File Dimension",
+    "custom": "Custom",
+    "units": "Units",
+    "width": "Width",
+    "height": "Height",
+    "vertical": "Vertical",
+    "landscape": "Landscape",
+    "create": "Create",
+    "UAP": "Upload a Paper",
+    "upload-file": "Upload File",
+    "upload-description": "Continue editing your file by adding it bellow!",
+    "drag-drop-file": "Drag & drop a file here, or click to select one",
+    "coming-soon": "Coming Soon",
+    "start": "Start"
+  },
+  "editor": {
+    "project-name": "Project Name",
+    "preview": "Preview",
+    "editor": "Editor",
+    "undo": "Undo",
+    "redo": "Redo",
+    "add-new-page": "Add New Page",
+    "add-text": "Add Text",
+    "zoom-out": "Zoom Out",
+    "zoom-in": "Zoom In",
+    "export": "Export",
+    "add-question": "Add Question",
+    "edit-question": "Edit Question",
+    "duplicate": "Duplicate",
+    "templates": "Templates",
+    "page": "Page",
+    "element": "Element",
+    "add-shape": "Add Shape",
+    "question-creator-editor": "Question Creator Editor",
+    "parameters": "Parameters",
+    "templates-description": "Click on a template to add it to the current page" 
+  },
+  "add-image": {
+    "add-image": "Add Image",
+    "image-url": "Image URL",
+    "or": "Or",
+    "add": "Add"  
+  },
+  "notification": {
+    "file-format-not-recognised": "File format not recognised",
+    "server-side-fail-please-try-again-later": "Server side fail, please try again later",
+    "please-select-or-double-click-an-element": "Please select or double click an element",
+    "please-select-an-element": "Please select an element"
+  }
+}

@@ -6,8 +6,16 @@ import pkg from '@/../package.json';
 const { version } = pkg;
 import Navbar from '@/components/navbar';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import * as React from "react";
 
-export default function Contact() {
+type Locale = "en" | "fr" | "zh";
+
+export default function Contact({ params }: { params: Promise<{ lng: Locale }> }) {
+    const { t } = useTranslation();
+    const resolvedParams = React.use(params); // unwrap the promise
+    const { lng } = resolvedParams;
+
     const [editPanelIndex, setEditPanelIndex] = useState<number | null>(-1);
         
     const toggleEditPanelSection = (index:number) => {
@@ -16,18 +24,61 @@ export default function Contact() {
 
     return(
         <>
-            <Navbar />
+            <Navbar lng={lng}/>
             <span className='w-full h-20 flex' />
             <div className='w-full h-[calc(100vh-5rem)] flex flex-col items-center justify-between overflow-y-auto text-primary'>
                 <div className='w-[90vw] flex flex-col items-center justify-center'>
-                    <h1 className="text-6xl p-2 font-nunito">Updates</h1>
-                    <p className='p-2 pb-0'>Here is a track of each update to the website, feel free to email and suggest any ideas or problems.</p>
-                    <p className='text-sm'>(This website is currently in beta versions, meaning this is not close to the final product)</p>
+                    <h1 className="text-6xl p-2 font-nunito">{t('updates.updates')}</h1>
+                    <p className='p-2 pb-0'>{t('updates.description')}</p>
+                    <p className='text-sm'>{t('updates.sideNote')}</p>
                     <div className='w-full flex flex-col items-center justify-center'>
                         <div className="w-full md:w-[80vw] lg:w-[70vw] p-2">
-                            <p>Beta Releases</p>
+                            <p>{t('updates.beta-releases')}</p>
                         </div>
                         <div className='space-y-2'>
+                            <div className="w-full md:w-[80vw] lg:w-[70vw] border border-primary rounded-xl">
+                                <button
+                                    className="w-full text-2xl flex justify-between items-center px-4 py-2 bg-transparent text-primary text-base transition cursor-pointer"
+                                    onClick={() => toggleEditPanelSection(5)}
+                                >   
+                                    <div>
+                                        0.0.5 <span className='text-grey ml-1 text-sm'>— 18/09/2025</span>
+                                    </div>
+                                    {editPanelIndex === 5 ? (
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" />
+                                    </svg>
+                                    ) : (
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M6 15L12 9L18 15" stroke="currentColor" strokeWidth="2" />
+                                    </svg>
+                                    )}
+                                </button>
+
+                                <div
+                                    className={`flex flex-col px-2 overflow-hidden transition-all duration-400 ease-linear space-y-2 ${
+                                    editPanelIndex === 5 ? 'm-2 mt-0' : 'max-h-0 p-0 border-0'
+                                    }`}
+                                >   
+                                    <p className="text-sm">
+                                        - Multiple languages added (en/fr/zh) <br/>
+                                        - Editor page languages half implimented <br/>
+                                        - Spelling fixes <br/>
+                                        - Fixed font family export <br/>
+                                        - Improved text export precision <br/>
+                                        - Fixed editting font family selection <br/>
+                                        - Removed developer console logs <br/>
+                                        - Import pdf development <br/>
+                                        - Updated template, can set font size and font family <br/>
+                                        - Added comfirmation to delete or refresh the page <br/>
+                                        - Reload link fixed <br/>
+                                        - Library code pruning <br/>
+                                        - Notification Update <br/>
+                                        - Fixed navbar start link <br/>
+                                    </p>
+                                    
+                                </div>
+                            </div>
                             <div className="w-full md:w-[80vw] lg:w-[70vw] border border-primary rounded-xl">
                                 <button
                                     className="w-full text-2xl flex justify-between items-center px-4 py-2 bg-transparent text-primary text-base transition cursor-pointer"
@@ -177,7 +228,7 @@ export default function Contact() {
                     </div>
                 </div>
                 <div className='w-full text-right p-2'>
-                    <p>Version: {version}</p>
+                    <p>{t('updates.version')}: {version}</p>
                 </div>
             </div>
         </>

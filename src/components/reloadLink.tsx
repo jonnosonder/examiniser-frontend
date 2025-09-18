@@ -11,13 +11,18 @@ interface Props {
   children: React.ReactNode;
   router: AppRouterInstance;
   className?: string;
+  reload: boolean;
 }
 
-export function ReloadLink({ href, children, router, className }: Props) {
+export function ReloadLink({ href, children, router, className, reload }: Props) {
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    router.push(href);
+    if (reload) {
+      window.location.href = href;
+    } else {
+      router.push(href);
+    }
   };
 
   return (
