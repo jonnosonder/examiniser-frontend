@@ -121,6 +121,24 @@ function EditorPage() {
     }, [showQuestionCreator]);
 
     useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if ((event.ctrlKey || event.metaKey) && event.key === 'z') {
+                event.preventDefault();
+                restoreHistoryUndo();
+            } else if ((event.ctrlKey || event.metaKey) && event.key === 'y') {
+                event.preventDefault();
+                restoreHistoryRedo();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, []);
+
+    useEffect(() => {
         if (stagesLength() === 0 && !fileUploaded){
             if (pageFormatData?.newProject != null && pageFormatData?.projectName != null ) {
                 setProjectNameValue(pageFormatData.projectName);

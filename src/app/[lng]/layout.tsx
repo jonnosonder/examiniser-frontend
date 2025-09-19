@@ -7,8 +7,7 @@ import Analytics from "@/components/analytics";
 import type { ReactNode } from "react";
 import LocaleClientWrapper from "@/components/LocaleClientWrapper";
 import * as React from "react";
-
-type Locale = "en" | "fr" | "zh";
+import { Locale } from "@/lib/locales";
 
 interface LocaleLayoutProps {
   children: ReactNode;
@@ -16,7 +15,7 @@ interface LocaleLayoutProps {
 }
 
 export function generateStaticParams() {
-  return [{ lng: "en" }, { lng: "fr" }, { lng: "zh" }];
+  return [{ lng: "en" }, { lng: "es" }, { lng: "fr" }, { lng: "zh" }];
 }
 
 export default function LocaleLayout({ children, params }: LocaleLayoutProps) {

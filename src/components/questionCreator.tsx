@@ -37,6 +37,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
 
     const [contextMenu, setContextMenu] = useState({ x: 0, y: 0, show: false });
     const [selectedOption, setSelectedOption] = useState<string>('');
+    const [contextClipBoard, setContextClipBoard] = useState<ShapeData | null>(null);
 
     const [selectedFillColorViaDisplay, setSelectedFillColorViaDisplay] = useState<string>("");
     const [selectedStrokeColorViaDisplay, setSelectedStrokeColorViaDisplay] = useState<string>("");
@@ -124,10 +125,31 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
     };
 
     useEffect(() => {
-        if (selectedOption === "delete" && selectedId) {
+        if (selectedOption === "copy" && selectedId) {
+            shapes.forEach((shape) => {
+                if (shape.id === selectedId) {
+                    setContextClipBoard(shape);
+                }
+            });
+        } else if (selectedOption === "cut" && selectedId) {
+            shapes.forEach((shape) => {
+                if (shape.id === selectedId) {
+                    setContextClipBoard(shape);
+                }
+            });
+            setShapes((prev) => prev.filter((shape) => shape.id !== selectedId));
+        } else if (selectedOption === "paste" && contextClipBoard !== null) {
+            const toPasteShape = {
+                ...contextClipBoard,
+                id: contextClipBoard.type + "-" + Date.now()
+            };
+            setShapes(prevShapes => [...prevShapes, toPasteShape]);
+            setSelectedId(contextClipBoard.id);
+        } else if (selectedOption === "delete" && selectedId) {
             setShapes((prev) => prev.filter((shape) => shape.id !== selectedId));
             setSelectedId(null);
         }
+
         setSelectedOption('');
     }, [selectedOption])
 
@@ -192,6 +214,8 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
             setSelectedFillColorViaDisplay(shape.fill);
             setSelectedStrokeColorViaDisplay(shape.stroke);
         } else {
+            setSelectedFillColorViaDisplay("");
+            setSelectedStrokeColorViaDisplay("");
             setSelectedShapeType(null);
             setEditorXpositionValue("0");
             setEditorYpositionValue("0");
@@ -403,10 +427,10 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
             if (y > widestY) widestY = y;
         });
 
-        console.log(shapes[0].x);
-        console.log(shapes[0].y);
-        console.log(shiftX);
-        console.log(shiftY);
+        //console.log(shapes[0].x);
+        //console.log(shapes[0].y);
+        //console.log(shiftX);
+        //console.log(shiftY);
 
         shapes.forEach((element, i) => {
             shapes[i].x = element.x - shiftX;
@@ -1112,16 +1136,16 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                                     <div className='flex-row items-center justify-center grid grid-cols-2 gap-x-4 text-sm'>
                                         <p className='text-start pl-1'>Fill</p>
                                         <p className='text-start pl-1'>Stroke</p>
-                                        <button onClick={toggleDisplayFillColorSelector} className='h-6'>
-                                            <div ref={colourFillButtonDivRef} style={{background: selectedFillColorViaDisplay || 'white'}} className='w-full h-full border border-primary flex items-center justify-center rounded-md'></div>
+                                        <button onClick={() => {if (selectedFillColorViaDisplay !== "") {toggleDisplayFillColorSelector()}}} className='h-6'>
+                                            <div ref={colourFillButtonDivRef} style={{background: selectedFillColorViaDisplay || 'white'}} className='w-full h-full border border-grey flex items-center justify-center rounded-md'></div>
                                         </button>
                                         {displayFillColorSelector && (
                                         <div className='absolute flex items-center justify-center left-[22vw]'>
                                             <ColorSelectorSection onClose={() => setDisplayFillColorSelector(false)} passColorValue={setSelectedFillColorViaDisplay} startingColor={selectedFillColorViaDisplay}/>
                                         </div>
                                         )}
-                                        <button onClick={toggleDisplayStrokeColorSelector} className='h-6'>
-                                            <div ref={colourStrokeButtonDivRef} style={{background: selectedStrokeColorViaDisplay || 'black'}} className='w-full h-full border border-primary flex items-center justify-center rounded-md'></div>
+                                        <button onClick={() => {if (selectedStrokeColorViaDisplay !== "") {toggleDisplayStrokeColorSelector()}}} className='h-6'>
+                                            <div ref={colourStrokeButtonDivRef} style={{background: selectedStrokeColorViaDisplay || 'white'}} className='w-full h-full border border-grey flex items-center justify-center rounded-md'></div>
                                         </button>
                                         {displayStrokeColorSelector && (
                                         <div className='absolute flex items-center justify-center left-[25vw]'>

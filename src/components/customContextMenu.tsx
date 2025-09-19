@@ -58,6 +58,15 @@ export default function CustomContextMenu({
       </div>
       <div
         onClick={() => {
+          onSelect('paste');
+          onClose();
+        }}
+        className="hover:bg-gray-100 p-2 cursor-pointer"
+      >
+        Paste
+      </div>
+      <div
+        onClick={() => {
           onSelect('delete');
           onClose();
         }}

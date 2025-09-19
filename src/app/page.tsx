@@ -5,13 +5,14 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { LocaleValuesDict } from "@/lib/locales";
 
 export default function IndexPage() {
   const router = useRouter();
 
   useEffect(() => {
     const browserLang = navigator.language.slice(0, 2);
-    const supported: Record<string, string> = { en: "en", fr: "fr", zh: "zh" };
+    const supported: Record<string, string> = LocaleValuesDict;
     const lang = supported[browserLang] || "en";
 
     router.replace(`/${lang}`);

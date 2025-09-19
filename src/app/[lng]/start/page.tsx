@@ -11,6 +11,7 @@ import { useFileStore } from '@/store/useFileStore';
 import { useTranslation } from 'react-i18next';
 import * as React from "react";
 import SwitchLanuageDropDown from '@/components/switchLanuageDropDown';
+import { Locale } from '@/lib/locales';
 
 const paperSizes = {
   A3: [
@@ -67,8 +68,6 @@ function getPaperHeight(sizeKey: PaperSizeKey, unit: Unit): Decimal | null {
   const found = paperSizes[sizeKey].find(item => item.unit === unit);
   return found ? found.height : null;
 }
-
-type Locale = "en" | "fr" | "zh";
 
 export default function StartPage({ params }: { params: Promise<{ lng: Locale }> }) {
     const { t } = useTranslation();

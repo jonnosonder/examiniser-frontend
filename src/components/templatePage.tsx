@@ -44,7 +44,7 @@ const TemplatePage: React.FC<TemplatePageProps> = ({ onClose }) => {
     const headers_nameAndDateDoted = () => {
         const focusStage = getSpecificStage(pageOn);
         const padding = focusStage.width * 0.1
-        const setHeight = round4(selectedFontSize*scale);
+        const scaledFontSize = round4(selectedFontSize*scale);
         const textName: ShapeData = {
             id: 't'+Date.now(),
             type: 'text',
@@ -52,8 +52,8 @@ const TemplatePage: React.FC<TemplatePageProps> = ({ onClose }) => {
             y: 0,
             text: 'Name:................................',
             fontFamily: selectedFontFamily,
-            width: measureTextWidth('Name:................................', scale*selectedFontSize+'px Inter-400'),
-            height: setHeight,
+            width: measureTextWidth('Name:................................', scaledFontSize+'px '+selectedFontFamily),
+            height: scaledFontSize,
             rotation: 0,
             fontSize: selectedFontSize,
             fill: 'black',
@@ -67,12 +67,12 @@ const TemplatePage: React.FC<TemplatePageProps> = ({ onClose }) => {
         const textDate: ShapeData = {
             id: 't'+Date.now()+1,
             type: 'text',
-            x: focusStage.width - measureTextWidth('Date:................................', scale*selectedFontSize+'px Inter-400') - padding*2,
+            x: focusStage.width - measureTextWidth('Date:................................', scaledFontSize+'px '+selectedFontFamily) - padding*2,
             y: 0,
             text: 'Date:................................',
             fontFamily: selectedFontFamily,
-            width: measureTextWidth('Date:................................', scale*selectedFontSize+'px Inter-400'),
-            height: setHeight,
+            width: measureTextWidth('Date:................................', scaledFontSize+'px '+selectedFontFamily),
+            height: scaledFontSize,
             rotation: 0,
             fontSize: selectedFontSize,
             fill: 'black',
@@ -84,9 +84,9 @@ const TemplatePage: React.FC<TemplatePageProps> = ({ onClose }) => {
             borderWeight: 0,
         };
         
-        const newGroupInfo = {id: "g-"+Date.now(), widestX:( focusStage.width - (padding*2)), widestY: setHeight, x: padding, y: padding*0.5, rotation: 0} as stageGroupInfoData
+        const newGroupInfo = {id: "g-"+Date.now(), widestX:( focusStage.width - (padding*2)), widestY: scaledFontSize, x: padding, y: padding*0.5, rotation: 0} as stageGroupInfoData
 
-        document.fonts.load('12px '+selectedFontFamily).then(() => {
+        document.fonts.load(selectedFontSize+'px '+selectedFontFamily).then(() => {
             const newData = [textName, textDate];
             addPageElementsInfo(newGroupInfo, pageOn);
             addPageElement(newData, pageOn);
@@ -103,22 +103,23 @@ const TemplatePage: React.FC<TemplatePageProps> = ({ onClose }) => {
         });
     }
 
-    /*
+    
     const headers_nameAndDateLined = () => {
         const focusStage = getSpecificStage(pageOn);
         const padding = focusStage.width * 0.1
+        const scaledFontSize = round4(selectedFontSize*scale);
 
         const textName: ShapeData = {
             id: 't'+Date.now(),
             type: 'text',
             x: 0,
             y: 0,
-            text: 'Name:',
-            fontFamily: 'Inter-400',
-            width: measureTextWidth('Name:', scale*12+'px Inter-400'),
-            height: 12*scale,
+            text: 'Name:_______________',
+            fontFamily: selectedFontFamily,
+            width: measureTextWidth('Name:_______________', scaledFontSize+'px '+selectedFontFamily),
+            height: scaledFontSize,
             rotation: 0,
-            fontSize: 12,
+            fontSize: selectedFontSize,
             fill: 'black',
             background: '',
             stroke: 'black',
@@ -131,14 +132,14 @@ const TemplatePage: React.FC<TemplatePageProps> = ({ onClose }) => {
         const textDate: ShapeData = {
             id: 't'+Date.now()+1,
             type: 'text',
-            x: focusStage.width - measureTextWidth('Date:', scale*12+'px Inter-400') - padding*2,
+            x: focusStage.width - measureTextWidth('Date:_______________', scaledFontSize+'px '+selectedFontFamily) - padding*2,
             y: 0,
-            text: 'Date:',
-            fontFamily: 'Inter-400',
-            width: measureTextWidth('Date:', scale*12+'px Inter-400'),
-            height: 12*scale,
+            text: 'Date:_______________',
+            fontFamily: selectedFontFamily,
+            width: measureTextWidth('Date:_______________', scaledFontSize+'px '+selectedFontFamily),
+            height: scaledFontSize,
             rotation: 0,
-            fontSize: 12,
+            fontSize: selectedFontSize,
             fill: 'black',
             background: '',
             stroke: 'black',
@@ -148,9 +149,9 @@ const TemplatePage: React.FC<TemplatePageProps> = ({ onClose }) => {
             borderWeight: 0,
         };
         
-        const newGroupInfo = {id: "g-"+Date.now(), widestX:( focusStage.width - (padding*2)), widestY: 12*scale, x: padding, y: padding*0.5, rotation: 0} as stageGroupInfoData
+        const newGroupInfo = {id: "g-"+Date.now(), widestX:( focusStage.width - (padding*2)), widestY: scaledFontSize, x: padding, y: padding*0.5, rotation: 0} as stageGroupInfoData
 
-        document.fonts.load('12px Inter-400').then(() => {
+        document.fonts.load(selectedFontSize+'px '+selectedFontFamily).then(() => {
             const newData = [textName, textDate];
             addPageElementsInfo(newGroupInfo, pageOn);
             addPageElement(newData, pageOn);
@@ -167,7 +168,7 @@ const TemplatePage: React.FC<TemplatePageProps> = ({ onClose }) => {
         });
     }
 
-    */
+    
 
     const selectedFontSizeValueHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
@@ -221,13 +222,13 @@ const TemplatePage: React.FC<TemplatePageProps> = ({ onClose }) => {
                                         <span className="w-full" />
                                         <p className="text-[1vw] whitespace-nowrap select-none">Date:....................</p>
                                     </button>
-                                    {/* 
+                                   
                                     <button className="flex flex-row w-1/3 p-4 border border-primary rounded-lg hover:bg-lightGrey" onClick={headers_nameAndDateLined}>
                                         <p className="text-[1vw] whitespace-nowrap select-none">Name:__________</p>
                                         <span className="w-full" />
                                         <p className="text-[1vw] whitespace-nowrap select-none">Date:__________</p>
                                     </button>
-                                    */}
+                                    
                                 </div>
                                 </>
                             )}

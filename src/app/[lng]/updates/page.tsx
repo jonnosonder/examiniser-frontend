@@ -8,8 +8,7 @@ import Navbar from '@/components/navbar';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as React from "react";
-
-type Locale = "en" | "fr" | "zh";
+import { Locale } from '@/lib/locales';
 
 export default function Contact({ params }: { params: Promise<{ lng: Locale }> }) {
     const { t } = useTranslation();
@@ -28,14 +27,53 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
             <span className='w-full h-20 flex' />
             <div className='w-full h-[calc(100vh-5rem)] flex flex-col items-center justify-between overflow-y-auto text-primary'>
                 <div className='w-[90vw] flex flex-col items-center justify-center'>
-                    <h1 className="text-6xl p-2 font-nunito">{t('updates.updates')}</h1>
-                    <p className='p-2 pb-0'>{t('updates.description')}</p>
-                    <p className='text-sm'>{t('updates.sideNote')}</p>
-                    <div className='w-full flex flex-col items-center justify-center'>
+                    <h1 className="text-6xl p-2 font-nunito animate-fadeInY [animation-delay:100ms] opacity-0">{t('updates.updates')}</h1>
+                    <p className='p-2 pb-0 animate-fadeInY [animation-delay:150ms] opacity-0'>{t('updates.description')}</p>
+                    <p className='px-2 text-sm animate-fadeInY [animation-delay:160ms] opacity-0'>{t('updates.sideNote')}</p>
+                    <div className='w-full flex flex-col items-center justify-center animate-fadeInY [animation-delay:250ms] opacity-0'>
                         <div className="w-full md:w-[80vw] lg:w-[70vw] p-2">
                             <p>{t('updates.beta-releases')}</p>
                         </div>
                         <div className='space-y-2'>
+                            <div className="w-full md:w-[80vw] lg:w-[70vw] border border-primary rounded-xl">
+                                <button
+                                    className="w-full text-2xl flex justify-between items-center px-4 py-2 bg-transparent text-primary text-base transition cursor-pointer"
+                                    onClick={() => toggleEditPanelSection(6)}
+                                >   
+                                    <div>
+                                        0.0.6 <span className='text-grey ml-1 text-sm'>— 19/09/2025</span>
+                                    </div>
+                                    {editPanelIndex === 6 ? (
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" />
+                                    </svg>
+                                    ) : (
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M6 15L12 9L18 15" stroke="currentColor" strokeWidth="2" />
+                                    </svg>
+                                    )}
+                                </button>
+
+                                <div
+                                    className={`flex flex-col px-2 overflow-hidden transition-all duration-400 ease-linear space-y-2 ${
+                                    editPanelIndex === 6 ? 'm-2 mt-0' : 'max-h-0 p-0 border-0'
+                                    }`}
+                                >   
+                                    <p className="text-sm">
+                                        - Spanish language added <br/>
+                                        - Copy, cut, paste implimented in question editor <br/>
+                                        - Removed developer console logs (again) <br/>
+                                        - Question parameter style colour UI update <br/>
+                                        - Template fixes and efficiency update <br/>
+                                        - New template added <br/>
+                                        - About and Updates page&#39;s animation implimented <br/>
+                                        - Images operations added to undo and redo history <br/>
+                                        - Undo and redo keybinds implimented <br/>
+                                        - Navbar mobile UI implimented <br/>
+                                    </p>
+                                    
+                                </div>
+                            </div>
                             <div className="w-full md:w-[80vw] lg:w-[70vw] border border-primary rounded-xl">
                                 <button
                                     className="w-full text-2xl flex justify-between items-center px-4 py-2 bg-transparent text-primary text-base transition cursor-pointer"

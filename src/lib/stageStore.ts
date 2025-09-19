@@ -214,9 +214,9 @@ export function setPageElement(newShape: ShapeData[], page: number, groupID: num
 };
 
 export function setPageElementWidth(newWidth: number, page: number, groupID: number, index: number) {
-  console.log(page + "-" + groupID + "-" + index);
+  //console.log(page + "-" + groupID + "-" + index);
   const shape = pageElements[page][groupID][index];
-  console.log(shape);
+  //console.log(shape);
   shape.width = newWidth;
 };
 
@@ -263,7 +263,7 @@ export function duplicatePageElementsInfo(page: number, groupID: number) {
   copy.y = 0;
 
   pageElementsInfo[page].push(copy);
-  console.log(pageElementsInfo);
+  //console.log(pageElementsInfo);
 };
 
 export function setPageElementsInfo(newStageGroupInfo: stageGroupInfoData, page: number, groupID: number) {
@@ -279,8 +279,8 @@ export function setPageElementsInfoHeight(newWidestY: number, page: number, grou
 };
 
 export function deletePageElementInfo(page: number, groupID: number) {
-  console.log(pageElementsInfo);
-  console.log(page + " - " + groupID);
+  //console.log(pageElementsInfo);
+  //console.log(page + " - " + groupID);
   pageElementsInfo[page].splice(groupID, 1);
 };
 
@@ -419,14 +419,14 @@ const validateIndexes = (data: historyData):indexes => {
     return {pageIndex, groupIndex};
   } else {
     const focusLength = pageElementsInfo[pageIndex].length;
-    console.log(pageElementsInfo[pageIndex]);
+    //console.log(pageElementsInfo[pageIndex]);
     if (groupIndex-1 < focusLength) { 
       for (let x = groupIndex-1; x > -1; x--) {
         if (groupID === pageElementsInfo[pageIndex][x].id) {
           return {pageIndex, groupIndex: x};
         }
       }
-      console.log(pageElementsInfo[pageIndex]);
+      //console.log(pageElementsInfo[pageIndex]);
       for (let x = groupIndex+1; x < focusLength-1; x++) {
         if (groupID === pageElementsInfo[pageIndex][x].id) {
           return {pageIndex, groupIndex: x};

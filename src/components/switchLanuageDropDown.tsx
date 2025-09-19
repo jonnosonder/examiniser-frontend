@@ -5,8 +5,7 @@
 
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-
-type Locale = "en" | "fr" | "zh";
+import { Locale, LocaleValues } from "@/lib/locales";
 
 interface LanguageSwitcherProps {
   current: Locale;
@@ -21,7 +20,7 @@ export default function SwitchLanuageDropDown({ current }: LanguageSwitcherProps
 
     // Replace the first segment of the URL with the new language
     const segments = pathname.split("/").filter(Boolean);
-    if (segments.length > 0 && ["en", "fr", "zh"].includes(segments[0])) {
+    if (segments.length > 0 && LocaleValues.includes(segments[0])) {
       segments[0] = lng;
     } else {
       segments.unshift(lng);
@@ -44,7 +43,7 @@ export default function SwitchLanuageDropDown({ current }: LanguageSwitcherProps
 
       {open && (
         <div className="absolute mt-2 right-0 w-32 bg-white border rounded shadow-lg z-10">
-          {(["en", "fr", "zh"] as Locale[]).map((lng) => (
+          {(LocaleValues as Locale[]).map((lng) => (
             <button
               key={lng}
               onClick={() => switchLanguage(lng)}
@@ -53,7 +52,7 @@ export default function SwitchLanuageDropDown({ current }: LanguageSwitcherProps
                 current === lng ? "font-bold" : ""
               }`}
             >
-              {lng === "en" ? "English" : lng === "fr" ? "Français" : "中文"}
+              {lng === "en" ? "English" : lng === "es" ? "Español" : lng === "fr" ? "Français" : "中文"}
             </button>
           ))}
         </div>

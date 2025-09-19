@@ -8,8 +8,7 @@ import '@/styles/landing.css';
 import Navbar from '@/components/navbar';
 import Link from 'next/link';
 import * as React from "react";
-
-type Locale = "en" | "fr" | "zh";
+import { Locale } from '@/lib/locales';
 
 export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
   const { t } = useTranslation();
@@ -71,7 +70,7 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
         {/*Contents section*/}
         <div className="flex flex-col z-[2] w-[50vw] items-center justify-center">
           <div className='p-8'>
-            {(lng === "en" || lng === "fr") && (
+            {(lng === "en" || lng === "es" || lng === "fr") && (
               <h1 id="heroTitle" className="text-primary font-inter font-bold text-2xl sm:text-3xl lg:text-5xl">
               {t('home.CEP')} <br/>
               <span id="heroKeywordtextSpan">{t('home.quick')}</span> {t('home.and')} <span id="heroKeywordtextSpan">{t('home.easy')}</span></h1>

@@ -2,7 +2,7 @@
 // Copyright © 2025 Jonathan Kwok
 
 import { useRef, useState } from "react";
-import { addPageElement, addPageElementsInfo, getEstimatedPage, RENDER_PAGE } from "@/lib/stageStore";
+import { addPageElement, addPageElementsInfo, addToHistoryUndo, getEstimatedPage, historyData, pageElementsInfo, RENDER_PAGE } from "@/lib/stageStore";
 import { ShapeData } from "@/lib/shapeData";
 import "@/styles/addImage.css"
 import { useDropzone } from "react-dropzone";
@@ -81,8 +81,17 @@ export const AddImage: React.FC<AddImageProps>  = ({onClose, showAdvert, mainPag
 
                     if (mainPageMode) { 
                         addPageElement([newImageShape], pageToAddOn);
-                        addPageElementsInfo({id: "g-"+Date.now(), widestX: image.width, widestY: image.height, x: 0, y: 0, rotation: 0}, pageToAddOn);
+                        const newGroupInfo = {id: "g-"+Date.now(), widestX: image.width, widestY: image.height, x: 0, y: 0, rotation: 0};
+                        addPageElementsInfo(newGroupInfo, pageToAddOn);
                         RENDER_PAGE();
+                        addToHistoryUndo({
+                            command: "create",
+                            pageIndex: pageToAddOn,
+                            groupIndex: pageElementsInfo[pageToAddOn].length-1,
+                            from: {},
+                            to: newGroupInfo,
+                            contentsTo: [newImageShape]
+                        } as historyData);
                     } else {
                         setShapes?.(prevShapes => [...prevShapes, newImageShape]);
                         setSelectedId?.(newImageShape.id);
@@ -156,8 +165,17 @@ export const AddImage: React.FC<AddImageProps>  = ({onClose, showAdvert, mainPag
 
                         if (mainPageMode) { 
                             addPageElement([newImageShape], pageToAddOn);
-                            addPageElementsInfo({id: "g-"+Date.now(), widestX: img.width, widestY: img.height, x:0, y:0, rotation: 0}, pageToAddOn);
+                            const newGroupInfo = {id: "g-"+Date.now(), widestX: img.width, widestY: img.height, x:0, y:0, rotation: 0};
+                            addPageElementsInfo(newGroupInfo, pageToAddOn);
                             RENDER_PAGE();
+                            addToHistoryUndo({
+                                command: "create",
+                                pageIndex: pageToAddOn,
+                                groupIndex: pageElementsInfo[pageToAddOn].length-1,
+                                from: {},
+                                to: newGroupInfo,
+                                contentsTo: [newImageShape]
+                            } as historyData);
                         } else {
                             setShapes?.(prevShapes => [...prevShapes, newImageShape]);
                             setSelectedId?.(newImageShape.id);

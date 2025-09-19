@@ -8,20 +8,6 @@ module.exports = {
   ],
   theme: {
     extend: {
-      animation: {
-        fadeIn: 'fadeIn 0.5s ease-in-out',
-        fadeOut: 'fadeOut 0.7s ease-in-out',
-      },
-      keyframes: {
-        fadeIn: {
-          '0%': { opacity: 0 },
-          '100%': { opacity: 1 },
-        },
-        fadeOut: {
-          '0%': { opacity: 1 },
-          '100%': { opacity: 0 },
-        },
-      },
       colors: {
         primary: '#032e2e',
         secondary: '#0C5050',
@@ -39,6 +25,24 @@ module.exports = {
         nunito: ['Nunito-500', 'Roboto-500'],
         roboto: ['Roboto-500', 'Nunito-500'],
         inter: ['Inter-500', 'Roboto-500']
+      },
+      keyframes: {
+        fadeInY: {
+          '0%': {
+            opacity: '0',
+            transform: 'translateY(20px)',
+          },
+          '100%': {
+            opacity: '1',
+            transform: 'translateY(0)',
+          },
+        },
+      },
+      animation: {
+        fadeInY: 'fadeInY 0.4s ease-out forwards',
+      },
+      transitionTimingFunction: {
+        'burger-curve': 'cubic-bezier(0.4, 0, 0.2, 1)',
       },
     },
   },

@@ -1,0 +1,83 @@
+{
+  "home": {
+    "description": "Un editor especializado en crear preguntas y exámenes. ¡Fácil de crear y navegar con plantillas integradas, todo gratis!",
+    "Start-Now": "Empezar Ahora",
+    "CEP": "Crear Exámenes",
+    "quick": "Rápido",
+    "and": "y",
+    "easy": "fácil"
+  },
+  "navBar": {
+    "product": "Producto",
+    "about": "Acerca de",
+    "updates": "Actualizaciones",
+    "Start-Creating": "Comenzar a Crear"
+  },
+  "about": {
+    "about": "Acerca de",
+    "description": "Este sitio web fue creado por un desarrollador independiente con el objetivo de ayudar a personas relacionadas con la educación a crear exámenes. El objetivo es reunir todo en un solo lugar y hacerlo accesible para todos.",
+    "contact": "Contacto",
+    "contactInfo": "No dudes en enviar un correo con sugerencias o problemas."
+  },
+  "updates": {
+    "updates": "Actualizaciones",
+    "description": "Aquí se muestra un seguimiento de cada actualización del sitio web. No dudes en enviar sugerencias o informar de problemas.",
+    "sideNote": "(Este sitio web está actualmente en versión beta, lo que significa que no es el producto final)",
+    "beta-releases": "Lanzamientos Beta (Solo en inglés)",
+    "version": "Versión"
+  },
+  "start": {
+    "CNP": "Crear Nuevo Examen",
+    "create-file": "Crear Archivo",
+    "file-name": "Nombre del Archivo",
+    "math-exam": "Examen de Matemáticas",
+    "file-dimension": "Dimensión del Archivo",
+    "custom": "Personalizado",
+    "units": "Unidades",
+    "width": "Ancho",
+    "height": "Alto",
+    "vertical": "Vertical",
+    "landscape": "Horizontal",
+    "create": "Crear",
+    "UAP": "Subir un Examen",
+    "upload-file": "Subir Archivo",
+    "upload-description": "¡Continúa editando tu archivo agregándolo abajo!",
+    "drag-drop-file": "Arrastra y suelta un archivo aquí, o haz clic para seleccionar uno",
+    "coming-soon": "Próximamente",
+    "start": "Empezar"
+  },
+  "editor": {
+    "project-name": "Nombre del Proyecto",
+    "preview": "Vista Previa",
+    "editor": "Editor",
+    "undo": "Deshacer",
+    "redo": "Rehacer",
+    "add-new-page": "Agregar Nueva Página",
+    "add-text": "Agregar Texto",
+    "zoom-out": "Alejar",
+    "zoom-in": "Acercar",
+    "export": "Exportar",
+    "add-question": "Agregar Pregunta",
+    "edit-question": "Editar Pregunta",
+    "duplicate": "Duplicar",
+    "templates": "Plantillas",
+    "page": "Página",
+    "element": "Elemento",
+    "add-shape": "Agregar Forma",
+    "question-creator-editor": "Editor de Preguntas",
+    "parameters": "Parámetros",
+    "templates-description": "Haz clic en una plantilla para añadirla a la página actual"
+  },
+  "add-image": {
+    "add-image": "Agregar Imagen",
+    "image-url": "URL de la Imagen",
+    "or": "O",
+    "add": "Agregar"
+  },
+  "notification": {
+    "file-format-not-recognised": "Formato de archivo no reconocido",
+    "server-side-fail-please-try-again-later": "Fallo del servidor, por favor intenta de nuevo más tarde",
+    "please-select-or-double-click-an-element": "Por favor selecciona o haz doble clic en un elemento",
+    "please-select-an-element": "Por favor selecciona un elemento"
+  }
+}
