@@ -37,9 +37,31 @@ module.exports = {
             transform: 'translateY(0)',
           },
         },
+        fillX: {
+          '0%': {
+            opacity: '0',
+            transform: 'scaleX(0)',
+          },
+          '100%': {
+            opacity: '1',
+            transform: 'scaleX(1)',
+          },
+        },
+        fadeInFromLeft: {
+          '0%': {
+            opacity: '0',
+            transform: 'translateX(-40px)',
+          },
+          '100%': {
+            opacity: '1',
+            transform: 'translateX(0)',
+          },
+        },
       },
       animation: {
         fadeInY: 'fadeInY 0.4s ease-out forwards',
+        fillX:  'fillX 0.4s ease-out forwards',
+        fadeInFromLeft:  'fadeInFromLeft 0.4s ease-out forwards',
       },
       transitionTimingFunction: {
         'burger-curve': 'cubic-bezier(0.4, 0, 0.2, 1)',

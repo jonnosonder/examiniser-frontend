@@ -48,11 +48,11 @@ export default function SwitchLanuageDropDown({ current }: LanguageSwitcherProps
               key={lng}
               onClick={() => switchLanguage(lng)}
               disabled={current === lng}
-              className={`block w-full text-left px-4 py-2 hover:bg-gray-100 ${
+              className={`block w-full text-left px-4 py-2 hover:bg-gray-100 whitespace-nowrap ${
                 current === lng ? "font-bold" : ""
               }`}
             >
-              {lng === "en" ? "English" : lng === "es" ? "Español" : lng === "fr" ? "Français" : "中文"}
+              {lng === "en" ? "English (EN)" : lng === "es" ? "Español (ES)" : lng === "fr" ? "Français (FR)" : "中文 (ZH)"}
             </button>
           ))}
         </div>

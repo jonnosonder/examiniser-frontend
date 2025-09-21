@@ -79,5 +79,20 @@
     "server-side-fail-please-try-again-later": "服务器故障，请稍后再试",
     "please-select-or-double-click-an-element": "请选择或双击一个元素",
     "please-select-an-element": "请选择一个元素"
+  },
+  "export-page": {
+    "export-to-file": "导出到文件",
+    "quality": "质量",
+    "compression": "压缩",
+    "file-type": "文件类型",
+    "high": "高",
+    "medium": "中",
+    "low": "低",
+    "none": "无",
+    "pdf": "PDF",
+    "exporting": "出口",
+    "creating-document": "正在创建文档...",
+    "loading-all-fonts": "正在加载所有字体...",
+    "rendering-page": "页面渲染中"
   }
 }

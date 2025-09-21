@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import Script from 'next/script'
 import '../styles/globals.css';
 import '../styles/colors.css';
+import '@/styles/fonts.css';
 
 export const metadata: Metadata = {
   title: "Examiniser",
@@ -38,6 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta property="og:description" content="Create exam papers quick and easy" />
         <meta property="og:image" content="https://examiniser.com/" /> 
         <meta property="og:url" content="https://examiniser.com" />
+        <meta name="google-adsense-account" content="ca-pub-6195862060195022"></meta>
 
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"></meta>
         

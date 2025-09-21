@@ -541,7 +541,7 @@ export default function StartPage({ params }: { params: Promise<{ lng: Locale }>
         <div onClick={() => router.push('/'+lng)} className="absolute bg-background z-[1] w-[3rem] sm:w-[3.5rem] lg:w-[4rem] h-[3rem] sm:h-[3.5rem] lg:h-[4rem] top-3 left-3 p-2 border-2 border-primary rounded-lg hover:shadow-[0_0_0_0.5rem_theme('colors.red')] transition-all duration-300 cursor-pointer">
             <ArrowIcon className='w-full h-full'/>
         </div>
-        <div className="absolute bg-background z-[1] top-3 right-3">
+        <div className="absolute bg-background z-[1] top-3 right-3 border border-lightGrey rounded-md shadow-sm hide-scrollbar">
             <SwitchLanuageDropDown current={lng}  />
         </div>
         {/* Setup Questions */}

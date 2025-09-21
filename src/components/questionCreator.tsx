@@ -16,7 +16,6 @@ import { KonvaEventObject } from 'konva/lib/Node';
 import '@/styles/QuestionCreator.css'
 import { AddImage } from './addImage';
 import { getFontNamesArray } from '@/lib/fontData';
-import '@/styles/fonts.css';
 import { useTranslation } from 'react-i18next';
 
 type QuestionCreatorProps = {
@@ -894,7 +893,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                 onSelect={handleSelect}
             />
             <div className='absolute flex z-10 w-full h-full bg-opacity-50 backdrop-blur-sm justify-center'>
-                <div className='absolute flex top-5 w-full items-center justify-center h-[85%] p-4'>
+                <div className='absolute flex top-5 w-full items-center justify-center h-[90%] p-4'>
                     <div className='bg-background flex flex-col rounded-lg p-2 m-2 border-2 border-primary rounded-xl w-full h-full'>
                         <div className='flex justify-between items-center justify-center'>
                             <h3 className='text-lg'>{t('editor.question-creator-editor')}</h3>

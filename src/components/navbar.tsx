@@ -17,7 +17,7 @@ const navLinks = [
   { title: 'updates', href: '/updates' }
 ];
 
-export default function Navbar({ lng } : {lng: Locale}) {
+export default function Navbar({ lng, pageOn } : {lng: Locale, pageOn:"/"|"/about"|"/updates"}) {
   const { t } = useTranslation();
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
@@ -50,9 +50,12 @@ export default function Navbar({ lng } : {lng: Locale}) {
                 <div className="inline-flex">
                 {navLinks.map((link, index) => (
                     <div key={index} className="inline p-5 py-3">
-                    <ReloadLink reload={false} href={'/'+lng+link.href} router={router} className="inline-flex p-1">
+                    <ReloadLink reload={false} href={'/'+lng+link.href} router={router} className="inline-flex p-1 pb-0">
                         {t('navBar.'+link.title)}
                     </ReloadLink>
+                    {(link.href === pageOn) && (
+                      <div className='w-full h-1 bg-accent rounded-full animate-fillX' />
+                    )}
                     </div>
                 ))}
                 </div>

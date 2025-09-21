@@ -6,11 +6,7 @@
 import { I18nextProvider, initReactI18next } from "react-i18next";
 import i18next, { i18n as I18nType } from "i18next";
 import type { ReactNode } from "react";
-
-import en from "../../public/locales/en.json";
-import es from "../../public/locales/es.json";
-import fr from "../../public/locales/fr.json";
-import zh from "../../public/locales/zh.json";
+import { LocaleResources } from "@/lib/locales";
 
 interface I18nWithReact extends I18nType {
   _reactInitialized?: boolean;
@@ -21,14 +17,12 @@ interface Props {
   lng: string;
 }
 
-const resources = { en: { translation: en }, es: { translation: es }, fr: { translation: fr }, zh: { translation: zh } };
-
 export default function I18nProvider({ children, lng }: Props) {
   const i18n = i18next as I18nWithReact;
 
   if (!i18n._reactInitialized) {
     i18n.use(initReactI18next).init({
-      resources,
+      resources: LocaleResources,
       lng,
       fallbackLng: "en",
       interpolation: { escapeValue: false },

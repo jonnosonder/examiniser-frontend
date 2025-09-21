@@ -285,7 +285,7 @@ export default function CanvasElements({ shape, isSelected, onSelect, onChange, 
         input.style.overflowWrap = 'break-word';
         input.style.overflow = 'hidden';
         input.style.resize = 'none';
-        input.style.textAlign = 'left';
+        input.style.textAlign = shape.align;
         input.style.lineHeight = '1';
         input.style.background = 'white';
         input.style.boxSizing = 'border-box';

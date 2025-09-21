@@ -17,13 +17,15 @@ const sectionNames = [
     "Maths",
 ]
 
-const TemplatePage: React.FC<TemplatePageProps> = ({ onClose }) => {
+function TemplatePage({ onClose }: TemplatePageProps) {
     const { t } = useTranslation();
 
     const [selectedSection, setSelectedSection] = useState<number>(0);
     const pageOn = getEstimatedPage();
     const scale = 300/72;
 
+    const [selectedHeaderFontSize, setSelectedHeaderFontSize] = useState<number>(24);
+    const [selectedHeaderFontSizeVisual, setSelectedHeaderFontSizeVisual] = useState<string>("24");
     const [selectedFontSize, setSelectedFontSize] = useState<number>(12);
     const [selectedFontSizeVisual, setSelectedFontSizeVisual] = useState<string>("12");
     const [selectedFontFamily, setSelectedFontFamily] = useState<string>("Inter");
@@ -168,6 +170,70 @@ const TemplatePage: React.FC<TemplatePageProps> = ({ onClose }) => {
         });
     }
 
+    const headers_titleAndDescription = () => {
+        const focusStage = getSpecificStage(pageOn);
+        const padding = focusStage.width * 0.1
+        const scaledHeaderFontSize = round4(selectedHeaderFontSize*scale);
+        const scaledParaFontSize = round4(selectedFontSize*scale);
+
+        const header: ShapeData = {
+            id: 't'+Date.now(),
+            type: 'text',
+            x: 0,
+            y: 0,
+            text: 'Header',
+            fontFamily: selectedFontFamily,
+            width: focusStage.width,
+            height: scaledHeaderFontSize,
+            rotation: 0,
+            fontSize: selectedHeaderFontSize,
+            fill: 'black',
+            background: '',
+            stroke: 'black',
+            strokeWidth: 0,
+            align: "center",
+            border: "",
+            borderWeight: 0,
+        };
+
+        const description: ShapeData = {
+            id: 't'+Date.now()+1,
+            type: 'text',
+            x: 0,
+            y: scaledHeaderFontSize,
+            text: 'Here is some description',
+            fontFamily: selectedFontFamily,
+            width: focusStage.width,
+            height: scaledParaFontSize,
+            rotation: 0,
+            fontSize: selectedFontSize,
+            fill: 'black',
+            background: '',
+            stroke: 'black',
+            strokeWidth: 0,
+            align: "center",
+            border: "",
+            borderWeight: 0,
+        };
+        
+        const newGroupInfo = {id: "g-"+Date.now(), widestX:focusStage.width, widestY: scaledHeaderFontSize+scaledParaFontSize, x: 0, y: padding*0.5, rotation: 0} as stageGroupInfoData
+
+        document.fonts.load(selectedFontSize+'px '+selectedFontFamily).then(() => {
+            const newData = [header, description];
+            addPageElementsInfo(newGroupInfo, pageOn);
+            addPageElement(newData, pageOn);
+            RENDER_PAGE();
+            addToHistoryUndo({
+              command: "create",
+              pageIndex: pageOn,
+              groupIndex: pageElementsInfo[pageOn].length-1,
+              from: {},
+              to: newGroupInfo,
+              contentsTo: newData
+            } as historyData);
+            onClose();
+        });
+    }
     
 
     const selectedFontSizeValueHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -184,6 +250,20 @@ const TemplatePage: React.FC<TemplatePageProps> = ({ onClose }) => {
         }
     }
 
+    const selectedHeaderFontSizeValueHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        const numberPattern = /^-?\d*\.?\d+$/;
+        if (numberPattern.test(value)) {
+            const numericValue = Number(value);
+            if (!isNaN(numericValue)) {
+                setSelectedHeaderFontSize(numericValue);
+                setSelectedHeaderFontSizeVisual(value);
+            }
+        } else if (value == "") {
+            setSelectedHeaderFontSizeVisual("");
+        }
+    }
+
     const onFontFamilySelectChangeHandler = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const newFontValue = e.target.value;
         setSelectedFontFamily(newFontValue);
@@ -191,16 +271,15 @@ const TemplatePage: React.FC<TemplatePageProps> = ({ onClose }) => {
 
     return(
         <div className="absolute flex w-full h-full bg-opacity-50 backdrop-blur-sm items-center justify-center left-0 top-0">
-            <div className="flex flex-col h-3/4 w-3/4 bg-background border border-grey shadow rounded-lg">
-                <div className='flex w-full items-center justify-between'>
+            <div className="flex flex-col h-3/4 w-[95%] md:w-[92%] lg:w-[90%] xl:w-3/4 bg-background border border-grey shadow rounded-lg">
+                <div className='flex w-full items-center justify-between relative'>
                     <h2 className="w-full p-2 pb-0 text-center text-2xl font-nunito m-0 ">{t('editor.templates')}</h2>
-                    <button className='p-2 m-0 ' onClick={onClose}>
+                    <button className='p-2 absolute right-0' onClick={onClose}>
                         <svg className='w-6 h-6' clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m12 10.93 5.719-5.72c.146-.146.339-.219.531-.219.404 0 .75.324.75.749 0 .193-.073.385-.219.532l-5.72 5.719 5.719 5.719c.147.147.22.339.22.531 0 .427-.349.75-.75.75-.192 0-.385-.073-.531-.219l-5.719-5.719-5.719 5.719c-.146.146-.339.219-.531.219-.401 0-.75-.323-.75-.75 0-.192.073-.384.22-.531l5.719-5.719-5.72-5.719c-.146-.147-.219-.339-.219-.532 0-.425.346-.749.75-.749.192 0 .385.073.531.219z"/></svg>
                     </button>
                 </div>
                 <div className="flex">
                     <p className="text-sm w-full text-center">{t('editor.templates-description')}</p>
-                    <span className="flex w-6" />
                 </div>
                 <div className="flex flex-row w-full h-full m-0">
                     <div className="flex flex-row h-full rounded-tr-2xl border-t border-r border-primary pt-2 pr-2 pl-2 shadow-lg">
@@ -215,22 +294,25 @@ const TemplatePage: React.FC<TemplatePageProps> = ({ onClose }) => {
                     <div className="w-full h-full flex flex-col">
                         <div className="w-full flex flex-col p-4">
                             {selectedSection === 0 && (
-                                <>
-                                <div className="flex w-full space-x-2">
-                                    <button className="flex flex-row w-1/3 p-4 border border-primary rounded-lg hover:bg-lightGrey" onClick={headers_nameAndDateDoted}>
-                                        <p className="text-[1vw] whitespace-nowrap select-none">Name:....................</p>
+                                <div className="flex w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    <button className="flex flex-row p-4 border border-primary rounded-lg hover:bg-lightGrey items-center" onClick={headers_nameAndDateDoted}>
+                                        <p className="text-[90%] whitespace-nowrap select-none">Name:....................</p>
                                         <span className="w-full" />
-                                        <p className="text-[1vw] whitespace-nowrap select-none">Date:....................</p>
+                                        <p className="text-[90%] whitespace-nowrap select-none">Date:....................</p>
                                     </button>
                                    
-                                    <button className="flex flex-row w-1/3 p-4 border border-primary rounded-lg hover:bg-lightGrey" onClick={headers_nameAndDateLined}>
-                                        <p className="text-[1vw] whitespace-nowrap select-none">Name:__________</p>
+                                    <button className="flex flex-row p-4 border border-primary rounded-lg hover:bg-lightGrey items-center" onClick={headers_nameAndDateLined}>
+                                        <p className="text-[90%] whitespace-nowrap select-none">Name:__________</p>
                                         <span className="w-full" />
-                                        <p className="text-[1vw] whitespace-nowrap select-none">Date:__________</p>
+                                        <p className="text-[90%] whitespace-nowrap select-none">Date:__________</p>
+                                    </button>
+
+                                    <button className="flex flex-col p-4 border border-primary rounded-lg hover:bg-lightGrey justify-center items-center" onClick={headers_titleAndDescription}>
+                                        <p className="text-[95%] font-bold whitespace-nowrap select-none">Header</p>
+                                        <p className="text-[90%] whitespace-nowrap select-none">Here is some description</p>
                                     </button>
                                     
                                 </div>
-                                </>
                             )}
                             {selectedSection !== 0 && (
                                 <div className="w-full h-full items-center justify-center p-4">
@@ -240,9 +322,13 @@ const TemplatePage: React.FC<TemplatePageProps> = ({ onClose }) => {
                         </div>
                         <span className="w-full h-full flex flex-1"/>
                         <div className="w-full flex p-2">
-                            <div className="flex border border-primary rounded-lg p-2 space-x-2 items-center justify-center">
+                            <div className="flex flex-col text-sm lg:text-base md:flex-row w-full border border-primary rounded-lg p-2 space-x-2 items-center justify-center">
                                 <div className="flex items-center justify-center">
-                                    <p className="mr-2">Font Size</p>
+                                    <p className="mr-2">Header Font Size</p>
+                                    <input value={selectedHeaderFontSizeVisual} onChange={selectedHeaderFontSizeValueHandler} className="rounded-md w-10 border border-grey px-1 transition-shadow duration-300 focus:shadow-[0_0_0_0.15rem_theme('colors.contrast')] focus:outline-none focus:border-transparent"></input>
+                                </div>
+                                <div className="flex items-center justify-center">
+                                    <p className="mr-2">Text Font Size</p>
                                     <input value={selectedFontSizeVisual} onChange={selectedFontSizeValueHandler} className="rounded-md w-10 border border-grey px-1 transition-shadow duration-300 focus:shadow-[0_0_0_0.15rem_theme('colors.contrast')] focus:outline-none focus:border-transparent"></input>
                                 </div>
                                 <div className="flex items-center justify-center">

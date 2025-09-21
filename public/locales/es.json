@@ -5,7 +5,7 @@
     "CEP": "Crear Exámenes",
     "quick": "Rápido",
     "and": "y",
-    "easy": "fácil"
+    "easy": "Fácil"
   },
   "navBar": {
     "product": "Producto",
@@ -79,5 +79,20 @@
     "server-side-fail-please-try-again-later": "Fallo del servidor, por favor intenta de nuevo más tarde",
     "please-select-or-double-click-an-element": "Por favor selecciona o haz doble clic en un elemento",
     "please-select-an-element": "Por favor selecciona un elemento"
+  },
+  "export-page": {
+    "export-to-file": "Exportar a archivo",
+    "quality": "Calidad",
+    "compression": "Compresión",
+    "file-type": "Tipo de archivo",
+    "high": "Alto",
+    "medium": "Medio",
+    "low": "Bajo",
+    "none": "Ninguno",
+    "pdf": "PDF",
+    "exporting": "Exportando",
+    "creating-document": "Creando documento...",
+    "loading-all-fonts": "Cargando todas las fuentes...",
+    "rendering-page": "Representando página"
   }
 }

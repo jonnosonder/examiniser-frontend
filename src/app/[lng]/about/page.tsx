@@ -14,7 +14,7 @@ export default function AboutPage({ params }: { params: Promise<{ lng: Locale }>
 
     return(
         <>
-            <Navbar lng={lng}/>
+            <Navbar lng={lng} pageOn='/about'/>
             <span className='w-full h-20 flex' />
             <div className='w-full flex flex-col items-center justify-center scroll-y-auto text-primary'>
                 <div className='w-full md:w-[90vw] lg:w-[80vw] h-full flex flex-col p-2'>

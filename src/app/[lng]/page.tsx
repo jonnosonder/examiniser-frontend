@@ -15,18 +15,57 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
   const resolvedParams = React.use(params); // unwrap the promise
   const { lng } = resolvedParams;
 
+  const templateTitleRef = React.useRef<HTMLHeadingElement | null>(null);
+  const templateDescriptionRef = React.useRef<HTMLParagraphElement | null>(null);
+
+  React.useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const target = entry.target as HTMLElement;
+          if (entry.isIntersecting) {
+            target.classList.add("animate-fadeInFromLeft");
+            target.classList.remove("opacity-0");
+
+            if (templateDescriptionRef.current) {
+              setTimeout(() => {
+                templateDescriptionRef.current?.classList.add("animate-fadeInFromLeft");
+                templateDescriptionRef.current?.classList.remove("opacity-0");
+              }, 100);
+            }
+
+            observer.disconnect();
+          }
+        });
+      },
+      {
+        threshold: 0.8,
+      }
+    );
+
+    if (templateTitleRef.current) {
+      observer.observe(templateTitleRef.current);
+    }
+
+    return () => {
+      if (templateTitleRef.current) {
+        observer.unobserve(templateTitleRef.current);
+      }
+    };
+  }, []);
+
   return (
     <>
-      <Navbar lng={lng}/>
+      <Navbar lng={lng} pageOn='/'/>
       {/*Hero section*/}
-      <div className="flex w-full h-full bg-background">
+      <div className="flex flex-col w-full bg-background overflow-y-auto hide-scrollbar scrolling-smooth">
         <div className="
           absolute inset-0 z-0 
           [background-image:linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] 
           [background-size:20px_20px] 
           [mask-image:radial-gradient(ellipse_70%_60%_at_50%_110%,#000_60%,transparent_100%)] 
           [-webkit-mask-image:radial-gradient(ellipse_70%_60%_at_50%_100%,#000_60%,transparent_100%)]"
-      ></div>
+        ></div>
         {/*Animation section*/}
         <div className="absolute z-[1] flex flex-col w-full h-full items-center justify-center gap-6">
           <svg id="q1svg" className='h-[10%] sm:h-[15%] lg:h-[20%]' viewBox="0 0 190 96" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -67,8 +106,8 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
           </svg>
 
         </div>
-        {/*Contents section*/}
-        <div className="flex flex-col z-[2] w-[50vw] items-center justify-center">
+        {/*Hero Section*/}
+        <div className="flex flex-col h-[100vh] z-[2] w-[50vw] items-center justify-center">
           <div className='p-8'>
             {(lng === "en" || lng === "es" || lng === "fr") && (
               <h1 id="heroTitle" className="text-primary font-inter font-bold text-2xl sm:text-3xl lg:text-5xl">
@@ -90,6 +129,20 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
             </div>
           </div>
         </div>
+        {/*Template Section
+        <div className="flex flex-col h-[90vh] z-[2] items-center justify-center relative">
+            <div className="
+              absolute inset-0 z-0
+              [background-image:linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] 
+              [background-size:20px_20px] 
+              "
+            ></div>
+            <div className='flex flex-col h-full w-[90vw] z-10'>
+              <h1 className="text-primary w-full flex font-inter font-bold text-2xl sm:text-3xl lg:text-5xl mb-2 opacity-0" ref={templateTitleRef}>Templates</h1>
+              <p className="text-primary w-full flex font-nunito sm:text-lg lg:text-xl ml-2 opacity-0" ref={templateDescriptionRef}>Range of templates to add instantly</p>
+            </div>
+        </div>
+        */}
       </div>
     </>
   );

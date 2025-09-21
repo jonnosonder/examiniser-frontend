@@ -79,5 +79,20 @@
     "server-side-fail-please-try-again-later": "Échec côté serveur, veuillez réessayer plus tard",
     "please-select-or-double-click-an-element": "Veuillez sélectionner ou double-cliquer sur un élément",
     "please-select-an-element": "Veuillez sélectionner un élément"
+  },
+  "export-page": {
+    "export-to-file": "Exporter vers un fichier",
+    "quality": "Qualité",
+    "compression": "Compression",
+    "file-type": "Type de fichier",
+    "high": "Élevé",
+    "medium": "Moyenne",
+    "low": "Faible",
+    "none": "Aucun",
+    "pdf": "PDF",
+    "exporting": "Exportation",
+    "creating-document": "Création du document...",
+    "loading-all-fonts": "Chargement de toutes les polices...",
+    "rendering-page": "Rendu de la page"
   }
 }

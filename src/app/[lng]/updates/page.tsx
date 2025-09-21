@@ -23,18 +23,56 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
 
     return(
         <>
-            <Navbar lng={lng}/>
+            <Navbar lng={lng} pageOn='/updates'/>
             <span className='w-full h-20 flex' />
             <div className='w-full h-[calc(100vh-5rem)] flex flex-col items-center justify-between overflow-y-auto text-primary'>
-                <div className='w-[90vw] flex flex-col items-center justify-center'>
+                <div className='w-[90vw] h-full flex flex-col items-center justify-center'>
                     <h1 className="text-6xl p-2 font-nunito animate-fadeInY [animation-delay:100ms] opacity-0">{t('updates.updates')}</h1>
                     <p className='p-2 pb-0 animate-fadeInY [animation-delay:150ms] opacity-0'>{t('updates.description')}</p>
                     <p className='px-2 text-sm animate-fadeInY [animation-delay:160ms] opacity-0'>{t('updates.sideNote')}</p>
-                    <div className='w-full flex flex-col items-center justify-center animate-fadeInY [animation-delay:250ms] opacity-0'>
+                    <div className='h-full items-center justify-start animate-fadeInY [animation-delay:250ms] px-4 mb-2 opacity-0 overflow-y-auto scrollbar scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-200'>
                         <div className="w-full md:w-[80vw] lg:w-[70vw] p-2">
                             <p>{t('updates.beta-releases')}</p>
                         </div>
                         <div className='space-y-2'>
+                            <div className="w-full md:w-[80vw] lg:w-[70vw] border border-primary rounded-xl">
+                                <button
+                                    className="w-full text-2xl flex justify-between items-center px-4 py-2 bg-transparent text-primary text-base transition cursor-pointer"
+                                    onClick={() => toggleEditPanelSection(7)}
+                                >   
+                                    <div>
+                                        0.0.7 <span className='text-grey ml-1 text-sm'>— 21/09/2025</span>
+                                    </div>
+                                    {editPanelIndex === 7 ? (
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" />
+                                    </svg>
+                                    ) : (
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M6 15L12 9L18 15" stroke="currentColor" strokeWidth="2" />
+                                    </svg>
+                                    )}
+                                </button>
+
+                                <div
+                                    className={`flex flex-col px-2 overflow-hidden transition-all duration-400 ease-linear space-y-2 ${
+                                    editPanelIndex === 7 ? 'm-2 mt-0' : 'max-h-0 p-0 border-0'
+                                    }`}
+                                >   
+                                    <p className="text-sm">
+                                        - Editor loading efficiency update <br/>
+                                        - Editor export page, all languages implimented <br/>
+                                        - File pruning <br/>
+                                        - Language switcher updated <br/>
+                                        - Language fixes <br/>
+                                        - Updates, Navbar, Templates UI updated <br/>
+                                        - New template added <br/>
+                                        - Text editing updated <br/>
+                                        - Export page UI & UX updated <br/>
+                                    </p>
+                                    
+                                </div>
+                            </div>
                             <div className="w-full md:w-[80vw] lg:w-[70vw] border border-primary rounded-xl">
                                 <button
                                     className="w-full text-2xl flex justify-between items-center px-4 py-2 bg-transparent text-primary text-base transition cursor-pointer"
@@ -265,7 +303,7 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                         </div>
                     </div>
                 </div>
-                <div className='w-full text-right p-2'>
+                <div className='absolute bottom-0 right-2 text-right p-2'>
                     <p>{t('updates.version')}: {version}</p>
                 </div>
             </div>

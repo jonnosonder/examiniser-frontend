@@ -5,7 +5,7 @@
     "CEP": "Create Exam Papers",
     "quick": "Quick",
     "and": "and",
-    "easy": "easy"
+    "easy": "Easy"
   },
   "navBar": {
     "product": "Product",
@@ -79,5 +79,20 @@
     "server-side-fail-please-try-again-later": "Server side fail, please try again later",
     "please-select-or-double-click-an-element": "Please select or double click an element",
     "please-select-an-element": "Please select an element"
+  },
+  "export-page": {
+    "export-to-file": "Export to File",
+    "quality": "Quality",
+    "compression": "Compression",
+    "file-type": "File Type",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low",
+    "none": "None",
+    "pdf": "PDF",
+    "exporting": "Exporting",
+    "creating-document": "Creating document...",
+    "loading-all-fonts": "Loading all fonts...",
+    "rendering-page": "Rendering page"
   }
 }
