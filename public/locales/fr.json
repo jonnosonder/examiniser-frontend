@@ -41,8 +41,10 @@
     "create": "Créer",
     "UAP": "Télécharger un sujet d'examen",
     "upload-file": "Télécharger un fichier",
+    "uploaded-file": "Fichier Téléchargé",
     "upload-description": "Continuez à modifier votre fichier en l'ajoutant ci-dessous!",
     "drag-drop-file": "Glissez-déposez un fichier ici, ou cliquez pour en sélectionner un",
+    "drop-the-file-here": "Déposez le fichier ici...",
     "coming-soon": "Bientôt disponible",
     "start": "Commencer"
   },
@@ -66,11 +68,48 @@
     "add-shape": "Ajouter une forme",
     "question-creator-editor": "Éditeur de création de questions",
     "parameters": "Paramètres",
-    "templates-description": "Cliquez sur un modèle pour l'ajouter à la page actuelle" 
+    "select-an-element": "Sélectionner un Élément",
+    "transform": "Transformer",
+    "position": "Position",
+    "order": "Ordre",
+    "style": "Style",
+    "rotation": "Rotation",
+    "fill": "Remplissage",
+    "stroke": "Contour",
+    "bevel": "Biseau",
+    "weight": "Graisse",
+    "font": "Police",
+    "font-family": "Famille de polices",
+    "align": "Aligner",
+    "corners": "Coins",
+    "w-h-ratio": "Rapport L:H",
+    "colour": "Couleur",
+    "apply-to-all": "Appliquer à tous",
+    "page-on": "Page Actuelle",
+    "move-page": "Déplacer la Page",
+    "to-the-back": "Envoyer à l'Arrière",
+    "to-the-front": "Apporter au Premier Plan",
+    "view-margin": "Afficher la Marge",
+    "showing": "Affichant",
+    "hidden": "Caché",
+    "margin-size": "Taille de la Marge",
+    "delete": "Supprimer",
+    "delete-all": "Tout Supprimer",
+    "crop-question": "Question sur le recadrage",
+    "apply-edit": "Appliquer les Modifications" 
+  },
+  "shapes": {
+    "star": "Étoile"
+  },
+  "context-menu": {
+    "copy": "Copier",
+    "cut": "Couper",
+    "paste": "Coller"
   },
   "add-image": {
     "add-image": "Ajouter une image",
     "image-url": "URL de l'image",
+    "your-image-url-placeholder": "https://votre-url-d’image",
     "or": "Ou",
     "add": "Ajouter"  
   },
@@ -94,5 +133,17 @@
     "creating-document": "Création du document...",
     "loading-all-fonts": "Chargement de toutes les polices...",
     "rendering-page": "Rendu de la page"
+  },
+  "templates": {
+    "templates-description": "Cliquez sur un modèle pour l'ajouter à la page actuelle",
+    "email-in-your-ideas-to": "Envoyez vos idées par e-mail à",
+    "header": "En-tête",
+    "first-page": "Première page",
+    "maths": "Maths",
+    "header-font-size": "Taille de police de l'en-tête",
+    "text-font-size": "Taille de police du texte",
+    "name": "Nom",
+    "date": "Date",
+    "here-is-some-description": "Voici une description"
   }
 }

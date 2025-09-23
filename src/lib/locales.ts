@@ -4,9 +4,10 @@
 import en from "../../public/locales/en.json";
 import es from "../../public/locales/es.json";
 import fr from "../../public/locales/fr.json";
+import jp from "../../public/locales/jp.json";
 import zh from "../../public/locales/zh.json";
 
-export type Locale = "en" | "es" |"fr" | "zh";
-export const LocaleValues = ["en", "es", "fr", "zh"];
-export const LocaleValuesDict = { en: "en", es: "es", fr: "fr", zh: "zh" };
-export const LocaleResources = { en: { translation: en }, es: { translation: es }, fr: { translation: fr }, zh: { translation: zh } };
+export type Locale = "en" | "es" |"fr" | "jp" | "zh";
+export const LocaleValues = ["en", "es", "fr", "jp", "zh"];
+export const LocaleValuesDict = { en: "en", es: "es", fr: "fr", jp: "jp", zh: "zh" };
+export const LocaleResources = { en: { translation: en }, es: { translation: es }, fr: { translation: fr }, jp: { translation: jp }, zh: { translation: zh } };

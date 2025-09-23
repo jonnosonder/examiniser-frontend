@@ -10,13 +10,14 @@ import { Stage, Layer } from 'react-konva';
 import CanvasElements from '@/components/canvasElements'
 import CustomContextMenu from '@/components/customContextMenu';
 import { ShapeData } from '@/lib/shapeData';
-import { addPageElement, addPageElementsInfo, addToHistoryUndo, deletePageElement, deletePageElementInfo, getEstimatedPage, getSpecificPageElementsInfo, getStageDimension, historyData, pageElementsInfo, RENDER_PAGE, setPageElement, setPageElementsInfo, stageGroupInfoData } from '@/lib/stageStore';
+import { addPageElement, addPageElementsInfo, addToHistoryUndo, deletePageElement, deletePageElementInfo, getEstimatedPage, getSpecificPageElementsInfo, getSpecificStage, getStageDimension, historyData, newShapeSizePercent, pageElementsInfo, RENDER_PAGE, setPageElement, setPageElementsInfo, stageGroupInfoData } from '@/lib/stageStore';
 import ColorSelectorSection from '@/components/colorSelectorSection';
 import { KonvaEventObject } from 'konva/lib/Node';
 import '@/styles/QuestionCreator.css'
 import { AddImage } from './addImage';
 import { getFontNamesArray } from '@/lib/fontData';
 import { useTranslation } from 'react-i18next';
+import { useSelectRef } from './editorContextProvider';
 
 type QuestionCreatorProps = {
   onClose: () => void;
@@ -34,9 +35,15 @@ type questionEditingIDType = {
 const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionCreating, shapes, setShapes, questionEditingID }) => {
     const { t } = useTranslation();
 
+    const { setSelectIndex } = useSelectRef();
+
     const [contextMenu, setContextMenu] = useState({ x: 0, y: 0, show: false });
     const [selectedOption, setSelectedOption] = useState<string>('');
     const [contextClipBoard, setContextClipBoard] = useState<ShapeData | null>(null);
+
+    const [cropTickBox, setCropTickBox] = useState(true);
+    const dashArray = cropTickBox ? '70.5096664428711 9999999' : '241 9999999';
+    const dashOffset = cropTickBox ? -262.2723388671875 : 0;
 
     const [selectedFillColorViaDisplay, setSelectedFillColorViaDisplay] = useState<string>("");
     const [selectedStrokeColorViaDisplay, setSelectedStrokeColorViaDisplay] = useState<string>("");
@@ -66,6 +73,27 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
 
     useEffect(() => {
         setInitalShapes(shapes);
+    }, [])
+
+    useEffect(() => {
+        if (!newQuestionCreating) {
+            let smallestX = Infinity;
+            let smallestY = Infinity;
+
+            shapes.forEach((shape) => {
+                if (smallestX > shape.x) {
+                    smallestX = shape.x;
+                }
+                if (smallestY > shape.y) {
+                    smallestY = shape.y;
+                }
+                if (smallestX === 0 && smallestY === 0) {return;}
+            });
+
+            if (smallestX !== 0 || smallestY !== 0) {
+                setCropTickBox(false);
+            }
+        }
     }, [])
 
     useEffect(() => {
@@ -291,13 +319,16 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
     }
 
     const addSquareHandle = () => {
+        const pageToAddIt = getEstimatedPage();
+        const focusStage = getSpecificStage(pageToAddIt);
+        const size = Math.round(Math.min(focusStage.width * newShapeSizePercent, focusStage.height * newShapeSizePercent));
         const newShape: ShapeData = {
             id: 'r'+Date.now(),
             type: 'rect',
             x: 20,
             y: 20,
-            width: 200,
-            height: 200,
+            width: size,
+            height: size,
             rotation: 0,
             fill: 'black',
             stroke: 'red',
@@ -309,13 +340,16 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
     }
 
     const addCircleHandle = () => {
+        const pageToAddIt = getEstimatedPage();
+        const focusStage = getSpecificStage(pageToAddIt);
+        const size = Math.round(Math.min(focusStage.width * newShapeSizePercent, focusStage.height * newShapeSizePercent));
         const newShape: ShapeData = {
             id: 'c'+Date.now(),
             type: 'oval',
-            x: 50,
-            y: 50,
-            width: 40*2,
-            height: 40*2,
+            x: size * 0.5,
+            y: size * 0.5,
+            width: size,
+            height: size,
             rotation: 0,
             fill: 'black',
             stroke: 'red',
@@ -326,13 +360,16 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
     }
 
     const addTriangleHandle = () => {
+        const pageToAddIt = getEstimatedPage();
+        const focusStage = getSpecificStage(pageToAddIt);
+        const size = Math.round(Math.min(focusStage.width * newShapeSizePercent, focusStage.height * newShapeSizePercent));
         const newShape: ShapeData = {
             id: 't'+Date.now(),
             type: 'tri',
             x: 20,
             y: 20,
-            width: 100,
-            height: 100,
+            width: size,
+            height: size,
             rotation: 0,
             fill: 'black',
             stroke: 'red',
@@ -344,13 +381,16 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
     }
 
     const addRightAngledTriangleHandle = () => {
+        const pageToAddIt = getEstimatedPage();
+        const focusStage = getSpecificStage(pageToAddIt);
+        const size = Math.round(Math.min(focusStage.width * newShapeSizePercent, focusStage.height * newShapeSizePercent));
         const newShape: ShapeData = {
             id: 'rat'+Date.now(),
             type: 'rightAngleTri',
             x: 20,
             y: 20,
-            width: 100,
-            height: 100,
+            width: size,
+            height: size,
             rotation: 0,
             fill: 'black',
             stroke: 'red',
@@ -362,13 +402,16 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
     }
 
     const addStarHandle = () => {
+        const pageToAddIt = getEstimatedPage();
+        const focusStage = getSpecificStage(pageToAddIt);
+        const size = Math.round(Math.min(focusStage.width * newShapeSizePercent, focusStage.height * newShapeSizePercent));
         const newShape: ShapeData = {
             id: 's'+Date.now(),
             type: 'star',
-            x: 50,
-            y: 50,
-            width: 100,
-            height: 100,
+            x: size * 0.5,
+            y: size * 0.5,
+            width: size,
+            height: size,
             rotation: 0,
             fill: 'black',
             stroke: 'red',
@@ -395,49 +438,66 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
 
         if (shapes === initalShapes) { return; }
 
-        let shiftX:number = Infinity;
-        let shiftY:number = Infinity;
         let widestX:number = 0;
         let widestY:number = 0;
 
-        shapes.forEach((element) => {
-            let x: number;
-            let y: number;
-            if (element.type === "star" || element.type === "oval") {
-                x = element.x + element.width/2;
-                y = element.y + element.height/2;
-                if (shiftX > element.x - element.width/2) {
-                    shiftX = element.x - element.width/2;
-                }
-                if (shiftY > element.y - element.height/2) {
-                    shiftY = element.y - element.height/2;
-                }
-            } else {
-                x = element.x + element.width;
-                y = element.y + element.height;
-                if (shiftX > element.x) {
-                    shiftX = element.x;
-                }
-                if (shiftY > element.y) {
-                    shiftY = element.y;
-                }
-            }
-            if (x > widestX) widestX = x;
-            if (y > widestY) widestY = y;
-        });
+        if (cropTickBox) { 
+            let shiftX:number = Infinity;
+            let shiftY:number = Infinity;
 
-        //console.log(shapes[0].x);
-        //console.log(shapes[0].y);
-        //console.log(shiftX);
-        //console.log(shiftY);
+            shapes.forEach((element) => {
+                let x: number;
+                let y: number;
+                if (element.type === "star" || element.type === "oval") {
+                    x = element.x + element.width/2;
+                    y = element.y + element.height/2;
+                    if (shiftX > element.x - element.width/2) {
+                        shiftX = element.x - element.width/2;
+                    }
+                    if (shiftY > element.y - element.height/2) {
+                        shiftY = element.y - element.height/2;
+                    }
+                } else {
+                    x = element.x + element.width;
+                    y = element.y + element.height;
+                    if (shiftX > element.x) {
+                        shiftX = element.x;
+                    }
+                    if (shiftY > element.y) {
+                        shiftY = element.y;
+                    }
+                }
+                if (x > widestX) widestX = x;
+                if (y > widestY) widestY = y;
+            });
 
-        shapes.forEach((element, i) => {
-            shapes[i].x = element.x - shiftX;
-            shapes[i].y = element.y - shiftY;
-        })
+            //console.log(shapes[0].x);
+            //console.log(shapes[0].y);
+            //console.log(shiftX);
+            //console.log(shiftY);
 
-        widestX -= shiftX;
-        widestY -= shiftY;
+            shapes.forEach((element, i) => {
+                shapes[i].x = element.x - shiftX;
+                shapes[i].y = element.y - shiftY;
+            })
+
+            widestX -= shiftX;
+            widestY -= shiftY;
+        } else {
+            shapes.forEach((element) => {
+                let x: number;
+                let y: number;
+                if (element.type === "star" || element.type === "oval") {
+                    x = element.x + element.width/2;
+                    y = element.y + element.height/2;
+                } else {
+                    x = element.x + element.width;
+                    y = element.y + element.height;
+                }
+                if (x > widestX) widestX = x;
+                if (y > widestY) widestY = y;
+            });
+        }
 
         if (newQuestionCreating) {
             const pageOn = getEstimatedPage();
@@ -452,6 +512,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                 to: newGroupInfo,
                 contentsTo: shapes
             } as historyData);
+            setSelectIndex({pageIndex: pageOn, groupIndex: pageElementsInfo[pageOn].length-1});
         } else {
             if (questionEditingID.page !== null && questionEditingID.groupID !== null) {
                 const previousGroupInfo = getSpecificPageElementsInfo(questionEditingID.page, questionEditingID.groupID);
@@ -1048,14 +1109,39 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                                 </Stage>
                             </div>
                         </div>
-                        <div className='flex w-full mt-2 space-x-4'>
-                            <button onClick={() => {setShapes([]);}} className='px-4 py-2 border-2 border-darkRed rounded-full bg-red text-white whitespace-nowrap'>Delete All</button>
+                        <div className='flex w-full mt-2 space-x-4 items-center'>
+                            <button onClick={() => {setShapes([]);}} className='px-4 py-2 border-2 border-darkRed rounded-full bg-red text-white whitespace-nowrap'>{t("editor.delete-all")}</button>
                             <span className='flex w-full'></span>
                             {/*
                             <button onClick={() => {setDimensions({width: dimensions.width, height: dimensions.height * 2})}} className='px-4 py-2 border-2 border-primary rounded-full text-primary whitespace-nowrap'>Add Space</button>
                             */}
+                            <div className='flex items-center'>
+                            <p className='text-sm whitespace-nowrap m-0 mr-2'>{t("editor.crop-question")}</p>
+                            <label className="cursor-pointer inline-flex items-center justify-center w-4 h-4">
+                                <input
+                                    type="checkbox"
+                                    checked={cropTickBox}
+                                    onChange={(e) => setCropTickBox(e.target.checked)}
+                                    className="hidden"
+                                />
+                                <svg
+                                    viewBox="0 0 64 64"
+                                    className="w-full h-full overflow-visible"
+                                >
+                                    <path
+                                    d="M 0 16 V 56 A 8 8 90 0 0 8 64 H 56 A 8 8 90 0 0 64 56 V 8 A 8 8 90 0 0 56 0 H 8 A 8 8 90 0 0 0 8 V 16 L 32 48 L 64 16 V 8 A 8 8 90 0 0 56 0 H 8 A 8 8 90 0 0 0 8 V 56 A 8 8 90 0 0 8 64 H 56 A 8 8 90 0 0 64 56 V 16"
+                                    pathLength="575.0541381835938"
+                                    style={{
+                                        strokeDasharray: dashArray,
+                                        strokeDashoffset: dashOffset,
+                                    }}
+                                    className="transition-[stroke-dasharray,stroke-dashoffset] duration-500 ease-in-out fill-none stroke-primary stroke-[6] stroke-linecap-round stroke-linejoin-round"
+                                    />
+                                </svg>
+                            </label>
+                            </div>
                             <button onClick={() => {createHandler(); onClose();}} className='px-4 py-2 border-2 border-primary rounded-full whitespace-nowrap'>
-                                {newQuestionCreating ? "Create" : "Set Edit"}
+                                {newQuestionCreating ? t("start.create") : t("editor.apply-edit")}
                             </button>
                         </div>
                     </div>
@@ -1063,12 +1149,14 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                         <h3 className='text-center text-primary text-lg'>{t('editor.parameters')}</h3>
                         
                         {/* Default Parameters */}
+                        {selectedShapeType !== null ? (
+                        <>
                         <div className="w-full">
                             <button
                                 className="w-full flex justify-between items-center bg-transparent text-primary text-base text-md transition cursor-pointer"
                                 onClick={() => toggleParameterPanelSection(1)}
                             >
-                                Transform
+                                {t('editor.transform')}
                                 {checkParameterPanelSection(1) ? (
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" />
@@ -1093,14 +1181,14 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                                         <input className={defaultInputClassName} value={editorWidthValue} onChange={editorWidthValueHandler}></input>
                                         <span className='h-1' />
                                         <span className='h-1' />
-                                        <p className='text-primary pl-1'>Width</p>
-                                        <p className='text-primary pl-1'>Height</p>
+                                        <p className='text-primary pl-1'>{t('start.width')}</p>
+                                        <p className='text-primary pl-1'>{t('start.height')}</p>
                                         <input className={defaultInputClassName} value={editorYpositionValue} onChange={editorYpositionHandler}></input>
                                         <input className={defaultInputClassName} value={editorHeightValue} onChange={editorHeightValueHandler}></input>
                                         <span className='h-1' />
                                         <span className='h-1' />
                                         <span className='h-1' />
-                                        <p className='text-primary pl-1'>Rotation</p>
+                                        <p className='text-primary pl-1'>{t('editor.rotation')}</p>
                                         <span className='h-1' />
                                         <input className={defaultInputClassName} value={editorRotateValue} onChange={editorRotateValueHandler}></input>
                                     </div>
@@ -1114,7 +1202,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                                 className="w-full flex justify-between items-center py-1 bg-transparent text-primary text-base transition cursor-pointer"
                                 onClick={() => toggleParameterPanelSection(2)}
                             >
-                                Style
+                                {t('editor.style')}
                                 {checkParameterPanelSection(2) ? (
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" />
@@ -1133,8 +1221,8 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                             >
                                 <div className='flex w-full items-center justify-center p-2 px-4'>
                                     <div className='flex-row items-center justify-center grid grid-cols-2 gap-x-4 text-sm'>
-                                        <p className='text-start pl-1'>Fill</p>
-                                        <p className='text-start pl-1'>Stroke</p>
+                                        <p className='text-start pl-1'>{t('editor.fill')}</p>
+                                        <p className='text-start pl-1'>{t('editor.stroke')}</p>
                                         <button onClick={() => {if (selectedFillColorViaDisplay !== "") {toggleDisplayFillColorSelector()}}} className='h-6'>
                                             <div ref={colourFillButtonDivRef} style={{background: selectedFillColorViaDisplay || 'white'}} className='w-full h-full border border-grey flex items-center justify-center rounded-md'></div>
                                         </button>
@@ -1153,14 +1241,18 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                                         )}
                                         <span className='h-1' />
                                         <span className='h-1' />
-                                        <p className='text-start pl-1'>Belve <span className='text-xs'>(%)</span></p>
-                                        <p className='text-start pl-1'>Weight</p>
+                                        <p className='text-start pl-1'>{t('editor.bevel')} <span className='text-xs'>(%)</span></p>
+                                        <p className='text-start pl-1'>{t('editor.weight')}</p>
                                         <input className={defaultInputClassName} value={editorCornerRadiusValue} onChange={editorCornerRadiusValueHandler}></input>
                                         <input className={defaultInputClassName} value={editorStrokeWeightValue} onChange={editorStrokeWeightValueHandler}></input>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        </>
+                        ) : (
+                            <p className='text-center italic'>{t('editor.select-an-element')}</p>
+                        )}
 
                         {/* Text Aditional Features */}
                         {selectedShapeType === "text" && (
@@ -1170,7 +1262,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                                     className="w-full flex justify-between items-center py-1 bg-transparent text-primary text-base transition cursor-pointer"
                                     onClick={() => toggleParameterPanelSection(3)}
                                 >
-                                    Font
+                                    {t('editor.font')}
                                     {checkParameterPanelSection(3) ? (
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" />
@@ -1189,7 +1281,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                                 >
                                     <div className='flex w-full flex-col items-center justify-center p-2 px-4'>
                                         <div className='flex w-full flex-col items-center justify-center'>
-                                            <p className='text-left w-full pl-1'>Font Family</p>
+                                            <p className='text-left w-full pl-1'>{t('editor.font-family')}</p>
                                             <select className='p-1 flex w-full rounded-md border border-grey' value={selectedFont} onChange={onFontSelectChangeHandler} style={{fontFamily: selectedFont}}>
                                                 {fontNames.map((font) => (
                                                 <option key={font} value={font} style={{fontFamily: font}}>
@@ -1210,7 +1302,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                                             </div>
                                             
                                             <span className='h-4' />
-                                            <p className='flex w-full pl-1'>Align</p>
+                                            <p className='flex w-full pl-1'>{t('editor.align')}</p>
                                             <div className='flex w-full h-10 flex-row items-center justify-center space-x-2 m-2'>    
                                                 <button onClick={() => editorTextAlignHanlder("left")} className={`number-input w-10 transition-all duration-200 ease-in-out ${editorTextAlignValue === "left" && "[box-shadow:inset_4px_4px_10px_#bcbcbc,inset_-4px_-4px_10px_#ffffff]"}`}>
                                                     <svg clipRule="evenodd" fillRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m17 17.75c0-.414-.336-.75-.75-.75h-13.5c-.414 0-.75.336-.75.75s.336.75.75.75h13.5c.414 0 .75-.336.75-.75zm5-4c0-.414-.336-.75-.75-.75h-18.5c-.414 0-.75.336-.75.75s.336.75.75.75h18.5c.414 0 .75-.336.75-.75zm-9-4c0-.414-.336-.75-.75-.75h-9.5c-.414 0-.75.336-.75.75s.336.75.75.75h9.5c.414 0 .75-.336.75-.75zm7-4c0-.414-.336-.75-.75-.75h-16.5c-.414 0-.75.336-.75.75s.336.75.75.75h16.5c.414 0 .75-.336.75-.75z" fillRule="nonzero"/></svg>
@@ -1237,7 +1329,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                                     className="w-full flex justify-between items-center py-1 bg-transparent text-primary text-base transition cursor-pointer"
                                     onClick={() => toggleParameterPanelSection(4)}
                                 >
-                                    Star
+                                    {t('shapes.star')}
                                     {checkParameterPanelSection(4) ? (
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" />
@@ -1255,7 +1347,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                                     }`}
                                 >
                                     <div className='flex-row items-center justify-center grid grid-cols-2 gap-x-4 text-sm p-2 px-4'>
-                                            <p className='flex w-full text-left pl-1'>Corners</p>
+                                            <p className='flex w-full text-left pl-1'>{t('editor.corners')}</p>
                                             <input className={defaultInputClassName} onChange={editorStarNumPointsValueHandler} value={editorStarNumPointsValue}></input>
 
 

@@ -507,6 +507,7 @@ function EditorPage() {
             addPageElementsInfo({id: "g-"+Date.now(), widestX: newText.width, widestY: newText.height, x:0, y:0, rotation: 0}, pageToAddIt);
             addPageElement([newText], pageToAddIt);
             RENDER_PAGE();
+            setSelectIndex({pageIndex: pageToAddIt, groupIndex: pageElementsInfo[pageToAddIt].length-1});
         });
     }
 

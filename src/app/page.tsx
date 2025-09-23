@@ -6,6 +6,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { LocaleValuesDict } from "@/lib/locales";
+import Link from "next/link";
 
 export default function IndexPage() {
   const router = useRouter();
@@ -18,6 +19,10 @@ export default function IndexPage() {
     router.replace(`/${lang}`);
   }, [router]);
 
+  const redirectLinkHandler = () => {
+    router.push('/en');
+  }
+
   return (
     <body>
       <div className="w-full h-full flex flex-col items-center justify-center">
@@ -25,6 +30,7 @@ export default function IndexPage() {
           Examiniser
         </h2>
         <p className="text-sm sm:text-md lg:text-lg">Redirecting to your language...</p>
+        <p className="absolute text-xs sm:text-xs lg:text-sm bottom-2">Click <Link className="text-blue-600" href={'/en'} onClick={redirectLinkHandler}>here</Link> if the page doesn&#39;t redirect you</p>
       </div>
     </body>
   );

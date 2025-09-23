@@ -4,6 +4,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export default function CustomContextMenu({
   x,
@@ -18,6 +19,8 @@ export default function CustomContextMenu({
   onClose: () => void;
   onSelect: (option: string) => void;
 }) {
+  const { t } = useTranslation();
+
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -45,7 +48,7 @@ export default function CustomContextMenu({
         }}
         className="hover:bg-gray-100 p-2 cursor-pointer"
       >
-        Copy
+        {t("context-menu.copy")}
       </div>
       <div
         onClick={() => {
@@ -54,7 +57,7 @@ export default function CustomContextMenu({
         }}
         className="hover:bg-gray-100 p-2 cursor-pointer"
       >
-        Cut
+        {t("context-menu.cut")}
       </div>
       <div
         onClick={() => {
@@ -63,7 +66,7 @@ export default function CustomContextMenu({
         }}
         className="hover:bg-gray-100 p-2 cursor-pointer"
       >
-        Paste
+        {t("context-menu.paste")}
       </div>
       <div
         onClick={() => {
@@ -72,7 +75,7 @@ export default function CustomContextMenu({
         }}
         className="hover:bg-red p-2 cursor-pointer"
       >
-        Delete
+        {t("editor.delete")}
       </div>
     </div>
   );

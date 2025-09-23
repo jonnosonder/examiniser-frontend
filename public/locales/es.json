@@ -41,8 +41,10 @@
     "create": "Crear",
     "UAP": "Subir un Examen",
     "upload-file": "Subir Archivo",
+    "uploaded-file": "Archivo Subido",
     "upload-description": "¡Continúa editando tu archivo agregándolo abajo!",
     "drag-drop-file": "Arrastra y suelta un archivo aquí, o haz clic para seleccionar uno",
+    "drop-the-file-here": "Suelta el archivo aquí...",
     "coming-soon": "Próximamente",
     "start": "Empezar"
   },
@@ -66,11 +68,48 @@
     "add-shape": "Agregar Forma",
     "question-creator-editor": "Editor de Preguntas",
     "parameters": "Parámetros",
-    "templates-description": "Haz clic en una plantilla para añadirla a la página actual"
+    "select-an-element": "Seleccionar un Elemento",
+    "transform": "Transformar",
+    "position": "Posición",
+    "order": "Orden",
+    "style": "Estilo",
+    "rotation": "Rotación",
+    "fill": "Relleno",
+    "stroke": "Trazo",
+    "bevel": "Bisel",
+    "weight": "Peso",
+    "font": "Fuente",
+    "font-family": "Familia tipográfica",
+    "align": "Alinear",
+    "corners": "Esquinas",
+    "w-h-ratio": "Relación A:L",
+    "colour": "Color",
+    "apply-to-all": "Aplicar a todos",
+    "page-on": "Página Actual",
+    "move-page": "Mover Página",
+    "to-the-back": "Enviar al Fondo",
+    "to-the-front": "Traer al Frente",
+    "view-margin": "Ver Margen",
+    "showing": "Mostrando",
+    "hidden": "Oculto",
+    "margin-size": "Tamaño del Margen",
+    "delete": "Eliminar",
+    "delete-all": "Eliminar Todo",
+    "crop-question": "Pregunta sobre recorte",
+    "apply-edit": "Aplicar Ediciones"
+  },
+  "shapes": {
+    "star": "Estrella"
+  },
+  "context-menu": {
+    "copy": "Copiar",
+    "cut": "Cortar",
+    "paste": "Pegar"
   },
   "add-image": {
     "add-image": "Agregar Imagen",
     "image-url": "URL de la Imagen",
+    "your-image-url-placeholder": "https://tu-url-de-imagen",
     "or": "O",
     "add": "Agregar"
   },
@@ -94,5 +133,17 @@
     "creating-document": "Creando documento...",
     "loading-all-fonts": "Cargando todas las fuentes...",
     "rendering-page": "Representando página"
+  },
+  "templates": {
+    "templates-description": "Haz clic en una plantilla para añadirla a la página actual",
+    "email-in-your-ideas-to": "Envía tus ideas por correo electrónico a",
+    "header": "Encabezado",
+    "first-page": "Primera página",
+    "maths": "Mates",
+    "header-font-size": "Tamaño de fuente del encabezado",
+    "text-font-size": "Tamaño de fuente del texto",
+    "name": "Nombre",
+    "date": "Fecha",
+    "here-is-some-description": "Aquí hay una descripción"
   }
 }

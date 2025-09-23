@@ -7,6 +7,7 @@ import { ShapeData } from "@/lib/shapeData";
 import "@/styles/addImage.css"
 import { useDropzone } from "react-dropzone";
 import { useTranslation } from "react-i18next";
+import { useSelectRef } from "./editorContextProvider";
 
 type AddImageProps = {
   onClose: () => void;
@@ -18,6 +19,7 @@ type AddImageProps = {
 
 export const AddImage: React.FC<AddImageProps>  = ({onClose, showAdvert, mainPageMode, setShapes, setSelectedId}) => {
     const { t } = useTranslation();
+    const { setSelectIndex } = useSelectRef();
     const imageUrlRef = useRef<HTMLInputElement>(null);
     const fileDropRef = useRef<HTMLDivElement>(null);
     const [imageUrlValue, setImageUrlValue] = useState<string>("");
@@ -92,6 +94,7 @@ export const AddImage: React.FC<AddImageProps>  = ({onClose, showAdvert, mainPag
                             to: newGroupInfo,
                             contentsTo: [newImageShape]
                         } as historyData);
+                        setSelectIndex({pageIndex: pageToAddOn, groupIndex: pageElementsInfo[pageToAddOn].length-1});
                     } else {
                         setShapes?.(prevShapes => [...prevShapes, newImageShape]);
                         setSelectedId?.(newImageShape.id);
@@ -176,6 +179,7 @@ export const AddImage: React.FC<AddImageProps>  = ({onClose, showAdvert, mainPag
                                 to: newGroupInfo,
                                 contentsTo: [newImageShape]
                             } as historyData);
+                            setSelectIndex({pageIndex: pageToAddOn, groupIndex: pageElementsInfo[pageToAddOn].length-1});
                         } else {
                             setShapes?.(prevShapes => [...prevShapes, newImageShape]);
                             setSelectedId?.(newImageShape.id);
@@ -275,11 +279,11 @@ export const AddImage: React.FC<AddImageProps>  = ({onClose, showAdvert, mainPag
                 <div className="flex flex-col w-full h-full items-center justify-center p-2 space-y-4">
                     <div className="flex flex-col w-full items-center justify-center">
                         <p>{t('add-image.image-url')}</p>
-                        <input ref={imageUrlRef} value={imageUrlValue} onChange={imageUrlInputHandler} className="w-full border-2 border-primary rounded-md m-2 p-1 transition-shadow duration-300 focus:shadow-[0_0_0_0.4rem_theme('colors.accent')] focus:outline-none" placeholder="https://your-image-url"></input>
+                        <input ref={imageUrlRef} value={imageUrlValue} onChange={imageUrlInputHandler} className="w-full border-2 border-primary rounded-md m-2 p-1 transition-shadow duration-300 focus:shadow-[0_0_0_0.4rem_theme('colors.accent')] focus:outline-none" placeholder={t("add-image.your-image-url-placeholder")}></input>
                     </div>
                     <div className="flex flex-row w-full items-center justify-center">
                         <div className="h-[1px] rounded flex w-full bg-primary" />
-                        <p className="flex mx-2">{t('add-image.or')}</p>
+                        <p className="flex mx-2 whitespace-nowrap">{t('add-image.or')}</p>
                         <div className="h-[1px] rounded flex w-full bg-primary" />
                     </div>
                     <div className="flex flex-col w-full items-center justify-center">
@@ -293,13 +297,13 @@ export const AddImage: React.FC<AddImageProps>  = ({onClose, showAdvert, mainPag
                                 >
                                 <input {...getInputProps()} />
                                 {isDragActive ? (
-                                    <p className="text-blue-700">Drop the file here...</p>
+                                    <p className="text-blue-700">{t('start.drop-the-file-here')}</p>
                                 ) : (
                                     <p className="text-gray-500">{t('start.drag-drop-file')}</p>
                                 )}
                                 {file && (
                                     <div className="mt-4">
-                                    <p className="font-semibold">Uploaded File</p>
+                                    <p className="font-semibold">{t("start.uploaded-file")}</p>
                                     <p className="w-full text-center truncate">{file.name}</p>
                                     <p>{(file.size / 1024).toFixed(2)} KB</p>
                                     </div>

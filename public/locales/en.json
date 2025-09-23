@@ -41,8 +41,10 @@
     "create": "Create",
     "UAP": "Upload a Paper",
     "upload-file": "Upload File",
+    "uploaded-file": "Uploaded File",
     "upload-description": "Continue editing your file by adding it bellow!",
     "drag-drop-file": "Drag & drop a file here, or click to select one",
+    "drop-the-file-here": "Drop the file here...",
     "coming-soon": "Coming Soon",
     "start": "Start"
   },
@@ -66,13 +68,50 @@
     "add-shape": "Add Shape",
     "question-creator-editor": "Question Creator Editor",
     "parameters": "Parameters",
-    "templates-description": "Click on a template to add it to the current page" 
+    "select-an-element": "Select an Element",
+    "transform": "Transform",
+    "position": "Position",
+    "order": "Order",
+    "style": "Style",
+    "rotation": "Rotation",
+    "fill": "Fill",
+    "stroke": "Stroke",
+    "bevel": "Bevel",
+    "weight": "Weight",
+    "font": "Font",
+    "font-family": "Font Family",
+    "align": "Align",
+    "corners": "Corners",
+    "w-h-ratio": "W:H Ratio",
+    "colour": "Colour",
+    "apply-to-all": "Apply to all",
+    "page-on": "Page On",
+    "move-page": "Move Page",
+    "to-the-back": "To the Back",
+    "to-the-front": "To the Front",
+    "view-margin": "View Margin",
+    "showing": "Showing",
+    "hidden": "Hidden",
+    "margin-size": "Margin Size",
+    "delete": "Delete",
+    "delete-all": "Delete All",
+    "crop-question": "Crop Question",
+    "apply-edit": "Apply Edits"
+  },
+  "shapes": {
+    "star": "Star"
+  },
+  "context-menu": {
+    "copy": "Copy",
+    "cut": "Cut",
+    "paste": "Paste"
   },
   "add-image": {
     "add-image": "Add Image",
     "image-url": "Image URL",
+    "your-image-url-placeholder": "https://your-image-url",
     "or": "Or",
-    "add": "Add"  
+    "add": "Add"
   },
   "notification": {
     "file-format-not-recognised": "File format not recognised",
@@ -94,5 +133,17 @@
     "creating-document": "Creating document...",
     "loading-all-fonts": "Loading all fonts...",
     "rendering-page": "Rendering page"
+  },
+  "templates": {
+    "templates-description": "Click on a template to add it to the current page",
+    "email-in-your-ideas-to": "Email in your ideas to",
+    "header": "Header",
+    "first-page": "First Page",
+    "maths": "Maths",
+    "header-font-size": "Header Font Size",
+    "text-font-size": "Text Font Size",
+    "name": "Name",
+    "date": "Date",
+    "here-is-some-description": "Here is some description"
   }
 }

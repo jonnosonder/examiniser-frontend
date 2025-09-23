@@ -12,9 +12,9 @@ type TemplatePageProps = {
 };
 
 const sectionNames = [
-    "Headers",
-    "First Page",
-    "Maths",
+    "header",
+    "first-page",
+    "maths",
 ]
 
 function TemplatePage({ onClose }: TemplatePageProps) {
@@ -50,11 +50,11 @@ function TemplatePage({ onClose }: TemplatePageProps) {
         const textName: ShapeData = {
             id: 't'+Date.now(),
             type: 'text',
-            x: 0,
+            x: padding,
             y: 0,
-            text: 'Name:................................',
+            text: t('templates.name')+':................................',
             fontFamily: selectedFontFamily,
-            width: measureTextWidth('Name:................................', scaledFontSize+'px '+selectedFontFamily),
+            width: measureTextWidth(t('templates.name')+':................................', scaledFontSize+'px '+selectedFontFamily),
             height: scaledFontSize,
             rotation: 0,
             fontSize: selectedFontSize,
@@ -69,11 +69,11 @@ function TemplatePage({ onClose }: TemplatePageProps) {
         const textDate: ShapeData = {
             id: 't'+Date.now()+1,
             type: 'text',
-            x: focusStage.width - measureTextWidth('Date:................................', scaledFontSize+'px '+selectedFontFamily) - padding*2,
+            x: focusStage.width - measureTextWidth(t('templates.date')+':................................', scaledFontSize+'px '+selectedFontFamily) - padding,
             y: 0,
-            text: 'Date:................................',
+            text: t('templates.date')+':................................',
             fontFamily: selectedFontFamily,
-            width: measureTextWidth('Date:................................', scaledFontSize+'px '+selectedFontFamily),
+            width: measureTextWidth(t('templates.date')+':................................', scaledFontSize+'px '+selectedFontFamily),
             height: scaledFontSize,
             rotation: 0,
             fontSize: selectedFontSize,
@@ -86,7 +86,7 @@ function TemplatePage({ onClose }: TemplatePageProps) {
             borderWeight: 0,
         };
         
-        const newGroupInfo = {id: "g-"+Date.now(), widestX:( focusStage.width - (padding*2)), widestY: scaledFontSize, x: padding, y: padding*0.5, rotation: 0} as stageGroupInfoData
+        const newGroupInfo = {id: "g-"+Date.now(), widestX: focusStage.width, widestY: scaledFontSize, x: 0, y: padding*0.5, rotation: 0} as stageGroupInfoData
 
         document.fonts.load(selectedFontSize+'px '+selectedFontFamily).then(() => {
             const newData = [textName, textDate];
@@ -114,11 +114,11 @@ function TemplatePage({ onClose }: TemplatePageProps) {
         const textName: ShapeData = {
             id: 't'+Date.now(),
             type: 'text',
-            x: 0,
+            x: padding,
             y: 0,
-            text: 'Name:_______________',
+            text: t('templates.name')+':_______________',
             fontFamily: selectedFontFamily,
-            width: measureTextWidth('Name:_______________', scaledFontSize+'px '+selectedFontFamily),
+            width: measureTextWidth(t('templates.name')+':_______________', scaledFontSize+'px '+selectedFontFamily),
             height: scaledFontSize,
             rotation: 0,
             fontSize: selectedFontSize,
@@ -134,11 +134,11 @@ function TemplatePage({ onClose }: TemplatePageProps) {
         const textDate: ShapeData = {
             id: 't'+Date.now()+1,
             type: 'text',
-            x: focusStage.width - measureTextWidth('Date:_______________', scaledFontSize+'px '+selectedFontFamily) - padding*2,
+            x: focusStage.width - measureTextWidth(t('templates.date')+':_______________', scaledFontSize+'px '+selectedFontFamily) - padding,
             y: 0,
-            text: 'Date:_______________',
+            text: t('templates.date')+':_______________',
             fontFamily: selectedFontFamily,
-            width: measureTextWidth('Date:_______________', scaledFontSize+'px '+selectedFontFamily),
+            width: measureTextWidth(t('templates.date')+':_______________', scaledFontSize+'px '+selectedFontFamily),
             height: scaledFontSize,
             rotation: 0,
             fontSize: selectedFontSize,
@@ -151,7 +151,7 @@ function TemplatePage({ onClose }: TemplatePageProps) {
             borderWeight: 0,
         };
         
-        const newGroupInfo = {id: "g-"+Date.now(), widestX:( focusStage.width - (padding*2)), widestY: scaledFontSize, x: padding, y: padding*0.5, rotation: 0} as stageGroupInfoData
+        const newGroupInfo = {id: "g-"+Date.now(), widestX: focusStage.width, widestY: scaledFontSize, x: 0, y: padding*0.5, rotation: 0} as stageGroupInfoData
 
         document.fonts.load(selectedFontSize+'px '+selectedFontFamily).then(() => {
             const newData = [textName, textDate];
@@ -181,7 +181,7 @@ function TemplatePage({ onClose }: TemplatePageProps) {
             type: 'text',
             x: 0,
             y: 0,
-            text: 'Header',
+            text: t('templates.header'),
             fontFamily: selectedFontFamily,
             width: focusStage.width,
             height: scaledHeaderFontSize,
@@ -200,8 +200,8 @@ function TemplatePage({ onClose }: TemplatePageProps) {
             id: 't'+Date.now()+1,
             type: 'text',
             x: 0,
-            y: scaledHeaderFontSize,
-            text: 'Here is some description',
+            y: scaledHeaderFontSize+2,
+            text: t('templates.here-is-some-description'),
             fontFamily: selectedFontFamily,
             width: focusStage.width,
             height: scaledParaFontSize,
@@ -279,14 +279,14 @@ function TemplatePage({ onClose }: TemplatePageProps) {
                     </button>
                 </div>
                 <div className="flex">
-                    <p className="text-sm w-full text-center">{t('editor.templates-description')}</p>
+                    <p className="text-sm w-full text-center">{t('templates.templates-description')}</p>
                 </div>
                 <div className="flex flex-row w-full h-full m-0">
                     <div className="flex flex-row h-full rounded-tr-2xl border-t border-r border-primary pt-2 pr-2 pl-2 shadow-lg">
                         <div className="flex flex-col items-center justify-start rounded-md scroll-y-auto">
                             {sectionNames.map((name, index) => (
                                 <button key={index} className={`${index === selectedSection && 'shadow-[inset_0_2px_4px_rgba(0,0,0,0.15)]'} text-left w-full whitespace-nowrap p-2 hover:bg-lightGrey rounded-lg m-1`} onClick={() => setSelectedSection(index)}>
-                                    {name}
+                                    {t('templates.'+name)}
                                 </button>
                             ))}
                         </div>
@@ -296,27 +296,27 @@ function TemplatePage({ onClose }: TemplatePageProps) {
                             {selectedSection === 0 && (
                                 <div className="flex w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                     <button className="flex flex-row p-4 border border-primary rounded-lg hover:bg-lightGrey items-center" onClick={headers_nameAndDateDoted}>
-                                        <p className="text-[90%] whitespace-nowrap select-none">Name:....................</p>
+                                        <p className="text-[90%] whitespace-nowrap select-none">{t('templates.name')}:....................</p>
                                         <span className="w-full" />
-                                        <p className="text-[90%] whitespace-nowrap select-none">Date:....................</p>
+                                        <p className="text-[90%] whitespace-nowrap select-none">{t('templates.date')}:....................</p>
                                     </button>
                                    
                                     <button className="flex flex-row p-4 border border-primary rounded-lg hover:bg-lightGrey items-center" onClick={headers_nameAndDateLined}>
-                                        <p className="text-[90%] whitespace-nowrap select-none">Name:__________</p>
+                                        <p className="text-[90%] whitespace-nowrap select-none">{t('templates.name')}:__________</p>
                                         <span className="w-full" />
-                                        <p className="text-[90%] whitespace-nowrap select-none">Date:__________</p>
+                                        <p className="text-[90%] whitespace-nowrap select-none">{t('templates.date')}:__________</p>
                                     </button>
 
                                     <button className="flex flex-col p-4 border border-primary rounded-lg hover:bg-lightGrey justify-center items-center" onClick={headers_titleAndDescription}>
-                                        <p className="text-[95%] font-bold whitespace-nowrap select-none">Header</p>
-                                        <p className="text-[90%] whitespace-nowrap select-none">Here is some description</p>
+                                        <p className="text-[95%] font-bold whitespace-nowrap select-none">{t('templates.header')}</p>
+                                        <p className="text-[90%] whitespace-nowrap select-none">{t('templates.here-is-some-description')}</p>
                                     </button>
                                     
                                 </div>
                             )}
                             {selectedSection !== 0 && (
                                 <div className="w-full h-full items-center justify-center p-4">
-                                    <p>Email in your ideas to <span onClick={() => window.location.href = `mailto:examiniser@gmail.com`} className='text-blue-500 cursor-pointer'>examiniser@gmail.com</span></p>
+                                    <p>{t("templates.email-in-your-ideas-to")} <span onClick={() => window.location.href = `mailto:examiniser@gmail.com`} className='text-blue-500 cursor-pointer'>examiniser@gmail.com</span></p>
                                 </div>
                             )}
                         </div>
@@ -324,15 +324,15 @@ function TemplatePage({ onClose }: TemplatePageProps) {
                         <div className="w-full flex p-2">
                             <div className="flex flex-col text-sm lg:text-base md:flex-row w-full border border-primary rounded-lg p-2 space-x-2 items-center justify-center">
                                 <div className="flex items-center justify-center">
-                                    <p className="mr-2">Header Font Size</p>
+                                    <p className="mr-2">{t('templates.header-font-size')}</p>
                                     <input value={selectedHeaderFontSizeVisual} onChange={selectedHeaderFontSizeValueHandler} className="rounded-md w-10 border border-grey px-1 transition-shadow duration-300 focus:shadow-[0_0_0_0.15rem_theme('colors.contrast')] focus:outline-none focus:border-transparent"></input>
                                 </div>
                                 <div className="flex items-center justify-center">
-                                    <p className="mr-2">Text Font Size</p>
+                                    <p className="mr-2">{t('templates.text-font-size')}</p>
                                     <input value={selectedFontSizeVisual} onChange={selectedFontSizeValueHandler} className="rounded-md w-10 border border-grey px-1 transition-shadow duration-300 focus:shadow-[0_0_0_0.15rem_theme('colors.contrast')] focus:outline-none focus:border-transparent"></input>
                                 </div>
                                 <div className="flex items-center justify-center">
-                                    <p className="whitespace-nowrap mr-2">Font Family</p>
+                                    <p className="whitespace-nowrap mr-2">{t('editor.font-family')}</p>
                                     <select className='p-1 flex w-full rounded-md border border-grey' value={selectedFontFamily} onChange={onFontFamilySelectChangeHandler} style={{fontFamily: selectedFontFamily}}>
                                         {fontNamesArray.map((font) => (
                                         <option key={font} value={font} style={{fontFamily: font}}>

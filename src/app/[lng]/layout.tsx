@@ -15,7 +15,7 @@ interface LocaleLayoutProps {
 }
 
 export function generateStaticParams() {
-  return [{ lng: "en" }, { lng: "es" }, { lng: "fr" }, { lng: "zh" }];
+  return [{ lng: "en" }, { lng: "es" }, { lng: "fr" }, { lng: "jp" }, { lng: "zh" }];
 }
 
 export default function LocaleLayout({ children, params }: LocaleLayoutProps) {

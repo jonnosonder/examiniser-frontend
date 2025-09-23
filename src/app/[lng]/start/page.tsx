@@ -623,13 +623,13 @@ export default function StartPage({ params }: { params: Promise<{ lng: Locale }>
                             >
                             <input {...getInputProps()} />
                             {isDragActive ? (
-                                <p className="text-blue-700">Drop the file here...</p>
+                                <p className="text-blue-700">{t('start.drop-the-file-here')}</p>
                             ) : (
                                 <p className="text-gray-500">{t('start.drag-drop-file')}</p>
                             )}
                             {file && (
                                 <div className="mt-4">
-                                <p className="font-semibold">Uploaded File</p>
+                                <p className="font-semibold">{t("start.uploaded-file")}</p>
                                 <p>{file.name}</p>
                                 <p>{(file.size / 1024).toFixed(2)} KB</p>
                                 </div>

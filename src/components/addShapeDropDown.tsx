@@ -6,9 +6,12 @@ import { ShapeData } from '@/lib/shapeData';
 import { addPageElement, addPageElementsInfo, addToHistoryUndo, getEstimatedPage, getSpecificStage, historyData, newShapeSizePercent, pageElementsInfo, RENDER_PAGE, stageGroupInfoData } from '@/lib/stageStore';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSelectRef } from './editorContextProvider';
 
 const AddShapeDropDown: React.FC = () => {
   const { t } = useTranslation();
+
+  const { setSelectIndex } = useSelectRef();
 
   const [open, setOpen] = useState(false);
 
@@ -25,7 +28,7 @@ const AddShapeDropDown: React.FC = () => {
   const addSquareToPageButtonHandler = () => {
     const pageToAddIt = getEstimatedPage();
     const focusStage = getSpecificStage(pageToAddIt);
-    const size = Math.min(focusStage.width * newShapeSizePercent, focusStage.height * newShapeSizePercent);
+    const size = Math.round(Math.min(focusStage.width * newShapeSizePercent, focusStage.height * newShapeSizePercent));
     const newSquare: ShapeData = {
       id: 'r'+Date.now(),
       type: 'rect',
@@ -52,12 +55,13 @@ const AddShapeDropDown: React.FC = () => {
       to: newGroupInfo,
       contentsTo: [newSquare]
     } as historyData);
+    setSelectIndex({pageIndex: pageToAddIt, groupIndex: pageElementsInfo[pageToAddIt].length-1});
   }
 
   const addCircleToPageButtonHandler = () => {
     const pageToAddIt = getEstimatedPage();
     const focusStage = getSpecificStage(pageToAddIt);
-    const size = Math.min(focusStage.width * newShapeSizePercent, focusStage.height * newShapeSizePercent);
+    const size = Math.round(Math.min(focusStage.width * newShapeSizePercent, focusStage.height * newShapeSizePercent));
     const newCircle: ShapeData = {
       id: 'c'+Date.now(),
       type: 'oval',
@@ -83,12 +87,13 @@ const AddShapeDropDown: React.FC = () => {
       to: newGroupInfo,
       contentsTo: [newCircle]
     } as historyData);
+    setSelectIndex({pageIndex: pageToAddIt, groupIndex: pageElementsInfo[pageToAddIt].length-1});
   }
 
   const addTriangleToPageButtonHandler = () => {
     const pageToAddIt = getEstimatedPage();
     const focusStage = getSpecificStage(pageToAddIt);
-    const size = Math.min(focusStage.width * newShapeSizePercent, focusStage.height * newShapeSizePercent);
+    const size = Math.round(Math.min(focusStage.width * newShapeSizePercent, focusStage.height * newShapeSizePercent));
     const newTriangle: ShapeData = {
       id: 't'+Date.now(),
       type: 'tri',
@@ -115,12 +120,13 @@ const AddShapeDropDown: React.FC = () => {
       to: newGroupInfo,
       contentsTo: [newTriangle]
     } as historyData);
+    setSelectIndex({pageIndex: pageToAddIt, groupIndex: pageElementsInfo[pageToAddIt].length-1});
   }
 
   const addRightAngleTriangleToPageButtonHandler = () => {
     const pageToAddIt = getEstimatedPage();
     const focusStage = getSpecificStage(pageToAddIt);
-    const size = Math.min(focusStage.width * newShapeSizePercent, focusStage.height * newShapeSizePercent);
+    const size = Math.round(Math.min(focusStage.width * newShapeSizePercent, focusStage.height * newShapeSizePercent));
     const newTriangle: ShapeData = {
       id: 'rat'+Date.now(),
       type: 'rightAngleTri',
@@ -147,12 +153,13 @@ const AddShapeDropDown: React.FC = () => {
       to: newGroupInfo,
       contentsTo: [newTriangle]
     } as historyData);
+    setSelectIndex({pageIndex: pageToAddIt, groupIndex: pageElementsInfo[pageToAddIt].length-1});
   }
 
   const addStarToPageButtonHandler = () => {
     const pageToAddIt = getEstimatedPage();
     const focusStage = getSpecificStage(pageToAddIt);
-    const size = Math.min(focusStage.width * newShapeSizePercent, focusStage.height * newShapeSizePercent);
+    const size = Math.round(Math.min(focusStage.width * newShapeSizePercent, focusStage.height * newShapeSizePercent));
     const newStar: ShapeData = {
       id: 's'+Date.now(),
       type: 'star',
@@ -179,6 +186,7 @@ const AddShapeDropDown: React.FC = () => {
       to: newGroupInfo,
       contentsTo: [newStar]
     } as historyData);
+    setSelectIndex({pageIndex: pageToAddIt, groupIndex: pageElementsInfo[pageToAddIt].length-1});
   }
 
   return (

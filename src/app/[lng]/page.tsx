@@ -114,6 +114,11 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
               {t('home.CEP')} <br/>
               <span id="heroKeywordtextSpan">{t('home.quick')}</span> {t('home.and')} <span id="heroKeywordtextSpan">{t('home.easy')}</span></h1>
             )}
+            {(lng === "jp") && (
+              <h1 id="heroTitle" className="text-primary font-inter font-bold text-2xl sm:text-3xl lg:text-5xl">
+              {t('home.CEP')}
+              <span id="heroKeywordtextSpan">{t('home.quick')}</span><br/>{t('home.and')} <span id="heroKeywordtextSpan">{t('home.easy')}</span> {t('home.creation')}</h1>
+            )}
             {lng === "zh" && (
               <h1 id="heroTitle" className="text-primary font-inter font-bold text-2xl sm:text-3xl lg:text-5xl">
               <span id="heroKeywordtextSpan">{t('home.quick')}</span>{t('home.and')}<span id="heroKeywordtextSpan">{t('home.easy')}</span>

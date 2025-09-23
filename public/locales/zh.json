@@ -41,8 +41,10 @@
     "create": "创建",
     "UAP": "上传试卷",
     "upload-file": "上传文件",
+    "uploaded-file": "已上传的文件",
     "upload-description": "继续编辑您的文件，添加到下面!",
     "drag-drop-file": "将文件拖放到此处，或点击选择一个文件",
+    "drop-the-file-here": "将文件拖到这里...",
     "coming-soon": "即将推出",
     "start": "开始"
   },
@@ -66,11 +68,48 @@
     "add-shape": "添加形状",
     "question-creator-editor": "问题创建编辑器",
     "parameters": "参数",
-    "templates-description": "点击模板将其添加到当前页面" 
+    "select-an-element": "选择一个元素",
+    "transform": "变换",
+    "position": "位置",
+    "order": "顺序",
+    "style": "风格",
+    "rotation": "旋转",
+    "fill": "填充",
+    "stroke": "描边",
+    "bevel": "斜角",
+    "weight": "粗细",
+    "font": "字体",
+    "font-family": "字体家族",
+    "align": "对齐",
+    "corners": "角",
+    "w-h-ratio": "宽高比",
+    "colour": "颜色",
+    "apply-to-all": "应用于所有",
+    "page-on": "当前页面",
+    "move-page": "移动页面",
+    "to-the-back": "移到后面",
+    "to-the-front": "移到前面",
+    "view-margin": "查看边距",
+    "showing": "正在显示",
+    "hidden": "隐藏",
+    "margin-size": "边距大小",
+    "delete": "删除",
+    "delete-all": "全部删除",
+    "crop-question": "关于裁剪的问题",
+    "apply-edit": "应用更改"
+  },
+  "shapes": {
+    "star": "星星"
+  },
+  "context-menu": {
+    "copy": "复制",
+    "cut": "剪切",
+    "paste": "粘贴"
   },
   "add-image": {
     "add-image": "添加图片",
     "image-url": "图片网址",
+    "your-image-url-placeholder": "https://你的图片链接",
     "or": "或者",
     "add": "添加"  
   },
@@ -94,5 +133,17 @@
     "creating-document": "正在创建文档...",
     "loading-all-fonts": "正在加载所有字体...",
     "rendering-page": "页面渲染中"
+  },
+  "templates": {
+    "templates-description": "点击模板将其添加到当前页面",
+    "email-in-your-ideas-to": "将你的想法发送到邮箱",
+    "header": "页眉",
+    "first-page": "首页",
+    "maths": "数学",
+    "header-font-size": "标题字体大小",
+    "text-font-size": "正文字体大小",
+    "name": "名称",
+    "date": "日期",
+    "here-is-some-description": "这里是一些描述"
   }
 }

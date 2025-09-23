@@ -52,7 +52,7 @@ export default function SwitchLanuageDropDown({ current }: LanguageSwitcherProps
                 current === lng ? "font-bold" : ""
               }`}
             >
-              {lng === "en" ? "English (EN)" : lng === "es" ? "Español (ES)" : lng === "fr" ? "Français (FR)" : "中文 (ZH)"}
+              {lng === "en" ? "English (EN)" : lng === "es" ? "Español (ES)" : lng === "fr" ? "Français (FR)" : lng === "jp" ? "日本語 (JP)" : "中文 (ZH)"}
             </button>
           ))}
         </div>

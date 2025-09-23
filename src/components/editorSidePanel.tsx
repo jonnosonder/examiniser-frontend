@@ -10,6 +10,8 @@ import { useTranslation } from 'react-i18next';
 type shapeXY = {
     x: number;
     y: number;
+    pageID: number;
+    groupID: number;
 }
 
 type pageOnP = {
@@ -29,12 +31,16 @@ type shapeXYWHR = {
     width: number;
     height: number;
     rotation: number;
+    pageID: number;
+    groupID: number;
 }
 
 type shapeOnTransformType = {
     width: number;
     height: number;
     rotation: number;
+    pageID: number;
+    groupID: number;
 }
 
 type visualXYWHRP = {
@@ -120,15 +126,18 @@ export default function EditorSidePanel() {
     useEffect(() => {
         const handler = (e: Event) => {
             const customEvent = e as CustomEvent<shapeXY>;
+            const details = customEvent.detail;
+            const selecteInfo = selectIndex.current;
+            if (details.pageID !== selecteInfo.pageIndex || details.groupID !== selecteInfo.groupIndex) {return;}
             setGroupInformation({
                 ...groupInformation,
-                x: customEvent.detail.x,
-                y: customEvent.detail.y
+                x: details.x,
+                y: details.y
             } as stageGroupInfoData);
             setVisualInformation(prev => ({
                 ...prev,
-                x: String(customEvent.detail.x),
-                y: String(customEvent.detail.y)
+                x: String(details.x),
+                y: String(details.y)
                 } as visualXYWHRP));
             };
 
@@ -141,17 +150,20 @@ export default function EditorSidePanel() {
     useEffect(() => {
         const handler = (e: Event) => {
             const customEvent = e as CustomEvent<shapeOnTransformType>;
+            const details = customEvent.detail;
+            const selecteInfo = selectIndex.current;
+            if (details.pageID !== selecteInfo.pageIndex || details.groupID !== selecteInfo.groupIndex) {return;}
             setGroupInformation({
                 ...groupInformation,
-                widestX: customEvent.detail.width,
-                widestY: customEvent.detail.height,
-                rotation: customEvent.detail.rotation
+                widestX: details.width,
+                widestY: details.height,
+                rotation: details.rotation
             } as stageGroupInfoData);
             setVisualInformation(prev => ({
                 ...prev,
-                width: String(customEvent.detail.width),
-                height: String(customEvent.detail.height),
-                rotation: String(customEvent.detail.rotation),
+                width: String(details.width),
+                height: String(details.height),
+                rotation: String(details.rotation),
             } as visualXYWHRP));
         };
 
@@ -164,15 +176,18 @@ export default function EditorSidePanel() {
     useEffect(() => {
         const handler = (e: Event) => {
             const customEvent = e as CustomEvent<shapeXYWHR>;
+            const details = customEvent.detail;
+            const selecteInfo = selectIndex.current;
+            if (details.pageID !== selecteInfo.pageIndex || details.groupID !== selecteInfo.groupIndex) {return;}
             setGroupClientRect({
-                x: customEvent.detail.x,
-                y: customEvent.detail.y,
-                width: customEvent.detail.width,
-                height: customEvent.detail.height
+                x: details.x,
+                y: details.y,
+                width: details.width,
+                height: details.height
             } as shapeXYWH);
             setGroupInformation({
                 ...groupInformation,
-                rotation: customEvent.detail.rotation
+                rotation: details.rotation
             } as stageGroupInfoData);
         };
 
@@ -923,7 +938,7 @@ export default function EditorSidePanel() {
                 <>
                 <p className='p-2 pb-1 text-md'>{t('editor.element')}</p>
 
-                <p className='p-2 pb-1 text-sm'>Align</p>
+                <p className='p-2 pb-1 text-sm'>{t('editor.align')}</p>
                 <div className='flex flex-col px-4 w-full items-center justify-center space-y-2'>
                     <div className='flex border border-grey shadow-sm rounded-md'>
                         <button className='w-6 h-6 m-[3px]' onClick={leftXAlignButtonHandler}>
@@ -954,20 +969,20 @@ export default function EditorSidePanel() {
                     </div>
                 </div>
 
-                <p className='p-2 pb-1 text-sm'>Position</p>
+                <p className='p-2 pb-1 text-sm'>{t('editor.position')}</p>
                 <div className='w-full px-4 flex flex-col grid grid-cols-2 gap-x-2 text-xs text-primary'>
                     <p className='text-xs ml-1'>X</p>
                     <p className='text-xs ml-1'>Y</p>
                     <input value={visualInformation.x ?? ''} onChange={changeXInputHandler} onBlur={inputXBlurCleanUpHandler} className={defaultInputClassName}></input>
                     <input value={visualInformation.y ?? ''} onChange={changeYInputHandler} onBlur={inputYBlurCleanUpHandler} className={defaultInputClassName}></input>
 
-                    <p className='text-xs ml-1 mt-1'>Width</p>
-                    <p className='text-xs ml-1 mt-1'>Height</p>
+                    <p className='text-xs ml-1 mt-1'>{t('start.width')}</p>
+                    <p className='text-xs ml-1 mt-1'>{t('start.height')}</p>
                     <input value={visualInformation.width ?? ''} onChange={changeWidthInputHandler} className={defaultInputClassName}></input>
                     <input value={visualInformation.height ?? ''} onChange={changeHeightInputHandler} className={defaultInputClassName}></input>
 
-                    <p className='text-xs ml-1 mt-1'>W:H Ratio</p>
-                    <p className='text-xs ml-1 mt-1'>Rotation</p>
+                    <p className='text-xs ml-1 mt-1'>{t("editor.w-h-ratio")}</p>
+                    <p className='text-xs ml-1 mt-1'>{t('editor.rotation')}</p>
                     <button className='flex w-full items-center justify-center pr-2 rounded-md hover:bg-gray-200 transition duration-300' onClick={() => setLockWHRatio(!lockWHRatio)}>
                         {lockWHRatio ? (
                             <svg xmlns="http://www.w3.org/2000/svg" className='w-5 h-5 p-[1px]' viewBox="0 0 24 24"><path d="M13.723 18.654l-3.61 3.609c-2.316 2.315-6.063 2.315-8.378 0-1.12-1.118-1.735-2.606-1.735-4.188 0-1.582.615-3.07 1.734-4.189l4.866-4.865c2.355-2.355 6.114-2.262 8.377 0 .453.453.81.973 1.089 1.527l-1.593 1.592c-.18-.613-.5-1.189-.964-1.652-1.448-1.448-3.93-1.51-5.439-.001l-.001.002-4.867 4.865c-1.5 1.499-1.5 3.941 0 5.44 1.517 1.517 3.958 1.488 5.442 0l2.425-2.424c.993.284 1.791.335 2.654.284zm.161-16.918l-3.574 3.576c.847-.05 1.655 0 2.653.283l2.393-2.389c1.498-1.502 3.94-1.5 5.44-.001 1.517 1.518 1.486 3.959 0 5.442l-4.831 4.831-.003.002c-1.438 1.437-3.886 1.552-5.439-.002-.473-.474-.785-1.042-.956-1.643l-.084.068-1.517 1.515c.28.556.635 1.075 1.088 1.528 2.245 2.245 6.004 2.374 8.378 0l4.832-4.831c2.314-2.316 2.316-6.062-.001-8.377-2.317-2.321-6.067-2.313-8.379-.002z"/></svg>
@@ -977,7 +992,7 @@ export default function EditorSidePanel() {
                     </button>
                     <input value={visualInformation.rotation ?? ''} onChange={changeRotationInputHandler} onBlur={inputRotationBlurCleanUpHandler} className={defaultInputClassName}></input>
                     
-                    <p className='text-xs ml-1 mt-1'>Page On</p>
+                    <p className='text-xs ml-1 mt-1'>{t('editor.page-on')}</p>
                     <span className='w-full' />
                     <input value={visualInformation.page ?? ''} onChange={changePageOnInputHandler} onBlur={pageOnBlurCleanUpHandler} className={defaultInputClassName}></input>
                     <div className='flex w-full items-center justify-center border border-grey rounded-md shadow-sm'>
@@ -991,10 +1006,10 @@ export default function EditorSidePanel() {
                     </div>
                 </div>
 
-                <p className='p-2 pb-0 text-sm'>Order</p>
+                <p className='p-2 pb-0 text-sm'>{t('editor.order')}</p>
                 <div className='w-full px-4 flex flex-col grid grid-cols-2 gap-x-2 text-xs text-primary'>
-                    <p className='text-xs ml-1 my-1'>To the back</p>
-                    <p className='text-xs ml-1 my-1'>To the front</p>
+                    <p className='text-xs ml-1 my-1'>{t('editor.to-the-back')}</p>
+                    <p className='text-xs ml-1 my-1'>{t('editor.to-the-front')}</p>
                     <button onClick={moveElementToTheBack} className='flex w-full items-center justify-center border border-grey rounded-md p-1 shadow-sm'>
                         <svg className='h-6' viewBox="0 0 52 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="19.5" y="5.5" width="13" height="13" fill="#88CFCF" stroke="#88CFCF"/><rect x="10.5" y="2.5" width="13" height="13" fill="black" stroke="black"/><circle cx="36" cy="14" r="6.5" fill="black" stroke="black"/></svg>
                     </button>
@@ -1012,7 +1027,7 @@ export default function EditorSidePanel() {
                 <>
                 <p className='p-2 pb-1 text-md'>{t('editor.page')} {estimatedPage+1}</p>
                 <div className='flex flex-col px-4'>
-                    <p className="text-xs ml-1 my-1">Colour</p>
+                    <p className="text-xs ml-1 my-1">{t('editor.colour')}</p>
                     <button style={{background: selectedBackgroundColor}} className='w-full h-5 border border-grey shadow rounded-lg' onClick={toggleDisplayColorSelector}></button>
                     {displayColorSelector && (
                         <div className='absolute flex items-center justify-center top-[20vh] left-[13rem]'>
@@ -1020,11 +1035,11 @@ export default function EditorSidePanel() {
                         </div>
                     )}
                     <div className='w-full flex items-center justify-start mt-1'>
-                        <button className='flex rounded-md border border-grey text-xs p-1 shadow-sm' onClick={applyBackgroundToAllStages}>Apply to All</button>
+                        <button className='flex rounded-md border border-grey text-xs p-1 shadow-sm' onClick={applyBackgroundToAllStages}>{t('editor.apply-to-all')}</button>
                     </div>
                     <span className='w-full h-2' />
 
-                    <p className="text-xs ml-1 my-1">Move Page</p>
+                    <p className="text-xs ml-1 my-1">{t('editor.move-page')}</p>
                     <div className='flex w-full space-x-2'>
                         <input value={estimatedPageVisualValue} onChange={movePageInputHandler} onBlur={movePageBlurCleanUpHandler} className={defaultInputClassName}></input>
                         <div className='flex w-full items-center justify-center border border-grey rounded-md shadow-sm'>
@@ -1039,17 +1054,17 @@ export default function EditorSidePanel() {
                     </div>
                     <span className='w-full h-2' />
 
-                    <p className="text-xs ml-1 my-1">View Margin</p>
+                    <p className="text-xs ml-1 my-1">{t('editor.view-margin')}</p>
                     <button className='rounded-md hover:bg-gray-200 transition duration-300 text-sm' onClick={toggleViewMargin}>
-                            {viewMarginEditor ? 'Showing' : 'Hiding'}
+                            {viewMarginEditor ? t('editor.showing') : t('editor.hidden')}
                     </button>
-                    <p className="text-xs ml-1 my-1">Margin Size (px)</p>
+                    <p className="text-xs ml-1 my-1">{t('editor.margin-size')} (px)</p>
                     <input className="px-2 border border-grey rounded-md shadow-sm transition-shadow duration-300 focus:shadow-[0_0_0_0.2rem_theme('colors.contrast')] focus:outline-none focus:border-transparent" value={marginEditorVisual} onChange={marginValueInputHandler} placeholder='300px'></input>
                     <span className='w-full h-4' />
 
                     <button className='flex w-full rounded-md border border-grey text-red items-center justify-center shadow-sm' onClick={deleteStageButtonHandler}>
                         <svg className='w-6 h-6 p-1' viewBox='0 0 24 24' xmlns="http://www.w3.org/2000/svg" fill="currentColor" stroke='none' fillRule="evenodd" clipRule="evenodd"><path d="M19 24h-14c-1.104 0-2-.896-2-2v-17h-1v-2h6v-1.5c0-.827.673-1.5 1.5-1.5h5c.825 0 1.5.671 1.5 1.5v1.5h6v2h-1v17c0 1.104-.896 2-2 2zm0-19h-14v16.5c0 .276.224.5.5.5h13c.276 0 .5-.224.5-.5v-16.5zm-9 4c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm6 0c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm-2-7h-4v1h4v-1z"/></svg>
-                        <p className='mr-1 text-sm'>Delete</p>
+                        <p className='mr-1 text-sm'>{t('editor.delete')}</p>
                     </button>
                 </div>
                 </>
