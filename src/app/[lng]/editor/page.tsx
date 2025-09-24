@@ -24,6 +24,7 @@ import { useNotification } from '@/context/notificationContext';
 import AddShapeDropDown from '@/components/addShapeDropDown';
 import { AddImage } from '@/components/addImage';
 import { EditorContextProvider, useSelectRef } from '@/components/editorContextProvider';
+import { increaseFontInUse } from '@/lib/fontData';
 
 //pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@5.3.93/build/pdf.worker.mjs`;
 
@@ -152,22 +153,77 @@ function EditorPage() {
         const handleKeyDown = (e: KeyboardEvent) => {
             const pageIndex = selectIndex.current.pageIndex;
             const groupIndex = selectIndex.current.groupIndex;
-            if (e.key === 'Delete' && !showQuestionCreator && pageIndex !== null && groupIndex !== null) {
-                addToHistoryUndo({
-                    command: "delete",
-                    pageIndex: pageIndex,
-                    groupIndex: groupIndex,
-                    from: pageElementsInfo[pageIndex][groupIndex],
-                    to: {},
-                    contentsFrom: pageElements[pageIndex][groupIndex]
-                } as historyData);
-                deletePageElement(pageIndex, groupIndex);
-                deletePageElementInfo(pageIndex, groupIndex);
-                RENDER_PAGE();
-                const transformer = getSpecificStage(pageIndex).transformerRef?.current;
-                transformer?.nodes([]);
-                transformer?.getLayer()?.batchDraw();
-                setSelectIndex({pageIndex: null, groupIndex: null});
+            if (!showQuestionCreator && pageIndex !== null && groupIndex !== null) {
+                const oldInfo = { ...pageElementsInfo[pageIndex][groupIndex] };
+                switch (e.key) {
+                    case "Delete":
+                        addToHistoryUndo({
+                            command: "delete",
+                            pageIndex: pageIndex,
+                            groupIndex: groupIndex,
+                            from: oldInfo,
+                            to: {},
+                            contentsFrom: pageElements[pageIndex][groupIndex]
+                        } as historyData);
+                        deletePageElement(pageIndex, groupIndex);
+                        deletePageElementInfo(pageIndex, groupIndex);
+                        RENDER_PAGE();
+                        setSelectIndex({pageIndex: null, groupIndex: null});
+                        const transformer = getSpecificStage(pageIndex).transformerRef?.current;
+                        transformer?.nodes([]);
+                        transformer?.getLayer()?.batchDraw();
+                        break;
+                    case 'ArrowUp':
+                        pageElementsInfo[pageIndex][groupIndex].y -= 1;
+                        window.dispatchEvent(new CustomEvent('shapeOnDrag', { detail: { x: pageElementsInfo[pageIndex][groupIndex].x, y: pageElementsInfo[pageIndex][groupIndex].y, pageID: pageIndex, groupID: groupIndex} }));
+                        RENDER_PAGE();
+                        addToHistoryUndo({
+                            command: "info",
+                            pageIndex: pageIndex,
+                            groupIndex: groupIndex,
+                            from: oldInfo,
+                            to: pageElementsInfo[pageIndex][groupIndex],
+                        } as historyData);
+                        break;
+                    case 'ArrowDown':
+                        pageElementsInfo[pageIndex][groupIndex].y += 1;
+                        window.dispatchEvent(new CustomEvent('shapeOnDrag', { detail: { x: pageElementsInfo[pageIndex][groupIndex].x, y: pageElementsInfo[pageIndex][groupIndex].y, pageID: pageIndex, groupID: groupIndex} }));
+                        RENDER_PAGE();
+                        addToHistoryUndo({
+                            command: "info",
+                            pageIndex: pageIndex,
+                            groupIndex: groupIndex,
+                            from: oldInfo,
+                            to: pageElementsInfo[pageIndex][groupIndex],
+                        } as historyData);
+                        break;
+                    case 'ArrowLeft':   
+                        pageElementsInfo[pageIndex][groupIndex].x -= 1;
+                        window.dispatchEvent(new CustomEvent('shapeOnDrag', { detail: { x: pageElementsInfo[pageIndex][groupIndex].x, y: pageElementsInfo[pageIndex][groupIndex].y, pageID: pageIndex, groupID: groupIndex} }));
+                        RENDER_PAGE();
+                        addToHistoryUndo({
+                            command: "info",
+                            pageIndex: pageIndex,
+                            groupIndex: groupIndex,
+                            from: oldInfo,
+                            to: pageElementsInfo[pageIndex][groupIndex],
+                        } as historyData);
+                        break;
+                    case 'ArrowRight':
+                        pageElementsInfo[pageIndex][groupIndex].x += 1;
+                        window.dispatchEvent(new CustomEvent('shapeOnDrag', { detail: { x: pageElementsInfo[pageIndex][groupIndex].x, y: pageElementsInfo[pageIndex][groupIndex].y, pageID: pageIndex, groupID: groupIndex} }));
+                        RENDER_PAGE();
+                        addToHistoryUndo({
+                            command: "info",
+                            pageIndex: pageIndex,
+                            groupIndex: groupIndex,
+                            from: oldInfo,
+                            to: pageElementsInfo[pageIndex][groupIndex],
+                        } as historyData);
+                        break;
+                    default:
+                        break;
+                }
             }
         };
 
@@ -508,6 +564,7 @@ function EditorPage() {
             addPageElement([newText], pageToAddIt);
             RENDER_PAGE();
             setSelectIndex({pageIndex: pageToAddIt, groupIndex: pageElementsInfo[pageToAddIt].length-1});
+            increaseFontInUse('Inter');
         });
     }
 

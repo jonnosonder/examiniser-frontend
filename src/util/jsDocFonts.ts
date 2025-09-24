@@ -1,15 +1,17 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Copyright © 2025 Jonathan Kwok
 
-import { fontFileArray, fontNamesArray } from "@/lib/fontData";
+import { fontFileArray, fontNamesArray, fontsUsage } from "@/lib/fontData";
 import { jsPDF } from "jspdf";
 
 export async function registerAllFont(doc: jsPDF) {
     for (let i = 0; i < fontNamesArray.length; i++) {
+        if (fontsUsage[fontNamesArray[i]] !== 0) { 
         const base64Font = await loadFontAsBase64('/fonts/text/'+fontFileArray[i]);
         const rawBase64 = base64Font.replace(/^data:.*;base64,/, '');
         doc.addFileToVFS(fontFileArray[i], rawBase64);
         doc.addFont(fontFileArray[i], fontNamesArray[i], 'normal');
+        }
     }
 }
 

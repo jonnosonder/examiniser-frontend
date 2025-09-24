@@ -8,6 +8,7 @@ import { getPageElements, getPageElementsInfo, getStages } from '@/lib/stageStor
 import { jsPDF } from "jspdf";
 import { registerAllFont } from '@/util/jsDocFonts';
 import { useTranslation } from 'react-i18next';
+import { fontsUsage } from '@/lib/fontData';
 
 type ExportPageProps = {
   onClose: () => void;
@@ -24,12 +25,6 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
 
   const [fileName, setFileName] = useState<string>(exportFileName);
 
-  const [qualityValue, setQualityValue] = useState<string>("high");
-  const qualityMap: Record<string, number> = {
-    high: 1,
-    medium: 0.5,
-    low: 0.01,
-  };
   const [compressionValue, setCompressionValue] = useState<string>("high");
   const compressionMap: Record<string, string> = {
     high: "SLOW",
@@ -46,27 +41,24 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
     const stages = getStages();
     const totalPageCount = stages.length;
 
+    const compressionSpeed = compressionMap[compressionValue] as ImageCompression;
+
     const firstPageWidth = stages[0].width * pxTommScaler;
     const firstPageHeight = stages[0].height * pxTommScaler;
     const doc = new jsPDF({
         unit: 'mm',
         format: [firstPageWidth, firstPageHeight],
+        compress: compressionSpeed === "NONE" ? false : true,
     });
 
     setProgressText(t("export-page.loading-all-fonts"));
+    console.log(fontsUsage);
     await registerAllFont(doc);
-
-    const quality = qualityMap[qualityValue];
-    console.log(quality);
 
     const pageElements = getPageElements();
     const pageElementsInfo = getPageElementsInfo();
 
-    console.log(stages);
-    console.log(pageElements);
-    console.log(pageElementsInfo);
-
-    const compressionSpeed = compressionMap[compressionValue] as ImageCompression;
+    
     
     stages.forEach((stage, stageIndex) => {
       setProgressText(t("export-page.rendering-page")+" "+stageIndex+"/"+totalPageCount);
@@ -204,10 +196,6 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
     setFileName(e.target.value.replace(/[<>:"/\\|?*\x00-\x1F]/g, ''));
   }
 
-  const handleQualityDropDownChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setQualityValue(e.target.value);
-  }
-
   const handleCompressionDropDownChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setCompressionValue(e.target.value);
   }
@@ -231,13 +219,6 @@ const ExportPage: React.FC<ExportPageProps> = ({ onClose, exportFileName }) => {
             <div className='flex-row items-center justify-center grid grid-cols-2 gap-y-2'>
               <p className='text-left p-2 whitespace-nowrap'>{t('start.file-name')}</p>
               <input value={fileName} onChange={handleFileNameChange} className="w-full max-w-[15rem] border-2 border-primary rounded px-2 py-1 transition-shadow duration-300 focus:shadow-[0_0_0_0.4rem_theme('colors.accent')] focus:outline-none text-ellipsis" placeholder={t('start.math-exam')} type="text" onBlur={(e) => {e.target.setSelectionRange(0, 0);}}></input>
-
-              <p className='text-left p-2'>{t('export-page.quality')}</p>
-              <select value={qualityValue} onChange={handleQualityDropDownChange} className="border-2 border-primary rounded p-2 bg-background cursor-pointer transition-shadow duration-300 focus:shadow-[0_0_0_0.4rem_theme('colors.accent')] focus:outline-none">
-                <option value="high">{t('export-page.high')}</option>
-                <option value="medium">{t('export-page.medium')}</option>
-                <option value="low">{t('export-page.low')}</option>
-              </select>
 
               <p className='text-left p-2'>{t('export-page.compression')}</p>
               <select value={compressionValue} onChange={handleCompressionDropDownChange} className="border-2 border-primary rounded p-2 bg-background cursor-pointer transition-shadow duration-300 focus:shadow-[0_0_0_0.4rem_theme('colors.accent')] focus:outline-none">

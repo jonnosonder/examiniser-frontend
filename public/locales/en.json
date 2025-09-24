@@ -121,7 +121,6 @@
   },
   "export-page": {
     "export-to-file": "Export to File",
-    "quality": "Quality",
     "compression": "Compression",
     "file-type": "File Type",
     "high": "High",

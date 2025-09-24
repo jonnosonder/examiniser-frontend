@@ -122,7 +122,6 @@
   },
   "export-page": {
     "export-to-file": "ファイルにエクスポート",
-    "quality": "品質",
     "compression": "圧縮",
     "file-type": "ファイルタイプ",
     "high": "高",

@@ -121,7 +121,6 @@
   },
   "export-page": {
     "export-to-file": "导出到文件",
-    "quality": "质量",
     "compression": "压缩",
     "file-type": "文件类型",
     "high": "高",

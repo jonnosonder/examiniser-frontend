@@ -38,6 +38,42 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                             <div className="w-full md:w-[80vw] lg:w-[70vw] border border-primary rounded-xl">
                                 <button
                                     className="w-full text-2xl flex justify-between items-center px-4 py-2 bg-transparent text-primary text-base transition cursor-pointer"
+                                    onClick={() => toggleEditPanelSection(9)}
+                                >   
+                                    <div>
+                                        0.0.9 <span className='text-grey ml-1 text-sm'>— 24/09/2025</span>
+                                    </div>
+                                    {editPanelIndex === 9 ? (
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" />
+                                    </svg>
+                                    ) : (
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M6 15L12 9L18 15" stroke="currentColor" strokeWidth="2" />
+                                    </svg>
+                                    )}
+                                </button>
+
+                                <div
+                                    className={`flex flex-col px-2 overflow-hidden transition-all duration-400 ease-linear space-y-2 ${
+                                    editPanelIndex === 9 ? 'm-2 mt-0' : 'max-h-0 p-0 border-0'
+                                    }`}
+                                >   
+                                    <p className="text-sm">
+                                        - Meta data update <br/>
+                                        - Sitemap implimented <br/>
+                                        - human, robots and security text file created <br/>
+                                        - Keyboard arrows move elements <br/>
+                                        - Side editor updates when undoing or redoing actions fix <br/>
+                                        - Export file updates <br/>
+                                        - Export loading fonts optimisation <br/>
+                                    </p>
+                                    
+                                </div>
+                            </div>
+                            <div className="w-full md:w-[80vw] lg:w-[70vw] border border-primary rounded-xl">
+                                <button
+                                    className="w-full text-2xl flex justify-between items-center px-4 py-2 bg-transparent text-primary text-base transition cursor-pointer"
                                     onClick={() => toggleEditPanelSection(8)}
                                 >   
                                     <div>

@@ -348,11 +348,13 @@ export function restoreHistoryUndo() {
       switch (front.command) {
         case "info":
           pageElementsInfo[pageIndex][groupIndex] = front.from;
+          window.dispatchEvent(new CustomEvent('shapeOnDrag', { detail: { x: pageElementsInfo[pageIndex][groupIndex].x, y: pageElementsInfo[pageIndex][groupIndex].y, pageID: pageIndex, groupID: groupIndex} }));
           break;
         case "info-contents":
           if (front.contentsFrom){ 
             pageElementsInfo[pageIndex][groupIndex] = front.from;
             pageElements[pageIndex][groupIndex] = front.contentsFrom;
+            window.dispatchEvent(new CustomEvent('shapeOnDrag', { detail: { x: pageElementsInfo[pageIndex][groupIndex].x, y: pageElementsInfo[pageIndex][groupIndex].y, pageID: pageIndex, groupID: groupIndex} }));
           }
           break;
         case "create":
@@ -380,11 +382,13 @@ export function restoreHistoryRedo() {
       switch (front.command) {
         case "info":
           pageElementsInfo[pageIndex][groupIndex] = front.to;
+          window.dispatchEvent(new CustomEvent('shapeOnDrag', { detail: { x: pageElementsInfo[pageIndex][groupIndex].x, y: pageElementsInfo[pageIndex][groupIndex].y, pageID: pageIndex, groupID: groupIndex} }));
           break;
         case "info-contents":
           if (front.contentsTo){ 
             pageElementsInfo[pageIndex][groupIndex] = front.to;
             pageElements[pageIndex][groupIndex] = front.contentsTo;
+            window.dispatchEvent(new CustomEvent('shapeOnDrag', { detail: { x: pageElementsInfo[pageIndex][groupIndex].x, y: pageElementsInfo[pageIndex][groupIndex].y, pageID: pageIndex, groupID: groupIndex} }));
           }
           break;
         case "delete":

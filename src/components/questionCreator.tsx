@@ -15,7 +15,7 @@ import ColorSelectorSection from '@/components/colorSelectorSection';
 import { KonvaEventObject } from 'konva/lib/Node';
 import '@/styles/QuestionCreator.css'
 import { AddImage } from './addImage';
-import { getFontNamesArray } from '@/lib/fontData';
+import { decreaseFontInUse, getFontNamesArray, increaseFontInUse } from '@/lib/fontData';
 import { useTranslation } from 'react-i18next';
 import { useSelectRef } from './editorContextProvider';
 
@@ -127,6 +127,12 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
             const newFontValue = e.target.value;
             setSelectedFont(newFontValue);
             document.fonts.load('12px '+newFontValue).then(() => {
+                for (const item of shapes) {
+                    if (item.id === selectedId && item.type === "text") {
+                        decreaseFontInUse(item.fontFamily);
+                        break;
+                    }
+                }
                 setShapes((prevShapes) =>
                     prevShapes.map((shape) =>
                         shape.id === selectedId
@@ -134,6 +140,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                             : shape
                     )
                 );       
+                increaseFontInUse(newFontValue);
             });
         }
     }
@@ -312,9 +319,10 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
             border: "",
             borderWeight: 0,
         };
-        document.fonts.load('12px Inter-400').then(() => {
+        document.fonts.load('12px Inter').then(() => {
             setShapes(prevShapes => [...prevShapes, newShape]);
             setSelectedId(newShape.id);
+            increaseFontInUse('Inter');
         });
     }
 
