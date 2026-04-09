@@ -2,13 +2,15 @@
   "home": {
     "description": "一个专门制作试题和考试试卷的编辑器。易于创建和浏览，内置模板，全免费！",
     "Start-Now": "现在开始",
+    "in-development": "开发中",
     "CEP": "创建考试试卷",
     "quick": "快速",
     "and": "和",
     "easy": "轻松"
   },
   "navBar": {
-    "product": "产品",
+    "questions": "问题",
+    "editor": "编辑器",
     "about": "关于",
     "updates": "更新",
     "Start-Creating": "开始创作"
@@ -65,6 +67,9 @@
     "templates": "模板",
     "page": "页面",
     "element": "元素",
+    "edit-image": "编辑图像",
+    "crop": "裁剪",
+    "group": "组合",
     "add-shape": "添加形状",
     "question-creator-editor": "问题创建编辑器",
     "parameters": "参数",
@@ -95,7 +100,8 @@
     "margin-size": "边距大小",
     "delete": "删除",
     "delete-all": "全部删除",
-    "crop-question": "关于裁剪的问题",
+    "crop-question-width": "裁剪宽度",
+    "crop-question-height": "裁剪高度",
     "apply-edit": "应用更改"
   },
   "shapes": {

@@ -69,6 +69,12 @@ const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pag
             if (!focusGroup) return;
             transformer.nodes([focusGroup]);
             transformer.getLayer()?.batchDraw();
+            if (pageElements[pageIndex][groupIndex].length === 1 && groupRefs.current[groupIndex] !== null) {
+                const firstChild = groupRefs.current[groupIndex].children[1];
+                if (firstChild && firstChild.getClassName() === "Image") {
+                    window.dispatchEvent(new CustomEvent('newKonvaElementRef', {  detail: {imageRef: firstChild as Konva.Image} }));
+                }
+            }
         }
     }, [groupInfo.length]);
 
@@ -82,6 +88,15 @@ const KonvaPage = ({ stage, stageScale, manualScaler, pageIndex, pageGroups, pag
             const newShapeClientRect = {x: clientRect.x * inverseStageScale, y: clientRect.y * inverseStageScale, width: clientRect.width * inverseStageScale, height: clientRect.height * inverseStageScale, pageID: pageIndex, groupID: groupIndex};
             window.dispatchEvent(new CustomEvent('shapeClientRect', {  detail: newShapeClientRect }));
         }
+        console.log(pageElements[pageIndex][groupIndex].length);
+        console.log(groupRefs.current[groupIndex]);
+        if (pageElements[pageIndex][groupIndex].length === 1 && groupRefs.current[groupIndex] !== null) {
+            const firstChild = groupRefs.current[groupIndex].children[1];
+            if (firstChild && firstChild.getClassName() === "Image") {
+                window.dispatchEvent(new CustomEvent('newKonvaElementRef', {  detail: {imageRef: firstChild as Konva.Image} }));
+            }
+        }
+
         setSelectIndex({pageIndex, groupIndex});
     }
 

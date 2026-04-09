@@ -2,13 +2,15 @@
   "home": {
     "description": "Un éditeur spécialisé dans la création de questions et de sujets d'examen. Facile à créer et à naviguer avec des modèles intégrés, le tout gratuitement !",
     "Start-Now": "Commence Maintenant",
+    "in-development": "En Développement",
     "CEP": "Créez des sujets d'examen",
     "quick": "Rapides",
     "and": "et",
     "easy": "Faciles"
   },
   "navBar": {
-    "product": "Produit",
+    "questions": "Questions",
+    "editor": "Éditeur",
     "about": "À propos",
     "updates": "Mises à jour",
     "Start-Creating": "Commence à Créer"
@@ -65,6 +67,9 @@
     "templates": "Modèles",
     "page": "Page",
     "element": "Élément",
+    "edit-image": "Modifier l'Image",
+    "crop": "Rogner",
+    "group": "Groupe",
     "add-shape": "Ajouter une forme",
     "question-creator-editor": "Éditeur de création de questions",
     "parameters": "Paramètres",
@@ -95,7 +100,8 @@
     "margin-size": "Taille de la Marge",
     "delete": "Supprimer",
     "delete-all": "Tout Supprimer",
-    "crop-question": "Question sur le recadrage",
+    "crop-question-width": "Largeur du recadrage",
+    "crop-question-height": "Hauteur du recadrage",
     "apply-edit": "Appliquer les Modifications" 
   },
   "shapes": {

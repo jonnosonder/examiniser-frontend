@@ -2,7 +2,7 @@
 // Copyright © 2025 Jonathan Kwok
 
 'use client';
-import Navbar from '@/components/navbar';
+import Navbar from '@/components/editor/navbar';
 import { useTranslation } from 'react-i18next';
 import * as React from "react";
 import { Locale } from '@/lib/locales';

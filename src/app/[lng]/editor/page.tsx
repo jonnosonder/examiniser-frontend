@@ -3,17 +3,17 @@
 
 "use client";
 
-import useBeforeUnload from '@/components/useBeforeUnload';
+import useBeforeUnload from '@/components/editor/useBeforeUnload';
 import { useState, useEffect, useRef } from 'react';
 import { useData } from "@/context/dataContext";
-import AllStages from '@/components/allStages';
-import HoverExplainButton from '@/components/hoverExplainButton';
+import AllStages from '@/components/editor/allStages';
+import HoverExplainButton from '@/components/editor/hoverExplainButton';
 import '@/styles/editor.css';
 
 import { addPageElement, addPageElementsInfo, addStage, addStageCopyPrevious, addToHistoryUndo, deleteAll, deletePageElement, deletePageElementInfo, duplicatePageElement, duplicatePageElementsInfo, getEstimatedPage, getPageElements, getSpecificStage, historyData, pageElements, pageElementsInfo, RENDER_PAGE, RENDER_PREVIEW, restoreHistoryRedo, restoreHistoryUndo, stagesLength } from '@/lib/stageStore';
-import EditorSidePanel from '@/components/editorSidePanel';
+import EditorSidePanel from '@/components/editor/editorSidePanel';
 import { ShapeData } from '@/lib/shapeData';
-import ExportPage from '@/components/exportPage';
+import ExportPage from '@/components/editor/exportPage';
 import { useFileStore } from '@/store/useFileStore';
 import { NotificationProvider } from '@/context/notificationContext';
 import { useTranslation } from 'react-i18next';
@@ -21,9 +21,9 @@ import dynamic from 'next/dynamic';
 
 //import * as pdfjsLib from 'pdfjs-dist';
 import { useNotification } from '@/context/notificationContext';
-import AddShapeDropDown from '@/components/addShapeDropDown';
-import { AddImage } from '@/components/addImage';
-import { EditorContextProvider, useSelectRef } from '@/components/editorContextProvider';
+import AddShapeDropDown from '@/components/editor/addShapeDropDown';
+import { AddImage } from '@/components/editor/addImage';
+import { EditorContextProvider, useSelectRef } from '@/components/editor/editorContextProvider';
 import { increaseFontInUse } from '@/lib/fontData';
 
 //pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@5.3.93/build/pdf.worker.mjs`;
@@ -45,7 +45,7 @@ type QuestionCreatorProps = {
   questionEditingID: questionEditingIDType;
 };
 
-const QuestionCreator = dynamic(() => import('@/components/questionCreator'), {
+const QuestionCreator = dynamic(() => import('@/components/editor/questionCreator'), {
   loading: () => (
     <div className="absolute flex w-full h-full bg-opacity-50 backdrop-blur-sm items-center justify-center left-0 top-0 z-50 p-4">
         <div className="flex flex-col h-[90%] w-full bg-background border border-grey shadow rounded-lg items-center justify-center p-2 m-2">
@@ -69,7 +69,7 @@ type TemplatePageProps = {
   onClose: () => void;
 };
 
-const TemplatePage = dynamic(() => import('@/components/templatePage'), {
+const TemplatePage = dynamic(() => import('@/components/editor/templatePage'), {
   loading: () => (
     <div className="absolute flex w-full h-full bg-opacity-50 backdrop-blur-sm items-center justify-center left-0 top-0">
         <div className="flex flex-col h-3/4 w-3/4 bg-background border border-grey shadow rounded-lg items-center justify-center">
@@ -84,8 +84,11 @@ const TemplatePage = dynamic(() => import('@/components/templatePage'), {
 }) as DynamicComponent<TemplatePageProps>;
 
 
+import { notFound } from "next/navigation";
 
 function EditorPage() {
+    notFound();
+    
     const { t } = useTranslation();
 
     useBeforeUnload(true);

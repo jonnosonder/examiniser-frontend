@@ -2,13 +2,15 @@
   "home": {
     "description": "An editor specialised in making question and exam papers. Easy to create and navigate with inbuilt templates all for free!",
     "Start-Now": "Start Now",
+    "in-development": "In Development",
     "CEP": "Create Exam Papers",
     "quick": "Quick",
     "and": "and",
     "easy": "Easy"
   },
   "navBar": {
-    "product": "Product",
+    "questions": "Questions",
+    "editor": "Editor",
     "about": "About",
     "updates": "Updates",
     "Start-Creating": "Start Creating"
@@ -65,6 +67,9 @@
     "templates": "Templates",
     "page": "Page",
     "element": "Element",
+    "edit-image": "Edit Image",
+    "crop": "Crop",
+    "group": "Group",
     "add-shape": "Add Shape",
     "question-creator-editor": "Question Creator Editor",
     "parameters": "Parameters",
@@ -95,7 +100,8 @@
     "margin-size": "Margin Size",
     "delete": "Delete",
     "delete-all": "Delete All",
-    "crop-question": "Crop Question",
+    "crop-question-width": "Crop Width",
+    "crop-question-height": "Crop Height",
     "apply-edit": "Apply Edits"
   },
   "shapes": {

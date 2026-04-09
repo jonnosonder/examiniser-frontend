@@ -3,15 +3,21 @@
 
 import { useEffect, useState } from 'react';
 import { getMarginValue, getViewMargin, setMarginValue, setViewMargin, setAllStagesBackground, RENDER_MAIN, stageGroupInfoData, getSpecificPageElementsInfo, pageElementsInfo, getSpecificStage, addToHistoryUndo, historyData, pageElements, changePageOfElement, changePageOfElementInfo, groupsOnPage, getEstimatedPage, StageData, setStageBackground, deleteStageAndElements, swapStagesAndElements, stagesLength, getStages } from '@/lib/stageStore';
-import ColorSelectorSection from '@/components/colorSelectorSection';
+import ColorSelectorSection from '@/components/editor/colorSelectorSection';
 import { useSelectRef } from './editorContextProvider';
 import { useTranslation } from 'react-i18next';
+import Konva from 'konva';
+
 
 type shapeXY = {
     x: number;
     y: number;
     pageID: number;
     groupID: number;
+}
+
+type groupImageRef = {
+    imageRef: Konva.Image;
 }
 
 type pageOnP = {
@@ -52,6 +58,13 @@ type visualXYWHRP = {
     page: string;
 }
 
+interface CropOptions {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 export default function EditorSidePanel() {
     const { t } = useTranslation();
 
@@ -63,6 +76,11 @@ export default function EditorSidePanel() {
     const [marginEditorVisual, setMarginEditorVisual] = useState<string>(String(getMarginValue()));
 
     const { selectIndex, setSelectIndex } = useSelectRef();
+    const [selectType, setSelectType] = useState<string>();
+    const [selectLength, setSelectLength] = useState<number>();
+    const [selectImageRef, setSelectImageRef] = useState<Konva.Image | null>(null);
+    const [isCropping, setIsCropping] = useState<boolean>(false);
+    const [croppingPageIndex, setCroppingPageIndex] = useState<number>();
 
     const [groupInformation, setGroupInformation] = useState<stageGroupInfoData | null>(null);
     const [groupClientRect, setGroupClientRect] = useState<shapeXYWH | null>(null);
@@ -81,8 +99,9 @@ export default function EditorSidePanel() {
 
     useEffect(() => {
         const handleChange = () => {
-            if (selectIndex.current.pageIndex !== null && selectIndex.current.groupIndex !== null) {
-                const elementInfo = getSpecificPageElementsInfo(selectIndex.current.pageIndex, selectIndex.current.groupIndex);
+            const selectFoucs = selectIndex.current;
+            if (selectFoucs.pageIndex !== null && selectFoucs.groupIndex !== null) {
+                const elementInfo = getSpecificPageElementsInfo(selectFoucs.pageIndex, selectFoucs.groupIndex);
                 setGroupInformation(elementInfo);
                 setVisualInformation({
                     x: String(elementInfo.x),
@@ -90,11 +109,23 @@ export default function EditorSidePanel() {
                     width: String(elementInfo.widestX),
                     height: String(elementInfo.widestY),
                     rotation: String(elementInfo.rotation),
-                    page: String(selectIndex.current.pageIndex+1),
+                    page: String(selectFoucs.pageIndex+1),
                 } as visualXYWHRP);
+                const focusLength = pageElements[selectFoucs.pageIndex][selectFoucs.groupIndex].length;
+                setSelectLength(focusLength);
+                if (focusLength === 1) {
+                    setSelectType(pageElements[selectFoucs.pageIndex][selectFoucs.groupIndex][0].type)
+                } else {
+                    setSelectType("");
+                }
             } else {
                 setGroupInformation(null);
                 setVisualInformation(null);
+                console.log(isCropping);
+                if (isCropping) {
+                    cancelCrop();
+                    setIsCropping(false);
+                }
             }
         };
 
@@ -102,6 +133,20 @@ export default function EditorSidePanel() {
 
         return () => {
             window.removeEventListener('selectIndexChanged', handleChange);
+        };
+    }, [isCropping]);
+
+    useEffect(() => {
+        const handleChange = (e: Event) => {
+            const customEvent = e as CustomEvent<groupImageRef>;
+            setSelectImageRef(customEvent.detail.imageRef)
+            console.log(customEvent.detail.imageRef);
+        };
+
+        window.addEventListener('newKonvaElementRef', handleChange);
+
+        return () => {
+            window.removeEventListener('newKonvaElementRef', handleChange);
         };
     }, []);
 
@@ -212,52 +257,6 @@ export default function EditorSidePanel() {
             RENDER_MAIN();
         }
     }, [selectedBackgroundColor])
-
-    /*
-    const selectButtonDeleteHandler = () => {
-    if (selectedId.page !== null && selectedId.groupID !== null) {
-        deletePageElement(selectedId.page, selectedId.groupID);
-        deletePageElementInfo(selectedId.page, selectedId.groupID);
-    }
-    setSelectedId?.({groupID: null, page: null});
-    RENDER_PREVIEW();
-    }
-
-    const duplicateQuestionButtonHandler = () => {
-    if (selectedId.page !== null && selectedId.groupID !== null){
-        duplicatePageElementsInfo(selectedId.page, selectedId.groupID);
-        duplicatePageElement(selectedId.page, selectedId.groupID);
-        RENDER_PAGE();
-        setSelectedId?.({groupID: null, page: null});
-    } else {
-        notify('info', 'Please select an element');
-    }
-    }
-
-    const selectButtonMoveDownElementHandler = () => {
-    if (selectedId.page !== null && selectedId.groupID !== null && selectedId.page < stages.length-1) {
-        changePageOfElement(selectedId.page, selectedId.groupID, selectedId.page+1);
-        changePageOfElementInfo(selectedId.page, selectedId.groupID, selectedId.page+1);
-        console.log(groupsOnPage(selectedId.page+1)-1);
-        setSelectedId?.({groupID: groupsOnPage(selectedId.page+1)-1, page: selectedId.page+1});
-        RENDER_PAGE();
-    } else {
-        notify('info', 'No page bellow');
-    }
-    }
-
-    const selectButtonMoveUpElementHandler = () => {
-    if (selectedId.page !== null && selectedId.groupID !== null && selectedId.page > 0) {
-        changePageOfElement(selectedId.page, selectedId.groupID, selectedId.page-1);
-        changePageOfElementInfo(selectedId.page, selectedId.groupID, selectedId.page-1);
-        console.log(groupsOnPage(selectedId.page-1)-1);
-        setSelectedId?.({groupID: groupsOnPage(selectedId.page-1)-1, page: selectedId.page-1});
-        RENDER_PAGE();
-    } else {
-        notify('info', 'No page above');
-    }
-    }
-    */
 
     const leftXAlignButtonHandler = () => {
         const focusSelectIndex = selectIndex.current;
@@ -874,7 +873,7 @@ export default function EditorSidePanel() {
         const [itemInfo] = pageElementsInfo[pageIndex].splice(groupIndex, 1);
         pageElements[pageIndex].push(item);
         pageElementsInfo[pageIndex].push(itemInfo);
-        setSelectIndex({pageIndex: pageIndex, groupIndex: stagesLength()});
+        setSelectIndex({pageIndex: pageIndex, groupIndex: pageElements[pageIndex].length - 1});
         RENDER_MAIN();
     }
 
@@ -925,10 +924,244 @@ export default function EditorSidePanel() {
         }
     }
 
+    const startCropping = (): void => {
+        const focusSelectIndex = selectIndex.current
+        if (!selectImageRef || focusSelectIndex.pageIndex === null || focusSelectIndex.groupIndex === null) return;
+        const specificStage = getSpecificStage(focusSelectIndex.pageIndex)
+        setCroppingPageIndex(focusSelectIndex.pageIndex);
+        if (!specificStage.transformerRef || !specificStage.stageRef?.current) return;
+
+        setIsCropping(true);
+        selectImageRef.getParent()?.draggable(false);
+
+        const stageScale = specificStage.stageRef.current.scaleX();
+
+        const groupInfo = pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex];
+
+        // Create crop rectangle
+        const cropRect = new Konva.Rect({
+            x: groupInfo.x,
+            y: groupInfo.y,
+            width: groupInfo.widestX,
+            height: groupInfo.widestY,
+            stroke: '#00D9FF',
+            strokeWidth: 2,
+            dash: [10, 5],
+            name: 'cropRect',
+        });
+
+        console.log(cropRect);
+
+        // Create transformer
+        const transformer = new Konva.Transformer({
+            nodes: [cropRect],
+            keepRatio: false,
+            boundBoxFunc: (_oldBox, newBox) => {
+                const imgBounds = {
+                    x: groupInfo.x * stageScale,
+                    y: groupInfo.y * stageScale,
+                    width: groupInfo.widestX * stageScale,
+                    height: groupInfo.widestY * stageScale,
+                };
+
+                // Minimum size constraint
+                const minSize = 1;
+
+                // Clamp newBox inside image bounds
+                if (newBox.x < imgBounds.x) {
+                    newBox.width -= (imgBounds.x - newBox.x);
+                    newBox.x = imgBounds.x;
+                }
+                if (newBox.y < imgBounds.y) {
+                    newBox.height -= (imgBounds.y - newBox.y);
+                    newBox.y = imgBounds.y;
+                }
+                if (newBox.x + newBox.width > imgBounds.x + imgBounds.width) {
+                    newBox.width = imgBounds.x + imgBounds.width - newBox.x;
+                }
+                if (newBox.y + newBox.height > imgBounds.y + imgBounds.height) {
+                    newBox.height = imgBounds.y + imgBounds.height - newBox.y;
+                }
+
+                // Enforce minimum size
+                newBox.width = Math.max(newBox.width, minSize);
+                newBox.height = Math.max(newBox.height, minSize);
+
+                return newBox;
+            },
+            anchorStyleFunc: (anchor) => {
+				anchor.cornerRadius(10);
+				if (anchor.hasName("top-center") || anchor.hasName("bottom-center")) {
+					anchor.height(6);
+					anchor.offsetY(3);
+					anchor.width(26);
+					anchor.offsetX(13);
+				} else if (anchor.hasName("middle-left") || anchor.hasName("middle-right")) {
+					anchor.height(26);
+					anchor.offsetY(13);
+					anchor.width(6);
+					anchor.offsetX(3);
+				} else if (anchor.hasName("rotater")) {
+					anchor.cornerRadius(15);
+					anchor.width(10);
+					anchor.height(10);
+				} else {
+					anchor.width(14);
+					anchor.offsetX(8);
+					anchor.height(14);
+					anchor.offsetY(8);
+				}
+			},
+            rotationSnaps: [0, 45, 90, 135, 180, 225, 270, 315],
+        });
+
+        specificStage.transformerRef.current = transformer;
+        const layer = specificStage.stageRef.current.children[0]
+        layer.add(cropRect);
+        layer.add(transformer);
+        layer.batchDraw();
+    };
+
+    function cropImage(
+        originalImage: HTMLImageElement,
+        options: CropOptions
+        ): HTMLImageElement {
+        const { x, y, width, height } = options;
+        
+        // Create canvas and draw cropped portion
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+            throw new Error('Failed to get 2D context from canvas');
+        }
+        
+        ctx.drawImage(
+            originalImage,
+            x, y, width, height,
+            0, 0, width, height
+        );
+        
+        // Create new image element and set its src
+        const croppedImage = new Image();
+        croppedImage.src = canvas.toDataURL('image/png');
+        
+        return croppedImage;
+    }
+
+    const applyCrop = (): void => {
+        const focusSelectIndex = selectIndex.current;
+        if (!selectImageRef || focusSelectIndex.pageIndex === null || focusSelectIndex.groupIndex === null) return;
+        const specificStage = getSpecificStage(focusSelectIndex.pageIndex);
+        if (!specificStage.transformerRef || !specificStage.stageRef?.current) return;
+        const layer = specificStage.stageRef.current.children[0];
+
+        const cropRect = layer.findOne('.cropRect') as Konva.Rect | undefined;
+        if (!cropRect) return;
+
+        const stageScale = 1;//specificStage.stageRef.current.scaleX();
+
+        console.log(cropRect.x() + " : " + selectImageRef.x());
+
+        // Calculate crop dimensions relative to image
+        const cropX = (pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].x - cropRect.x() - selectImageRef.x()) * stageScale;
+        const cropY = (pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].y - cropRect.y() - selectImageRef.y()) * stageScale;
+        const cropWidth = (cropRect.width() * cropRect.scaleX()) * stageScale;
+        const cropHeight = (cropRect.height() * cropRect.scaleY()) * stageScale;
+
+        console.log({
+            x: cropX,
+            y: cropY,
+            width: cropWidth,
+            height: cropHeight,
+        });
+
+        // Apply crop
+        selectImageRef.crop({
+            x: cropX,
+            y: cropY,
+            width: cropWidth,
+            height: cropHeight,
+        });
+
+        // Adjust image position and size
+        selectImageRef.x(0);
+        selectImageRef.y(0);
+        selectImageRef.width(cropWidth);
+        selectImageRef.height(cropHeight);
+
+        pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].widestX = cropWidth;
+        pageElementsInfo[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex].widestY = cropHeight;
+
+        const imageFocusReference = pageElements[focusSelectIndex.pageIndex][focusSelectIndex.groupIndex][0];
+        imageFocusReference.x = 0;
+        imageFocusReference.y = 0;
+        imageFocusReference.width = cropWidth;
+        imageFocusReference.height = cropHeight;
+        if (imageFocusReference.type === 'image') {
+            const newImageData = cropImage(imageFocusReference.image, { x: cropX, y: cropY, width: cropWidth, height: cropHeight })
+            imageFocusReference.image = newImageData;
+        }
+
+        // Clean up crop UI
+        cropRect.destroy();
+        if (specificStage.transformerRef.current) {
+            specificStage.transformerRef.current.destroy();
+            specificStage.transformerRef.current = null;
+        }
+
+        selectImageRef.getParent()?.draggable(true);
+        setIsCropping(false);
+        //layer.batchDraw();
+        RENDER_MAIN();
+    };
+
+    const cancelCrop = (): void => {
+        if (!selectImageRef || croppingPageIndex === undefined) return;
+        const specificStage = getSpecificStage(croppingPageIndex);
+        if (!specificStage.transformerRef || !specificStage.stageRef?.current) return;
+        const layer = specificStage.stageRef.current.children[0];
+
+        const cropRect = layer.findOne('.cropRect');
+        if (cropRect) cropRect.destroy();
+        
+        if (specificStage.transformerRef.current) {
+            const transformer = specificStage.transformerRef.current;
+            transformer?.nodes([]);
+            transformer?.getLayer()?.batchDraw();
+
+            specificStage.transformerRef.current.destroy();
+            specificStage.transformerRef.current = null;
+
+            setSelectIndex({pageIndex: null, groupIndex: null});
+        }
+
+        selectImageRef.getParent()?.draggable(true);
+        setIsCropping(false);
+        layer.batchDraw();
+        console.log("CANCEL LA CROPCROP finished");
+    };
+
+    const cropImageButtonHandler = () => {
+        if (!isCropping) {
+            if (selectImageRef !== null) {
+                startCropping();
+                setIsCropping(true);
+            }
+        } else {
+            applyCrop();
+            setIsCropping(false);
+        }
+    };
+
     const deleteStageButtonHandler = () => {
         deleteStageAndElements(estimatedPage);
         RENDER_MAIN();
     }
+
+    
 
     const defaultInputClassName = "flex text-sm w-full px-[2px] rounded-md border border-grey shadow-sm transition-shadow duration-300 focus:shadow-[0_0_0_0.15rem_theme('colors.contrast')] focus:outline-none focus:border-transparent";
     
@@ -936,9 +1169,14 @@ export default function EditorSidePanel() {
         <div className='w-full h-full'>
             {visualInformation !== null && selectIndex.current.pageIndex !== null && (
                 <>
-                <p className='p-2 pb-1 text-md'>{t('editor.element')}</p>
+                {selectLength === 1 ? (
+                    <p className='p-2 pb-0 text-md'>{t('editor.element')}</p>
+                ) : (
+                    <p className='p-2 pb-0 text-md'>{t('editor.group')}</p>
+                )}
+                
 
-                <p className='p-2 pb-1 text-sm'>{t('editor.align')}</p>
+                <p className='px-2 py-1 text-sm'>{t('editor.align')}</p>
                 <div className='flex flex-col px-4 w-full items-center justify-center space-y-2'>
                     <div className='flex border border-grey shadow-sm rounded-md'>
                         <button className='w-6 h-6 m-[3px]' onClick={leftXAlignButtonHandler}>
@@ -1017,6 +1255,18 @@ export default function EditorSidePanel() {
                         <svg className='h-6' viewBox="0 0 52 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10.5" y="2.5" width="13" height="13" fill="black" stroke="black"/><circle cx="36" cy="14" r="6.5" fill="black" stroke="black"/><rect x="19.5" y="5.5" width="13" height="13" fill="#88CFCF" stroke="#88CFCF"/></svg>
                     </button>
                 </div>
+
+                {selectType === "image" && (
+                    <>
+                        <p className='p-2 pb-0 text-sm'>{t('editor.edit-image')}</p>
+                        <div className='px-4 pt-1'>
+                            <button className='flex w-full rounded-md border border-grey text-primary items-center justify-center shadow-sm' onClick={cropImageButtonHandler}>
+                                <svg xmlns="http://www.w3.org/2000/svg" className='w-6 h-6 p-1' viewBox="0 0 24 24"><path d="M24 18h-4v-14h-14v-4h-2v4h-4v2h4v14h14v4h2v-4h4v-2zm-18 0v-12h12v12h-12zm2-8.5c0-.828.672-1.5 1.5-1.5s1.5.672 1.5 1.5-.672 1.5-1.5 1.5-1.5-.672-1.5-1.5zm5.292.5l-1.812 3.833-1.48-1.272-2 3.439h8.292l-3-6z"/></svg>
+                                <p className='mr-1 text-sm'>{t('editor.crop')}</p>
+                            </button>
+                        </div>
+                    </>
+                )}
                 
 
                 <div className='w-full mt-2 h-[1px] bg-grey' />

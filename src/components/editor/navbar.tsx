@@ -12,7 +12,8 @@ import { Locale } from '@/lib/locales';
 import "@/styles/navbar.css"
 
 const navLinks = [
-  { title: 'product', href: '/' },
+  { title: 'questions', href: '/' },
+  { title: 'editor', href: '/create-exam-paper' },
   { title: 'about', href: '/about' },
   { title: 'updates', href: '/updates' }
 ];

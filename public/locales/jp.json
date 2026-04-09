@@ -2,6 +2,7 @@
   "home": {
     "description": "問題や試験問題用の編集ツールです。組み込みテンプレートで簡単に作成・操作でき、すべて無料！",
     "Start-Now": "今すぐ始める",
+    "in-development": "開発中",
     "CEP": "試験問題を",
     "quick": "素早く",
     "and": "かつ",
@@ -9,7 +10,8 @@
     "creation": "作成"
   },
   "navBar": {
-    "product": "製品",
+    "questions": "問題",
+    "editor": "エディター",
     "about": "概要",
     "updates": "更新情報",
     "Start-Creating": "作成開始"
@@ -66,6 +68,9 @@
     "templates": "テンプレート",
     "page": "ページ",
     "element": "要素",
+    "edit-image": "画像を編集する",
+    "crop": "トリミング",
+    "group": "グループ",
     "add-shape": "図形を追加",
     "question-creator-editor": "問題作成エディター",
     "parameters": "パラメーター",
@@ -96,7 +101,8 @@
     "margin-size": "余白サイズ",
     "delete": "削除",
     "delete-all": "すべて削除",
-    "crop-question": "トリミングに関する質問",
+    "crop-question-width": "切り抜きの幅",
+    "crop-question-height": "切り抜きの高さ",
     "apply-edit": "編集を適用"
   },
   "shapes": {

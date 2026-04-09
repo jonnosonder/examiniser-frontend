@@ -4,7 +4,7 @@
 "use client";
 import pkg from '@/../package.json';
 const { version } = pkg;
-import Navbar from '@/components/navbar';
+import Navbar from '@/components/editor/navbar';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as React from "react";
@@ -38,10 +38,45 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                             <div className="w-full md:w-[80vw] lg:w-[70vw] border border-primary rounded-xl">
                                 <button
                                     className="w-full text-2xl flex justify-between items-center px-4 py-2 bg-transparent text-primary text-base transition cursor-pointer"
+                                    onClick={() => toggleEditPanelSection(10)}
+                                >   
+                                    <div>
+                                        0.0.10 <span className='text-grey ml-1 text-sm'>—&nbsp; xx/xx/2025</span>
+                                    </div>
+                                    {editPanelIndex === 10 ? (
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" />
+                                    </svg>
+                                    ) : (
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M6 15L12 9L18 15" stroke="currentColor" strokeWidth="2" />
+                                    </svg>
+                                    )}
+                                </button>
+
+                                <div
+                                    className={`flex flex-col px-2 overflow-hidden transition-all duration-400 ease-linear space-y-2 ${
+                                    editPanelIndex === 10 ? 'm-2 mt-0' : 'max-h-0 p-0 border-0'
+                                    }`}
+                                >   
+                                    <p className="text-sm">
+                                        - Question creater cropping function fix and rework <br/>
+                                        - Removed developer console logs (again) <br/>
+                                        - Left side editor UI update <br/>
+                                        - Fixed moving elements to the back <br/>
+                                        - Implemented image cropping on main page <br/>
+                                        - Language fixes <br/>
+                                    </p>
+                                    
+                                </div>
+                            </div>
+                            <div className="w-full md:w-[80vw] lg:w-[70vw] border border-primary rounded-xl">
+                                <button
+                                    className="w-full text-2xl flex justify-between items-center px-4 py-2 bg-transparent text-primary text-base transition cursor-pointer"
                                     onClick={() => toggleEditPanelSection(9)}
                                 >   
                                     <div>
-                                        0.0.9 <span className='text-grey ml-1 text-sm'>— 24/09/2025</span>
+                                        0.0.9 &nbsp;<span className='text-grey ml-1 text-sm'>—&nbsp; 24/09/2025</span>
                                     </div>
                                     {editPanelIndex === 9 ? (
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -61,7 +96,7 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                                 >   
                                     <p className="text-sm">
                                         - Meta data update <br/>
-                                        - Sitemap implimented <br/>
+                                        - Sitemap implemented <br/>
                                         - human, robots and security text file created <br/>
                                         - Keyboard arrows move elements <br/>
                                         - Side editor updates when undoing or redoing actions fix <br/>
@@ -77,7 +112,7 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                                     onClick={() => toggleEditPanelSection(8)}
                                 >   
                                     <div>
-                                        0.0.8 <span className='text-grey ml-1 text-sm'>— 23/09/2025</span>
+                                        0.0.8 &nbsp;<span className='text-grey ml-1 text-sm'>—&nbsp; 23/09/2025</span>
                                     </div>
                                     {editPanelIndex === 8 ? (
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -98,7 +133,7 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                                     <p className="text-sm">
                                         - Redirect link fallback option added <br/>
                                         - Question Parameter UX update <br/>
-                                        - All languages implimented <br/>
+                                        - All languages implemented <br/>
                                         - Templates language fix <br/>
                                         - Question Creater croping option adding <br/>
                                         - Japanese language added <br/>
@@ -116,7 +151,7 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                                     onClick={() => toggleEditPanelSection(7)}
                                 >   
                                     <div>
-                                        0.0.7 <span className='text-grey ml-1 text-sm'>— 21/09/2025</span>
+                                        0.0.7 &nbsp;<span className='text-grey ml-1 text-sm'>—&nbsp; 21/09/2025</span>
                                     </div>
                                     {editPanelIndex === 7 ? (
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -136,7 +171,7 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                                 >   
                                     <p className="text-sm">
                                         - Editor loading efficiency update <br/>
-                                        - Editor export page, all languages implimented <br/>
+                                        - Editor export page, all languages implemented <br/>
                                         - File pruning <br/>
                                         - Language switcher updated <br/>
                                         - Language fixes <br/>
@@ -154,7 +189,7 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                                     onClick={() => toggleEditPanelSection(6)}
                                 >   
                                     <div>
-                                        0.0.6 <span className='text-grey ml-1 text-sm'>— 19/09/2025</span>
+                                        0.0.6 &nbsp;<span className='text-grey ml-1 text-sm'>—&nbsp; 19/09/2025</span>
                                     </div>
                                     {editPanelIndex === 6 ? (
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -174,15 +209,15 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                                 >   
                                     <p className="text-sm">
                                         - Spanish language added <br/>
-                                        - Copy, cut, paste implimented in question editor <br/>
+                                        - Copy, cut, paste implemented in question editor <br/>
                                         - Removed developer console logs (again) <br/>
                                         - Question parameter style colour UI update <br/>
                                         - Template fixes and efficiency update <br/>
                                         - New template added <br/>
-                                        - About and Updates page&#39;s animation implimented <br/>
+                                        - About and Updates page&#39;s animation implemented <br/>
                                         - Images operations added to undo and redo history <br/>
-                                        - Undo and redo keybinds implimented <br/>
-                                        - Navbar mobile UI implimented <br/>
+                                        - Undo and redo keybinds implemented <br/>
+                                        - Navbar mobile UI implemented <br/>
                                     </p>
                                     
                                 </div>
@@ -193,7 +228,7 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                                     onClick={() => toggleEditPanelSection(5)}
                                 >   
                                     <div>
-                                        0.0.5 <span className='text-grey ml-1 text-sm'>— 18/09/2025</span>
+                                        0.0.5 &nbsp;<span className='text-grey ml-1 text-sm'>—&nbsp; 18/09/2025</span>
                                     </div>
                                     {editPanelIndex === 5 ? (
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -213,7 +248,7 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                                 >   
                                     <p className="text-sm">
                                         - Multiple languages added (en/fr/zh) <br/>
-                                        - Editor page languages half implimented <br/>
+                                        - Editor page languages half implemented <br/>
                                         - Spelling fixes <br/>
                                         - Fixed font family export <br/>
                                         - Improved text export precision <br/>
@@ -236,7 +271,7 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                                     onClick={() => toggleEditPanelSection(4)}
                                 >   
                                     <div>
-                                        0.0.4 <span className='text-grey ml-1 text-sm'>— 02/09/2025</span>
+                                        0.0.4 &nbsp;<span className='text-grey ml-1 text-sm'>—&nbsp; 02/09/2025</span>
                                     </div>
                                     {editPanelIndex === 4 ? (
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -255,7 +290,7 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                                     }`}
                                 >   
                                     <p className="text-sm">
-                                        - Google Analytics implimented <br/>
+                                        - Google Analytics implemented <br/>
                                         - Adverts removed <br/>
                                         - Fixed moving elements to front bug <br/>
                                         - Can move and delete pages <br/>
@@ -272,7 +307,7 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                                     onClick={() => toggleEditPanelSection(3)}
                                 >   
                                     <div>
-                                        0.0.3 <span className='text-grey ml-1 text-sm'>— 27/08/2025</span>
+                                        0.0.3 &nbsp;<span className='text-grey ml-1 text-sm'>—&nbsp; 27/08/2025</span>
                                     </div>
                                     {editPanelIndex === 3 ? (
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -307,7 +342,7 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                                     onClick={() => toggleEditPanelSection(2)}
                                 >   
                                     <div>
-                                        0.0.2 <span className='text-grey ml-1 text-sm'>— 25/08/2025</span>
+                                        0.0.2 &nbsp;<span className='text-grey ml-1 text-sm'>—&nbsp; 25/08/2025</span>
                                     </div>
                                     {editPanelIndex === 2 ? (
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -343,7 +378,7 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                                     onClick={() => toggleEditPanelSection(1)}
                                 >   
                                     <div>
-                                        0.0.1 <span className='text-grey ml-1 text-sm'>— 22/08/2025</span>
+                                        0.0.1 &nbsp;<span className='text-grey ml-1 text-sm'>—&nbsp; 22/08/2025</span>
                                     </div>
                                     {editPanelIndex === 1 ? (
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -1,7 +1,7 @@
 "use client";
 
-import '../../../styles/start.css';
-import ArrowIcon from '@/components/arrowIcon';
+import '@/styles/start.css';
+import ArrowIcon from '@/components/editor/arrowIcon';
 import { useRef, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Decimal from 'decimal.js';
@@ -10,7 +10,7 @@ import { useData } from "@/context/dataContext";
 import { useFileStore } from '@/store/useFileStore';
 import { useTranslation } from 'react-i18next';
 import * as React from "react";
-import SwitchLanuageDropDown from '@/components/switchLanuageDropDown';
+import SwitchLanuageDropDown from '@/components/editor/switchLanuageDropDown';
 import { Locale } from '@/lib/locales';
 
 const paperSizes = {
@@ -69,7 +69,11 @@ function getPaperHeight(sizeKey: PaperSizeKey, unit: Unit): Decimal | null {
   return found ? found.height : null;
 }
 
+import { notFound } from "next/navigation";
+
 export default function StartPage({ params }: { params: Promise<{ lng: Locale }> }) {
+    notFound();
+
     const { t } = useTranslation();
     const resolvedParams = React.use(params); // unwrap the promise
     const { lng } = resolvedParams;

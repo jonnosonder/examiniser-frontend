@@ -128,7 +128,7 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
             <div id="heroButtonWrapper">
               <button className="mt-4 flex text-sm sm:text-base lg:text-lg hover:shadow-[0_0_0_0.5rem_theme('colors.accent')] transition-all duration-300 ease-in-out border-2 border-primary rounded-lg">
                 <Link className='w-full h-full px-5 py-2' href={`/${lng}/start`}>
-                  {t('home.Start-Now')}
+                  {t('home.in-development')}
                 </Link>
               </button>
             </div>

@@ -2,13 +2,15 @@
   "home": {
     "description": "Un editor especializado en crear preguntas y exámenes. ¡Fácil de crear y navegar con plantillas integradas, todo gratis!",
     "Start-Now": "Empezar Ahora",
+    "in-development": "En Desarrollo",
     "CEP": "Crear Exámenes",
     "quick": "Rápido",
     "and": "y",
     "easy": "Fácil"
   },
   "navBar": {
-    "product": "Producto",
+    "questions": "Preguntas",
+    "editor": "Editor",
     "about": "Acerca de",
     "updates": "Actualizaciones",
     "Start-Creating": "Comenzar a Crear"
@@ -65,6 +67,9 @@
     "templates": "Plantillas",
     "page": "Página",
     "element": "Elemento",
+    "edit-image": "Editar Imagen",
+    "crop": "Recortar",
+    "group": "Grupo",
     "add-shape": "Agregar Forma",
     "question-creator-editor": "Editor de Preguntas",
     "parameters": "Parámetros",
@@ -95,7 +100,8 @@
     "margin-size": "Tamaño del Margen",
     "delete": "Eliminar",
     "delete-all": "Eliminar Todo",
-    "crop-question": "Pregunta sobre recorte",
+    "crop-question-width": "Ancho del recorte",
+    "crop-question-height": "Alto del recorte",
     "apply-edit": "Aplicar Ediciones"
   },
   "shapes": {

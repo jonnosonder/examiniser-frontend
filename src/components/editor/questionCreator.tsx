@@ -7,14 +7,14 @@ import React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { Stage, Layer } from 'react-konva';
 //import useImage from 'use-image';
-import CanvasElements from '@/components/canvasElements'
-import CustomContextMenu from '@/components/customContextMenu';
+import CanvasElements from '@/components/editor/canvasElements'
+import CustomContextMenu from '@/components/editor/customContextMenu';
 import { ShapeData } from '@/lib/shapeData';
 import { addPageElement, addPageElementsInfo, addToHistoryUndo, deletePageElement, deletePageElementInfo, getEstimatedPage, getSpecificPageElementsInfo, getSpecificStage, getStageDimension, historyData, newShapeSizePercent, pageElementsInfo, RENDER_PAGE, setPageElement, setPageElementsInfo, stageGroupInfoData } from '@/lib/stageStore';
-import ColorSelectorSection from '@/components/colorSelectorSection';
+import ColorSelectorSection from '@/components/editor/colorSelectorSection';
 import { KonvaEventObject } from 'konva/lib/Node';
 import '@/styles/QuestionCreator.css'
-import { AddImage } from './addImage';
+import { AddImage } from '@/components/editor/addImage';
 import { decreaseFontInUse, getFontNamesArray, increaseFontInUse } from '@/lib/fontData';
 import { useTranslation } from 'react-i18next';
 import { useSelectRef } from './editorContextProvider';
@@ -41,9 +41,12 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
     const [selectedOption, setSelectedOption] = useState<string>('');
     const [contextClipBoard, setContextClipBoard] = useState<ShapeData | null>(null);
 
-    const [cropTickBox, setCropTickBox] = useState(true);
-    const dashArray = cropTickBox ? '70.5096664428711 9999999' : '241 9999999';
-    const dashOffset = cropTickBox ? -262.2723388671875 : 0;
+    const [cropTickBox_X, setCropTickBox_X] = useState(true);
+    const [cropTickBox_Y, setCropTickBox_Y] = useState(true);
+    const dashArray_X = cropTickBox_X ? '70.5096664428711 9999999' : '241 9999999';
+    const dashOffset_X = cropTickBox_X ? -262.2723388671875 : 0;
+    const dashArray_Y = cropTickBox_Y ? '70.5096664428711 9999999' : '241 9999999';
+    const dashOffset_Y = cropTickBox_Y ? -262.2723388671875 : 0;
 
     const [selectedFillColorViaDisplay, setSelectedFillColorViaDisplay] = useState<string>("");
     const [selectedStrokeColorViaDisplay, setSelectedStrokeColorViaDisplay] = useState<string>("");
@@ -90,8 +93,11 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                 if (smallestX === 0 && smallestY === 0) {return;}
             });
 
-            if (smallestX !== 0 || smallestY !== 0) {
-                setCropTickBox(false);
+            if (smallestX !== 0) {
+                setCropTickBox_X(false);
+            }
+            if (smallestY !== 0) {
+                setCropTickBox_Y(false)
             }
         }
     }, [])
@@ -446,10 +452,13 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
 
         if (shapes === initalShapes) { return; }
 
+        const pageOn = getEstimatedPage();
+        const focusStage = getSpecificStage(pageOn);
+
         let widestX:number = 0;
         let widestY:number = 0;
 
-        if (cropTickBox) { 
+        if (cropTickBox_X && cropTickBox_Y) { 
             let shiftX:number = Infinity;
             let shiftY:number = Infinity;
 
@@ -479,11 +488,6 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                 if (y > widestY) widestY = y;
             });
 
-            //console.log(shapes[0].x);
-            //console.log(shapes[0].y);
-            //console.log(shiftX);
-            //console.log(shiftY);
-
             shapes.forEach((element, i) => {
                 shapes[i].x = element.x - shiftX;
                 shapes[i].y = element.y - shiftY;
@@ -492,23 +496,69 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
             widestX -= shiftX;
             widestY -= shiftY;
         } else {
-            shapes.forEach((element) => {
-                let x: number;
-                let y: number;
-                if (element.type === "star" || element.type === "oval") {
-                    x = element.x + element.width/2;
-                    y = element.y + element.height/2;
-                } else {
-                    x = element.x + element.width;
-                    y = element.y + element.height;
+            if (!cropTickBox_X && !cropTickBox_Y) {
+                widestX = focusStage.width;
+                widestY = focusStage.height;
+            } else {
+                if (cropTickBox_X) {
+                    let shiftX:number = Infinity;
+
+                    shapes.forEach((element) => {
+                        let x: number;
+                        if (element.type === "star" || element.type === "oval") {
+                            x = element.x + element.width/2;
+                            if (shiftX > element.x - element.width/2) {
+                                shiftX = element.x - element.width/2;
+                            }
+                        } else {
+                            x = element.x + element.width;
+                            if (shiftX > element.x) {
+                                shiftX = element.x;
+                            }
+                        }
+                        if (x > widestX) widestX = x;
+                    });
+
+                    shapes.forEach((element, i) => {
+                        shapes[i].x = element.x - shiftX;
+                    })
+
+                    widestX -= shiftX;
+                    widestY = focusStage.height;
                 }
-                if (x > widestX) widestX = x;
-                if (y > widestY) widestY = y;
-            });
+
+                if (cropTickBox_Y) {
+                    let shiftY:number = Infinity;
+
+                    shapes.forEach((element) => {
+                        let x: number;
+                        let y: number;
+                        if (element.type === "star" || element.type === "oval") {
+                            y = element.y + element.height/2;
+
+                            if (shiftY > element.y - element.height/2) {
+                                shiftY = element.y - element.height/2;
+                            }
+                        } else {
+                            y = element.y + element.height;
+                            if (shiftY > element.y) {
+                                shiftY = element.y;
+                            }
+                        }
+                        if (y > widestY) widestY = y;
+                    });
+
+                    shapes.forEach((element, i) => {
+                        shapes[i].y = element.y - shiftY;
+                    })
+
+                    widestX = focusStage.width;
+                    widestY -= shiftY;
+                }
+            }
         }
 
         if (newQuestionCreating) {
-            const pageOn = getEstimatedPage();
             const newGroupInfo = {id: "g-"+Date.now(), widestX, widestY, x:0, y:0, rotation:0} as stageGroupInfoData;
             addPageElementsInfo(newGroupInfo, pageOn);
             addPageElement(shapes, pageOn);
@@ -524,8 +574,9 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
         } else {
             if (questionEditingID.page !== null && questionEditingID.groupID !== null) {
                 const previousGroupInfo = getSpecificPageElementsInfo(questionEditingID.page, questionEditingID.groupID);
-                console.log(previousGroupInfo);
-                const newGroupInfo = {id: previousGroupInfo.id, widestX, widestY, x: previousGroupInfo.x, y: previousGroupInfo.y, rotation: previousGroupInfo.rotation} as stageGroupInfoData;
+                const groupX = cropTickBox_Y ? previousGroupInfo.x : 0
+                const groupY = cropTickBox_X ? previousGroupInfo.y : 0
+                const newGroupInfo = {id: previousGroupInfo.id, widestX, widestY, x: groupX, y: groupY, rotation: previousGroupInfo.rotation} as stageGroupInfoData;
                 setPageElementsInfo(newGroupInfo, questionEditingID.page, questionEditingID.groupID);
                 setPageElement(shapes, questionEditingID.page, questionEditingID.groupID);
                 
@@ -538,7 +589,7 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                     contentsFrom: initalShapes,
                     contentsTo: shapes
                 } as historyData);
-
+                setSelectIndex({pageIndex: questionEditingID.page, groupIndex: questionEditingID.groupID});
             }
         }
         RENDER_PAGE();
@@ -1124,12 +1175,12 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                             <button onClick={() => {setDimensions({width: dimensions.width, height: dimensions.height * 2})}} className='px-4 py-2 border-2 border-primary rounded-full text-primary whitespace-nowrap'>Add Space</button>
                             */}
                             <div className='flex items-center'>
-                            <p className='text-sm whitespace-nowrap m-0 mr-2'>{t("editor.crop-question")}</p>
-                            <label className="cursor-pointer inline-flex items-center justify-center w-4 h-4">
+                            <p className='text-sm whitespace-nowrap m-0 mr-2'>{t("editor.crop-question-width")}</p>
+                            <label className="cursor-pointer inline-flex items-center justify-center w-4 h-4 mr-4">
                                 <input
                                     type="checkbox"
-                                    checked={cropTickBox}
-                                    onChange={(e) => setCropTickBox(e.target.checked)}
+                                    checked={cropTickBox_X}
+                                    onChange={(e) => setCropTickBox_X(e.target.checked)}
                                     className="hidden"
                                 />
                                 <svg
@@ -1140,8 +1191,31 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                                     d="M 0 16 V 56 A 8 8 90 0 0 8 64 H 56 A 8 8 90 0 0 64 56 V 8 A 8 8 90 0 0 56 0 H 8 A 8 8 90 0 0 0 8 V 16 L 32 48 L 64 16 V 8 A 8 8 90 0 0 56 0 H 8 A 8 8 90 0 0 0 8 V 56 A 8 8 90 0 0 8 64 H 56 A 8 8 90 0 0 64 56 V 16"
                                     pathLength="575.0541381835938"
                                     style={{
-                                        strokeDasharray: dashArray,
-                                        strokeDashoffset: dashOffset,
+                                        strokeDasharray: dashArray_X,
+                                        strokeDashoffset: dashOffset_X,
+                                    }}
+                                    className="transition-[stroke-dasharray,stroke-dashoffset] duration-500 ease-in-out fill-none stroke-primary stroke-[6] stroke-linecap-round stroke-linejoin-round"
+                                    />
+                                </svg>
+                            </label>
+                            <p className='text-sm whitespace-nowrap m-0 mr-2'>{t("editor.crop-question-height")}</p>
+                            <label className="cursor-pointer inline-flex items-center justify-center w-4 h-4">
+                                <input
+                                    type="checkbox"
+                                    checked={cropTickBox_Y}
+                                    onChange={(e) => setCropTickBox_Y(e.target.checked)}
+                                    className="hidden"
+                                />
+                                <svg
+                                    viewBox="0 0 64 64"
+                                    className="w-full h-full overflow-visible"
+                                >
+                                    <path
+                                    d="M 0 16 V 56 A 8 8 90 0 0 8 64 H 56 A 8 8 90 0 0 64 56 V 8 A 8 8 90 0 0 56 0 H 8 A 8 8 90 0 0 0 8 V 16 L 32 48 L 64 16 V 8 A 8 8 90 0 0 56 0 H 8 A 8 8 90 0 0 0 8 V 56 A 8 8 90 0 0 8 64 H 56 A 8 8 90 0 0 64 56 V 16"
+                                    pathLength="575.0541381835938"
+                                    style={{
+                                        strokeDasharray: dashArray_Y,
+                                        strokeDashoffset: dashOffset_Y,
                                     }}
                                     className="transition-[stroke-dasharray,stroke-dashoffset] duration-500 ease-in-out fill-none stroke-primary stroke-[6] stroke-linecap-round stroke-linejoin-round"
                                     />
