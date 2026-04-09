@@ -5,7 +5,7 @@
 
 import { useTranslation } from 'react-i18next';
 import '@/styles/landing.css';
-import Navbar from '@/components/editor/navbar';
+import Navbar from '@/components/landing/navbar';
 import Link from 'next/link';
 import * as React from "react";
 import { Locale } from '@/lib/locales';
@@ -56,7 +56,7 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
 
   return (
     <>
-      <Navbar lng={lng} pageOn='/'/>
+      <Navbar lng={lng} pageOn='/create-exam-paper'/>
       {/*Hero section*/}
       <div className="flex flex-col w-full bg-background overflow-y-auto hide-scrollbar scrolling-smooth">
         <div className="
@@ -124,10 +124,10 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
               <span id="heroKeywordtextSpan">{t('home.quick')}</span>{t('home.and')}<span id="heroKeywordtextSpan">{t('home.easy')}</span>
               {t('home.CEP')}</h1>
             )}            
-            <p id="heroP" className="mt-2 max-w-sm sm:max-w-md lg:max-w-xl text-primary sm:text-lg lg:text-xl break-words">{t('home.description')}</p>
+            <p id="heroP" className="mt-2 max-w-sm sm:max-w-md lg:max-w-xl text-primary sm:text-lg lg:text-xl break-words">{t('home.editor-description')}</p>
             <div id="heroButtonWrapper">
               <button className="mt-4 flex text-sm sm:text-base lg:text-lg hover:shadow-[0_0_0_0.5rem_theme('colors.accent')] transition-all duration-300 ease-in-out border-2 border-primary rounded-lg">
-                <Link className='w-full h-full px-5 py-2' href={`/${lng}/start`}>
+                <Link className='w-full h-full px-5 py-2' href=''>{/*href={`/${lng}/start`}>*/}
                   {t('home.in-development')}
                 </Link>
               </button>

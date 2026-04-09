@@ -1,9 +1,12 @@
 {
   "home": {
-    "description": "An editor specialised in making question and exam papers. Easy to create and navigate with inbuilt templates all for free!",
+    "question-description": "Generate infinite maths problems, with solutions and explanation for free!",
+    "editor-description": "An editor specialised in making question and exam papers. Easy to create and navigate with inbuilt templates all for free!",
     "Start-Now": "Start Now",
     "in-development": "In Development",
     "CEP": "Create Exam Papers",
+    "IMQ": " Maths Problems",
+    "infinite": "Infinite",
     "quick": "Quick",
     "and": "and",
     "easy": "Easy"

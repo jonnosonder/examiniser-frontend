@@ -1,9 +1,12 @@
 {
   "home": {
-    "description": "一个专门制作试题和考试试卷的编辑器。易于创建和浏览，内置模板，全免费！",
+    "question-description": "一个专门制作试题和考试试卷的编辑器。易于创建和浏览，内置模板，全免费！",
+    "editor-description": "一个专门制作试题和考试试卷的编辑器。易于创建和浏览，内置模板，全免费！",
     "Start-Now": "现在开始",
     "in-development": "开发中",
     "CEP": "创建考试试卷",
+    "IMQ": " 数学问题",
+    "infinite": "无限",
     "quick": "快速",
     "and": "和",
     "easy": "轻松"

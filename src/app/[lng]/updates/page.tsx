@@ -4,7 +4,7 @@
 "use client";
 import pkg from '@/../package.json';
 const { version } = pkg;
-import Navbar from '@/components/editor/navbar';
+import Navbar from '@/components/landing/navbar';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as React from "react";
@@ -38,10 +38,42 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                             <div className="w-full md:w-[80vw] lg:w-[70vw] border border-primary rounded-xl">
                                 <button
                                     className="w-full text-2xl flex justify-between items-center px-4 py-2 bg-transparent text-primary text-base transition cursor-pointer"
+                                    onClick={() => toggleEditPanelSection(11)}
+                                >   
+                                    <div>
+                                        0.1.00 <span className='text-grey ml-1 text-sm'>—&nbsp; xx/xx/2026</span>
+                                    </div>
+                                    {editPanelIndex === 11 ? (
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" />
+                                    </svg>
+                                    ) : (
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M6 15L12 9L18 15" stroke="currentColor" strokeWidth="2" />
+                                    </svg>
+                                    )}
+                                </button>
+
+                                <div
+                                    className={`flex flex-col px-2 overflow-hidden transition-all duration-400 ease-linear space-y-2 ${
+                                    editPanelIndex === 11 ? 'm-2 mt-0' : 'max-h-0 p-0 border-0'
+                                    }`}
+                                >   
+                                    <p className="text-sm">
+                                        - New question library created<br/>
+                                        - Website Rework (question library is now the main feature)<br/>
+                                        - Editor has been temporarily disabled<br/>
+                                    </p>
+                                    
+                                </div>
+                            </div>
+                            <div className="w-full md:w-[80vw] lg:w-[70vw] border border-primary rounded-xl">
+                                <button
+                                    className="w-full text-2xl flex justify-between items-center px-4 py-2 bg-transparent text-primary text-base transition cursor-pointer"
                                     onClick={() => toggleEditPanelSection(10)}
                                 >   
                                     <div>
-                                        0.0.10 <span className='text-grey ml-1 text-sm'>—&nbsp; xx/xx/2025</span>
+                                        0.0.10 <span className='text-grey ml-1 text-sm'>—&nbsp; 25/09/2025</span>
                                     </div>
                                     {editPanelIndex === 10 ? (
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

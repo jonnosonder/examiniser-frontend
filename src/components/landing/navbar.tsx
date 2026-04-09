@@ -5,9 +5,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ReloadLink } from './reloadLink';
+import { ReloadLink } from '../editor/reloadLink';
 import { useTranslation } from 'react-i18next';
-import SwitchLanuageDropDown from './switchLanuageDropDown';
+import SwitchLanuageDropDown from '../editor/switchLanuageDropDown';
 import { Locale } from '@/lib/locales';
 import "@/styles/navbar.css"
 
@@ -18,7 +18,7 @@ const navLinks = [
   { title: 'updates', href: '/updates' }
 ];
 
-export default function Navbar({ lng, pageOn } : {lng: Locale, pageOn:"/"|"/about"|"/updates"}) {
+export default function Navbar({ lng, pageOn } : {lng: Locale, pageOn:"/"|"/create-exam-paper"|"/about"|"/updates"}) {
   const { t } = useTranslation();
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
@@ -64,9 +64,6 @@ export default function Navbar({ lng, pageOn } : {lng: Locale, pageOn:"/"|"/abou
 
             <div className='inline gap-6 space-x-4'>
               <SwitchLanuageDropDown current={lng}  />
-              <button className='underline cursor-pointer' onClick={() => router.push('/'+lng+'/start')}>
-                {t('navBar.Start-Creating')}
-              </button>
               {/*
               <button className='loginBtn' onClick={() => router.push('/login')}>
                 <span className="loginBtnSpan">Log in</span>
