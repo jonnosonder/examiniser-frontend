@@ -28,12 +28,12 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
     primary: false, secondary: false, sixthForm: false, exam_board: false,
   });
   const [buttonsReady, setButtonsReady] = useState(false);
+  const [infinityVisible, setInfinityVisible] = useState(false);
 
   const heroTitleRef = React.useRef<HTMLHeadingElement | null>(null);
   const templateTitleRef = React.useRef<HTMLHeadingElement | null>(null);
   const templateDescriptionRef = React.useRef<HTMLParagraphElement | null>(null);
 
-  // Fade in hero text, then trigger buttons after
   React.useEffect(() => {
     const titleEl = heroTitleRef.current;
     if (!titleEl) return;
@@ -57,13 +57,16 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
         pEl.style.transform = 'translateY(0)';
       }
       // Trigger buttons after text has faded in
-      setTimeout(() => setButtonsReady(true), 100);
+      setTimeout(() => {
+        setButtonsReady(true);
+        // Infinity symbol fades in shortly after buttons appear
+        setTimeout(() => setInfinityVisible(true), 300);
+      }, 100);
     }, 100);
 
     return () => clearTimeout(timer);
   }, []);
 
-  
   React.useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -158,11 +161,34 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
 
   return (
     <>
+      <style>{`
+        #infinity-outline {
+          stroke-dasharray: 2.42777px, 242.77666px;
+          stroke-dashoffset: 0;
+          animation: infinityAnim 3s linear infinite;
+        }
+        @keyframes infinityAnim {
+          12.5% {
+            stroke-dasharray: 33.98873px, 242.77666px;
+            stroke-dashoffset: -26.70543px;
+          }
+          43.75% {
+            stroke-dasharray: 84.97183px, 242.77666px;
+            stroke-dashoffset: -84.97183px;
+          }
+          100% {
+            stroke-dasharray: 2.42777px, 242.77666px;
+            stroke-dashoffset: -240.34889px;
+          }
+        }
+      `}</style>
+
       <div onClick={handleClose}>
-      <Navbar lng={lng} pageOn='/'/>
+        <Navbar lng={lng} pageOn='/'/>
       </div>
+
       <div className="h-[100dvh] w-full bg-background overflow-hidden flex flex-col">
-        
+
         {/* Grid background */}
         <div className="
           absolute inset-0 z-0 
@@ -173,30 +199,68 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
         ></div>
 
         {/* Content */}
-        <div className="relative z-[2] flex flex-col flex-1 items-center justify-center pt-16 overflow-hidden" onClick={handleClose}>
-          
-          {/* Hero text */}
-          <div className='p-8 text-center mb-12'>
-            {(lng === "en" || lng === "jp" || lng === "zh") && (
-              <h1 ref={heroTitleRef} id="heroTitle" className="text-primary font-inter font-bold text-2xl sm:text-3xl lg:text-5xl">
-                <span id="heroKeywordtextSpan">{t('home.infinite')}</span>
-                {t('home.IMQ')}
-              </h1>
-            )}
-            {lng === "es" && (
-              <h1 ref={heroTitleRef} id="heroTitle" className="text-primary font-inter font-bold text-2xl sm:text-3xl lg:text-5xl">
-                {t('home.problems')}
-                <span id="heroKeywordtextSpan">{t('home.infinite')}</span>
-                {t('home.IMQ')}
-              </h1>
-            )}
-            {lng === "fr" && (
-              <h1 ref={heroTitleRef} id="heroTitle" className="text-primary font-inter font-bold text-2xl sm:text-3xl lg:text-5xl">
-                {t('home.IMQ')}
-                <span id="heroKeywordtextSpan">{t('home.infinite')}</span>
-              </h1>
-            )}
-            <p id="heroP" className="mt-2 text-primary sm:text-lg lg:text-xl break-words">{t('home.question-description')}</p>
+        <div className="z-[2] flex flex-col flex-1 items-center justify-center pt-16 overflow-hidden" onClick={handleClose}>
+
+          <div className='relative'>
+            {/* Infinity loop — from Uiverse.io by SouravBandyopadhyay */}
+            <div
+              className="absolute pointer-events-none left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+              style={{
+                opacity: infinityVisible ? 0.1 : 0,
+                transition: 'opacity 0.8s ease',
+              }}
+            >
+              <svg
+                preserveAspectRatio="xMidYMid meet"
+                viewBox="0 0 187.3 93.7"
+                style={{ width: '120vw', height: 'auto' }}
+              >
+                <path
+                  d="M93.9,46.4c9.3,9.5,13.8,17.9,23.5,17.9s17.5-7.8,17.5-17.5s-7.8-17.6-17.5-17.5c-9.7,0.1-13.3,7.2-22.1,17.1c-8.9,8.8-15.7,17.9-25.4,17.9s-17.5-7.8-17.5-17.5s7.8-17.5,17.5-17.5S86.2,38.6,93.9,46.4z"
+                  strokeMiterlimit="10"
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
+                  strokeWidth="4"
+                  fill="none"
+                  id="infinity-outline"
+                  stroke="var(--accent)"
+                />
+                <path
+                  d="M93.9,46.4c9.3,9.5,13.8,17.9,23.5,17.9s17.5-7.8,17.5-17.5s-7.8-17.6-17.5-17.5c-9.7,0.1-13.3,7.2-22.1,17.1c-8.9,8.8-15.7,17.9-25.4,17.9s-17.5-7.8-17.5-17.5s7.8-17.5,17.5-17.5S86.2,38.6,93.9,46.4z"
+                  strokeMiterlimit="10"
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
+                  strokeWidth="4"
+                  stroke="var(--accent)"
+                  fill="none"
+                  opacity="0.1"
+                />
+              </svg>
+            </div>
+
+            {/* Hero text */}
+            <div className='p-8 text-center mb-12'>
+              {(lng === "en" || lng === "jp" || lng === "zh") && (
+                <h1 ref={heroTitleRef} id="heroTitle" className="text-primary font-inter font-bold text-2xl sm:text-3xl lg:text-5xl">
+                  <span id="heroKeywordtextSpan">{t('home.infinite')}</span>
+                  {t('home.IMQ')}
+                </h1>
+              )}
+              {lng === "es" && (
+                <h1 ref={heroTitleRef} id="heroTitle" className="text-primary font-inter font-bold text-2xl sm:text-3xl lg:text-5xl">
+                  {t('home.problems')}
+                  <span id="heroKeywordtextSpan">{t('home.infinite')}</span>
+                  {t('home.IMQ')}
+                </h1>
+              )}
+              {lng === "fr" && (
+                <h1 ref={heroTitleRef} id="heroTitle" className="text-primary font-inter font-bold text-2xl sm:text-3xl lg:text-5xl">
+                  {t('home.IMQ')}
+                  <span id="heroKeywordtextSpan">{t('home.infinite')}</span>
+                </h1>
+              )}
+              <p id="heroP" className="mt-2 text-primary sm:text-lg lg:text-xl break-words">{t('home.question-description')}</p>
+            </div>
           </div>
 
           {/* Buttons */}
