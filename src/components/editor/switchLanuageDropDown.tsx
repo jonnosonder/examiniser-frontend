@@ -9,9 +9,10 @@ import { Locale, LocaleValues } from "@/lib/locales";
 
 interface LanguageSwitcherProps {
   current: Locale;
+  position?: "bottom-left" | "top-right";
 }
 
-export default function SwitchLanuageDropDown({ current }: LanguageSwitcherProps) {
+export default function SwitchLanuageDropDown({ current, position }: LanguageSwitcherProps) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
@@ -30,6 +31,11 @@ export default function SwitchLanuageDropDown({ current }: LanguageSwitcherProps
     window.location.href = "/" + segments.join("/");
   };
 
+  const dropdownPositionClass =
+  position === "bottom-left"
+    ? "mt-2 right-0"
+    : "mb-2 bottom-full left-0";
+
   return (
     <div className="relative inline-block text-left">
       <button
@@ -42,7 +48,7 @@ export default function SwitchLanuageDropDown({ current }: LanguageSwitcherProps
       </button>
 
       {open && (
-        <div className="absolute mt-2 right-0 w-32 bg-white border rounded shadow-lg z-10">
+        <div className={`absolute ${dropdownPositionClass} w-32 bg-white border rounded shadow-lg z-10`}>
           {(LocaleValues as Locale[]).map((lng) => (
             <button
               key={lng}

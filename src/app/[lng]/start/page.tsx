@@ -546,7 +546,7 @@ export default function StartPage({ params }: { params: Promise<{ lng: Locale }>
             <ArrowIcon className='w-full h-full'/>
         </div>
         <div className="absolute bg-background z-[1] top-3 right-3 border border-lightGrey rounded-md shadow-sm hide-scrollbar">
-            <SwitchLanuageDropDown current={lng}  />
+            <SwitchLanuageDropDown current={lng} position="bottom-left" />
         </div>
         {/* Setup Questions */}
         <div ref={firstQuestionDiv} className="absolute w-full h-full flex justify-center items-center">

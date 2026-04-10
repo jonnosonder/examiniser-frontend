@@ -63,7 +63,7 @@ export default function Navbar({ lng, pageOn } : {lng: Locale, pageOn:"/"|"/crea
             </div>
 
             <div className='inline gap-6 space-x-4'>
-              <SwitchLanuageDropDown current={lng}  />
+              <SwitchLanuageDropDown current={lng} position="bottom-left" />
               {/*
               <button className='loginBtn' onClick={() => router.push('/login')}>
                 <span className="loginBtnSpan">Log in</span>
@@ -78,7 +78,7 @@ export default function Navbar({ lng, pageOn } : {lng: Locale, pageOn:"/"|"/crea
           <div className="mx-auto flex justify-between items-center py-2 px-4 relative">
             <div className="flex items-center justify-center text-primary font-nunito text-2xl sm:text-3xl lg:text-5xl cursor-pointer">Examiniser</div>
             <div className="flex w-full justify-end items-center gap-6 text-white cursor-pointer" />
-            <SwitchLanuageDropDown current={lng}  />
+            <SwitchLanuageDropDown current={lng} position="bottom-left" />
             <>
               <div className={`circle ${isBurgerActive ? "expanded" : ""}`}></div>
 

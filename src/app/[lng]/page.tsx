@@ -9,20 +9,23 @@ import Navbar from '@/components/landing/navbar';
 import * as React from "react";
 import { Locale } from '@/lib/locales';
 import { useState } from 'react';
+import { useRouter } from "next/navigation";
 
-type ButtonId = "primary" | "secondary" | "sixthForm" | null;
+type ButtonId = "primary" | "secondary" | "sixthForm" | "exam_board" | null;
 
 export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
   const { t } = useTranslation();
   const resolvedParams = React.use(params);
   const { lng } = resolvedParams;
 
+  const router = useRouter();
+
   const [activeButton, setActiveButton] = useState<ButtonId>(null);
   const [textVisible, setTextVisible] = useState<Record<string, boolean>>({
-    primary: true, secondary: true, sixthForm: true,
+    primary: true, secondary: true, sixthForm: true, exam_board: true,
   });
   const [gridVisible, setGridVisible] = useState<Record<string, boolean>>({
-    primary: false, secondary: false, sixthForm: false,
+    primary: false, secondary: false, sixthForm: false, exam_board: false,
   });
   const [buttonsReady, setButtonsReady] = useState(false);
 
@@ -60,7 +63,7 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
     return () => clearTimeout(timer);
   }, []);
 
-  // Intersection observer for template section (kept from original)
+  
   React.useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -100,23 +103,64 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
     }, 150);
   };
 
-  const handleClose = (id: ButtonId) => {
-    setGridVisible(prev => ({ ...prev, [id!]: false }));
+  const handleClose = () => {
+    setGridVisible({
+      primary: false,
+      secondary: false,
+      sixthForm: false,
+      exam_board: false,
+    });
+
     setTimeout(() => {
       setActiveButton(null);
-      setTimeout(() => setTextVisible(prev => ({ ...prev, [id!]: true })), 200);
+
+      setTimeout(() => {
+        setTextVisible({
+          primary: true,
+          secondary: true,
+          sixthForm: true,
+          exam_board: true,
+        });
+      }, 200);
     }, 150);
   };
 
-  const buttons: { id: ButtonId; label: string; items: string[]; delay: string }[] = [
-    { id: "primary",   label: "Primary School", items: ["Year 1", "Year 2", "Year 3", "Year 4"],       delay: "0ms" },
-    { id: "secondary", label: "Secondary",       items: ["Year 7", "Year 8", "Year 9", "Year 10"],     delay: "120ms" },
-    { id: "sixthForm", label: "Sixth Form",      items: ["Year 12", "Year 13", "AS Level", "A Level"], delay: "240ms" },
+  const buttons: { id: ButtonId; label: string; items: string[]; links: string[]; delay: string }[] = [
+    { 
+      id: "primary",
+      label: t("education.primary-school"),
+      items: ["primary-topics.numbers", "primary-topics.addition-subtraction", "primary-topics.multiplication-division", "primary-topics.fractions-decimals-percentages", "primary-topics.measurement", "primary-topics.geometry", "primary-topics.algebra", "primary-topics.statistics", "primary-topics.problem-solving", "general.see-all"],
+      links: ["/primary/numbers", "/primary/add-subtract", "/primary/multiply-divide", "/primary/fractions-decimals-percentages", "/primary/measurement", "/primary/geometry", "/primary/algebra", "/primary/statistics", "/primary/problem-solving", "/primary"],
+      delay: "0ms"
+    },
+    { 
+      id: "secondary",
+      label: t("education.secondary-school"), 
+      items: ["Year 7", "Year 8", "Year 9", "general.see-all"], 
+      links: ["/secondary/year-7", "/secondary/year-8", "/secondary/year-9", "/secondary/"],
+      delay: "120ms" 
+    },
+    { 
+      id: "sixthForm", 
+      label: t("education.sixth-form"),       
+      items: ["Year 12", "Year 13", "AS Level", "general.see-all"],  
+      links: ["/sixth-form/year-12", "/sixth-form/year-13", "/sixth-form/as-level", "/sixth-form/"],
+      delay: "240ms" 
+    },
+    { 
+      id: "exam_board", 
+      label: t("education.exam-board"),       
+      items: ["AQA", "Edexcel", "OCR", "general.see-all"],  
+      links: ["/exam-board/aqa", "/exam-board/edexcel", "/exam-board/ocr", "/exam-board/"],
+      delay: "360ms" 
+    }
   ];
 
   return (
     <>
+      <div onClick={handleClose}>
       <Navbar lng={lng} pageOn='/'/>
+      </div>
       <div className="h-[100dvh] w-full bg-background overflow-hidden flex flex-col">
         
         {/* Grid background */}
@@ -129,7 +173,7 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
         ></div>
 
         {/* Content */}
-        <div className="relative z-[2] flex flex-col flex-1 items-center justify-center pt-16 overflow-hidden">
+        <div className="relative z-[2] flex flex-col flex-1 items-center justify-center pt-16 overflow-hidden" onClick={handleClose}>
           
           {/* Hero text */}
           <div className='p-8 text-center mb-12'>
@@ -156,8 +200,8 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
           </div>
 
           {/* Buttons */}
-          <div className='flex space-x-8'>
-            {buttons.map(({ id, label, items, delay }) => (
+          <div className='flex space-x-8' onClick={(e) => e.stopPropagation()}>
+            {buttons.map(({ id, label, items, links, delay }) => (
               <div
                 key={id}
                 className="flex items-center justify-center"
@@ -170,8 +214,8 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
                 <div
                   className="relative overflow-visible transition-all duration-300 ease-in-out"
                   style={{
-                    width: activeButton === id ? "24rem" : "12rem",
-                    height: activeButton === id ? "24rem" : "12rem",
+                    width: activeButton === id ? "24rem" : "14rem",
+                    height: activeButton === id ? "24rem" : "14rem",
                     borderRadius: "12px",
                     background: "#fff",
                   }}
@@ -180,8 +224,8 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
                   <button
                     onClick={() => handleOpen(id)}
                     className={`absolute inset-0 w-full h-full bg-white flex items-center justify-center
-                      text-lg font-medium text-black border-2 border-primary cursor-pointer rounded-[1rem]
-                      transition-all duration-200 hover:shadow-[0_0_0_0.6rem_rgba(245,124,34,1)]
+                      text-2xl text-black border-2 border-primary cursor-pointer rounded-[1rem]
+                      transition-all duration-200 hover:shadow-[0_0_0_0.6rem_var(--contrast)] font-nunito
                       ${textVisible[id!] ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
                   >
                     {label}
@@ -193,15 +237,17 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
                       transition-opacity duration-200 border-2 border-primary rounded-[1rem]
                       ${gridVisible[id!] ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
                   >
-                    {items.map((item) => (
+                    {items.map((item, index) => (
                       <button
                         key={item}
-                        onClick={() => handleClose(id)}
+                        onClick={() => {
+                          router.push(`/${lng}`+links[index]);
+                        }}
                         className="flex items-center justify-center text-sm font-medium
-                          text-black bg-white border border-gray-200 rounded-lg cursor-pointer
-                          transition-shadow duration-200 hover:shadow-[0_0_0_3px_rgba(249,115,22,0.4)]"
+                          text-black bg-white border border-gray-300 rounded-lg cursor-pointer
+                          transition-shadow duration-200 hover:shadow-[0_0_0_0.2rem_var(--accent)]"
                       >
-                        {item}
+                        {t(item)}
                       </button>
                     ))}
                   </div>
@@ -209,7 +255,6 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
               </div>
             ))}
           </div>
-
         </div>
       </div>
     </>

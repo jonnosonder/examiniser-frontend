@@ -11,6 +11,28 @@
     "and": "et",
     "easy": "Faciles"
   },
+  "general": {
+    "back-to-home": "Volver a la Página Principal",
+    "see-all": "Voir Tout"
+  },
+  "education": {
+    "primary-school": "École élémentaire",
+    "primary-school-description": "Construisez une base solide en mathématiques ici avec des questions alignées sur le curriculum. La difficulté de chaque question peut être ajustée, ce qui facilite l'apprentissage des nouveaux concepts.",
+    "secondary-school": "Collège",
+    "sixth-form": "Lycée",
+    "exam-board": "Junta de Exámenes"
+  },
+  "primary-topics": {
+    "numbers": "Nombres",
+    "addition-subtraction": "Addition et Soustraction",
+    "multiplication-division": "Multiplication et Division",
+    "fractions-decimals-percentages": "Fractions, Décimales et Pourcentages",
+    "measurement": "Mesure",
+    "geometry": "Géométrie",
+    "algebra": "Algèbre",
+    "statistics": "Statistiques",
+    "problem-solving": "Résolution de problèmes"
+  },
   "navBar": {
     "questions": "Questions",
     "editor": "Éditeur",
@@ -20,9 +42,9 @@
   },
   "about": {
     "about": "À propos",
-    "description": "Ce site web est créé par un développeur seul dans le but d'aider les personnes affiliées à l'éducation à créer des sujets d'examen. L'objectif est de tout regrouper au même endroit et de le rendre accessible à tous.",
+    "description": "Ce site web a été créé par un développeur solo dans le but d'aider les étudiants et les enseignants à créer des problèmes mathématiques gratuitement. Permettant aux étudiants de n'avoir besoin que d'un seul site web pour générer des questions infinies avec des solutions et des explications, et permettant aux enseignants de créer des sujets d'examen avec facilité et efficacité. Ce site web est actuellement en phase bêta précoce, alors attendez-vous à quelques erreurs et fonctionnalités ou traductions manquantes.",
     "contact": "Contact",
-    "contactInfo": "N'hésitez pas à envoyer un e-mail pour toute suggestion ou problème."
+    "contactInfo": "N'hésitez pas à envoyer un e-mail pour toute suggestion, problème ou traduction."
   },
   "updates": {
     "updates": "Mises à jour",

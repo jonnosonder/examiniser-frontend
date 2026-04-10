@@ -12,6 +12,28 @@
     "and": "y",
     "easy": "Fácil"
   },
+  "general": {
+    "back-to-home": "Volver a la Página Principal",
+    "see-all": "Ver Todo"
+  },
+  "education": {
+    "primary-school": "Educación Primaria",
+    "primary-school-description": "Construye una base sólida en matemáticas aquí con preguntas alineadas al currículo. La dificultad de cada pregunta se puede ajustar, lo que facilita la comprensión de nuevos conceptos.",
+    "secondary-school": "ESO",
+    "sixth-form": "Bachillerato",
+    "exam-board": "Junta de Exámenes"
+  },
+  "primary-topics": {
+    "numbers": "Números",
+    "addition-subtraction": "Suma y Resta",
+    "multiplication-division": "Multiplicación y División",
+    "fractions-decimals-percentages": "Fracciones, Decimales y Porcentajes",
+    "measurement": "Medición",
+    "geometry": "Geometría",
+    "algebra": "Álgebra",
+    "statistics": "Estadística",
+    "problem-solving": "Resolución de Problemas"
+  },
   "navBar": {
     "questions": "Preguntas",
     "editor": "Editor",
@@ -21,9 +43,9 @@
   },
   "about": {
     "about": "Acerca de",
-    "description": "Este sitio web fue creado por un desarrollador independiente con el objetivo de ayudar a personas relacionadas con la educación a crear exámenes. El objetivo es reunir todo en un solo lugar y hacerlo accesible para todos.",
+    "description": "Este sitio web fue creado por un desarrollador en solitario con el objetivo de ayudar a estudiantes y profesores a crear problemas matemáticos de forma gratuita. Permitiendo a los estudiantes generar preguntas infinitas con soluciones y explicaciones, y permitiendo a los profesores crear exámenes con facilidad y eficiencia. Este sitio web se encuentra actualmente en las primeras etapas beta, así que espera algunos errores y características o traducciones faltantes.",
     "contact": "Contacto",
-    "contactInfo": "No dudes en enviar un correo con sugerencias o problemas."
+    "contactInfo": "No dudes en enviar un correo con sugerencias, problemas o traducciones."
   },
   "updates": {
     "updates": "Actualizaciones",

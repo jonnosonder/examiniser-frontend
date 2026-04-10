@@ -19,7 +19,7 @@ module.exports = {
         lightGrey: '#e7e7e7ff',
         grey: '#c1c1c1',
         darkGrey: '#a6a6a6',
-        background: '#f9fafaff',
+        background: '#f9fbfb',
       },
       fontFamily: {
         nunito: ['Nunito-500', 'Roboto-500'],

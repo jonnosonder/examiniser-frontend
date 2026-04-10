@@ -12,6 +12,29 @@
     "easy": "簡単に",
     "creation": "作成"
   },
+  
+  "general": {
+    "back-to-home": "ホームに戻る",
+    "see-all": "すべてを見る"
+  },
+  "education": {
+    "primary-school": "小学校",
+    "primary-school-description": "カリキュラムに沿った質問で、ここで数学の基礎を築きましょう。各質問の難易度を調整できるため、新しい概念を習得しやすくなります。",
+    "secondary-school": "中学校",
+    "sixth-form": "高等学校",
+    "exam-board": "試験委員会"
+  },
+  "primary-topics": {
+    "numbers": "数",
+    "addition-subtraction": "加算と減算",
+    "multiplication-division": "乗算と除算",
+    "fractions-decimals-percentages": "分数、小数、パーセンテージ",
+    "measurement": "測定",
+    "geometry": "幾何学",
+    "algebra": "代数",
+    "statistics": "統計",
+    "problem-solving": "問題解決"
+  },
   "navBar": {
     "questions": "問題",
     "editor": "エディター",
@@ -21,9 +44,9 @@
   },
   "about": {
     "about": "概要",
-    "description": "このウェブサイトは、教育関係者が試験問題を作成しやすくするために、個人開発者によって作られました。すべてを一つの場所にまとめ、誰でもアクセスできるようにすることが目的です。",
+    "description": "このウェブサイトは、学生や教師が無料で数学の問題を作成できるようにすることを目的とした、ソロ開発者によって作成されました。学生が無限の質問を解決策や説明とともに生成するための1つのウェブサイトが必要なだけで済むようにし、教師が簡単かつ効率的に試験問題を作成できるようにします。このウェブサイトは現在初期のベータ段階にあるため、いくつかのエラーや機能の欠落、翻訳の欠落が予想されます。",
     "contact": "連絡先",
-    "contactInfo": "ご意見や問題がありましたらお気軽にメールしてください。"
+    "contactInfo": "ご意見や問題、翻訳については、お気軽にメールでお問い合わせください。"
   },
   "updates": {
     "updates": "更新情報",
