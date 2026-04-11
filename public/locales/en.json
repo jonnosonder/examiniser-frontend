@@ -9,18 +9,46 @@
     "infinite": "Infinite",
     "quick": "Quick",
     "and": "and",
-    "easy": "Easy"
+    "easy": "Easy",
+    "but-how-1": "But",
+    "but-how-2": "How"
   },
   "general": {
     "back-to-home": "Back to Home",
-    "see-all": "See All"
+    "see-all": "See All",
+    "back-to-topic": "Back to {{topic}}",
+    "back-to-level": "Back to {{level}}"
   },
   "education": {
     "primary-school": "Primary School",
     "primary-school-description": "Build a strong foundation in mathematics here with curriculum-aligned questions. Each question difficulty can be adjusted making it easier to pick up new concepts.",
     "secondary-school": "Secondary School",
+    "secondary-school-description": "Progress through Key Stage 3 and GCSE-style maths: fluency in number and algebra, reasoning with geometry and statistics, and exam-style problem solving—with adjustable difficulty.",
     "sixth-form": "Sixth Form",
+    "sixth-form-description": "A-level style pure and applied strands: calculus, trigonometry, sequences, vectors, probability, and proof. Tackle harder questions with full solutions when you are ready.",
     "exam-papers": "Exam Papers"
+  },
+  "secondary-topics": {
+    "number": "Number",
+    "algebra": "Algebra",
+    "equations": "Equations",
+    "ratio-proportion": "Ratio & Proportion",
+    "geometry": "Geometry",
+    "probability-statistics": "Probability & Statistics",
+    "graphs": "Graphs",
+    "trigonometry": "Trigonometry",
+    "problem-solving": "Problem Solving"
+  },
+  "sixth-form-topics": {
+    "functions-graphs": "Functions & Graphs",
+    "differentiation": "Differentiation",
+    "integration": "Integration",
+    "trigonometry": "Trigonometry",
+    "sequences-series": "Sequences & Series",
+    "exponentials-logarithms": "Exponentials & Logarithms",
+    "vectors": "Vectors",
+    "probability-statistics": "Probability & Statistics",
+    "proof-numerical": "Proof & Numerical Methods"
   },
   "primary-topics": {
     "numbers": "Numbers",
@@ -32,7 +60,6 @@
     "algebra": "Algebra",
     "statistics": "Statistics",
     "problem-solving": "Problem Solving",
-
     "counting": "Counting",
     "reading-and-writing-numbers": "Reading & Writing Numbers",
     "place-value": "Place Value",
@@ -181,5 +208,309 @@
     "name": "Name",
     "date": "Date",
     "here-is-some-description": "Here is some description"
+  },
+  "descriptions": {
+    "primary": {
+      "numbers": "Learn to count, read, write, compare, and understand numbers, including place value and rounding.",
+      "addition-subtraction": "Develop skills in adding and subtracting numbers using different methods and solving simple problems.",
+      "multiplication-division": "Understand multiplication and division, including times tables, grouping, and sharing.",
+      "fractions-decimals-percentages": "Explore fractions, decimals, and percentages and learn how they relate to each other.",
+      "measurement": "Learn to measure length, mass, volume, time, and money using standard units.",
+      "geometry": "Study shapes, positions, angles, and properties of 2D and 3D objects.",
+      "algebra": "Introduce simple algebra concepts such as patterns, sequences, and basic equations.",
+      "statistics": "Learn to collect, organise, and interpret data using charts, tables, and graphs.",
+      "problem-solving": "Apply mathematical skills to solve a variety of real-life and reasoning problems."
+    },
+    "primarySub": {
+      "numbers": {
+        "counting": "Count forwards and backwards, group objects, and use skip counting.",
+        "reading-and-writing-numbers": "Read and write numerals and words, including zero and larger values.",
+        "place-value": "Understand tens, hundreds, and how digit position changes value.",
+        "comparing-and-ordering-numbers": "Use symbols and lists to compare and order whole numbers.",
+        "rounding-numbers": "Round to the nearest ten or hundred for estimation."
+      },
+      "addition-subtraction": {
+        "mental-strategies": "Use doubles, near doubles, and partitioning mentally.",
+        "number-bonds": "Know pairs that make ten and extend to larger totals.",
+        "written-methods": "Use column addition and subtraction with exchanging.",
+        "word-problems": "Model add and subtract stories with diagrams and equations."
+      },
+      "multiplication-division": {
+        "times-tables": "Recall and apply multiplication facts and related divisions.",
+        "grouping-sharing": "Interpret multiplication as repeated addition and division as sharing.",
+        "written-multiplication": "Use grid and compact methods for two-digit numbers.",
+        "division-methods": "Divide with remainders using grouping and short division."
+      },
+      "fractions-decimals-percentages": {
+        "fractions-basics": "Recognise unit and non-unit fractions of shapes and sets.",
+        "equivalent-fractions": "Find families of equivalent fractions on diagrams and number lines.",
+        "decimals": "Understand tenths and hundredths and decimal notation.",
+        "percentages": "Link percentages to hundredths and simple fractions."
+      },
+      "measurement": {
+        "units": "Choose and convert sensible units for everyday measures.",
+        "length-mass-capacity": "Measure, compare, and read scales for length, mass, and volume.",
+        "time": "Tell the time, read calendars, and solve duration problems.",
+        "money": "Count coins, find change, and solve money problems."
+      },
+      "geometry": {
+        "shapes-2d": "Name and describe polygons and circles.",
+        "shapes-3d": "Identify faces, edges, and vertices of common solids.",
+        "symmetry": "Find lines of symmetry and complete symmetric patterns.",
+        "angles": "Compare angles and recognise right angles.",
+        "coordinates": "Read and plot points in the first quadrant."
+      },
+      "algebra": {
+        "patterns": "Continue and describe visual and numeric patterns.",
+        "sequences": "Find rules for simple ascending and descending sequences.",
+        "missing-numbers": "Solve frame problems and balance puzzles.",
+        "simple-equations": "Use inverse operations to find unknown values."
+      },
+      "statistics": {
+        "collecting-data": "Design simple surveys and tally results.",
+        "charts": "Construct and read pictograms and bar charts.",
+        "tables": "Interpret two-way tables and frequency tables.",
+        "averages": "Find the mode and range for small data sets."
+      },
+      "problem-solving": {
+        "one-step": "Choose the correct operation for single-step stories.",
+        "two-step": "Plan order of operations in two-step word problems.",
+        "reasoning": "Explain why an answer must be true using words and diagrams.",
+        "real-life": "Apply maths to money, measure, and time contexts."
+      }
+    },
+    "secondary": {
+      "number": "Work with fractions, percentages, indices, standard form, and roots in real contexts.",
+      "algebra": "Manipulate expressions: expand, factorise, simplify, and use algebraic notation fluently.",
+      "equations": "Solve linear, quadratic, and simultaneous equations and interpret solutions.",
+      "ratio-proportion": "Use ratios, proportion, percentages, and rates of change in problems.",
+      "geometry": "Angles, shapes, constructions, transformations, perimeter, area, and volume.",
+      "probability-statistics": "Represent data, estimate probability, and use averages and spread.",
+      "graphs": "Plot and interpret linear, quadratic, and other graphs linked to equations.",
+      "trigonometry": "Pythagoras, right-angled triangles, and basic trigonometric ratios.",
+      "problem-solving": "Multi-step reasoning, modelling, and exam-style maths problems."
+    },
+    "secondarySub": {
+      "number": {
+        "fdp": "Move fluently between fractions, decimals, and percentages in problems.",
+        "indices-roots": "Use index laws, square and cube roots, and exact forms.",
+        "standard-form": "Write and calculate with numbers in standard form.",
+        "rounding-estimation": "Round to significant figures and estimate to check answers."
+      },
+      "algebra": {
+        "expressions": "Simplify, collect terms, and multiply single brackets.",
+        "expanding-factorising": "Expand products and factorise into single brackets.",
+        "indices-algebra": "Apply index laws to algebraic terms.",
+        "substitution": "Evaluate expressions and formulae for given values."
+      },
+      "equations": {
+        "linear-equations": "Solve linear equations including brackets and fractions.",
+        "quadratic-intro": "Factorise simple quadratics and use graphs.",
+        "simultaneous": "Solve pairs of linear equations algebraically and graphically.",
+        "inequalities": "Solve and represent linear inequalities on a number line."
+      },
+      "ratio-proportion": {
+        "ratio": "Simplify ratios, share in a ratio, and compare ratios.",
+        "proportion": "Solve direct and inverse proportion problems.",
+        "percentages-change": "Find percentage change, reverse percentages, and interest.",
+        "best-buy": "Compare unit pricing and value-for-money."
+      },
+      "geometry": {
+        "angles-parallel": "Use angle facts with parallel lines and polygons.",
+        "polygons": "Interior and exterior angles, similarity, and congruence.",
+        "circles": "Circumference, area, arcs, and sectors at foundation level.",
+        "area-volume": "Compound shapes, prisms, and units of area and volume.",
+        "transformations": "Translations, reflections, rotations, and enlargements."
+      },
+      "probability-statistics": {
+        "probability": "Sample space, expectation, and tree diagrams.",
+        "charts-data": "Histograms, cumulative frequency, and time series.",
+        "averages-spread": "Mean, median, mode, range, and interquartile range.",
+        "sampling": "Bias, capture-recapture, and basic sampling ideas."
+      },
+      "graphs": {
+        "linear-graphs": "Plot y = mx + c and interpret gradient and intercept.",
+        "real-life-graphs": "Distance-time, speed-time, and conversion graphs.",
+        "quadratic-graphs": "Sketch parabolas and read turning points.",
+        "gradient-intercept": "Find equations of lines through two points."
+      },
+      "trigonometry": {
+        "pythagoras": "Find unknown sides in right-angled triangles.",
+        "sohcahtoa": "Use sine, cosine, and tangent for angles and sides.",
+        "bearings": "Measure and interpret three-figure bearings.",
+        "sine-cosine-rule": "Extend to non-right triangles when needed."
+      },
+      "problem-solving": {
+        "multi-step": "Break complex questions into ordered stages.",
+        "modelling": "Translate words into equations and graphs.",
+        "exam-style": "Timed practice with mixed topics and mark schemes."
+      }
+    },
+    "sixthForm": {
+      "functions-graphs": "Transformations, composite and inverse functions, modulus, and curve sketching.",
+      "differentiation": "Gradients, tangents, rates of change, and applications including optimisation.",
+      "integration": "Antiderivatives, definite integrals, area under curves, and simple kinematics links.",
+      "trigonometry": "Radians, identities, equations, and the sine and cosine rules beyond right angles.",
+      "sequences-series": "Arithmetic and geometric progressions, sigma notation, and convergence ideas.",
+      "exponentials-logarithms": "Laws of logs and exponentials, equations, and growth and decay models.",
+      "vectors": "2D and 3D vectors, scalar product, lines, and basic geometric applications.",
+      "probability-statistics": "Distributions, hypothesis tests, and data modelling at A-level depth.",
+      "proof-numerical": "Proof techniques, iteration, and numerical methods that support advanced maths."
+    },
+    "sixthFormSub": {
+      "functions-graphs": {
+        "domain-range": "State domains, ranges, and restrictions for standard functions.",
+        "transformations": "Apply translations, stretches, and reflections to graphs.",
+        "inverses": "Find and interpret inverse functions graphically and algebraically.",
+        "modulus-piecewise": "Sketch modulus graphs and piecewise definitions."
+      },
+      "differentiation": {
+        "first-principles": "Differentiate from first principles for polynomials.",
+        "rules": "Product, quotient, and chain rules; exponentials and logarithms.",
+        "tangents-normals": "Equations of tangents and normals to curves.",
+        "optimisation": "Stationary points, second derivative test, and context problems."
+      },
+      "integration": {
+        "indefinite": "Integrate polynomials, exponentials, and standard trig functions.",
+        "definite-area": "Evaluate definite integrals and find areas between curves.",
+        "kinematics": "Displacement, velocity, and acceleration from integration."
+      },
+      "trigonometry": {
+        "radians": "Use radians on the unit circle and in calculus.",
+        "identities": "Prove and apply Pythagorean and addition identities.",
+        "equations": "Solve trigonometric equations in a given interval.",
+        "sine-cosine-rule": "Solve triangles and model problems in 2D."
+      },
+      "sequences-series": {
+        "arithmetic-geometric": "nth term, sum formulas, and sigma notation.",
+        "sigma-notation": "Expand and evaluate sums written with sigma.",
+        "binomial": "Binomial expansion for positive integer n and general term."
+      },
+      "exponentials-logarithms": {
+        "laws": "Simplify expressions using log and exponential laws.",
+        "equations": "Solve equations requiring logarithms.",
+        "modelling": "Fit growth and decay models to data."
+      },
+      "vectors": {
+        "basics": "Magnitude, direction, addition, and scalar multiplication.",
+        "scalar-product": "Dot product, angle between vectors, and perpendicularity.",
+        "lines": "Vector equations of lines and shortest distance ideas."
+      },
+      "probability-statistics": {
+        "distributions": "Binomial, normal, and discrete distributions.",
+        "hypothesis-testing": "Significance levels, critical regions, and p-values.",
+        "regression": "Least squares regression and correlation."
+      },
+      "proof-numerical": {
+        "proof": "Proof by deduction, exhaustion, and contradiction where appropriate.",
+        "iteration": "Fixed-point iteration and cobweb diagrams.",
+        "numerical-methods": "Root finding and numerical integration techniques."
+      }
+    }
+  },
+  "primary-subtopics": {
+    "mental-strategies": "Mental strategies",
+    "number-bonds": "Number bonds",
+    "written-add-subtract": "Written addition & subtraction",
+    "add-sub-word-problems": "Word problems",
+    "times-tables": "Times tables",
+    "grouping-sharing": "Grouping & sharing",
+    "written-multiplication": "Written multiplication",
+    "division-methods": "Division methods",
+    "fractions-basics": "Fraction basics",
+    "equivalent-fractions": "Equivalent fractions",
+    "decimals": "Decimals",
+    "percentages": "Percentages",
+    "units": "Units",
+    "length-mass-capacity": "Length, mass & capacity",
+    "time": "Time",
+    "money": "Money",
+    "shapes-2d": "2D shapes",
+    "shapes-3d": "3D shapes",
+    "symmetry": "Symmetry",
+    "angles": "Angles",
+    "coordinates": "Coordinates",
+    "patterns": "Patterns",
+    "sequences": "Sequences",
+    "missing-numbers": "Missing numbers",
+    "simple-equations": "Simple equations",
+    "collecting-data": "Collecting data",
+    "charts": "Charts",
+    "tables": "Tables",
+    "averages": "Averages",
+    "one-step-problems": "One-step problems",
+    "two-step-problems": "Two-step problems",
+    "reasoning": "Reasoning",
+    "real-life": "Real-life contexts"
+  },
+  "secondary-subtopics": {
+    "fdp": "Fractions, decimals & percentages",
+    "indices-roots": "Indices & roots",
+    "standard-form": "Standard form",
+    "rounding-estimation": "Rounding & estimation",
+    "expressions": "Expressions",
+    "expanding-factorising": "Expanding & factorising",
+    "indices-algebra": "Indices in algebra",
+    "substitution": "Substitution",
+    "linear-equations": "Linear equations",
+    "quadratic-intro": "Quadratic equations (intro)",
+    "simultaneous": "Simultaneous equations",
+    "inequalities": "Inequalities",
+    "ratio": "Ratio",
+    "proportion": "Proportion",
+    "percentages-change": "Percentages & change",
+    "best-buy": "Best buy",
+    "angles-parallel": "Angles & parallel lines",
+    "polygons": "Polygons",
+    "circles": "Circles",
+    "area-volume": "Area & volume",
+    "transformations": "Transformations",
+    "probability": "Probability",
+    "charts-data": "Charts & data",
+    "averages-spread": "Averages & spread",
+    "sampling": "Sampling",
+    "linear-graphs": "Linear graphs",
+    "real-life-graphs": "Real-life graphs",
+    "quadratic-graphs": "Quadratic graphs",
+    "gradient-intercept": "Gradient & intercept",
+    "pythagoras": "Pythagoras",
+    "sohcahtoa": "SOHCAHTOA",
+    "bearings": "Bearings",
+    "sine-cosine-rule": "Sine & cosine rules",
+    "multi-step": "Multi-step problems",
+    "modelling": "Modelling",
+    "exam-style": "Exam-style questions"
+  },
+  "sixth-subtopics": {
+    "domain-range": "Domain & range",
+    "graph-transformations": "Graph transformations",
+    "inverses": "Inverses",
+    "modulus-piecewise": "Modulus & piecewise",
+    "first-principles": "First principles",
+    "differentiation-rules": "Differentiation rules",
+    "tangents-normals": "Tangents & normals",
+    "optimisation": "Optimisation",
+    "indefinite-integration": "Indefinite integration",
+    "definite-area": "Definite integrals & area",
+    "kinematics": "Kinematics",
+    "radians": "Radians",
+    "trig-identities": "Trigonometric identities",
+    "trig-equations": "Trigonometric equations",
+    "trig-sine-cosine-rule": "Sine & cosine rules",
+    "arithmetic-geometric": "Arithmetic & geometric series",
+    "sigma-notation": "Sigma notation",
+    "binomial": "Binomial expansion",
+    "exp-log-laws": "Laws of exponentials & logarithms",
+    "exp-log-equations": "Exponential & log equations",
+    "exp-log-modelling": "Modelling with exponentials & logs",
+    "vector-basics": "Vector basics",
+    "scalar-product": "Scalar product",
+    "vector-lines": "Lines & vectors",
+    "distributions": "Probability distributions",
+    "hypothesis-testing": "Hypothesis testing",
+    "regression": "Regression",
+    "proof": "Proof",
+    "iteration": "Iteration",
+    "numerical-methods": "Numerical methods"
   }
 }

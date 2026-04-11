@@ -6,19 +6,19 @@
 import { Locale } from '@/lib/locales';
 import * as React from "react";
 import { QuestionLevelOverview } from '@/components/questions/questionTopicScreens';
-import { primaryTopicIconMap } from '@/components/questions/questionTopicIconMaps';
+import { sixthFormTopicIconMap } from '@/components/questions/questionTopicIconMaps';
 
-export default function Primary({ params }: { params: Promise<{ lng: Locale }> }) {
+export default function SixthForm({ params }: { params: Promise<{ lng: Locale }> }) {
     const resolvedParams = React.use(params);
     const { lng } = resolvedParams;
 
     return (
         <QuestionLevelOverview
             lng={lng}
-            level="primary"
-            headingKey="education.primary-school"
-            descriptionKey="education.primary-school-description"
-            iconByTopicId={primaryTopicIconMap}
+            level="sixthForm"
+            headingKey="education.sixth-form"
+            descriptionKey="education.sixth-form-description"
+            iconByTopicId={sixthFormTopicIconMap}
         />
     );
 }

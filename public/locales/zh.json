@@ -1,6 +1,6 @@
 {
   "home": {
-    "question-description": "一个专门制作试题和考试试卷的编辑器。易于创建和浏览，内置模板，全免费！",
+    "question-description": "免费生成无限道数学题，附解答与讲解！",
     "editor-description": "一个专门制作试题和考试试卷的编辑器。易于创建和浏览，内置模板，全免费！",
     "Start-Now": "现在开始",
     "in-development": "开发中",
@@ -9,18 +9,46 @@
     "infinite": "无限",
     "quick": "快速",
     "and": "和",
-    "easy": "轻松"
+    "easy": "轻松",
+    "but-how-1": "但是",
+    "but-how-2": "如何"
   },
   "general": {
     "back-to-home": "返回首页",
-    "see-all": "查看全部"
+    "see-all": "查看全部",
+    "back-to-topic": "返回{{topic}}",
+    "back-to-level": "返回{{level}}"
   },
   "education": {
     "primary-school": "小学",
     "primary-school-description": "在这里通过与课程大纲对齐的问题建立坚实的数学基础。可以通过调整每个问题的难度，使学习新概念变得更加容易。",
     "secondary-school": "初中",
+    "secondary-school-description": "面向初中与通用中学数学：数与代数、几何与统计推理、可调难度的考试型应用题，循序渐进巩固能力。",
     "sixth-form": "高中",
+    "sixth-form-description": "高中与 A-level 风格：微积分、三角、数列、向量、概率与证明；需要时可配合完整解答深入学习。",
     "exam-papers": "考试试卷"
+  },
+  "secondary-topics": {
+    "number": "数与运算",
+    "algebra": "代数",
+    "equations": "方程",
+    "ratio-proportion": "比与比例",
+    "geometry": "几何",
+    "probability-statistics": "概率与统计",
+    "graphs": "图像",
+    "trigonometry": "三角",
+    "problem-solving": "解决问题"
+  },
+  "sixth-form-topics": {
+    "functions-graphs": "函数与图像",
+    "differentiation": "导数",
+    "integration": "积分",
+    "trigonometry": "三角",
+    "sequences-series": "数列与级数",
+    "exponentials-logarithms": "指数与对数",
+    "vectors": "向量",
+    "probability-statistics": "概率与统计",
+    "proof-numerical": "证明与数值方法"
   },
   "primary-topics": {
     "numbers": "数字",
@@ -32,7 +60,6 @@
     "algebra": "代数",
     "statistics": "统计",
     "problem-solving": "解决问题",
-
     "counting": "计数",
     "reading-and-writing-numbers": "读写数字",
     "place-value": "位值",
@@ -148,7 +175,7 @@
     "image-url": "图片网址",
     "your-image-url-placeholder": "https://你的图片链接",
     "or": "或者",
-    "add": "添加"  
+    "add": "添加"
   },
   "notification": {
     "file-format-not-recognised": "文件格式无法识别",
@@ -181,5 +208,309 @@
     "name": "名称",
     "date": "日期",
     "here-is-some-description": "这里是一些描述"
+  },
+  "descriptions": {
+    "primary": {
+      "numbers": "学习数数、读数、写数、比较与理解数位、四舍五入等数的概念。",
+      "addition-subtraction": "用多种方法练习加减法并解决简单应用题。",
+      "multiplication-division": "理解乘法与除法，包括乘法表、分组与均分。",
+      "fractions-decimals-percentages": "认识分数、小数、百分数及其相互关系。",
+      "measurement": "用常用单位测量长度、质量、容积、时间和金钱。",
+      "geometry": "学习平面与立体图形的形状、位置、角与性质。",
+      "algebra": "初步接触规律、数列与简单方程。",
+      "statistics": "用表格与图表收集、整理并解读数据。",
+      "problem-solving": "把数学用于生活情境与推理问题。"
+    },
+    "primarySub": {
+      "numbers": {
+        "counting": "正向、反向数数，分组计数与跳数。",
+        "reading-and-writing-numbers": "认读与书写数字（含零与更大的数）。",
+        "place-value": "理解十位、百位及数位如何决定数值大小。",
+        "comparing-and-ordering-numbers": "用符号与列表比较并排序自然数。",
+        "rounding-numbers": "四舍五入到整十、整百以便估算。"
+      },
+      "addition-subtraction": {
+        "mental-strategies": "利用加倍、近加倍与拆分进行心算。",
+        "number-bonds": "掌握凑十及推广到更大的和。",
+        "written-methods": "用竖式加减并进位与退位。",
+        "word-problems": "用图示与算式表示加减故事题。"
+      },
+      "multiplication-division": {
+        "times-tables": "熟练乘法口诀及相关除法。",
+        "grouping-sharing": "把乘法理解为连加，除法理解为均分。",
+        "written-multiplication": "用网格法与简洁算法计算两位数乘法。",
+        "division-methods": "用分组与短除法处理带余除法。"
+      },
+      "fractions-decimals-percentages": {
+        "fractions-basics": "认识图形与集合中的单位分数与非单位分数。",
+        "equivalent-fractions": "在示意图与数轴上找出等值分数。",
+        "decimals": "理解十分位、百分位及小数记法。",
+        "percentages": "把百分数与百分之几及简单分数联系起来。"
+      },
+      "measurement": {
+        "units": "为日常测量选择并换算合适单位。",
+        "length-mass-capacity": "测量、比较并读取长度、质量、容积的刻度。",
+        "time": "看钟表、读日历并解决时长问题。",
+        "money": "数钱、找零并解决金钱问题。"
+      },
+      "geometry": {
+        "shapes-2d": "说出并描述多边形与圆。",
+        "shapes-3d": "辨认常见立体的面、棱与顶点。",
+        "symmetry": "找对称轴并完成对称图形。",
+        "angles": "比较角并认识直角。",
+        "coordinates": "在第一象限读点、描点。"
+      },
+      "algebra": {
+        "patterns": "延续并描述视觉与数字规律。",
+        "sequences": "找出简单递增、递减数列的规律。",
+        "missing-numbers": "解决方框题与天平谜题。",
+        "simple-equations": "用逆运算求未知数。"
+      },
+      "statistics": {
+        "collecting-data": "设计简单调查并画记数。",
+        "charts": "制作并读取象形图与条形图。",
+        "tables": "解读双向表与频数表。",
+        "averages": "在小型数据集中找众数与极差。"
+      },
+      "problem-solving": {
+        "one-step": "为一步故事题选择正确运算。",
+        "two-step": "在两步文字题中规划运算顺序。",
+        "reasoning": "用语言与图示说明答案为何成立。",
+        "real-life": "把钱、测量与时间情境中的数学用起来。"
+      }
+    },
+    "secondary": {
+      "number": "在真实情境中运用分数、百分数、指数、标准形式与根式。",
+      "algebra": "熟练展开、因式分解、化简代数式与代数符号。",
+      "equations": "解一元与二次方程、方程组并解释解的意义。",
+      "ratio-proportion": "运用比、比例、百分数与变化率。",
+      "geometry": "角、图形、作图、变换、周长、面积与体积。",
+      "probability-statistics": "表示数据、估计概率并运用平均数与离散程度。",
+      "graphs": "绘制并理解与方程相关的直线、二次等图像。",
+      "trigonometry": "勾股定理、直角三角形与基本三角比。",
+      "problem-solving": "多步推理、建模与考试型综合题。"
+    },
+    "secondarySub": {
+      "number": {
+        "fdp": "在问题中熟练互化分数、小数与百分数。",
+        "indices-roots": "运用指数律、平方根与立方根及精确形式。",
+        "standard-form": "用标准形式（科学记数法）书写与计算。",
+        "rounding-estimation": "按有效数字四舍五入并用估算检验答案。"
+      },
+      "algebra": {
+        "expressions": "化简、合并同类项与单项式乘括号。",
+        "expanding-factorising": "展开乘积并对单项括号因式分解。",
+        "indices-algebra": "把指数律用于代数项。",
+        "substitution": "代入数值求代数式与公式的值。"
+      },
+      "equations": {
+        "linear-equations": "解含括号与分数的一次方程。",
+        "quadratic-intro": "对简单二次式因式分解并结合图像。",
+        "simultaneous": "用代数与图像方法解二元一次方程组。",
+        "inequalities": "解一次不等式并在数轴上表示。"
+      },
+      "ratio-proportion": {
+        "ratio": "化简比、按比例分配并比较比。",
+        "proportion": "解正比例与反比例问题。",
+        "percentages-change": "求百分变化、反求原值与利息类问题。",
+        "best-buy": "比较单价与性价比。"
+      },
+      "geometry": {
+        "angles-parallel": "结合平行线与多边形运用角的关系。",
+        "polygons": "内角与外角、相似与全等。",
+        "circles": "周长、面积、弧与扇形（基础层次）。",
+        "area-volume": "组合图形、棱柱及面积、体积单位。",
+        "transformations": "平移、轴对称、旋转与放大。"
+      },
+      "probability-statistics": {
+        "probability": "样本空间、期望与树状图。",
+        "charts-data": "直方图、累积频数与时间序列。",
+        "averages-spread": "平均数、中位数、众数、极差与四分位距。",
+        "sampling": "偏差、标记重捕与基本抽样思想。"
+      },
+      "graphs": {
+        "linear-graphs": "绘制 y = mx + c 并理解斜率与截距。",
+        "real-life-graphs": "路程—时间、速度—时间、换算图像。",
+        "quadratic-graphs": "草绘抛物线并读出顶点。",
+        "gradient-intercept": "求过两点的直线方程。"
+      },
+      "trigonometry": {
+        "pythagoras": "在直角三角形中求未知边长。",
+        "sohcahtoa": "用正弦、余弦、正切求角与边。",
+        "bearings": "测量并解读三位数方位角。",
+        "sine-cosine-rule": "必要时推广到非直角三角形。"
+      },
+      "problem-solving": {
+        "multi-step": "把复杂题目拆成有序步骤。",
+        "modelling": "把文字转化为方程与图像。",
+        "exam-style": "限时综合练习并对照评分要点。"
+      }
+    },
+    "sixthForm": {
+      "functions-graphs": "变换、复合与反函数、模函数与曲线草图。",
+      "differentiation": "斜率、切线、变化率与最优化应用。",
+      "integration": "不定积分、定积分、曲线下面积与简单运动学联系。",
+      "trigonometry": "弧度、恒等变换、方程以及正弦、余弦定理。",
+      "sequences-series": "等差与等比数列、求和符号与收敛思想。",
+      "exponentials-logarithms": "指数与对数运算法则、方程与增长衰减模型。",
+      "vectors": "二维与三维向量、点积、直线与几何应用。",
+      "probability-statistics": "分布、假设检验与高阶数据统计建模。",
+      "proof-numerical": "证明方法、迭代与数值计算。"
+    },
+    "sixthFormSub": {
+      "functions-graphs": {
+        "domain-range": "说明常见函数的定义域、值域与限制条件。",
+        "transformations": "对图像施加平移、伸缩与反射。",
+        "inverses": "用图像与代数求并理解反函数。",
+        "modulus-piecewise": "绘制含绝对值的图像与分段定义。"
+      },
+      "differentiation": {
+        "first-principles": "对多项式从定义出发求导。",
+        "rules": "积、商、链式法则；指数与对数求导。",
+        "tangents-normals": "求曲线切线与法线方程。",
+        "optimisation": "驻点、二阶导检验与情境最值。"
+      },
+      "integration": {
+        "indefinite": "积分多项式、指数与标准三角函数。",
+        "definite-area": "计算定积分并求曲线间面积。",
+        "kinematics": "由积分联系位移、速度与加速度。"
+      },
+      "trigonometry": {
+        "radians": "在单位圆与微积分中使用弧度。",
+        "identities": "证明并运用勾股型与和角恒等式。",
+        "equations": "在给定区间内解三角方程。",
+        "sine-cosine-rule": "解三角形并建立二维模型。"
+      },
+      "sequences-series": {
+        "arithmetic-geometric": "通项、求和公式与求和符号。",
+        "sigma-notation": "展开并计算用 Σ 写的和。",
+        "binomial": "正整数 n 的二项展开及通项。"
+      },
+      "exponentials-logarithms": {
+        "laws": "用对数与指数法则化简式子。",
+        "equations": "解需要取对数的方程。",
+        "modelling": "用增长与衰减模型拟合数据。"
+      },
+      "vectors": {
+        "basics": "模、方向、加法与数乘。",
+        "scalar-product": "点积、夹角与垂直条件。",
+        "lines": "直线的向量方程与最短距离思想。"
+      },
+      "probability-statistics": {
+        "distributions": "二项、正态与离散分布。",
+        "hypothesis-testing": "显著性水平、拒绝域与 p 值。",
+        "regression": "最小二乘回归与相关。"
+      },
+      "proof-numerical": {
+        "proof": "演绎、穷举与反证等证明方式。",
+        "iteration": "不动点迭代与蛛网图。",
+        "numerical-methods": "求根与数值积分方法。"
+      }
+    }
+  },
+  "primary-subtopics": {
+    "mental-strategies": "心算策略",
+    "number-bonds": "数的分合（凑十）",
+    "written-add-subtract": "竖式加减",
+    "add-sub-word-problems": "加减应用题",
+    "times-tables": "乘法表",
+    "grouping-sharing": "分组与均分",
+    "written-multiplication": "竖式乘法",
+    "division-methods": "除法方法",
+    "fractions-basics": "分数基础",
+    "equivalent-fractions": "等值分数",
+    "decimals": "小数",
+    "percentages": "百分数",
+    "units": "单位",
+    "length-mass-capacity": "长度、质量与容积",
+    "time": "时间",
+    "money": "金钱",
+    "shapes-2d": "平面图形",
+    "shapes-3d": "立体图形",
+    "symmetry": "对称",
+    "angles": "角",
+    "coordinates": "坐标",
+    "patterns": "规律",
+    "sequences": "数列",
+    "missing-numbers": "填数",
+    "simple-equations": "简单方程",
+    "collecting-data": "数据收集",
+    "charts": "统计图",
+    "tables": "统计表",
+    "averages": "平均数",
+    "one-step-problems": "一步问题",
+    "two-step-problems": "两步问题",
+    "reasoning": "推理",
+    "real-life": "实际情境"
+  },
+  "secondary-subtopics": {
+    "fdp": "分数、小数与百分数",
+    "indices-roots": "指数与根式",
+    "standard-form": "标准形式（科学记数法）",
+    "rounding-estimation": "四舍五入与估算",
+    "expressions": "代数式",
+    "expanding-factorising": "展开与因式分解",
+    "indices-algebra": "代数中的指数",
+    "substitution": "代入",
+    "linear-equations": "一次方程",
+    "quadratic-intro": "二次方程（入门）",
+    "simultaneous": "方程组",
+    "inequalities": "不等式",
+    "ratio": "比",
+    "proportion": "比例",
+    "percentages-change": "百分数与变化率",
+    "best-buy": "最优购买",
+    "angles-parallel": "角与平行线",
+    "polygons": "多边形",
+    "circles": "圆",
+    "area-volume": "面积与体积",
+    "transformations": "图形变换",
+    "probability": "概率",
+    "charts-data": "图表与数据",
+    "averages-spread": "平均数与离散程度",
+    "sampling": "抽样",
+    "linear-graphs": "一次函数图像",
+    "real-life-graphs": "实际情境图像",
+    "quadratic-graphs": "二次函数图像",
+    "gradient-intercept": "斜率与截距",
+    "pythagoras": "勾股定理",
+    "sohcahtoa": "三角比（SOHCAHTOA）",
+    "bearings": "方位角",
+    "sine-cosine-rule": "正弦、余弦定理",
+    "multi-step": "多步综合题",
+    "modelling": "建模",
+    "exam-style": "考试题型"
+  },
+  "sixth-subtopics": {
+    "domain-range": "定义域与值域",
+    "graph-transformations": "图像变换",
+    "inverses": "反函数",
+    "modulus-piecewise": "绝对值与分段函数",
+    "first-principles": "导数定义（极限）",
+    "differentiation-rules": "求导法则",
+    "tangents-normals": "切线与法线",
+    "optimisation": "最优化",
+    "indefinite-integration": "不定积分",
+    "definite-area": "定积分与面积",
+    "kinematics": "运动学",
+    "radians": "弧度",
+    "trig-identities": "三角恒等式",
+    "trig-equations": "三角方程",
+    "trig-sine-cosine-rule": "正弦、余弦定理",
+    "arithmetic-geometric": "等差与等比数列",
+    "sigma-notation": "求和符号 Σ",
+    "binomial": "二项式展开",
+    "exp-log-laws": "指数与对数运算法则",
+    "exp-log-equations": "指数与对数方程",
+    "exp-log-modelling": "指数与对数建模",
+    "vector-basics": "向量基础",
+    "scalar-product": "数量积（点积）",
+    "vector-lines": "直线与向量",
+    "distributions": "概率分布",
+    "hypothesis-testing": "假设检验",
+    "regression": "回归分析",
+    "proof": "证明",
+    "iteration": "迭代法",
+    "numerical-methods": "数值方法"
   }
 }

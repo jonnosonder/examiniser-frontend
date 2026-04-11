@@ -133,21 +133,21 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
       id: "primary",
       label: t("education.primary-school"),
       items: ["primary-topics.numbers", "primary-topics.addition-subtraction", "primary-topics.multiplication-division", "primary-topics.fractions-decimals-percentages", "primary-topics.measurement", "primary-topics.geometry", "primary-topics.algebra", "primary-topics.statistics", "primary-topics.problem-solving", "general.see-all"],
-      links: ["/primary/numbers", "/primary/add-subtract", "/primary/multiply-divide", "/primary/fractions-decimals-percentages", "/primary/measurement", "/primary/geometry", "/primary/algebra", "/primary/statistics", "/primary/problem-solving", "/primary"],
+      links: ["/primary/numbers", "/primary/addition-subtraction", "/primary/multiplication-division", "/primary/fractions-decimals-percentages", "/primary/measurement", "/primary/geometry", "/primary/algebra", "/primary/statistics", "/primary/problem-solving", "/primary"],
       delay: "0ms"
     },
     { 
       id: "secondary",
       label: t("education.secondary-school"), 
-      items: ["Year 7", "Year 8", "Year 9", "general.see-all"], 
-      links: ["/secondary/year-7", "/secondary/year-8", "/secondary/year-9", "/secondary/"],
+      items: ["secondary-topics.number", "secondary-topics.algebra", "secondary-topics.equations", "secondary-topics.ratio-proportion", "secondary-topics.geometry", "secondary-topics.probability-statistics", "secondary-topics.graphs", "secondary-topics.trigonometry", "secondary-topics.problem-solving", "general.see-all"],
+      links: ["/secondary/number", "/secondary/algebra", "/secondary/equations", "/secondary/ratio-proportion", "/secondary/geometry", "/secondary/probability-statistics", "/secondary/graphs", "/secondary/trigonometry", "/secondary/problem-solving", "/secondary"],
       delay: "120ms" 
     },
     { 
       id: "sixthForm", 
       label: t("education.sixth-form"),       
-      items: ["Year 12", "Year 13", "AS Level", "general.see-all"],  
-      links: ["/sixth-form/year-12", "/sixth-form/year-13", "/sixth-form/as-level", "/sixth-form/"],
+      items: ["sixth-form-topics.functions-graphs", "sixth-form-topics.differentiation", "sixth-form-topics.integration", "sixth-form-topics.trigonometry", "sixth-form-topics.sequences-series", "sixth-form-topics.exponentials-logarithms", "sixth-form-topics.vectors", "sixth-form-topics.probability-statistics", "sixth-form-topics.proof-numerical", "general.see-all"],
+      links: ["/sixth-form/functions-graphs", "/sixth-form/differentiation", "/sixth-form/integration", "/sixth-form/trigonometry", "/sixth-form/sequences-series", "/sixth-form/exponentials-logarithms", "/sixth-form/vectors", "/sixth-form/probability-statistics", "/sixth-form/proof-numerical", "/sixth-form"],
       delay: "240ms" 
     },
     { 
@@ -187,7 +187,9 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
         <Navbar lng={lng} pageOn='/'/>
       </div>
 
-      <div className="h-[100dvh] w-full bg-background overflow-hidden flex flex-col">
+      <div className="w-full bg-background">
+
+      <section className="relative h-[100dvh] w-full overflow-hidden flex flex-col">
 
         {/* Grid background */}
         <div className="
@@ -320,6 +322,21 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
             ))}
           </div>
         </div>
+      </section>
+
+      <section className="relative h-[100dvh] w-full bg-background">
+        <div
+          className="absolute inset-0 z-0 [background-image:linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] [background-size:20px_20px]"
+          aria-hidden
+        />
+        <div className="relative z-[1] h-full w-full px-8 sm:px-12 lg:px-16 pt-12 sm:pt-16">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-nunito font-semibold text-primary text-left">
+            {t("home.but-how-1")}{" "}
+            <span className="text-[var(--contrast)]">{t("home.but-how-2")}</span>
+          </h2>
+        </div>
+      </section>
+
       </div>
     </>
   );

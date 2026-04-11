@@ -1,6 +1,6 @@
 {
   "home": {
-    "question-description": "問題や試験問題用の編集ツールです。組み込みテンプレートで簡単に作成・操作でき、すべて無料！",
+    "question-description": "無限に数学の問題を生成。解答と解説つき、無料で利用できます。",
     "editor-description": "問題や試験問題用の編集ツールです。組み込みテンプレートで簡単に作成・操作でき、すべて無料！",
     "Start-Now": "今すぐ始める",
     "in-development": "開発中",
@@ -10,19 +10,46 @@
     "quick": "素早く",
     "and": "かつ",
     "easy": "簡単に",
-    "creation": "作成"
+    "creation": "作成",
+    "but-how-1": "でも",
+    "but-how-2": "どうやって"
   },
-  
   "general": {
     "back-to-home": "ホームに戻る",
-    "see-all": "すべてを見る"
+    "see-all": "すべてを見る",
+    "back-to-topic": "{{topic}}に戻る",
+    "back-to-level": "{{level}}に戻る"
   },
   "education": {
     "primary-school": "小学校",
     "primary-school-description": "カリキュラムに沿った質問で、ここで数学の基礎を築きましょう。各質問の難易度を調整できるため、新しい概念を習得しやすくなります。",
     "secondary-school": "中学校",
+    "secondary-school-description": "中学校〜高校基礎相当の数学：数と式、図形と統計の推理、試験形式の応用問題まで、難易度を調整しながら学べます。",
     "sixth-form": "高等学校",
+    "sixth-form-description": "高校・Aレベル相当：微分積分、三角関数、数列、ベクトル、確率と証明。必要に応じて詳しい解答で確認できます。",
     "exam-papers": "試験問題"
+  },
+  "secondary-topics": {
+    "number": "数と計算",
+    "algebra": "代数",
+    "equations": "方程式",
+    "ratio-proportion": "比と比例",
+    "geometry": "図形",
+    "probability-statistics": "確率と統計",
+    "graphs": "グラフ",
+    "trigonometry": "三角法",
+    "problem-solving": "問題解決"
+  },
+  "sixth-form-topics": {
+    "functions-graphs": "関数とグラフ",
+    "differentiation": "微分",
+    "integration": "積分",
+    "trigonometry": "三角関数",
+    "sequences-series": "数列と級数",
+    "exponentials-logarithms": "指数と対数",
+    "vectors": "ベクトル",
+    "probability-statistics": "確率と統計",
+    "proof-numerical": "証明と数値解析"
   },
   "primary-topics": {
     "numbers": "数",
@@ -34,7 +61,6 @@
     "algebra": "代数",
     "statistics": "統計",
     "problem-solving": "問題解決",
-
     "counting": "数える",
     "reading-and-writing-numbers": "数の読み書き",
     "place-value": "位の値",
@@ -183,5 +209,309 @@
     "name": "名前",
     "date": "日付",
     "here-is-some-description": "ここに説明があります"
+  },
+  "descriptions": {
+    "primary": {
+      "numbers": "数の数え方、読み書き、大小比較、位取りと四捨五入など、数の基礎を学びます。",
+      "addition-subtraction": "さまざまな方法で足し算・引き算し、簡単な文章題に取り組みます。",
+      "multiplication-division": "九九、グループ分け、わり算など、掛け算と割り算の意味を理解します。",
+      "fractions-decimals-percentages": "分数・小数・パーセントとその関係を学びます。",
+      "measurement": "長さ、重さ、かさ、時間、お金を一般的な単位で測ります。",
+      "geometry": "平面・立体の形、位置、角と性質を学びます。",
+      "algebra": "規則性、数列、簡単な方程式を導入します。",
+      "statistics": "表やグラフでデータを集め、整理し、読み取ります。",
+      "problem-solving": "日常生活や論理の問題に数学を使います。"
+    },
+    "primarySub": {
+      "numbers": {
+        "counting": "順方向・逆方向に数え、まとめて数え、飛び数えをします。",
+        "reading-and-writing-numbers": "数字の読み書き（ゼロや大きな数を含む）。",
+        "place-value": "十の位・百の位など、けたの位置と値の関係を理解します。",
+        "comparing-and-ordering-numbers": "記号や並べ方で自然数を比較・順序づけします。",
+        "rounding-numbers": "概算のために十や百の位に丸めます。"
+      },
+      "addition-subtraction": {
+        "mental-strategies": "倍の数、ほぼ倍、分け方などで暗算します。",
+        "number-bonds": "10の合成と分解を大きな数にも広げます。",
+        "written-methods": "くり上がり・くり下がりのある筆算で足し引きします。",
+        "word-problems": "図や式で足し算・引き算の文章題を表します。"
+      },
+      "multiplication-division": {
+        "times-tables": "九九を思い出し、関連する割り算に使います。",
+        "grouping-sharing": "掛け算を同数の足し算、割り算をわり分けとして捉えます。",
+        "written-multiplication": "格子法やコンパクトな筆算で二桁の掛け算をします。",
+        "division-methods": "グループ分けと短除法であまりのある割り算をします。"
+      },
+      "fractions-decimals-percentages": {
+        "fractions-basics": "図形や集合の単位分数・真分数を認識します。",
+        "equivalent-fractions": "図や数直線で等しい分数の族を見つけます。",
+        "decimals": "十分の一・百分の一と小数の表記を理解します。",
+        "percentages": "パーセントを百分の一や簡単な分数と結びつけます。"
+      },
+      "measurement": {
+        "units": "日常の測定にふさわしい単位を選び換算します。",
+        "length-mass-capacity": "長さ・重さ・かさを測り、比べ、目盛りを読みます。",
+        "time": "時計を読み、カレンダーを使い、時間の長さの問題を解きます。",
+        "money": "お金を数え、おつりを求め、金額の問題を解きます。"
+      },
+      "geometry": {
+        "shapes-2d": "多角形と円に名前をつけ性質を述べます。",
+        "shapes-3d": "よくある立体の面・辺・頂点を識別します。",
+        "symmetry": "対称軸を見つけ対称な図形を完成させます。",
+        "angles": "角を比べ、直角を認識します。",
+        "coordinates": "第1象限で点を読み取り、プロットします。"
+      },
+      "algebra": {
+        "patterns": "視覚・数の規則を続け、説明します。",
+        "sequences": "単調増加・減少の簡単な数列の規則を見つけます。",
+        "missing-numbers": "□算やてんびんパズルを解きます。",
+        "simple-equations": "逆演算で未知数を求めます。"
+      },
+      "statistics": {
+        "collecting-data": "簡単な調査を設計し、かぞえ上げます。",
+        "charts": "絵グラフや棒グラフを作り読みます。",
+        "tables": "二方向の表と度数表を読み取ります。",
+        "averages": "小さなデータで最頻値と範囲を求めます。"
+      },
+      "problem-solving": {
+        "one-step": "一歩の文章題に合う演算を選びます。",
+        "two-step": "二歩の文章題で計算の順序を計画します。",
+        "reasoning": "言葉や図で答えが成り立つ理由を説明します。",
+        "real-life": "お金・測定・時間の場面に数学を当てはめます。"
+      }
+    },
+    "secondary": {
+      "number": "分数・パーセント・指数・標準形・根号を実際の場面で扱います。",
+      "algebra": "式の展開・因数分解・整理と代数の記法を身につけます。",
+      "equations": "一次・二次・連立方程式を解き、その意味を解釈します。",
+      "ratio-proportion": "比、比例、パーセントと変化の割合を使います。",
+      "geometry": "角、図形、作図、変換、周長、面積と体積です。",
+      "probability-statistics": "データの表現、確率、平均とばらつきです。",
+      "graphs": "方程式に対応する直線・二次などのグラフを描き読みます。",
+      "trigonometry": "ピタゴラス、直角三角形と基本的な三角比です。",
+      "problem-solving": "多段階の推論、モデル化、試験形式の問題です。"
+    },
+    "secondarySub": {
+      "number": {
+        "fdp": "問題の中で分数・小数・パーセントを自在に行き来します。",
+        "indices-roots": "指数法則、平方根・立方根と正確な形を使います。",
+        "standard-form": "標準形（科学的記数法）で書き計算します。",
+        "rounding-estimation": "有効数字で丸め、概算で答えを確かめます。"
+      },
+      "algebra": {
+        "expressions": "整理、同类項の集め、一重括弧の乗法です。",
+        "expanding-factorising": "積を展開し一重括弧に因数分解します。",
+        "indices-algebra": "代数項に指数法則を当てはめます。",
+        "substitution": "値を代入して式や公式を評価します。"
+      },
+      "equations": {
+        "linear-equations": "括弧や分数を含む一次方程式を解きます。",
+        "quadratic-intro": "簡単な二次式を因数分解しグラフと結びつけます。",
+        "simultaneous": "二元一次連立方程式を代数・グラフで解きます。",
+        "inequalities": "一次不等式を解き数直線に表します。"
+      },
+      "ratio-proportion": {
+        "ratio": "比を簡単にし、比で分け合い、比を比較します。",
+        "proportion": "正比例・反比例の問題を解きます。",
+        "percentages-change": "変化率、元の値の逆算、利子などです。",
+        "best-buy": "単価とコスパを比較します。"
+      },
+      "geometry": {
+        "angles-parallel": "平行線と多角形の角の性質を使います。",
+        "polygons": "内角・外角、相似と合同です。",
+        "circles": "円周、面積、弧とおうぎ形（基礎レベル）。",
+        "area-volume": "複合図形、角柱、面積・体積の単位です。",
+        "transformations": "平行移動、線対称、回転、拡大です。"
+      },
+      "probability-statistics": {
+        "probability": "標本空間、期待値、樹形図です。",
+        "charts-data": "ヒストグラム、累積度数、時系列です。",
+        "averages-spread": "平均、中央値、最頻値、範囲、四分位範囲です。",
+        "sampling": "偏り、再捕獲法、基本的な標本の考え方です。"
+      },
+      "graphs": {
+        "linear-graphs": "y = mx + c を描き傾きと切片を読み取ります。",
+        "real-life-graphs": "距離—時間、速度—時間、換算グラフです。",
+        "quadratic-graphs": "放物線をスケッチし頂点を読み取ります。",
+        "gradient-intercept": "二点を通る直線の方程式を求めます。"
+      },
+      "trigonometry": {
+        "pythagoras": "直角三角形の未知の辺を求めます。",
+        "sohcahtoa": "サイン・コサイン・タンジェントで角と辺を求めます。",
+        "bearings": "三位の方位を測り解釈します。",
+        "sine-cosine-rule": "必要に応じて非直角三角形に拡げます。"
+      },
+      "problem-solving": {
+        "multi-step": "複雑な問題を順序立てた段階に分けます。",
+        "modelling": "言葉を方程式とグラフに翻訳します。",
+        "exam-style": "時間を測り混在トピックと採点基準で練習します。"
+      }
+    },
+    "sixthForm": {
+      "functions-graphs": "変換、合成関数・逆関数、絶対値とグラフのスケッチ。",
+      "differentiation": "勾配、接線、変化率と最適化の応用。",
+      "integration": "不定積分、定積分、曲線下の面積と簡単な運動学。",
+      "trigonometry": "ラジアン、恒等式、方程式、正弦・余弦定理。",
+      "sequences-series": "等差・等比数列、シグマ記法と収束の考え。",
+      "exponentials-logarithms": "指数・対数の法則、方程式、成長・減衰モデル。",
+      "vectors": "2次・3次元ベクトル、内積、直線と幾何への応用。",
+      "probability-statistics": "分布、仮説検定、高度なデータモデリング。",
+      "proof-numerical": "証明、反復法と数値解法。"
+    },
+    "sixthFormSub": {
+      "functions-graphs": {
+        "domain-range": "標準的な関数の定義域・値域・制限を述べます。",
+        "transformations": "グラフに平行移動、伸縮、反射を適用します。",
+        "inverses": "グラフと代数で逆関数を求め解釈します。",
+        "modulus-piecewise": "絶対値グラフと区分定義をスケッチします。"
+      },
+      "differentiation": {
+        "first-principles": "多項式を定義から微分します。",
+        "rules": "積・商・連鎖律、指数と対数の微分です。",
+        "tangents-normals": "曲線への接線・法線の方程式です。",
+        "optimisation": "停留点、二階導関数判定、文脈上の最値です。"
+      },
+      "integration": {
+        "indefinite": "多項式、指数、標準的な三角関数を積分します。",
+        "definite-area": "定積分を評価し曲線間の面積を求めます。",
+        "kinematics": "積分から変位・速度・加速度を結びつけます。"
+      },
+      "trigonometry": {
+        "radians": "単位円と微積分でラジアンを使います。",
+        "identities": "ピタゴラス型と加法定理の恒等式を証明・応用します。",
+        "equations": "与えられた区間で三角方程式を解きます。",
+        "sine-cosine-rule": "三角形を解き2次元でモデル化します。"
+      },
+      "sequences-series": {
+        "arithmetic-geometric": "一般項、和の公式、シグマ記法です。",
+        "sigma-notation": "シグマで書かれた和を展開し評価します。",
+        "binomial": "正の整数 n の二項展開と一般項です。"
+      },
+      "exponentials-logarithms": {
+        "laws": "対数と指数の法則で式を簡単にします。",
+        "equations": "対数が必要な方程式を解きます。",
+        "modelling": "成長・減衰モデルをデータに当てはめます。"
+      },
+      "vectors": {
+        "basics": "大きさ、方向、加法とスカラー倍です。",
+        "scalar-product": "内積、ベクトル間の角、垂直条件です。",
+        "lines": "直線のベクトル方程式と最短距離の考え方です。"
+      },
+      "probability-statistics": {
+        "distributions": "二項、正規、離散分布です。",
+        "hypothesis-testing": "有意水準、棄却域、p 値です。",
+        "regression": "最小二乗回帰と相関です。"
+      },
+      "proof-numerical": {
+        "proof": "演繹、全数調べ、反証にふさわしい場面での証明です。",
+        "iteration": "不動点反復とコブウェブ図です。",
+        "numerical-methods": "根の探索と数値積分の技法です。"
+      }
+    }
+  },
+  "primary-subtopics": {
+    "mental-strategies": "暗算の工夫",
+    "number-bonds": "10の合成と分解",
+    "written-add-subtract": "筆算（足し算・引き算）",
+    "add-sub-word-problems": "文章題（加减）",
+    "times-tables": "九九",
+    "grouping-sharing": "グループ分けとわり算",
+    "written-multiplication": "筆算（掛け算）",
+    "division-methods": "割り算の方法",
+    "fractions-basics": "分数の基礎",
+    "equivalent-fractions": "等しい分数",
+    "decimals": "小数",
+    "percentages": "パーセント",
+    "units": "単位",
+    "length-mass-capacity": "長さ・重さ・かさ",
+    "time": "時間",
+    "money": "お金",
+    "shapes-2d": "平面図形",
+    "shapes-3d": "立体図形",
+    "symmetry": "対称",
+    "angles": "角",
+    "coordinates": "座標",
+    "patterns": "規則性",
+    "sequences": "数列",
+    "missing-numbers": "□算",
+    "simple-equations": "簡単な方程式",
+    "collecting-data": "データの集め方",
+    "charts": "グラフ",
+    "tables": "表",
+    "averages": "平均",
+    "one-step-problems": "1段階の問題",
+    "two-step-problems": "2段階の問題",
+    "reasoning": "論理的思考",
+    "real-life": "実生活の場面"
+  },
+  "secondary-subtopics": {
+    "fdp": "分数・小数・パーセント",
+    "indices-roots": "指数と根号",
+    "standard-form": "標準形（科学的記数法）",
+    "rounding-estimation": "丸めと概算",
+    "expressions": "式の操作",
+    "expanding-factorising": "展開と因数分解",
+    "indices-algebra": "式の指数",
+    "substitution": "代入",
+    "linear-equations": "一次方程式",
+    "quadratic-intro": "二次方程式（入門）",
+    "simultaneous": "連立方程式",
+    "inequalities": "不等式",
+    "ratio": "比",
+    "proportion": "比例",
+    "percentages-change": "パーセントと変化率",
+    "best-buy": "お得な買い方",
+    "angles-parallel": "角と平行線",
+    "polygons": "多角形",
+    "circles": "円",
+    "area-volume": "面積と体積",
+    "transformations": "図形の移動",
+    "probability": "確率",
+    "charts-data": "グラフとデータ",
+    "averages-spread": "平均とばらつき",
+    "sampling": "標本調査",
+    "linear-graphs": "一次関数のグラフ",
+    "real-life-graphs": "実際のグラフ",
+    "quadratic-graphs": "二次関数のグラフ",
+    "gradient-intercept": "傾きと切片",
+    "pythagoras": "ピタゴラスの定理",
+    "sohcahtoa": "三角比（SOHCAHTOA）",
+    "bearings": "方位",
+    "sine-cosine-rule": "正弦・余弦定理",
+    "multi-step": "複合の問題",
+    "modelling": "モデル化",
+    "exam-style": "試験形式"
+  },
+  "sixth-subtopics": {
+    "domain-range": "定義域と値域",
+    "graph-transformations": "グラフの変換",
+    "inverses": "逆関数",
+    "modulus-piecewise": "絶対値と区分定義",
+    "first-principles": "定義に基づく微分",
+    "differentiation-rules": "微分の公式",
+    "tangents-normals": "接線と法線",
+    "optimisation": "最適化",
+    "indefinite-integration": "不定積分",
+    "definite-area": "定積分と面積",
+    "kinematics": "運動学",
+    "radians": "ラジアン",
+    "trig-identities": "三角関数の恒等式",
+    "trig-equations": "三角方程式",
+    "trig-sine-cosine-rule": "正弦・余弦定理",
+    "arithmetic-geometric": "等差・等比数列",
+    "sigma-notation": "シグマ記法",
+    "binomial": "二項展開",
+    "exp-log-laws": "指数・対数の法則",
+    "exp-log-equations": "指数・対数方程式",
+    "exp-log-modelling": "指数・対数モデル",
+    "vector-basics": "ベクトルの基礎",
+    "scalar-product": "内積",
+    "vector-lines": "直線とベクトル",
+    "distributions": "確率分布",
+    "hypothesis-testing": "仮説検定",
+    "regression": "回帰分析",
+    "proof": "証明",
+    "iteration": "反復法",
+    "numerical-methods": "数値解析"
   }
 }

@@ -3,21 +3,24 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { ReloadLink } from '../editor/reloadLink';
-import { useTranslation } from 'react-i18next';
 import SwitchLanuageDropDown from '../editor/switchLanuageDropDown';
 import { Locale } from '@/lib/locales';
 import "@/styles/navbar.css"
 
+function normalizePath(path: string): string {
+    if (path.length > 1 && path.endsWith("/")) {
+        return path.slice(0, -1);
+    }
+    return path;
+}
+
 export default function QuestionNavBar({
     lng,
-    pageOn,
     buttons
 }: {
     lng: Locale,
-    pageOn: String,
     buttons: {
         label: string;
         description: string;
@@ -27,14 +30,8 @@ export default function QuestionNavBar({
         topicLinks: string[];
     }[]
 }) {
-    const { t } = useTranslation();
     const router = useRouter();
-
-    const [openIndex, setOpenIndex] = useState<number | null>(null);
-
-    const toggleDropdown = (index: number) => {
-        setOpenIndex(openIndex === index ? null : index);
-    };
+    const pathname = normalizePath(usePathname() ?? "");
 
     return (
         <div className='sticky top-0 flex flex-col h-screen w-44 sm:w-48 lg:w-52 border-r border-r-[var(--grey)] bg-white shadow-[0.1rem_0_6px_-1px_var(--grey)]'>
@@ -48,40 +45,46 @@ export default function QuestionNavBar({
             </ReloadLink>
 
             <div className="flex-1 m-2 overflow-y-auto">
-                {buttons.map((button, index) => (
-                    <div key={index} className="mb-2">
-                        {/* Dropdown header */}
-                        <div
-                            className="
-                                w-full p-2 text-left text-primary font-nunito 
-                                hover:bg-[var(--light-grey)] cursor-pointer
-                                flex justify-between items-center text-sm
-                            "
-                            onClick={() => toggleDropdown(index)}
-                        >
-                            <span className="truncate">{button.label}</span>
-                            <span>{openIndex === index ? "▲" : "▼"}</span>
+                {buttons.map((button) => {
+                    const mainPath = normalizePath(button.link);
+                    const mainActive = pathname === mainPath || pathname.startsWith(mainPath + "/");
+                    return (
+                        <div key={button.link} className="mb-3">
+                            <button
+                                type="button"
+                                onClick={() => router.push(button.link)}
+                                className={`
+                                    w-full p-2 text-left text-primary font-nunito text-sm
+                                    hover:bg-[var(--light-grey)] rounded cursor-pointer
+                                    ${mainActive ? "bg-[var(--light-grey)] font-semibold" : ""}
+                                `}
+                            >
+                                <span className="block truncate">{button.label}</span>
+                            </button>
+                            <ul className="mt-1 ml-1 pl-2 border-l border-[var(--grey)] flex flex-col gap-0.5">
+                                {button.topics.map((topicLabel, i) => {
+                                    const subPath = normalizePath(button.topicLinks[i]);
+                                    const subActive = pathname === subPath;
+                                    return (
+                                        <li key={button.topicLinks[i]}>
+                                            <button
+                                                type="button"
+                                                onClick={() => router.push(button.topicLinks[i])}
+                                                className={`
+                                                    w-full text-left p-1.5 pl-2 text-xs text-primary rounded cursor-pointer
+                                                    hover:bg-[var(--light-grey)]
+                                                    ${subActive ? "bg-[var(--light-grey)] font-medium" : ""}
+                                                `}
+                                            >
+                                                {topicLabel}
+                                            </button>
+                                        </li>
+                                    );
+                                })}
+                            </ul>
                         </div>
-
-                        {/* Dropdown content */}
-                        {openIndex === index && (
-                            <div className="mt-1 ml-2 flex flex-col">
-                                {button.topics.map((topic, i) => (
-                                    <button
-                                        key={i}
-                                        className="
-                                            text-left p-2 text-sm text-primary
-                                            hover:bg-[var(--light-grey)] rounded
-                                        "
-                                        onClick={() => router.push(button.topicLinks[i])}
-                                    >
-                                        {topic}
-                                    </button>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                ))}
+                    );
+                })}
             </div>
 
             <div className='flex items-center justify-center mb-5'>
