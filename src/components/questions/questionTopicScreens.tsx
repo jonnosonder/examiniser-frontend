@@ -12,7 +12,7 @@ import SidePanel from "@/components/questions/sidePanel";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { buildQuestionNavButtons } from "@/lib/questionTopicNav";
-import { getQuestionGenerator } from "@/lib/questionGenerators";
+import { getQuestionGenerator, getQuestionGeneratorLevels } from "@/lib/questionGenerators";
 import { getSubtopicOrNull, getTopicOrNull, levelRoutePrefix, type QuestionLevel } from "@/lib/questionTopicCatalog";
 
 type IconMap = Record<string, React.ReactNode>;
@@ -57,8 +57,6 @@ export function QuestionLevelOverview({
         return () => clearTimeout(timer);
     }, []);
 
-    const levelPath = levelRoutePrefix(level);
-
     return (
         <div className="flex w-full bg-background">
             <SidePanel lng={lng} buttons={buttons} />
@@ -77,7 +75,7 @@ export function QuestionLevelOverview({
                     {t(descriptionKey)}
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-8 mt-10 mb-10">
-                    {buttons.map((button, index) => (
+                    {buttons.map((button) => (
                         <button
                             key={button.link}
                             type="button"
@@ -174,8 +172,8 @@ export function QuestionTopicHub({
                     {sectionDescription}
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-8 mt-10 mb-10">
-                    {topic.subtopics.map((sub, index) => {
-                        const delay = `${index * 120}ms`;
+                    {topic.subtopics.map((sub) => {
+                        const delay = `${topic.subtopics.indexOf(sub) * 120}ms`;
                         const href = `/${lng}/${levelPath}/${topicId}/${sub.slug}`;
                         return (
                             <button
@@ -227,14 +225,19 @@ export function QuestionSubtopicLeaf({
         [lng, level, t, iconByTopicId]
     );
 
-    const [selectedDifficulty, setSelectedDifficulty] = React.useState(1);
+    const availableLevels = React.useMemo(
+        () => getQuestionGeneratorLevels(level, subtopicSlug),
+        [level, subtopicSlug]
+    );
+
+    const [selectedDifficulty, setSelectedDifficulty] = React.useState<number>(availableLevels[0] ?? 1);
     const [questionLatex, setQuestionLatex] = React.useState("");
     const [questionAnswer, setQuestionAnswer] = React.useState("");
     const [userAnswer, setUserAnswer] = React.useState("");
     const [answerCorrect, setAnswerCorrect] = React.useState<boolean | null>(null);
     const [feedback, setFeedback] = React.useState("");
 
-    const levels = [1, 2, 3];
+    const levels = availableLevels;
 
     const handleGenerateQuestion = () => {
         const generator = getQuestionGenerator(level, subtopicSlug);
@@ -264,6 +267,12 @@ export function QuestionSubtopicLeaf({
         setFeedback(correct ? t("questions.correct") : t("questions.wrong", { answer: questionAnswer }));
     };
 
+    React.useEffect(() => {
+        if (!availableLevels.includes(selectedDifficulty)) {
+            setSelectedDifficulty(availableLevels[0] ?? 1);
+        }
+    }, [availableLevels, selectedDifficulty]);
+
     if (!topic || !sub) {
         return null;
     }
@@ -273,7 +282,7 @@ export function QuestionSubtopicLeaf({
     return (
         <div className="flex w-full bg-background">
             <SidePanel lng={lng} buttons={navButtons} />
-            <div className="flex-1 flex flex-col items-center justify-start ml-10 mr-10 pb-16">
+            <div className="flex-1 flex flex-col items-center justify-start ml-10 mr-10">
                 <div className="flex w-full flex-wrap justify-between items-center gap-y-2 mt-5 gap-x-4">
                     <Link href={hubHref} className="text-sm text-primary">
                         ←&nbsp;<span className="underline">{t("general.back-to-topic", { topic: t(topic.titleKey) })}</span>
@@ -282,19 +291,24 @@ export function QuestionSubtopicLeaf({
                         <span className="underline">{t("general.back-to-home")}</span>&nbsp;→
                     </Link>
                 </div>
-                <div className="flex flex-1 flex-col items-center justify-start max-w-4xl mt-12 w-full">
+                <div className="flex flex-1 flex-col items-center justify-start max-w-4xl mt-4 w-full">
                     <div className="w-full flex flex-col items-center text-center">
-                        <div className="w-24 h-24 mb-6 text-primary">{parentIcon}</div>
-                        <h1 className="text-4xl font-nunito text-primary">{t(sub.titleKey)}</h1>
-                        <p className="mt-4 text-base leading-relaxed text-muted-foreground">{t(sub.descriptionKey)}</p>
+                        <div className="flex items-center justify-center">
+                            <h1 className="text-4xl font-nunito text-primary mr-4">{t(sub.titleKey)}</h1>
+                            <div className="w-24 h-24 text-primary">{parentIcon}</div>
+                        </div>
+                        <p className="mt-2 text-base leading-relaxed text-muted-foreground">{t(sub.descriptionKey)}</p>
                     </div>
 
-                    <div className="mt-10 w-full rounded-[2rem] border border-primary/20 bg-white p-8 shadow-lg">
+                    <div className="mt-5 w-full rounded-[2rem] border border-primary/20 bg-white p-8 shadow-lg">
                         <div className="flex flex-col gap-6">
-                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                                <div>
-                                    <p className="text-xs uppercase tracking-[0.3em] text-primary font-semibold">{t("questions.level")}</p>
-                                    <div className="mt-4 flex flex-wrap gap-3">
+                            <div>
+                                <p className="text-xs uppercase tracking-[0.3em] text-primary font-semibold">
+                                    {t("questions.level")}
+                                </p>
+
+                                <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                                    <div className="flex flex-wrap gap-3">
                                         {levels.map((levelNumber) => (
                                             <button
                                                 key={levelNumber}
@@ -310,6 +324,14 @@ export function QuestionSubtopicLeaf({
                                             </button>
                                         ))}
                                     </div>
+
+                                    <button
+                                        type="button"
+                                        onClick={handleGenerateQuestion}
+                                        className="rounded-[1rem] border-2 border-primary bg-white px-7 py-3 text-primary transition hover:bg-primary/10"
+                                    >
+                                        {t("questions.generate-question")}
+                                    </button>
                                 </div>
                             </div>
 
@@ -323,25 +345,31 @@ export function QuestionSubtopicLeaf({
                                 )}
                             </div>
 
-                            <div className="flex flex-wrap items-center gap-3 justify-between">
-                                <div className="flex-1 min-w-[12rem]">
-                                    <label className="text-sm font-medium text-primary">{t("questions.your-answer")}</label>
-                                    <input
-                                        type="text"
-                                        value={userAnswer}
-                                        onChange={(event) => setUserAnswer(event.target.value)}
-                                        className="mt-2 w-full rounded-2xl border border-primary/20 bg-white px-4 py-3 text-lg outline-none focus:border-primary"
-                                        placeholder={t("questions.enter-answer-here")}
-                                    />
+                            <div className="flex flex-col gap-2">
+                                <label className="text-sm font-medium text-primary">
+                                    {t("questions.your-answer")}
+                                </label>
+
+                                <div className="flex w-full flex-wrap items-center gap-3">
+                                    <div className="flex-1 min-w-[12rem]">
+                                        <input
+                                            type="text"
+                                            value={userAnswer}
+                                            onChange={(event) => setUserAnswer(event.target.value)}
+                                            className="w-full rounded-2xl border border-primary/20 bg-white px-4 py-3 text-lg outline-none focus:border-primary"
+                                            placeholder={t("questions.enter-answer-here")}
+                                        />
+                                    </div>
+
+                                    <button
+                                        type="button"
+                                        onClick={handleCheckAnswer}
+                                        className="w-full lg:w-auto rounded-2xl bg-primary px-6 py-3 text-white transition hover:bg-primary/90 disabled:opacity-50"
+                                        disabled={!questionLatex}
+                                    >
+                                        {t("questions.check-answer")}
+                                    </button>
                                 </div>
-                                <button
-                                    type="button"
-                                    onClick={handleCheckAnswer}
-                                    className="h-fit rounded-2xl bg-primary px-6 py-3 text-white transition hover:bg-primary/90 disabled:opacity-50"
-                                    disabled={!questionLatex}
-                                >
-                                    {t("questions.check-answer")}
-                                </button>
                             </div>
 
                             {feedback ? (
@@ -350,16 +378,6 @@ export function QuestionSubtopicLeaf({
                                 </p>
                             ) : null}
                         </div>
-                    </div>
-
-                    <div className="mt-4 w-full flex justify-end">
-                        <button
-                            type="button"
-                            onClick={handleGenerateQuestion}
-                            className="rounded-[1rem] border-2 border-primary bg-white px-7 py-3 text-primary transition hover:bg-primary/10"
-                        >
-                            {t("questions.generate-question")}
-                        </button>
                     </div>
                 </div>
             </div>

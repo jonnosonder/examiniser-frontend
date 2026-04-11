@@ -531,7 +531,6 @@ const QuestionCreator: React.FC<QuestionCreatorProps> = ({ onClose, newQuestionC
                     let shiftY:number = Infinity;
 
                     shapes.forEach((element) => {
-                        let x: number;
                         let y: number;
                         if (element.type === "star" || element.type === "oval") {
                             y = element.y + element.height/2;
