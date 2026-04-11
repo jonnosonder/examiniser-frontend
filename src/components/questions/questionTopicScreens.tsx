@@ -5,11 +5,14 @@
 
 import { useTranslation } from "react-i18next";
 import * as React from "react";
+import { BlockMath } from "react-katex";
+import "katex/dist/katex.min.css";
 import { Locale } from "@/lib/locales";
 import SidePanel from "@/components/questions/sidePanel";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { buildQuestionNavButtons } from "@/lib/questionTopicNav";
+import { getQuestionGenerator } from "@/lib/questionGenerators";
 import { getSubtopicOrNull, getTopicOrNull, levelRoutePrefix, type QuestionLevel } from "@/lib/questionTopicCatalog";
 
 type IconMap = Record<string, React.ReactNode>;
@@ -224,6 +227,43 @@ export function QuestionSubtopicLeaf({
         [lng, level, t, iconByTopicId]
     );
 
+    const [selectedDifficulty, setSelectedDifficulty] = React.useState(1);
+    const [questionLatex, setQuestionLatex] = React.useState("");
+    const [questionAnswer, setQuestionAnswer] = React.useState("");
+    const [userAnswer, setUserAnswer] = React.useState("");
+    const [answerCorrect, setAnswerCorrect] = React.useState<boolean | null>(null);
+    const [feedback, setFeedback] = React.useState("");
+
+    const levels = [1, 2, 3];
+
+    const handleGenerateQuestion = () => {
+        const generator = getQuestionGenerator(level, subtopicSlug);
+        const result = generator({ level, topicId, subtopicSlug, difficulty: selectedDifficulty });
+        setQuestionLatex(result.latex);
+        setQuestionAnswer(result.answer);
+        setUserAnswer("");
+        setAnswerCorrect(null);
+        setFeedback("");
+    };
+
+    const handleCheckAnswer = () => {
+        const normalized = userAnswer.trim().replace(/\s+/g, "");
+        const expected = questionAnswer.trim().replace(/\s+/g, "");
+        if (!questionAnswer) {
+            setFeedback("Generate a question first before checking your answer.");
+            setAnswerCorrect(null);
+            return;
+        }
+        if (!normalized) {
+            setFeedback("Enter an answer before checking.");
+            setAnswerCorrect(null);
+            return;
+        }
+        const correct = normalized.toLowerCase() === expected.toLowerCase();
+        setAnswerCorrect(correct);
+        setFeedback(correct ? t("questions.correct") : t("questions.wrong", { answer: questionAnswer }));
+    };
+
     if (!topic || !sub) {
         return null;
     }
@@ -242,11 +282,85 @@ export function QuestionSubtopicLeaf({
                         <span className="underline">{t("general.back-to-home")}</span>&nbsp;→
                     </Link>
                 </div>
-                <div className="flex flex-1 flex-col items-center justify-center max-w-xl mt-12">
-                    <div className="w-24 h-24 mb-6 text-primary">{parentIcon}</div>
-                    <h1 className="text-4xl font-nunito text-primary text-center">{t(sub.titleKey)}</h1>
-                    <p className="mt-4 text-center text-base leading-relaxed">{t(sub.descriptionKey)}</p>
-                    <p className="mt-8 text-sm text-muted-foreground">{t("start.coming-soon")}</p>
+                <div className="flex flex-1 flex-col items-center justify-start max-w-4xl mt-12 w-full">
+                    <div className="w-full flex flex-col items-center text-center">
+                        <div className="w-24 h-24 mb-6 text-primary">{parentIcon}</div>
+                        <h1 className="text-4xl font-nunito text-primary">{t(sub.titleKey)}</h1>
+                        <p className="mt-4 text-base leading-relaxed text-muted-foreground">{t(sub.descriptionKey)}</p>
+                    </div>
+
+                    <div className="mt-10 w-full rounded-[2rem] border border-primary/20 bg-white p-8 shadow-lg">
+                        <div className="flex flex-col gap-6">
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                <div>
+                                    <p className="text-xs uppercase tracking-[0.3em] text-primary font-semibold">{t("questions.level")}</p>
+                                    <div className="mt-4 flex flex-wrap gap-3">
+                                        {levels.map((levelNumber) => (
+                                            <button
+                                                key={levelNumber}
+                                                type="button"
+                                                onClick={() => setSelectedDifficulty(levelNumber)}
+                                                className={`min-w-[4rem] rounded-2xl border px-4 py-3 text-lg font-semibold transition ${
+                                                    selectedDifficulty === levelNumber
+                                                        ? "border-primary bg-primary text-white"
+                                                        : "border-primary/20 bg-primary/5 text-primary"
+                                                }`}
+                                            >
+                                                {levelNumber}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="rounded-[1.75rem] border border-primary/10 bg-[var(--background)] p-6 min-h-[12rem]">
+                                {questionLatex ? (
+                                    <BlockMath math={questionLatex} />
+                                ) : (
+                                    <p className="text-center text-sm text-muted-foreground">
+                                        {t("questions.no-question-generated")}
+                                    </p>
+                                )}
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-3 justify-between">
+                                <div className="flex-1 min-w-[12rem]">
+                                    <label className="text-sm font-medium text-primary">{t("questions.your-answer")}</label>
+                                    <input
+                                        type="text"
+                                        value={userAnswer}
+                                        onChange={(event) => setUserAnswer(event.target.value)}
+                                        className="mt-2 w-full rounded-2xl border border-primary/20 bg-white px-4 py-3 text-lg outline-none focus:border-primary"
+                                        placeholder={t("questions.enter-answer-here")}
+                                    />
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={handleCheckAnswer}
+                                    className="h-fit rounded-2xl bg-primary px-6 py-3 text-white transition hover:bg-primary/90 disabled:opacity-50"
+                                    disabled={!questionLatex}
+                                >
+                                    {t("questions.check-answer")}
+                                </button>
+                            </div>
+
+                            {feedback ? (
+                                <p className={`text-sm ${answerCorrect ? "text-emerald-600" : "text-rose-600"}`}>
+                                    {feedback}
+                                </p>
+                            ) : null}
+                        </div>
+                    </div>
+
+                    <div className="mt-4 w-full flex justify-end">
+                        <button
+                            type="button"
+                            onClick={handleGenerateQuestion}
+                            className="rounded-[1rem] border-2 border-primary bg-white px-7 py-3 text-primary transition hover:bg-primary/10"
+                        >
+                            {t("questions.generate-question")}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

@@ -87,6 +87,17 @@
     "beta-releases": "Versions Bêta (Uniquement en Anglais)",
     "version": "Version"
   },
+  "questions": {
+    "level": "Niveau",
+    "your-answer": "Votre Réponse",
+    "enter-answer-here": "Entrez votre réponse ici",
+    "check-answer": "Vérifier la Réponse",
+    "generate-question": "Générer une Question",
+    "show-solution": "Afficher la Solution",
+    "no-question-generated": "Aucune question générée pour le moment, cliquez sur le bouton ci-dessous pour en générer une !",
+    "correct": "Correct !",
+    "wrong": "Mauvaise réponse. La bonne réponse est {{answer}}."
+  },
   "start": {
     "CNP": "Créer un nouveau sujet d'examen",
     "create-file": "Créer un fichier",

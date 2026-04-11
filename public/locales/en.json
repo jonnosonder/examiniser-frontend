@@ -87,6 +87,17 @@
     "beta-releases": "Beta Releases",
     "version": "Version"
   },
+  "questions": {
+    "level": "Level",
+    "your-answer": "Your Answer",
+    "enter-answer-here": "Enter answer here",
+    "check-answer": "Check Answer",
+    "generate-question": "Generate Question",
+    "show-solution": "Show Solution",
+    "no-question-generated": "No question generated yet, click the button below to generate one!",
+    "correct": "Correct!",
+    "wrong": "Wrong answer. Correct answer: {{answer}}."
+  },
   "start": {
     "CNP": "Create New Paper",
     "create-file": "Create File",

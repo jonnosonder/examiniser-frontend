@@ -88,6 +88,17 @@
     "beta-releases": "ベータリリース（英語のみ）",
     "version": "バージョン"
   },
+  "questions": {
+    "level": "レベル",
+    "your-answer": "あなたの答え",
+    "enter-answer-here": "ここに答えを入力",
+    "check-answer": "答えを確認",
+    "generate-question": "質問を生成",
+    "show-solution": "解決策を表示",
+    "no-question-generated": "まだ質問が生成されていません。下のボタンをクリックして生成してください！",
+    "correct": "正解！",
+    "wrong": "不正解です。正しい答えは {{answer}} です。"
+  },
   "start": {
     "CNP": "新しい試験問題を作成",
     "create-file": "ファイル作成",

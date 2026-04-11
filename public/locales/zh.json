@@ -87,6 +87,17 @@
     "beta-releases": "测试版发布（仅限英语)",
     "version": "版本"
   },
+  "questions": {
+    "level": "难度",
+    "your-answer": "你的答案",
+    "enter-answer-here": "在这里输入你的答案",
+    "check-answer": "检查答案",
+    "generate-question": "生成问题",
+    "show-solution": "显示解决方案",
+    "no-question-generated": "还没有生成问题，点击下面的按钮来生成一个！",
+    "correct": "正确！",
+    "wrong": "错误。正确答案是 {{answer}}。"
+  },
   "start": {
     "CNP": "创建新考试试卷",
     "create-file": "创建文件",
