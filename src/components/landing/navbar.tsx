@@ -89,7 +89,15 @@ export default function Navbar({ lng, pageOn } : {lng: Locale, pageOn:"/"|"/crea
                     onClick={() => {setIsBurgerActive(false)}}
                   >
                     <ReloadLink reload={false} href={'/'+lng+'/'} router={router} className="inline-flex p-1">
-                        {t('navBar.'+'product')}
+                        {t('navBar.questions')}
+                    </ReloadLink>
+                  </button>
+                  <button 
+                    className="burgerBtn"
+                    onClick={() => {setIsBurgerActive(false)}}
+                  >
+                    <ReloadLink reload={false} href={'/'+lng+'/create-exam-paper'} router={router} className="inline-flex p-1">
+                        {t('navBar.editor')}
                     </ReloadLink>
                   </button>
                   <button 
@@ -97,7 +105,7 @@ export default function Navbar({ lng, pageOn } : {lng: Locale, pageOn:"/"|"/crea
                     onClick={() => {setIsBurgerActive(false)}}
                   >
                     <ReloadLink reload={false} href={'/'+lng+'/about'} router={router} className="inline-flex p-1">
-                        {t('navBar.'+'about')}
+                        {t('navBar.about')}
                     </ReloadLink>
                   </button>
                   <button 
@@ -105,7 +113,7 @@ export default function Navbar({ lng, pageOn } : {lng: Locale, pageOn:"/"|"/crea
                     onClick={() => {setIsBurgerActive(false)}}
                   >
                     <ReloadLink reload={false} href={'/'+lng+'/updates'} router={router} className="inline-flex p-1">
-                        {t('navBar.'+'updates')}
+                        {t('navBar.updates')}
                     </ReloadLink>
                   </button>
                 </div>

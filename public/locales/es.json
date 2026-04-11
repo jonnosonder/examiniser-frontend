@@ -12,7 +12,8 @@
     "and": "y",
     "easy": "Fácil",
     "but-how-1": "Pero",
-    "but-how-2": "cómo"
+    "but-how-2": "Cómo,",
+    "but-how-description": "Usando algoritmos inteligentes, podemos generar preguntas con soluciones en todos los niveles de dificultad dentro de un segundo."
   },
   "general": {
     "back-to-home": "Volver a la Página Principal",

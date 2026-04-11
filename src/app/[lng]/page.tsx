@@ -323,20 +323,29 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
           </div>
         </div>
       </section>
-
+      
+      {/* "But how?" section */}
+      {/* 
       <section className="relative h-[100dvh] w-full bg-background">
         <div
           className="absolute inset-0 z-0 [background-image:linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] [background-size:20px_20px]"
           aria-hidden
         />
-        <div className="relative z-[1] h-full w-full px-8 sm:px-12 lg:px-16 pt-12 sm:pt-16">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-nunito font-semibold text-primary text-left">
+        <div className="relative z-[1] h-full w-full px-8 sm:px-12 lg:px-16 pt-12 sm:pt-16" onClick={handleClose}>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-inter font-semibold text-primary text-left">
             {t("home.but-how-1")}{" "}
             <span className="text-[var(--contrast)]">{t("home.but-how-2")}</span>
           </h2>
+          <p className='ml-10 mt-2 text-xl '>{t("home.but-how-description")}</p>
+          <div className='flex flex-col items-center justify-center'>
+              <p className='text-4xl font-bold text-primary mt-8'>Try it now!</p>
+              <div className='flex w-3/4 h-72 bg-white rounded-[2rem]'>
+              
+              </div>
+          </div>
         </div>
       </section>
-
+      */}
       </div>
     </>
   );

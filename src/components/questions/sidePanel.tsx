@@ -54,13 +54,16 @@ export default function QuestionNavBar({
                                 type="button"
                                 onClick={() => router.push(button.link)}
                                 className={`
-                                    w-full p-2 text-left text-primary font-nunito text-sm
+                                    w-full p-2 pb-0 text-left text-primary font-nunito text-sm
                                     hover:bg-[var(--light-grey)] rounded cursor-pointer
                                     ${mainActive ? "bg-[var(--light-grey)] font-semibold" : ""}
                                 `}
                             >
                                 <span className="block truncate">{button.label}</span>
                             </button>
+                            {mainActive && (
+                                <div className='w-[90%] ml-2 mr-2 h-1 bg-accent rounded-full animate-fillX' />
+                            )}
                             <ul className="mt-1 ml-1 pl-2 border-l border-[var(--grey)] flex flex-col gap-0.5">
                                 {button.topics.map((topicLabel, i) => {
                                     const subPath = normalizePath(button.topicLinks[i]);
