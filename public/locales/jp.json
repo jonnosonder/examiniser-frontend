@@ -22,7 +22,7 @@
     "primary-school-description": "カリキュラムに沿った質問で、ここで数学の基礎を築きましょう。各質問の難易度を調整できるため、新しい概念を習得しやすくなります。",
     "secondary-school": "中学校",
     "sixth-form": "高等学校",
-    "exam-board": "試験委員会"
+    "exam-papers": "試験問題"
   },
   "primary-topics": {
     "numbers": "数",
@@ -33,7 +33,13 @@
     "geometry": "幾何学",
     "algebra": "代数",
     "statistics": "統計",
-    "problem-solving": "問題解決"
+    "problem-solving": "問題解決",
+
+    "counting": "数える",
+    "reading-and-writing-numbers": "数の読み書き",
+    "place-value": "位の値",
+    "comparing-and-ordering-numbers": "数の比較と順序",
+    "rounding-numbers": "数の丸め"
   },
   "navBar": {
     "questions": "問題",

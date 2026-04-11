@@ -20,7 +20,7 @@
     "primary-school-description": "在这里通过与课程大纲对齐的问题建立坚实的数学基础。可以通过调整每个问题的难度，使学习新概念变得更加容易。",
     "secondary-school": "初中",
     "sixth-form": "高中",
-    "exam-board": "考试委员会"
+    "exam-papers": "考试试卷"
   },
   "primary-topics": {
     "numbers": "数字",
@@ -31,7 +31,13 @@
     "geometry": "几何",
     "algebra": "代数",
     "statistics": "统计",
-    "problem-solving": "解决问题"
+    "problem-solving": "解决问题",
+
+    "counting": "计数",
+    "reading-and-writing-numbers": "读写数字",
+    "place-value": "位值",
+    "comparing-and-ordering-numbers": "比较和排序数字",
+    "rounding-numbers": "四舍五入数字"
   },
   "navBar": {
     "questions": "问题",

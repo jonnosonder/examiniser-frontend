@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import Link from 'next/link';
 import { NumbersIcon, AdditionSubtractionIcon, MultiplicationDivisionIcon, FractionsIcon, MeasurementIcon, GeometryIcon, AlgebraIcon, StatisticsIcon, ProblemSolvingIcon } from '@/assets/icons/primary';
 
-export default function Primary({ params }: { params: Promise<{ lng: Locale }> }) {
+export default function Numbers({ params }: { params: Promise<{ lng: Locale }> }) {
     const { t } = useTranslation();
     const resolvedParams = React.use(params);
     const { lng } = resolvedParams;
@@ -43,7 +43,7 @@ export default function Primary({ params }: { params: Promise<{ lng: Locale }> }
 
     const buttons: { label: string; description: string; icon: React.ReactNode; delay: string; link: string; topics: string[]; topicLinks: string[] }[] = [
         {
-            label: t("primary-topics.numbers"),
+            label: t("primary-topics.counting"),
             description: "Learn to count, read, write, compare, and understand numbers, including place value and rounding.",
             icon: <NumbersIcon />,
             delay: "0ms",
@@ -52,7 +52,7 @@ export default function Primary({ params }: { params: Promise<{ lng: Locale }> }
             topicLinks: []
         },
         {
-            label: t("primary-topics.addition-subtraction"),
+            label: t("primary-topics.reading-and-writing-numbers"),
             description: "Develop skills in adding and subtracting numbers using different methods and solving simple problems.",
             icon: <AdditionSubtractionIcon />,
             delay: "120ms",
@@ -61,7 +61,7 @@ export default function Primary({ params }: { params: Promise<{ lng: Locale }> }
             topicLinks: []
         },
         {
-            label: t("primary-topics.multiplication-division"),
+            label: t("primary-topics.place-value"),
             description: "Understand multiplication and division, including times tables, grouping, and sharing.",
             icon: <MultiplicationDivisionIcon />,
             delay: "240ms",
@@ -70,7 +70,7 @@ export default function Primary({ params }: { params: Promise<{ lng: Locale }> }
             topicLinks: []
         },
         {
-            label: t("primary-topics.fractions-decimals-percentages"),
+            label: t("primary-topics.comparing-and-ordering-numbers"),
             description: "Explore fractions, decimals, and percentages and learn how they relate to each other.",
             icon: <FractionsIcon />,
             delay: "360ms",
@@ -79,47 +79,11 @@ export default function Primary({ params }: { params: Promise<{ lng: Locale }> }
             topicLinks: []
         },
         {
-            label: t("primary-topics.measurement"),
+            label: t("primary-topics.rounding-numbers"),
             description: "Learn to measure length, mass, volume, time, and money using standard units.",
             icon: <MeasurementIcon />,
             delay: "480ms",
             link: `/${lng}/primary/measurement`,
-            topics: [],
-            topicLinks: []
-        },
-        {
-            label: t("primary-topics.geometry"),
-            description: "Study shapes, positions, angles, and properties of 2D and 3D objects.",
-            icon: <GeometryIcon />,
-            delay: "600ms",
-            link: `/${lng}/primary/geometry`,
-            topics: [],
-            topicLinks: []
-        },
-        {
-            label: t("primary-topics.algebra"),
-            description: "Introduce simple algebra concepts such as patterns, sequences, and basic equations.",
-            icon: <AlgebraIcon />,
-            delay: "720ms",
-            link: `/${lng}/primary/algebra`,
-            topics: [],
-            topicLinks: []
-        },
-        {
-            label: t("primary-topics.statistics"),
-            description: "Learn to collect, organise, and interpret data using charts, tables, and graphs.",
-            icon: <StatisticsIcon />,
-            delay: "840ms",
-            link: `/${lng}/primary/statistics`,
-            topics: [],
-            topicLinks: []
-        },
-        {
-            label: t("primary-topics.problem-solving"),
-            description: "Apply mathematical skills to solve a variety of real-life and reasoning problems.",
-            icon: <ProblemSolvingIcon />,
-            delay: "960ms",
-            link: `/${lng}/primary/problem-solving`,
             topics: [],
             topicLinks: []
         }
@@ -139,7 +103,7 @@ export default function Primary({ params }: { params: Promise<{ lng: Locale }> }
                     style={{ opacity: 0, transform: 'translateY(12px)' }}
                     className='text-4xl mt-10 font-nunito text-primary'
                 >
-                    {t("education.primary-school")}
+                    {t("primary-topics.numbers")}
                 </h1>
                 <p
                     ref={descRef}

@@ -21,7 +21,7 @@
     "primary-school-description": "Construye una base sólida en matemáticas aquí con preguntas alineadas al currículo. La dificultad de cada pregunta se puede ajustar, lo que facilita la comprensión de nuevos conceptos.",
     "secondary-school": "ESO",
     "sixth-form": "Bachillerato",
-    "exam-board": "Junta de Exámenes"
+    "exam-papers": "Exámenes"
   },
   "primary-topics": {
     "numbers": "Números",
@@ -32,7 +32,13 @@
     "geometry": "Geometría",
     "algebra": "Álgebra",
     "statistics": "Estadística",
-    "problem-solving": "Resolución de Problemas"
+    "problem-solving": "Resolución de Problemas",
+
+    "counting": "Contar",
+    "reading-and-writing-numbers": "Leer y Escribir Números",
+    "place-value": "Valor Posicional",
+    "comparing-and-ordering-numbers": "Comparar y Ordenar Números",
+    "rounding-numbers": "Redondear Números"
   },
   "navBar": {
     "questions": "Preguntas",

@@ -20,7 +20,7 @@
     "primary-school-description": "Build a strong foundation in mathematics here with curriculum-aligned questions. Each question difficulty can be adjusted making it easier to pick up new concepts.",
     "secondary-school": "Secondary School",
     "sixth-form": "Sixth Form",
-    "exam-board": "Exam Boards"
+    "exam-papers": "Exam Papers"
   },
   "primary-topics": {
     "numbers": "Numbers",
@@ -31,7 +31,13 @@
     "geometry": "Geometry",
     "algebra": "Algebra",
     "statistics": "Statistics",
-    "problem-solving": "Problem Solving"
+    "problem-solving": "Problem Solving",
+
+    "counting": "Counting",
+    "reading-and-writing-numbers": "Reading & Writing Numbers",
+    "place-value": "Place Value",
+    "comparing-and-ordering-numbers": "Comparing & Ordering Numbers",
+    "rounding-numbers": "Rounding Numbers"
   },
   "navBar": {
     "questions": "Questions",

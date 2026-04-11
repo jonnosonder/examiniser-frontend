@@ -108,7 +108,7 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                                     onClick={() => toggleEditPanelSection(9)}
                                 >   
                                     <div>
-                                        0.0.9 &nbsp;<span className='text-grey ml-1 text-sm'>—&nbsp; 24/09/2025</span>
+                                        0.0.09 &nbsp;<span className='text-grey ml-1 text-sm'>—&nbsp; 24/09/2025</span>
                                     </div>
                                     {editPanelIndex === 9 ? (
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -144,7 +144,7 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                                     onClick={() => toggleEditPanelSection(8)}
                                 >   
                                     <div>
-                                        0.0.8 &nbsp;<span className='text-grey ml-1 text-sm'>—&nbsp; 23/09/2025</span>
+                                        0.0.08 &nbsp;<span className='text-grey ml-1 text-sm'>—&nbsp; 23/09/2025</span>
                                     </div>
                                     {editPanelIndex === 8 ? (
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -183,7 +183,7 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                                     onClick={() => toggleEditPanelSection(7)}
                                 >   
                                     <div>
-                                        0.0.7 &nbsp;<span className='text-grey ml-1 text-sm'>—&nbsp; 21/09/2025</span>
+                                        0.0.07 &nbsp;<span className='text-grey ml-1 text-sm'>—&nbsp; 21/09/2025</span>
                                     </div>
                                     {editPanelIndex === 7 ? (
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -221,7 +221,7 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                                     onClick={() => toggleEditPanelSection(6)}
                                 >   
                                     <div>
-                                        0.0.6 &nbsp;<span className='text-grey ml-1 text-sm'>—&nbsp; 19/09/2025</span>
+                                        0.0.06 &nbsp;<span className='text-grey ml-1 text-sm'>—&nbsp; 19/09/2025</span>
                                     </div>
                                     {editPanelIndex === 6 ? (
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -260,7 +260,7 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                                     onClick={() => toggleEditPanelSection(5)}
                                 >   
                                     <div>
-                                        0.0.5 &nbsp;<span className='text-grey ml-1 text-sm'>—&nbsp; 18/09/2025</span>
+                                        0.0.05 &nbsp;<span className='text-grey ml-1 text-sm'>—&nbsp; 18/09/2025</span>
                                     </div>
                                     {editPanelIndex === 5 ? (
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -303,7 +303,7 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                                     onClick={() => toggleEditPanelSection(4)}
                                 >   
                                     <div>
-                                        0.0.4 &nbsp;<span className='text-grey ml-1 text-sm'>—&nbsp; 02/09/2025</span>
+                                        0.0.04 &nbsp;<span className='text-grey ml-1 text-sm'>—&nbsp; 02/09/2025</span>
                                     </div>
                                     {editPanelIndex === 4 ? (
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -339,7 +339,7 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                                     onClick={() => toggleEditPanelSection(3)}
                                 >   
                                     <div>
-                                        0.0.3 &nbsp;<span className='text-grey ml-1 text-sm'>—&nbsp; 27/08/2025</span>
+                                        0.0.03 &nbsp;<span className='text-grey ml-1 text-sm'>—&nbsp; 27/08/2025</span>
                                     </div>
                                     {editPanelIndex === 3 ? (
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -374,7 +374,7 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                                     onClick={() => toggleEditPanelSection(2)}
                                 >   
                                     <div>
-                                        0.0.2 &nbsp;<span className='text-grey ml-1 text-sm'>—&nbsp; 25/08/2025</span>
+                                        0.0.02 &nbsp;<span className='text-grey ml-1 text-sm'>—&nbsp; 25/08/2025</span>
                                     </div>
                                     {editPanelIndex === 2 ? (
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -410,7 +410,7 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                                     onClick={() => toggleEditPanelSection(1)}
                                 >   
                                     <div>
-                                        0.0.1 &nbsp;<span className='text-grey ml-1 text-sm'>—&nbsp; 22/08/2025</span>
+                                        0.0.01 &nbsp;<span className='text-grey ml-1 text-sm'>—&nbsp; 22/08/2025</span>
                                     </div>
                                     {editPanelIndex === 1 ? (
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

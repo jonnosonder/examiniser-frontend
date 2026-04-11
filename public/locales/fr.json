@@ -20,7 +20,7 @@
     "primary-school-description": "Construisez une base solide en mathématiques ici avec des questions alignées sur le curriculum. La difficulté de chaque question peut être ajustée, ce qui facilite l'apprentissage des nouveaux concepts.",
     "secondary-school": "Collège",
     "sixth-form": "Lycée",
-    "exam-board": "Junta de Exámenes"
+    "exam-papers": "Papiers d'Examen"
   },
   "primary-topics": {
     "numbers": "Nombres",
@@ -31,7 +31,13 @@
     "geometry": "Géométrie",
     "algebra": "Algèbre",
     "statistics": "Statistiques",
-    "problem-solving": "Résolution de problèmes"
+    "problem-solving": "Résolution de problèmes",
+
+    "counting": "Comptage",
+    "reading-and-writing-numbers": "Lire et écrire les nombres",
+    "place-value": "Valeur de position",
+    "comparing-and-ordering-numbers": "Comparer et ordonner les nombres",
+    "rounding-numbers": "Arrondir les nombres"
   },
   "navBar": {
     "questions": "Questions",

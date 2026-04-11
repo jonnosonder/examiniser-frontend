@@ -11,7 +11,7 @@ import { Locale } from '@/lib/locales';
 import { useState } from 'react';
 import { useRouter } from "next/navigation";
 
-type ButtonId = "primary" | "secondary" | "sixthForm" | "exam_board" | null;
+type ButtonId = "primary" | "secondary" | "sixthForm" | "exam_paper" | null;
 
 export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
   const { t } = useTranslation();
@@ -22,10 +22,10 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
 
   const [activeButton, setActiveButton] = useState<ButtonId>(null);
   const [textVisible, setTextVisible] = useState<Record<string, boolean>>({
-    primary: true, secondary: true, sixthForm: true, exam_board: true,
+    primary: true, secondary: true, sixthForm: true, exam_paper: true,
   });
   const [gridVisible, setGridVisible] = useState<Record<string, boolean>>({
-    primary: false, secondary: false, sixthForm: false, exam_board: false,
+    primary: false, secondary: false, sixthForm: false, exam_paper: false,
   });
   const [buttonsReady, setButtonsReady] = useState(false);
   const [infinityVisible, setInfinityVisible] = useState(false);
@@ -111,7 +111,7 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
       primary: false,
       secondary: false,
       sixthForm: false,
-      exam_board: false,
+      exam_paper: false,
     });
 
     setTimeout(() => {
@@ -122,7 +122,7 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
           primary: true,
           secondary: true,
           sixthForm: true,
-          exam_board: true,
+          exam_paper: true,
         });
       }, 200);
     }, 150);
@@ -151,9 +151,9 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
       delay: "240ms" 
     },
     { 
-      id: "exam_board", 
-      label: t("education.exam-board"),       
-      items: ["AQA", "Edexcel", "OCR", "general.see-all"],  
+      id: "exam_paper", 
+      label: t("education.exam-papers"),       
+      items: ["AQA", "Edexcel", "OCR", "Baccalauréat", "Selectividad", "大学入学共通テスト", "高考", "general.see-all"],  
       links: ["/exam-board/aqa", "/exam-board/edexcel", "/exam-board/ocr", "/exam-board/"],
       delay: "360ms" 
     }
