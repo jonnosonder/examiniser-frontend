@@ -73,6 +73,7 @@ import { notFound } from "next/navigation";
 
 export default function StartPage({ params }: { params: Promise<{ lng: Locale }> }) {
     notFound();
+    return null;
 
     const { t } = useTranslation();
     const resolvedParams = React.use(params); // unwrap the promise

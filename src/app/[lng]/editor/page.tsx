@@ -88,6 +88,7 @@ import { notFound } from "next/navigation";
 
 function EditorPage() {
     notFound();
+    return null;
     
     const { t } = useTranslation();
 

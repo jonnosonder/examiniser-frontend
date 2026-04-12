@@ -7,6 +7,14 @@ export const SixthFormFunctionsGraphsIcon = () => (
     </svg>
 );
 
+export const SixthFormAlgebraIcon = () => (
+    <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+        <text x="4" y="16" fontSize="10" fontFamily="serif" fontWeight="bold">x</text>
+        <text x="11" y="16" fontSize="10" fontFamily="serif" fontWeight="bold">+</text>
+        <text x="18" y="16" fontSize="10" fontFamily="serif" fontWeight="bold">y</text>
+    </svg>
+);
+
 export const SixthFormDifferentiationIcon = () => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" xmlns="http://www.w3.org/2000/svg">
         <path d="M4 18 Q 12 4 20 14" />
@@ -21,6 +29,36 @@ export const SixthFormIntegrationIcon = () => (
         <line x1="8" y1="20" x2="18" y2="20" />
         <line x1="8" y1="4" x2="18" y2="4" />
         <path d="M9 18 L9 8 Q 13 6 15 10 L15 18 Z" fill="currentColor" fillOpacity="0.25" stroke="currentColor" />
+    </svg>
+);
+
+export const SixthFormCalculusIcon = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10 4 C 6 4, 6 20, 10 20" strokeWidth="2" />
+        <line x1="10" y1="4" x2="18" y2="4" />
+        <line x1="10" y1="20" x2="18" y2="20" />
+        <text x="14" y="15" fontSize="7" fontFamily="serif" fill="currentColor" stroke="none">∫</text>
+    </svg>
+);
+
+export const SixthFormMechanicsIcon = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" xmlns="http://www.w3.org/2000/svg">
+        <line x1="4" y1="18" x2="20" y2="18" />
+        <line x1="8" y1="18" x2="8" y2="10" />
+        <circle cx="8" cy="8" r="2" fill="currentColor" />
+        <line x1="8" y1="10" x2="18" y2="6" />
+        <polygon points="18,6 16,8 20,7" fill="currentColor" />
+    </svg>
+);
+
+export const SixthFormDiscreteIcon = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="6" cy="6" r="2" fill="currentColor" />
+        <circle cx="18" cy="6" r="2" fill="currentColor" />
+        <circle cx="6" cy="18" r="2" fill="currentColor" />
+        <circle cx="18" cy="18" r="2" fill="currentColor" />
+        <line x1="6" y1="6" x2="18" y2="18" />
+        <line x1="18" y1="6" x2="6" y2="18" />
     </svg>
 );
 

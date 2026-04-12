@@ -250,21 +250,36 @@ export function QuestionSubtopicLeaf({
     };
 
     const handleCheckAnswer = () => {
-        const normalized = userAnswer.trim().replace(/\s+/g, "");
-        const expected = questionAnswer.trim().replace(/\s+/g, "");
+        const normalized = userAnswer
+            .trim()
+            .replace(/\s+/g, "")   // removes all whitespace (spaces, tabs, etc.)
+            .replace(/ /g, "");    // explicitly removes normal spaces (extra safety)
+
+        const expected = questionAnswer
+            .trim()
+            .replace(/\s+/g, "")
+            .replace(/ /g, "");
+
         if (!questionAnswer) {
             setFeedback("Generate a question first before checking your answer.");
             setAnswerCorrect(null);
             return;
         }
+
         if (!normalized) {
             setFeedback("Enter an answer before checking.");
             setAnswerCorrect(null);
             return;
         }
+
         const correct = normalized.toLowerCase() === expected.toLowerCase();
+
         setAnswerCorrect(correct);
-        setFeedback(correct ? t("questions.correct") : t("questions.wrong", { answer: questionAnswer }));
+        setFeedback(
+            correct
+                ? t("questions.correct")
+                : t("questions.wrong", { answer: questionAnswer })
+        );
     };
 
     React.useEffect(() => {

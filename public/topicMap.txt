@@ -1,0 +1,177 @@
+﻿PRIMARY
+
+Numbers:
+- Counting
+- Place Value
+- Comparing & Ordering numbers - comparing, ordering
+- Addition & Subtraction - written, mental
+- Multiplication & Division - times tables, sharing, grouping
+- Rounding & Estimation - Rounding, Estimation
+
+Fractions, Decimals & Percentages:
+- Fractions
+- Equivalent Fractions
+- Simple Addition/Subtraction of Fractions
+- Decimals - place value, tenths, hundredths
+- Link between fractions and decimals
+- Basic percentages - e.g., 50%, 25%
+
+Measurements:
+- Length, mass, volume, time
+- Units - cm, m, kg, litres
+- Reading clocks - analogue & digital
+- Money calculations
+- Perimeter and area - basic shapes
+
+Geometry:
+- 2D shapes
+- 3D shapes
+- Symmetry
+- Angles
+- Position & direction
+
+Data Handling:
+- Sorting and classifying
+- Pictograms, bar charts
+- Tables
+- Basic interpretation of data
+
+Problem Solving & Reasoning: 
+- Word problems
+- Logical reasoning
+- Patterns and sequences
+
+Algebra:
+- Missing Numbers
+- Simple Equations
+
+
+SECONDARY
+
+Number:
+- Integers - positive/negative numbers
+- Factors, multiples, primes
+- LCM & HCF
+- Powers and roots
+- Standard form - scientific notation
+- Fractions, decimals, percentages
+- Ratio and proportion
+- Financial maths
+
+Algebra:
+- Algebraic notation
+- Simplifying expressions
+- Expanding and factorising
+- Substitution
+- Solving equations:
+- Linear equations
+- Simultaneous equations
+- Quadratic equations
+- Inequalities
+- Arithmetic sequences
+- Geometric sequences
+- Functions - basic understanding
+- Linear graphs
+- Quadratic graphs
+
+Geometry:
+- Angles - rules, parallel lines
+- Properties of polygons
+- Congruence and similarity
+- Translation
+- Rotation
+- Reflection
+- Enlargement
+- Pythagoras’ theorem
+
+Trigonometry:
+- Sine, cosine, tangent
+- Right-angled triangles
+- Circumference & area
+- Arcs and sectors
+
+Measurement:
+- Area and perimeter
+- Prisms
+- Cylinders
+- Spheres
+- Unit conversions
+- Compound measures
+
+Statistics:
+- Data collection methods
+- Mean, median, mode
+- Range
+- Bar charts
+- Histograms
+- Pie charts
+- Basic probability rules
+- Tree diagrams
+- Venn diagrams
+
+Reasoning & Problem Solving:
+- Multi-step problems
+- Mathematical proofs
+- Logical deduction
+
+
+SIXTH FORM
+
+Algebra:
+- Polynomial functions
+- Rational expressions
+- Inequalities
+- Laws of logs
+- Exponential equations
+- Arithmetic series
+- Geometric series
+- Sigma notation
+- Binomial expansion
+
+Functions:
+- Function notation
+- Domain and range
+- Composite functions
+- Inverse functions
+- Transformations of graphs
+- Exponential and logarithmic functions
+
+Calculus:
+- Limits - formal/informal depending on country
+- Rules - product, quotient, chain
+- Tangents and normals
+- Optimisation problems
+- Indefinite and definite integrals
+- Area under curves
+- Differential equations
+
+Trigonometry:
+- Identities
+- Equations
+- Radians
+- Trigonometric graphs
+
+Vectors:
+- Vector notation
+- Addition and scalar multiplication
+- Dot product
+- Equations of lines
+
+Statistics:
+- Binomial distribution
+- Normal distribution
+- Statistical sampling
+- Hypothesis testing
+- Correlation and regression
+
+Mechanics:
+- Kinematics
+- Forces
+- Moments
+- Projectiles
+
+Discrete:
+- Matrices
+- Complex numbers
+- Graph theory
+- Linear programming

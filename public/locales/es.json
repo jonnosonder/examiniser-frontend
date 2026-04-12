@@ -39,7 +39,10 @@
     "probability-statistics": "Probabilidad y estadística",
     "graphs": "Gráficas",
     "trigonometry": "Trigonometría",
-    "problem-solving": "Resolución de problemas"
+    "problem-solving": "Resolución de problemas",
+    "measurement": "Measurement",
+    "statistics": "Statistics",
+    "reasoning-problem-solving": "Reasoning Problem Solving"
   },
   "sixth-form-topics": {
     "functions-graphs": "Funciones y gráficas",
@@ -50,23 +53,30 @@
     "exponentials-logarithms": "Exponenciales y logaritmos",
     "vectors": "Vectores",
     "probability-statistics": "Probabilidad y estadística",
-    "proof-numerical": "Demostración y métodos numéricos"
+    "proof-numerical": "Demostración y métodos numéricos",
+    "algebra": "Algebra",
+    "functions": "Functions",
+    "calculus": "Calculus",
+    "statistics": "Statistics",
+    "mechanics": "Mechanics",
+    "discrete": "Discrete"
   },
   "primary-topics": {
     "numbers": "Números",
     "addition-subtraction": "Suma y Resta",
     "multiplication-division": "Multiplicación y División",
     "fractions-decimals-percentages": "Fracciones, Decimales y Porcentajes",
-    "measurement": "Medición",
+    "measurement": "Mediciones",
     "geometry": "Geometría",
     "algebra": "Álgebra",
-    "statistics": "Estadística",
-    "problem-solving": "Resolución de Problemas",
     "counting": "Contar",
     "reading-and-writing-numbers": "Leer y Escribir Números",
     "place-value": "Valor Posicional",
     "comparing-and-ordering-numbers": "Comparar y Ordenar Números",
-    "rounding-numbers": "Redondear Números"
+    "rounding-numbers": "Redondear Números",
+    "data-handling": "Tratamiento de datos",
+    "problem-solving-reasoning": "Resolución de problemas y razonamiento",
+    "measurements": "Measurements"
   },
   "navBar": {
     "questions": "Preguntas",
@@ -232,7 +242,10 @@
       "geometry": "Estudia formas, posiciones, ángulos y propiedades de figuras 2D y 3D.",
       "algebra": "Introduce patrones, sucesiones y ecuaciones sencillas.",
       "statistics": "Recoge, organiza e interpreta datos con tablas y gráficos.",
-      "problem-solving": "Aplica matemáticas a problemas de la vida cotidiana y de razonamiento."
+      "problem-solving": "Aplica matemáticas a problemas de la vida cotidiana y de razonamiento.",
+      "measurements": "Description for Measurements.",
+      "data-handling": "Description for Data Handling.",
+      "problem-solving-reasoning": "Description for Problem Solving Reasoning."
     },
     "primarySub": {
       "numbers": {
@@ -240,7 +253,10 @@
         "reading-and-writing-numbers": "Lee y escribe números en cifras y palabras, incluido el cero y cantidades mayores.",
         "place-value": "Comprende decenas, centenas y cómo la posición cambia el valor.",
         "comparing-and-ordering-numbers": "Usa símbolos y listas para comparar y ordenar números enteros.",
-        "rounding-numbers": "Redondea a la decena o centena más cercana para estimar."
+        "rounding-numbers": "Redondea a la decena o centena más cercana para estimar.",
+        "addition-and-subtraction": "Description for Addition And Subtraction.",
+        "multiplication-and-division": "Description for Multiplication And Division.",
+        "rounding-and-estimation": "Description for Rounding And Estimation."
       },
       "addition-subtraction": {
         "mental-strategies": "Usa dobles, casi dobles y descomposición mental.",
@@ -258,7 +274,11 @@
         "fractions-basics": "Reconoce fracciones unitarias y no unitarias en figuras y conjuntos.",
         "equivalent-fractions": "Encuentra familias de fracciones equivalentes en rectas y dibujos.",
         "decimals": "Comprende décimas y centésimas y la notación decimal.",
-        "percentages": "Relaciona porcentajes con centésimas y fracciones sencillas."
+        "percentages": "Relaciona porcentajes con centésimas y fracciones sencillas.",
+        "fractions": "Description for Fractions.",
+        "simple-addition-subtraction-of-fractions": "Description for Simple Addition Subtraction Of Fractions.",
+        "link-between-fractions-and-decimals": "Description for Link Between Fractions And Decimals.",
+        "basic-percentages": "Description for Basic Percentages."
       },
       "measurement": {
         "units": "Elige y convierte unidades adecuadas para medidas cotidianas.",
@@ -271,7 +291,8 @@
         "shapes-3d": "Identifica caras, aristas y vértices de cuerpos comunes.",
         "symmetry": "Encuentra ejes de simetría y completa dibujos simétricos.",
         "angles": "Compara ángulos y reconoce el ángulo recto.",
-        "coordinates": "Lee y marca puntos en el primer cuadrante."
+        "coordinates": "Lee y marca puntos en el primer cuadrante.",
+        "position-and-direction": "Description for Position And Direction."
       },
       "algebra": {
         "patterns": "Continúa y describe patrones visuales y numéricos.",
@@ -290,6 +311,24 @@
         "two-step": "Planifica el orden en problemas de dos pasos.",
         "reasoning": "Explica por qué una respuesta es correcta con palabras y dibujos.",
         "real-life": "Aplica matemáticas a dinero, medidas y tiempo."
+      },
+      "measurements": {
+        "length-mass-volume-time": "Description for Length Mass Volume Time.",
+        "units": "Description for Units.",
+        "reading-clocks": "Description for Reading Clocks.",
+        "money-calculations": "Description for Money Calculations.",
+        "perimeter-and-area": "Description for Perimeter And Area."
+      },
+      "data-handling": {
+        "sorting-and-classifying": "Description for Sorting And Classifying.",
+        "pictograms-bar-charts": "Description for Pictograms Bar Charts.",
+        "tables": "Description for Tables.",
+        "basic-interpretation-of-data": "Description for Basic Interpretation Of Data."
+      },
+      "problem-solving-reasoning": {
+        "word-problems": "Description for Word Problems.",
+        "logical-reasoning": "Description for Logical Reasoning.",
+        "patterns-and-sequences": "Description for Patterns And Sequences."
       }
     },
     "secondary": {
@@ -301,20 +340,42 @@
       "probability-statistics": "Representa datos, estima probabilidad y usa medias y dispersión.",
       "graphs": "Representa e interpreta gráficas lineales, cuadráticas y otras ligadas a ecuaciones.",
       "trigonometry": "Pitágoras, triángulos rectángulos y razones trigonométricas básicas.",
-      "problem-solving": "Razonamiento en varios pasos, modelización y problemas tipo examen."
+      "problem-solving": "Razonamiento en varios pasos, modelización y problemas tipo examen.",
+      "measurement": "Description for Measurement.",
+      "statistics": "Description for Statistics.",
+      "reasoning-problem-solving": "Description for Reasoning Problem Solving."
     },
     "secondarySub": {
       "number": {
         "fdp": "Pasa con fluidez entre fracciones, decimales y porcentajes en problemas.",
         "indices-roots": "Usa leyes de índices, raíces cuadradas y cúbicas y formas exactas.",
         "standard-form": "Escribe y calcula con notación científica.",
-        "rounding-estimation": "Redondea a cifras significativas y estima para comprobar."
+        "rounding-estimation": "Redondea a cifras significativas y estima para comprobar.",
+        "integers": "Description for Integers.",
+        "factors-multiples-primes": "Description for Factors Multiples Primes.",
+        "lcm-hcf": "Description for Lcm Hcf.",
+        "powers-and-roots": "Description for Powers And Roots.",
+        "fractions-decimals-percentages": "Description for Fractions Decimals Percentages.",
+        "ratio-and-proportion": "Description for Ratio And Proportion.",
+        "financial-maths": "Description for Financial Maths."
       },
       "algebra": {
         "expressions": "Simplifica, reduce términos semejantes y multiplica paréntesis.",
         "expanding-factorising": "Desarrolla productos y factoriza con un paréntesis.",
         "indices-algebra": "Aplica leyes de índices a términos algebraicos.",
-        "substitution": "Evalúa expresiones y fórmulas con valores dados."
+        "substitution": "Evalúa expresiones y fórmulas con valores dados.",
+        "algebraic-notation": "Description for Algebraic Notation.",
+        "simplifying-expressions": "Description for Simplifying Expressions.",
+        "expanding-and-factorising": "Description for Expanding And Factorising.",
+        "linear-equations": "Description for Linear Equations.",
+        "simultaneous-equations": "Description for Simultaneous Equations.",
+        "quadratic-equations": "Description for Quadratic Equations.",
+        "inequalities": "Description for Inequalities.",
+        "arithmetic-sequences": "Description for Arithmetic Sequences.",
+        "geometric-sequences": "Description for Geometric Sequences.",
+        "functions-basic-understanding": "Description for Functions Basic Understanding.",
+        "linear-graphs": "Description for Linear Graphs.",
+        "quadratic-graphs": "Description for Quadratic Graphs."
       },
       "equations": {
         "linear-equations": "Resuelve ecuaciones lineales con paréntesis y fracciones.",
@@ -333,7 +394,15 @@
         "polygons": "Ángulos interiores y exteriores, semejanza y congruencia.",
         "circles": "Perímetro, área, arcos y sectores a nivel básico.",
         "area-volume": "Figuras compuestas, prismas y unidades de área y volumen.",
-        "transformations": "Traslaciones, simetrías, giros y homotecias."
+        "transformations": "Traslaciones, simetrías, giros y homotecias.",
+        "angles-rules-parallel-lines": "Description for Angles Rules Parallel Lines.",
+        "properties-of-polygons": "Description for Properties Of Polygons.",
+        "congruence-and-similarity": "Description for Congruence And Similarity.",
+        "translation": "Description for Translation.",
+        "rotation": "Description for Rotation.",
+        "reflection": "Description for Reflection.",
+        "enlargement": "Description for Enlargement.",
+        "pythagoras-theorem": "Description for Pythagoras Theorem."
       },
       "probability-statistics": {
         "probability": "Espacio muestral, esperanza y diagramas en árbol.",
@@ -351,12 +420,40 @@
         "pythagoras": "Calcula lados desconocidos en triángulos rectángulos.",
         "sohcahtoa": "Usa seno, coseno y tangente para ángulos y lados.",
         "bearings": "Mide e interpreta rumbos de tres cifras.",
-        "sine-cosine-rule": "Amplía a triángulos no rectángulos cuando haga falta."
+        "sine-cosine-rule": "Amplía a triángulos no rectángulos cuando haga falta.",
+        "sine-cosine-tangent": "Description for Sine Cosine Tangent.",
+        "right-angled-triangles": "Description for Right Angled Triangles.",
+        "circumference-and-area": "Description for Circumference And Area.",
+        "arcs-and-sectors": "Description for Arcs And Sectors."
       },
       "problem-solving": {
         "multi-step": "Desglosa preguntas complejas en etapas ordenadas.",
         "modelling": "Traduce el enunciado a ecuaciones y gráficas.",
         "exam-style": "Práctica cronometrada con temas mixtos y criterios."
+      },
+      "measurement": {
+        "area-and-perimeter": "Description for Area And Perimeter.",
+        "prisms": "Description for Prisms.",
+        "cylinders": "Description for Cylinders.",
+        "spheres": "Description for Spheres.",
+        "unit-conversions": "Description for Unit Conversions.",
+        "compound-measures": "Description for Compound Measures."
+      },
+      "statistics": {
+        "data-collection-methods": "Description for Data Collection Methods.",
+        "mean-median-mode": "Description for Mean Median Mode.",
+        "range": "Description for Range.",
+        "bar-charts": "Description for Bar Charts.",
+        "histograms": "Description for Histograms.",
+        "pie-charts": "Description for Pie Charts.",
+        "basic-probability-rules": "Description for Basic Probability Rules.",
+        "tree-diagrams": "Description for Tree Diagrams.",
+        "venn-diagrams": "Description for Venn Diagrams."
+      },
+      "reasoning-problem-solving": {
+        "multi-step-problems": "Description for Multi Step Problems.",
+        "mathematical-proofs": "Description for Mathematical Proofs.",
+        "logical-deduction": "Description for Logical Deduction."
       }
     },
     "sixthForm": {
@@ -368,7 +465,13 @@
       "exponentials-logarithms": "Leyes de logaritmos y exponenciales, ecuaciones y modelos de crecimiento.",
       "vectors": "Vectores 2D y 3D, producto escalar, rectas y aplicaciones geométricas.",
       "probability-statistics": "Distribuciones, contrastes de hipótesis y modelado de datos avanzado.",
-      "proof-numerical": "Técnicas de demostración, iteración y métodos numéricos."
+      "proof-numerical": "Técnicas de demostración, iteración y métodos numéricos.",
+      "algebra": "Desarrolla fluidez algebraica avanzada con polinomios, inecuaciones, logaritmos y funciones para matemáticas de bachillerato.",
+      "functions": "Estudia funciones, dominios, inversas, transformaciones y gráficas con comprensión algebraica y geométrica.",
+      "calculus": "Explora derivadas, integrales, límites y cinemática para tasas de cambio y áreas bajo curvas.",
+      "statistics": "Analiza probabilidad, distribuciones, contrastes de hipótesis y regresión para modelizar datos.",
+      "mechanics": "Aplica fuerzas, movimiento, momentos y proyectiles a problemas de mecánica en contextos de física y matemáticas.",
+      "discrete": "Investiga matrices, números complejos, teoría de grafos y programación lineal para matemáticas discretas."
     },
     "sixthFormSub": {
       "functions-graphs": {
@@ -392,7 +495,8 @@
         "radians": "Usa radianes en la circunferencia unidad y en cálculo.",
         "identities": "Demuestra y aplica identidades pitagóricas y de adición.",
         "equations": "Resuelve ecuaciones trigonométricas en un intervalo dado.",
-        "sine-cosine-rule": "Resuelve triángulos y modela problemas en 2D."
+        "sine-cosine-rule": "Resuelve triángulos y modela problemas en 2D.",
+        "trigonometric-graphs": "Description for Trigonometric Graphs."
       },
       "sequences-series": {
         "arithmetic-geometric": "Término general, sumas y notación sigma.",
@@ -407,7 +511,11 @@
       "vectors": {
         "basics": "Módulo, dirección, suma y producto por escalar.",
         "scalar-product": "Producto escalar, ángulo entre vectores y perpendicularidad.",
-        "lines": "Ecuaciones vectoriales de rectas y distancia mínima."
+        "lines": "Ecuaciones vectoriales de rectas y distancia mínima.",
+        "vector-notation": "Description for Vector Notation.",
+        "addition-and-scalar-multiplication": "Description for Addition And Scalar Multiplication.",
+        "dot-product": "Description for Dot Product.",
+        "equations-of-lines": "Description for Equations Of Lines."
       },
       "probability-statistics": {
         "distributions": "Distribuciones binomial, normal y discretas.",
@@ -418,6 +526,53 @@
         "proof": "Demostración por deducción, agotamiento o contradicción.",
         "iteration": "Iteración de punto fijo y diagramas de telaraña.",
         "numerical-methods": "Raíces por métodos numéricos e integración numérica."
+      },
+      "algebra": {
+        "polynomial-functions": "Description for Polynomial Functions.",
+        "rational-expressions": "Description for Rational Expressions.",
+        "inequalities": "Description for Inequalities.",
+        "laws-of-logs": "Description for Laws Of Logs.",
+        "exponential-equations": "Description for Exponential Equations.",
+        "arithmetic-series": "Description for Arithmetic Series.",
+        "geometric-series": "Description for Geometric Series.",
+        "sigma-notation": "Description for Sigma Notation.",
+        "binomial-expansion": "Description for Binomial Expansion."
+      },
+      "functions": {
+        "function-notation": "Description for Function Notation.",
+        "domain-and-range": "Description for Domain And Range.",
+        "composite-functions": "Description for Composite Functions.",
+        "inverse-functions": "Description for Inverse Functions.",
+        "transformations-of-graphs": "Description for Transformations Of Graphs.",
+        "exponential-and-logarithmic-functions": "Description for Exponential And Logarithmic Functions."
+      },
+      "calculus": {
+        "limits": "Description for Limits.",
+        "rules-product-quotient-chain": "Description for Rules Product Quotient Chain.",
+        "tangents-and-normals": "Description for Tangents And Normals.",
+        "optimisation-problems": "Description for Optimisation Problems.",
+        "indefinite-and-definite-integrals": "Description for Indefinite And Definite Integrals.",
+        "area-under-curves": "Description for Area Under Curves.",
+        "differential-equations": "Description for Differential Equations."
+      },
+      "statistics": {
+        "binomial-distribution": "Description for Binomial Distribution.",
+        "normal-distribution": "Description for Normal Distribution.",
+        "statistical-sampling": "Description for Statistical Sampling.",
+        "hypothesis-testing": "Description for Hypothesis Testing.",
+        "correlation-and-regression": "Description for Correlation And Regression."
+      },
+      "mechanics": {
+        "kinematics": "Description for Kinematics.",
+        "forces": "Description for Forces.",
+        "moments": "Description for Moments.",
+        "projectiles": "Description for Projectiles."
+      },
+      "discrete": {
+        "matrices": "Description for Matrices.",
+        "complex-numbers": "Description for Complex Numbers.",
+        "graph-theory": "Description for Graph Theory.",
+        "linear-programming": "Description for Linear Programming."
       }
     }
   },
@@ -435,9 +590,9 @@
     "decimals": "Decimales",
     "percentages": "Porcentajes",
     "units": "Unidades",
-    "length-mass-capacity": "Longitud, masa y capacidad",
+    "length-mass-capacity": "Longitud, masa y volumen",
     "time": "Tiempo",
-    "money": "Dinero",
+    "money": "Cálculos monetarios",
     "shapes-2d": "Figuras planas",
     "shapes-3d": "Cuerpos geométricos",
     "symmetry": "Simetría",
@@ -447,14 +602,37 @@
     "sequences": "Sucesiones",
     "missing-numbers": "Números que faltan",
     "simple-equations": "Ecuaciones sencillas",
-    "collecting-data": "Recogida de datos",
-    "charts": "Gráficos",
+    "collecting-data": "Ordenar y clasificar",
+    "charts": "Pictogramas y gráficos de barras",
     "tables": "Tablas",
-    "averages": "Medias",
+    "averages": "Interpretación básica de datos",
     "one-step-problems": "Problemas de un paso",
     "two-step-problems": "Problemas de dos pasos",
-    "reasoning": "Razonamiento",
-    "real-life": "Contextos reales"
+    "reasoning": "Razonamiento lógico",
+    "real-life": "Contextos reales",
+    "counting": "Contar",
+    "reading-and-writing-numbers": "Leer y Escribir Números",
+    "place-value": "Valor Posicional",
+    "comparing-and-ordering-numbers": "Comparar y Ordenar Números",
+    "rounding-numbers": "Redondear Números",
+    "addition-and-subtraction": "Addition And Subtraction",
+    "multiplication-and-division": "Multiplication And Division",
+    "rounding-and-estimation": "Rounding And Estimation",
+    "fractions": "Fractions",
+    "simple-addition-subtraction-of-fractions": "Simple Addition Subtraction Of Fractions",
+    "link-between-fractions-and-decimals": "Link Between Fractions And Decimals",
+    "basic-percentages": "Basic Percentages",
+    "length-mass-volume-time": "Length Mass Volume Time",
+    "reading-clocks": "Reading Clocks",
+    "money-calculations": "Money Calculations",
+    "perimeter-and-area": "Perimeter And Area",
+    "position-and-direction": "Position And Direction",
+    "sorting-and-classifying": "Sorting And Classifying",
+    "pictograms-bar-charts": "Pictograms Bar Charts",
+    "basic-interpretation-of-data": "Basic Interpretation Of Data",
+    "word-problems": "Word Problems",
+    "logical-reasoning": "Logical Reasoning",
+    "patterns-and-sequences": "Patterns And Sequences"
   },
   "secondary-subtopics": {
     "fdp": "Fracciones, decimales y porcentajes",
@@ -492,7 +670,52 @@
     "sine-cosine-rule": "Teorema del seno y coseno",
     "multi-step": "Problemas en varios pasos",
     "modelling": "Modelización",
-    "exam-style": "Tipo examen"
+    "exam-style": "Tipo examen",
+    "integers": "Integers",
+    "factors-multiples-primes": "Factors Multiples Primes",
+    "lcm-hcf": "Lcm Hcf",
+    "powers-and-roots": "Powers And Roots",
+    "fractions-decimals-percentages": "Fractions Decimals Percentages",
+    "ratio-and-proportion": "Ratio And Proportion",
+    "financial-maths": "Financial Maths",
+    "algebraic-notation": "Algebraic Notation",
+    "simplifying-expressions": "Simplifying Expressions",
+    "expanding-and-factorising": "Expanding And Factorising",
+    "simultaneous-equations": "Simultaneous Equations",
+    "quadratic-equations": "Quadratic Equations",
+    "arithmetic-sequences": "Arithmetic Sequences",
+    "geometric-sequences": "Geometric Sequences",
+    "functions-basic-understanding": "Functions Basic Understanding",
+    "angles-rules-parallel-lines": "Angles Rules Parallel Lines",
+    "properties-of-polygons": "Properties Of Polygons",
+    "congruence-and-similarity": "Congruence And Similarity",
+    "translation": "Translation",
+    "rotation": "Rotation",
+    "reflection": "Reflection",
+    "enlargement": "Enlargement",
+    "pythagoras-theorem": "Pythagoras Theorem",
+    "sine-cosine-tangent": "Sine Cosine Tangent",
+    "right-angled-triangles": "Right Angled Triangles",
+    "circumference-and-area": "Circumference And Area",
+    "arcs-and-sectors": "Arcs And Sectors",
+    "area-and-perimeter": "Area And Perimeter",
+    "prisms": "Prisms",
+    "cylinders": "Cylinders",
+    "spheres": "Spheres",
+    "unit-conversions": "Unit Conversions",
+    "compound-measures": "Compound Measures",
+    "data-collection-methods": "Data Collection Methods",
+    "mean-median-mode": "Mean Median Mode",
+    "range": "Range",
+    "bar-charts": "Bar Charts",
+    "histograms": "Histograms",
+    "pie-charts": "Pie Charts",
+    "basic-probability-rules": "Basic Probability Rules",
+    "tree-diagrams": "Tree Diagrams",
+    "venn-diagrams": "Venn Diagrams",
+    "multi-step-problems": "Multi Step Problems",
+    "mathematical-proofs": "Mathematical Proofs",
+    "logical-deduction": "Logical Deduction"
   },
   "sixth-subtopics": {
     "domain-range": "Dominio y recorrido",
@@ -524,6 +747,45 @@
     "regression": "Regresión",
     "proof": "Demostración",
     "iteration": "Iteración",
-    "numerical-methods": "Métodos numéricos"
+    "numerical-methods": "Métodos numéricos",
+    "polynomial-functions": "Polynomial Functions",
+    "rational-expressions": "Rational Expressions",
+    "inequalities": "Inequalities",
+    "laws-of-logs": "Laws Of Logs",
+    "exponential-equations": "Exponential Equations",
+    "arithmetic-series": "Arithmetic Series",
+    "geometric-series": "Geometric Series",
+    "binomial-expansion": "Binomial Expansion",
+    "function-notation": "Function Notation",
+    "domain-and-range": "Domain And Range",
+    "composite-functions": "Composite Functions",
+    "inverse-functions": "Inverse Functions",
+    "transformations-of-graphs": "Transformations Of Graphs",
+    "exponential-and-logarithmic-functions": "Exponential And Logarithmic Functions",
+    "limits": "Limits",
+    "rules-product-quotient-chain": "Rules Product Quotient Chain",
+    "tangents-and-normals": "Tangents And Normals",
+    "optimisation-problems": "Optimisation Problems",
+    "indefinite-and-definite-integrals": "Indefinite And Definite Integrals",
+    "area-under-curves": "Area Under Curves",
+    "differential-equations": "Differential Equations",
+    "identities": "Identities",
+    "equations": "Equations",
+    "trigonometric-graphs": "Trigonometric Graphs",
+    "vector-notation": "Vector Notation",
+    "addition-and-scalar-multiplication": "Addition And Scalar Multiplication",
+    "dot-product": "Dot Product",
+    "equations-of-lines": "Equations Of Lines",
+    "binomial-distribution": "Binomial Distribution",
+    "normal-distribution": "Normal Distribution",
+    "statistical-sampling": "Statistical Sampling",
+    "correlation-and-regression": "Correlation And Regression",
+    "forces": "Forces",
+    "moments": "Moments",
+    "projectiles": "Projectiles",
+    "matrices": "Matrices",
+    "complex-numbers": "Complex Numbers",
+    "graph-theory": "Graph Theory",
+    "linear-programming": "Linear Programming"
   }
 }
