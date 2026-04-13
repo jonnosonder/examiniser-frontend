@@ -113,7 +113,6 @@
     "clear": "Borrar",
     "clear-answer": "Borrar respuesta",
     "space": "Espacio",
-    "keyboard-hint": "Usa las teclas LaTeX para escribir tu respuesta.",
     "answer-preview": "Vista previa de la respuesta"
   },
   "start": {
@@ -250,9 +249,9 @@
       "algebra": "Introduce patrones, sucesiones y ecuaciones sencillas.",
       "statistics": "Recoge, organiza e interpreta datos con tablas y gráficos.",
       "problem-solving": "Aplica matemáticas a problemas de la vida cotidiana y de razonamiento.",
-      "measurements": "Description for Measurements.",
-      "data-handling": "Description for Data Handling.",
-      "problem-solving-reasoning": "Description for Problem Solving Reasoning."
+      "measurements": "Explora la medición de longitud, masa, volumen, tiempo, dinero, perímetro y área usando unidades estándar y herramientas prácticas.",
+      "data-handling": "Recopila, ordena, muestra e interpreta datos con diagramas, tablas y gráficos sencillos.",
+      "problem-solving-reasoning": "Aplica el razonamiento y la resolución de problemas en cuestiones, patrones, lógica y situaciones matemáticas cotidianas."
     },
     "primarySub": {
       "numbers": {
@@ -320,22 +319,22 @@
         "real-life": "Aplica matemáticas a dinero, medidas y tiempo."
       },
       "measurements": {
-        "length-mass-volume-time": "Description for Length Mass Volume Time.",
-        "units": "Description for Units.",
-        "reading-clocks": "Description for Reading Clocks.",
-        "money-calculations": "Description for Money Calculations.",
-        "perimeter-and-area": "Description for Perimeter And Area."
+        "length-mass-volume-time": "Mide y compara longitud, masa, volumen y tiempo usando reglas, balanzas, relojes y herramientas cotidianas.",
+        "units": "Elige y convierte unidades adecuadas para longitud, masa, volumen, tiempo y dinero.",
+        "reading-clocks": "Lee relojes analógicos y digitales, di la hora y calcula duraciones.",
+        "money-calculations": "Utiliza monedas y billetes para sumar, restar y calcular el cambio en problemas cotidianos.",
+        "perimeter-and-area": "Calcula el perímetro y el área de figuras sencillas usando medidas y conteo."
       },
       "data-handling": {
-        "sorting-and-classifying": "Description for Sorting And Classifying.",
-        "pictograms-bar-charts": "Description for Pictograms Bar Charts.",
-        "tables": "Description for Tables.",
-        "basic-interpretation-of-data": "Description for Basic Interpretation Of Data."
+        "sorting-and-classifying": "Ordena objetos por propiedades y clasifica datos en grupos.",
+        "pictograms-bar-charts": "Dibuja e interpreta pictogramas y diagramas de barras para comparar información.",
+        "tables": "Utiliza tablas para organizar información y responder preguntas sobre los datos.",
+        "basic-interpretation-of-data": "Lee representaciones de datos y extrae conclusiones sencillas de la información mostrada."
       },
       "problem-solving-reasoning": {
-        "word-problems": "Description for Word Problems.",
-        "logical-reasoning": "Description for Logical Reasoning.",
-        "patterns-and-sequences": "Description for Patterns And Sequences."
+        "word-problems": "Resuelve problemas de palabras eligiendo operaciones y usando diagramas o expresiones numéricas.",
+        "logical-reasoning": "Usa la lógica y la explicación para mostrar por qué una respuesta tiene sentido.",
+        "patterns-and-sequences": "Identifica patrones, continúa secuencias y predice qué sigue."
       }
     },
     "secondary": {

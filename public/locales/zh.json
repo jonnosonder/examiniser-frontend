@@ -112,7 +112,6 @@
     "clear": "清除",
     "clear-answer": "清除答案",
     "space": "空格",
-    "keyboard-hint": "使用 LaTeX 键输入你的答案。",
     "answer-preview": "答案预览"
   },
   "start": {
@@ -249,9 +248,9 @@
       "algebra": "初步接触规律、数列与简单方程。",
       "statistics": "用表格与图表收集、整理并解读数据。",
       "problem-solving": "把数学用于生活情境与推理问题。",
-      "measurements": "Description for Measurements.",
-      "data-handling": "Description for Data Handling.",
-      "problem-solving-reasoning": "Description for Problem Solving Reasoning."
+      "measurements": "探索使用标准单位和实用工具测量长度、质量、体积、时间、金钱、周长和面积。",
+      "data-handling": "收集、整理、展示并解释数据，使用图表、表格和简单图形。",
+      "problem-solving-reasoning": "在文字题、模式、逻辑和日常数学问题中运用推理和解决问题的技能。"
     },
     "primarySub": {
       "numbers": {
@@ -319,22 +318,22 @@
         "real-life": "把钱、测量与时间情境中的数学用起来。"
       },
       "measurements": {
-        "length-mass-volume-time": "Description for Length Mass Volume Time.",
-        "units": "Description for Units.",
-        "reading-clocks": "Description for Reading Clocks.",
-        "money-calculations": "Description for Money Calculations.",
-        "perimeter-and-area": "Description for Perimeter And Area."
+        "length-mass-volume-time": "使用直尺、天平、时钟和日常工具测量并比较长度、质量、体积和时间。",
+        "units": "选择并转换适合长度、质量、体积、时间和金钱的单位。",
+        "reading-clocks": "读懂模拟和数字时钟，告诉时间并计算持续时间。",
+        "money-calculations": "用硬币和纸币进行日常金钱问题的加减和找零计算。",
+        "perimeter-and-area": "通过测量和计数计算简单图形的周长和面积。"
       },
       "data-handling": {
-        "sorting-and-classifying": "Description for Sorting And Classifying.",
-        "pictograms-bar-charts": "Description for Pictograms Bar Charts.",
-        "tables": "Description for Tables.",
-        "basic-interpretation-of-data": "Description for Basic Interpretation Of Data."
+        "sorting-and-classifying": "按特征分类物品，并将数据分组。",
+        "pictograms-bar-charts": "绘制并解释象形图和条形图以比较信息。",
+        "tables": "使用表格整理信息并回答有关数据的问题。",
+        "basic-interpretation-of-data": "读取数据表示并从所示信息中得出简单结论。"
       },
       "problem-solving-reasoning": {
-        "word-problems": "Description for Word Problems.",
-        "logical-reasoning": "Description for Logical Reasoning.",
-        "patterns-and-sequences": "Description for Patterns And Sequences."
+        "word-problems": "通过选择运算并使用图示或数式解决文字题。",
+        "logical-reasoning": "使用逻辑和解释说明答案为什么合理。",
+        "patterns-and-sequences": "识别规律，继续数列并预测下一个项。"
       }
     },
     "secondary": {

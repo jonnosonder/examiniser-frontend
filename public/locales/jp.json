@@ -113,7 +113,6 @@
     "clear": "クリア",
     "clear-answer": "回答をクリア",
     "space": "スペース",
-    "keyboard-hint": "LaTeXキーを使って答えを入力してください。",
     "answer-preview": "回答プレビュー"
   },
   "start": {
@@ -250,9 +249,9 @@
       "algebra": "規則性、数列、簡単な方程式を導入します。",
       "statistics": "表やグラフでデータを集め、整理し、読み取ります。",
       "problem-solving": "日常生活や論理の問題に数学を使います。",
-      "measurements": "Description for Measurements.",
-      "data-handling": "Description for Data Handling.",
-      "problem-solving-reasoning": "Description for Problem Solving Reasoning."
+      "measurements": "長さ、重さ、容量、時間、お金、周囲の長さ、面積を標準単位と実用的な道具で測ることを学びます。",
+      "data-handling": "データを収集し、分類し、図、表、簡単なグラフで表示して解釈します。",
+      "problem-solving-reasoning": "文章題、規則、論理、および日常の数学的状況で推論と問題解決の力を使います。"
     },
     "primarySub": {
       "numbers": {
@@ -320,22 +319,22 @@
         "real-life": "お金・測定・時間の場面に数学を当てはめます。"
       },
       "measurements": {
-        "length-mass-volume-time": "Description for Length Mass Volume Time.",
-        "units": "Description for Units.",
-        "reading-clocks": "Description for Reading Clocks.",
-        "money-calculations": "Description for Money Calculations.",
-        "perimeter-and-area": "Description for Perimeter And Area."
+        "length-mass-volume-time": "定規、はかり、時計、日常の道具を使って長さ、重さ、体積、時間を測り比べます。",
+        "units": "長さ、重さ、体積、時間、お金に適した単位を選び、変換します。",
+        "reading-clocks": "アナログとデジタルの時計を読み、時刻を答え、時間の長さを求めます。",
+        "money-calculations": "硬貨や紙幣を使って日常の金銭問題をたし算、ひき算、つり銭計算します。",
+        "perimeter-and-area": "簡単な図形の周の長さと面積を測定や数え方で求めます。"
       },
       "data-handling": {
-        "sorting-and-classifying": "Description for Sorting And Classifying.",
-        "pictograms-bar-charts": "Description for Pictograms Bar Charts.",
-        "tables": "Description for Tables.",
-        "basic-interpretation-of-data": "Description for Basic Interpretation Of Data."
+        "sorting-and-classifying": "性質ごとに物を分け、データをグループに分類します。",
+        "pictograms-bar-charts": "絵グラフや棒グラフを描き、情報を比較して読み取ります。",
+        "tables": "表を使って情報を整理し、データについての質問に答えます。",
+        "basic-interpretation-of-data": "データ表現を読み、示された情報から簡単な結論を導きます。"
       },
       "problem-solving-reasoning": {
-        "word-problems": "Description for Word Problems.",
-        "logical-reasoning": "Description for Logical Reasoning.",
-        "patterns-and-sequences": "Description for Patterns And Sequences."
+        "word-problems": "文章題を解くために演算を選び、図や数式を使います。",
+        "logical-reasoning": "答えが妥当である理由を論理と説明で示します。",
+        "patterns-and-sequences": "規則を見つけ、数列を続けて次に来るものを予測します。"
       }
     },
     "secondary": {

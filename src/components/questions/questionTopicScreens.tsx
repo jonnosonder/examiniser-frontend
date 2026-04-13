@@ -499,6 +499,10 @@ export function QuestionSubtopicLeaf({
                                                     type="button"
                                                     onClick={() => {
                                                         setAnswerMode("typed");
+                                                        setUserAnswer("");
+                                                        setUserAnswerLatex("");
+                                                        setAnswerCorrect(null);
+                                                        setFeedback("");
                                                     }}
                                                     className={`rounded-2xl border px-4 py-2 text-sm transition ${
                                                         effectiveAnswerMode === "typed"
@@ -512,6 +516,10 @@ export function QuestionSubtopicLeaf({
                                                     type="button"
                                                     onClick={() => {
                                                         setAnswerMode("multipleChoice");
+                                                        setUserAnswer("");
+                                                        setUserAnswerLatex("");
+                                                        setAnswerCorrect(null);
+                                                        setFeedback("");
                                                     }}
                                                     className={`rounded-2xl border px-4 py-2 text-sm transition ${
                                                         effectiveAnswerMode === "multipleChoice"
@@ -597,7 +605,7 @@ export function QuestionSubtopicLeaf({
                                     </div>
                                 </div>
 
-                                <div className="flex flex-wrap items-center gap-3">
+                                <div className="flex flex-wrap items-center">
                                     <button
                                         type="button"
                                         onClick={() => setKeyboardOpen((current) => !current)}
@@ -605,9 +613,6 @@ export function QuestionSubtopicLeaf({
                                     >
                                         {keyboardOpen ? t("questions.hide-keyboard") : t("questions.show-keyboard")}
                                     </button>
-                                    <p className="text-xs text-muted-foreground">
-                                        {t("questions.keyboard-hint")}
-                                    </p>
                                 </div>
                             </div>
 

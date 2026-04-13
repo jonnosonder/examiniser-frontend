@@ -144,7 +144,7 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             return {
                 latex: `\\text{What is the missing number: } ${numbers.join(", ")}`,
                 answer: answer.toString(),
-                forceOption: 0, // unchanged, since it's unrelated
+                forceOption: 0,
             };
         }
 
@@ -152,7 +152,7 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             const randomIndex = Math.floor(Math.random() * 10);
             const isForward = Math.random() < 0.5;
 
-            const start = Math.floor(Math.random() * 91) + 10; // avoid negatives when going backwards
+            const start = Math.floor(Math.random() * 91) + 10;
 
             const numbers = Array.from({ length: 10 }, (_, i) =>
                 isForward ? start + i : start - i
@@ -171,13 +171,35 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             };
         }
 
-        const randomIndex = Math.floor(Math.random() * 10);
-        const isForward = Math.random() < 0.5;
+        if (difficulty === 3) {
+            const randomIndex = Math.floor(Math.random() * 10);
+            const isForward = Math.random() < 0.5;
 
-        const start = Math.floor(Math.random() * 991) + 10; // avoid negatives
+            const start = Math.floor(Math.random() * 991) + 10;
+
+            const numbers = Array.from({ length: 10 }, (_, i) =>
+                isForward ? start + i : start - i
+            );
+
+            const answer = numbers[randomIndex];
+
+            const display = numbers.map((num, index) =>
+                index === randomIndex ? "?" : num
+            );
+
+            return {
+                latex: `\\text{What is the missing number: } ${display.join(", ")}`,
+                answer: answer.toString(),
+                forceOption: 0,
+            };
+        }
+
+        const step = Math.floor(Math.random() * 8) + 2; // 2–9
+        const randomIndex = Math.floor(Math.random() * 10);
+        const start = Math.floor(Math.random() * 50) + 1;
 
         const numbers = Array.from({ length: 10 }, (_, i) =>
-            isForward ? start + i : start - i
+            start + i * step
         );
 
         const answer = numbers[randomIndex];
@@ -187,12 +209,12 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
         );
 
         return {
-            latex: `\\text{What is the missing number: } ${display.join(", ")}`,
+            latex: `\\text{Counting in ${step}, what is the missing number: } ${display.join(", ")}`,
             answer: answer.toString(),
             forceOption: 0,
         };
 
-    }, [1, 2, 3]),
+    }, [1, 2, 3, 4]),
     "place-value": createGenerator(({ difficulty }) => {
         if (difficulty === 1) {
             const number = Math.floor(100 + Math.random() * 900); // 3-digit number
@@ -216,11 +238,11 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
 
         if (difficulty === 2) {
             const places = [
-                { name: "ones", value: 1 },
-                { name: "tens", value: 10 },
-                { name: "hundreds", value: 100 },
-                { name: "thousands", value: 1000 },
-                { name: "ten thousands", value: 10000 },
+                { name: "Ones", value: 1 },
+                { name: "Tens", value: 10 },
+                { name: "Hundreds", value: 100 },
+                { name: "Thousands", value: 1000 },
+                { name: "Ten Thousands", value: 10000 },
             ];
 
             const place = places[Math.floor(Math.random() * places.length)];
@@ -1166,6 +1188,102 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
         };
 
     }, [1, 2, 3, 4]),
+
+
+
+    "missing-numbers": createGenerator(({ difficulty }) => {
+        if (difficulty === 1) {
+            // addition or subtraction (simple integers)
+            const isAdd = Math.random() < 0.5;
+
+            if (isAdd) {
+                const a = Math.floor(Math.random() * 10) + 1;
+                const b = Math.floor(Math.random() * 10) + 1;
+
+                return {
+                    latex: `\\text{ } ${a} + \\square = ${a + b}`,
+                    answer: b.toString(),
+                    forceOption: 0,
+                };
+            } else {
+                const a = Math.floor(Math.random() * 20) + 5;
+                const b = Math.floor(Math.random() * Math.min(10, a)) + 1;
+
+                return {
+                    latex: `\\text{ } ${a} - \\square = ${a - b}`,
+                    answer: b.toString(),
+                    forceOption: 0,
+                };
+            }
+        }
+
+        // difficulty 2
+        // multiplication or division
+        const isMult = Math.random() < 0.5;
+
+        if (isMult) {
+            const a = Math.floor(Math.random() * 10) + 1;
+            const b = Math.floor(Math.random() * 10) + 1;
+
+            return {
+                latex: `\\text{ } ${a} \\times \\square = ${a * b}`,
+                answer: b.toString(),
+                forceOption: 0,
+            };
+        } else {
+            const b = Math.floor(Math.random() * 10) + 1;
+            const a = Math.floor(Math.random() * 10) + 1;
+
+            return {
+                latex: `\\text{ } \\square \\div ${b} = ${a}`,
+                answer: (a * b).toString(),
+                forceOption: 0,
+            };
+        }
+
+    }, [1, 2]),
+    "simple-equations": createGenerator(({ difficulty }) => {
+        if (difficulty === 1) {
+            // Single variable, very simple expression
+            const x = Math.floor(Math.random() * 10) + 1;
+
+            const a = Math.floor(Math.random() * 5) + 1;
+            const b = Math.floor(Math.random() * 10) + 1;
+
+            // expression: ax + b
+            const result = a * x + b;
+
+            return {
+                latex:
+                    `\\text{What does this equal:}\\\\` +
+                    `x = ${x}\\\\` +
+                    `${a}x + ${b} = \\ ?`,
+                answer: result.toString(),
+                forceOption: 0,
+            };
+        }
+
+        // difficulty 2
+        // slightly larger numbers, still linear only
+        const x = Math.floor(Math.random() * 10) + 1;
+        const y = Math.floor(Math.random() * 10) + 1;
+
+        const a = Math.floor(Math.random() * 5) + 2;
+        const b = Math.floor(Math.random() * 5) + 1;
+
+        // expression: ax + by
+        const result = a * x + b * y;
+
+        return {
+            latex:
+                `\\text{What does this equal:}\\\\` +
+                `x = ${x},\\; y = ${y}\\\\` +
+                `${a}x + ${b}y = \\ ?`,
+            answer: result.toString(),
+            forceOption: 0,
+        };
+
+    }, [1, 2]),
 };
 
 const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = {

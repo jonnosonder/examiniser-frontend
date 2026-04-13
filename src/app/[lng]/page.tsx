@@ -323,7 +323,7 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
 
           {/* Buttons */}
           <div className='flex space-x-8' onClick={handleClose}>
-            {buttons.map(({ id, label, items, links, delay }) => (
+            {buttons.slice(0, -1).map(({ id, label, items, links, delay }) => (
               <div
                 key={id}
                 className="flex items-center justify-center"
@@ -367,7 +367,7 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
                         onClick={() => {
                           router.push(`/${lng}`+links[index]);
                         }}
-                        className="flex items-center justify-center text-sm font-medium
+                        className="flex items-center justify-center text-sm font-medium p-1
                           text-black bg-white border border-gray-300 rounded-lg cursor-pointer
                           transition-shadow duration-200 hover:shadow-[0_0_0_0.2rem_var(--accent)]"
                       >

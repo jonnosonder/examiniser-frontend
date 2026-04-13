@@ -112,7 +112,6 @@
     "clear": "Clear",
     "clear-answer": "Clear Answer",
     "space": "Space",
-    "keyboard-hint": "Use LaTeX keys to type your answer.",
     "answer-preview": "Answer preview"
   },
   "start": {
@@ -249,9 +248,9 @@
       "algebra": "Introduce simple algebra concepts such as patterns, sequences, and basic equations.",
       "statistics": "Learn to collect, organise, and interpret data using charts, tables, and graphs.",
       "problem-solving": "Apply mathematical skills to solve a variety of real-life and reasoning problems.",
-      "measurements": "Description for Measurements.",
-      "data-handling": "Description for Data Handling.",
-      "problem-solving-reasoning": "Description for Problem Solving Reasoning."
+      "measurements": "Explore measuring length, mass, volume, time, money, perimeter, and area using standard units and practical tools.",
+      "data-handling": "Collect, sort, display, and interpret data using charts, tables, and simple diagrams.",
+      "problem-solving-reasoning": "Apply reasoning and problem-solving skills to word problems, patterns, logic, and everyday maths situations."
     },
     "primarySub": {
       "numbers": {
@@ -319,22 +318,22 @@
         "real-life": "Apply maths to money, measure, and time contexts."
       },
       "measurements": {
-        "length-mass-volume-time": "Description for Length Mass Volume Time.",
-        "units": "Description for Units.",
-        "reading-clocks": "Description for Reading Clocks.",
-        "money-calculations": "Description for Money Calculations.",
-        "perimeter-and-area": "Description for Perimeter And Area."
+        "length-mass-volume-time": "Measure and compare length, mass, volume, and time using rulers, scales, clocks, and everyday tools.",
+        "units": "Choose and convert sensible units for length, mass, volume, time, and money.",
+        "reading-clocks": "Read analogue and digital clocks, tell the time, and work out durations.",
+        "money-calculations": "Use coins and notes to add, subtract, and find change in everyday money problems.",
+        "perimeter-and-area": "Calculate the perimeter and area of simple shapes using measurement and counting."
       },
       "data-handling": {
-        "sorting-and-classifying": "Description for Sorting And Classifying.",
-        "pictograms-bar-charts": "Description for Pictograms Bar Charts.",
-        "tables": "Description for Tables.",
-        "basic-interpretation-of-data": "Description for Basic Interpretation Of Data."
+        "sorting-and-classifying": "Sort objects by properties and classify data into groups.",
+        "pictograms-bar-charts": "Draw and interpret pictograms and bar charts to compare information.",
+        "tables": "Use tables to organise information and answer questions from data.",
+        "basic-interpretation-of-data": "Read data displays and make simple conclusions from the information shown."
       },
       "problem-solving-reasoning": {
-        "word-problems": "Description for Word Problems.",
-        "logical-reasoning": "Description for Logical Reasoning.",
-        "patterns-and-sequences": "Description for Patterns And Sequences."
+        "word-problems": "Solve word problems by choosing operations and using diagrams or number sentences.",
+        "logical-reasoning": "Use logic and explanation to show why an answer makes sense.",
+        "patterns-and-sequences": "Identify patterns, continue sequences, and predict what comes next."
       }
     },
     "secondary": {
