@@ -110,6 +110,7 @@
     "show-keyboard": "显示键盘",
     "hide-keyboard": "隐藏键盘",
     "clear": "清除",
+    "clear-answer": "清除答案",
     "space": "空格",
     "keyboard-hint": "使用 LaTeX 键输入你的答案。",
     "answer-preview": "答案预览"

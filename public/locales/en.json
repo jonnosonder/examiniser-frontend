@@ -110,6 +110,7 @@
     "show-keyboard": "Show keyboard",
     "hide-keyboard": "Hide keyboard",
     "clear": "Clear",
+    "clear-answer": "Clear Answer",
     "space": "Space",
     "keyboard-hint": "Use LaTeX keys to type your answer.",
     "answer-preview": "Answer preview"

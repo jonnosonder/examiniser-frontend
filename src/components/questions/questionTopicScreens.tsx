@@ -415,6 +415,13 @@ export function QuestionSubtopicLeaf({
         );
     };
 
+    const handleClearAnswer = () => {
+        setUserAnswer("");
+        setUserAnswerLatex("");
+        setAnswerCorrect(null);
+        setFeedback("");
+    };
+
     React.useEffect(() => {
         if (!availableLevels.includes(selectedDifficulty)) {
             setSelectedDifficulty(availableLevels[0] ?? 1);
@@ -494,23 +501,13 @@ export function QuestionSubtopicLeaf({
                                 </label>
 
                                 <div className="flex w-full flex-wrap items-center gap-3">
-                                    <div className={`flex-1 min-w-[12rem] mr-2 transition-shadow duration-200 ease-in-out ${
-                                        answerCorrect === true
-                                            ? "rounded-2xl shadow-[0_0_0_0.6rem_rgba(34,197,94,0.25)]"
-                                            : answerCorrect === false
-                                            ? "rounded-2xl shadow-[0_0_0_0.6rem_rgba(239,68,68,0.25)]"
-                                            : ""
-                                    }`}>
+                                    <div className="flex-1 min-w-[12rem] mr-2 transition-shadow duration-200 ease-in-out">
                                         {canType && canChoose ? (
                                             <div className="mb-4 flex flex-wrap gap-3">
                                                 <button
                                                     type="button"
                                                     onClick={() => {
                                                         setAnswerMode("typed");
-                                                        setUserAnswer("");
-                                                        setUserAnswerLatex("");
-                                                        setAnswerCorrect(null);
-                                                        setFeedback("");
                                                     }}
                                                     className={`rounded-2xl border px-4 py-2 text-sm transition ${
                                                         effectiveAnswerMode === "typed"
@@ -524,10 +521,6 @@ export function QuestionSubtopicLeaf({
                                                     type="button"
                                                     onClick={() => {
                                                         setAnswerMode("multipleChoice");
-                                                        setUserAnswer("");
-                                                        setUserAnswerLatex("");
-                                                        setAnswerCorrect(null);
-                                                        setFeedback("");
                                                     }}
                                                     className={`rounded-2xl border px-4 py-2 text-sm transition ${
                                                         effectiveAnswerMode === "multipleChoice"
@@ -556,34 +549,61 @@ export function QuestionSubtopicLeaf({
                                                             userAnswer === option
                                                                 ? "border-primary bg-primary/10 text-primary"
                                                                 : "border-primary/20 bg-primary/5 text-primary"
-                                                        }`}
+                                                        }
+                                                        ${ userAnswer === option && (
+                                                            answerCorrect === true
+                                                            ? "rounded-2xl shadow-[0_0_0_0.4rem_rgba(34,197,94,0.5)]"
+                                                            : answerCorrect === false
+                                                            ? "rounded-2xl shadow-[0_0_0_0.4rem_rgba(239,68,68,0.5)]"
+                                                            : ""
+                                                            )
+                                                        }
+                                                        `}
                                                     >
                                                         {option}
                                                     </button>
                                                 ))}
                                             </div>
                                         ) : (
-                                            <MathShorthandEditor
-                                                value={userAnswer}
-                                                onChange={(value, latex) => {
-                                                    setUserAnswer(value);
-                                                    setUserAnswerLatex(latex);
-                                                    setAnswerCorrect(null);
-                                                    setFeedback("");
-                                                }}
-                                                placeholder={t("questions.enter-answer-here")}
-                                            />
+                                            <span className={`flex ${answerCorrect === true
+                                            ? "rounded-2xl shadow-[0_0_0_0.6rem_rgba(34,197,94,0.5)]"
+                                            : answerCorrect === false
+                                            ? "rounded-2xl shadow-[0_0_0_0.6rem_rgba(239,68,68,0.5)]"
+                                            : ""}`}>
+                                                <MathShorthandEditor
+                                                    value={userAnswer}
+                                                    onChange={(value, latex) => {
+                                                        if (value === userAnswer && latex === userAnswerLatex) {
+                                                            return;
+                                                        }
+                                                        setUserAnswer(value);
+                                                        setUserAnswerLatex(latex);
+                                                        setAnswerCorrect(null);
+                                                        setFeedback("");
+                                                    }}
+                                                    placeholder={t("questions.enter-answer-here")}
+                                                />
+                                            </span>
                                         )}
                                     </div>
 
-                                    <button
-                                        type="button"
-                                        onClick={handleCheckAnswer}
-                                        className="w-full lg:w-auto rounded-2xl bg-primary px-6 py-3 text-white transition hover:bg-primary/90 disabled:opacity-50"
-                                        disabled={!questionLatex}
-                                    >
-                                        {t("questions.check-answer")}
-                                    </button>
+                                    <div className="flex w-full flex-col gap-3 lg:w-auto">
+                                        <button
+                                            type="button"
+                                            onClick={handleCheckAnswer}
+                                            className="w-full lg:w-auto rounded-2xl bg-primary px-6 py-3 text-white transition hover:bg-primary/90 disabled:opacity-50"
+                                            disabled={!questionLatex}
+                                        >
+                                            {t("questions.check-answer")}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={handleClearAnswer}
+                                            className="w-full lg:w-auto rounded-2xl border-2 border-primary bg-white px-6 py-3 text-primary transition hover:bg-primary/10"
+                                        >
+                                            {t("questions.clear-answer")}
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div className="flex flex-wrap items-center gap-3">

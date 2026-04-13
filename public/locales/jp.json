@@ -111,6 +111,7 @@
     "show-keyboard": "キーボードを表示",
     "hide-keyboard": "キーボードを非表示",
     "clear": "クリア",
+    "clear-answer": "回答をクリア",
     "space": "スペース",
     "keyboard-hint": "LaTeXキーを使って答えを入力してください。",
     "answer-preview": "回答プレビュー"

@@ -110,6 +110,7 @@
     "show-keyboard": "Afficher le clavier",
     "hide-keyboard": "Masquer le clavier",
     "clear": "Effacer",
+    "clear-answer": "Effacer la réponse",
     "space": "Espace",
     "keyboard-hint": "Utilisez les touches LaTeX pour saisir votre réponse.",
     "answer-preview": "Aperçu de la réponse"

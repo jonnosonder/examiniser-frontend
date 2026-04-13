@@ -111,6 +111,7 @@
     "show-keyboard": "Mostrar teclado",
     "hide-keyboard": "Ocultar teclado",
     "clear": "Borrar",
+    "clear-answer": "Borrar respuesta",
     "space": "Espacio",
     "keyboard-hint": "Usa las teclas LaTeX para escribir tu respuesta.",
     "answer-preview": "Vista previa de la respuesta"
