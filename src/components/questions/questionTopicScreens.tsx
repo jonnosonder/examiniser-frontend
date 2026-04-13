@@ -13,7 +13,7 @@ import MathShorthandEditor from "@/components/questions/MathShorthandEditor";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { buildQuestionNavButtons } from "@/lib/questionTopicNav";
-import { getQuestionGenerator, getQuestionGeneratorLevels } from "@/lib/questionGenerators";
+import { generateQuestionWithTimeout, getQuestionGeneratorLevels } from "@/lib/questionGenerators";
 import { getSubtopicOrNull, getTopicOrNull, levelRoutePrefix, type QuestionLevel } from "@/lib/questionTopicCatalog";
 
 type IconMap = Record<string, React.ReactNode>;
@@ -242,6 +242,7 @@ export function QuestionSubtopicLeaf({
     const [answerCorrect, setAnswerCorrect] = React.useState<boolean | null>(null);
     const [feedback, setFeedback] = React.useState("");
     const [keyboardOpen, setKeyboardOpen] = React.useState(false);
+    const [isGenerating, setIsGenerating] = React.useState(false);
 
     const canType = questionForceOption !== 2;
     const canChoose = questionOptions.length > 0 && questionForceOption !== 1;
@@ -347,11 +348,32 @@ export function QuestionSubtopicLeaf({
         setUserAnswer((current) => `${current}${value}`);
     };
 
-    const handleGenerateQuestion = () => {
-        const hadPreviousSelectedOption = answerMode === "multipleChoice" && questionOptions.includes(userAnswer);
-        const generator = getQuestionGenerator(level, subtopicSlug);
-        const result = generator({ level, topicId, subtopicSlug, difficulty: selectedDifficulty });
+    const handleGenerateQuestion = async () => {
+        setIsGenerating(true);
+        setFeedback("");
+        setAnswerCorrect(null);
+        setUserAnswer("");
+        setUserAnswerLatex("");
+
+        const result = await generateQuestionWithTimeout(
+            { level, topicId, subtopicSlug, difficulty: selectedDifficulty },
+            3000
+        );
+
+        setIsGenerating(false);
+
+        if (result.explanation === "Question generator timed out after 3 seconds") {
+            setQuestionLatex(result.latex);
+            setQuestionAnswers([]);
+            setQuestionOptions([]);
+            setQuestionForceOption(0);
+            setAnswerMode("typed");
+            setFeedback("Question generation timed out after 3 seconds. Please try again.");
+            return;
+        }
+
         const options = result.options ?? [];
+        const hadPreviousSelectedOption = answerMode === "multipleChoice" && questionOptions.includes(userAnswer);
         const previousOption = hadPreviousSelectedOption ? userAnswer : undefined;
 
         setQuestionLatex(result.latex);
@@ -363,10 +385,9 @@ export function QuestionSubtopicLeaf({
                 ? "multipleChoice"
                 : "typed"
         );
-        setUserAnswer("");
+        setUserAnswer(previousOption ?? "");
         setUserAnswerLatex("");
         setAnswerCorrect(null);
-        setFeedback("");
     };
 
     const handleCheckAnswer = () => {
@@ -469,9 +490,12 @@ export function QuestionSubtopicLeaf({
                                     <button
                                         type="button"
                                         onClick={handleGenerateQuestion}
-                                        className="rounded-[1rem] border-2 border-primary bg-white px-7 py-3 text-primary transition hover:bg-primary/10"
+                                        disabled={isGenerating}
+                                        className={`rounded-[1rem] border-2 border-primary bg-white px-7 py-3 text-primary transition hover:bg-primary/10 ${isGenerating ? "cursor-not-allowed opacity-60" : "hover:bg-primary/10"}`}
                                     >
-                                        {t("questions.generate-question")}
+                                        {isGenerating
+                                            ? t("questions.generating", { defaultValue: "Generating..." })
+                                            : t("questions.generate-question")}
                                     </button>
                                 </div>
                             </div>

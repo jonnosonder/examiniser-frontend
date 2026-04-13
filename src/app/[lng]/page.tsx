@@ -10,6 +10,15 @@ import * as React from "react";
 import { Locale } from '@/lib/locales';
 import { useState } from 'react';
 import { useRouter } from "next/navigation";
+import { BlockMath } from "react-katex";
+import "katex/dist/katex.min.css";
+import type { QuestionLevel } from '@/lib/questionTopicCatalog';
+import type { QuestionResult } from '@/lib/questionGeneratorCommon';
+import { QUESTION_CATALOG, levelRoutePrefix } from '@/lib/questionTopicCatalog';
+import { generateQuestionWithTimeout } from '@/lib/questionGenerators';
+import { primaryGenerators } from '@/lib/primaryGenerators';
+import { secondaryGenerators } from '@/lib/secondaryGenerators';
+import { sixthFormGenerators } from '@/lib/sixthFormGenerators';
 
 type ButtonId = "primary" | "secondary" | "sixthForm" | "exam_paper" | null;
 
@@ -29,6 +38,30 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
   });
   const [buttonsReady, setButtonsReady] = useState(false);
   const [infinityVisible, setInfinityVisible] = useState(false);
+
+  type GeneratorLevel = "primary" | "secondary" | "sixthForm";
+  const generatorCollections = {
+    primary: primaryGenerators,
+    secondary: secondaryGenerators,
+    sixthForm: sixthFormGenerators,
+  } as const;
+
+  const generatorLabels: Record<GeneratorLevel, string> = {
+    primary: "Primary",
+    secondary: "Secondary",
+    sixthForm: "Sixth Form",
+  };
+
+  const [activeGeneratorLevel, setActiveGeneratorLevel] = useState<GeneratorLevel>("primary");
+  const [questionPreview, setQuestionPreview] = useState<QuestionResult | null>(null);
+  const [previewPath, setPreviewPath] = useState<{
+    level: GeneratorLevel;
+    topicId: string;
+    subtopicSlug: string;
+    topicTitleKey: string;
+    subtopicTitleKey: string;
+  } | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const heroTitleRef = React.useRef<HTMLHeadingElement | null>(null);
   const templateTitleRef = React.useRef<HTMLHeadingElement | null>(null);
@@ -126,6 +159,57 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
         });
       }, 200);
     }, 150);
+  };
+
+  const getRandomItem = <T,>(items: T[]): T => items[Math.floor(Math.random() * items.length)];
+
+  const handleGenerateRandomQuestion = async () => {
+    setIsGenerating(true);
+    const generators = generatorCollections[activeGeneratorLevel];
+    const generatorKeys = Object.keys(generators);
+
+    if (generatorKeys.length === 0) {
+      setQuestionPreview({
+        latex: "\\text{No available generators found}",
+        answer: "",
+        options: [],
+        forceOption: 0,
+        explanation: "No generators available",
+      });
+      setIsGenerating(false);
+      return;
+    }
+
+    const subtopicSlug = getRandomItem(generatorKeys);
+    const availableDifficulties = generators[subtopicSlug]?.availableDifficulties ?? [1];
+    const difficulty = getRandomItem(availableDifficulties);
+
+    const topicDef = QUESTION_CATALOG[activeGeneratorLevel].find((topic) =>
+      topic.subtopics.some((subtopic) => subtopic.slug === subtopicSlug)
+    );
+
+    if (topicDef) {
+      const subtopicDef = topicDef.subtopics.find((subtopic) => subtopic.slug === subtopicSlug)!;
+      setPreviewPath({
+        level: activeGeneratorLevel,
+        topicId: topicDef.id,
+        subtopicSlug,
+        topicTitleKey: topicDef.titleKey,
+        subtopicTitleKey: subtopicDef.titleKey,
+      });
+    } else {
+      setPreviewPath(null);
+    }
+
+    const result = await generateQuestionWithTimeout({
+      level: activeGeneratorLevel as QuestionLevel,
+      topicId: subtopicSlug,
+      subtopicSlug,
+      difficulty,
+    });
+
+    setQuestionPreview(result);
+    setIsGenerating(false);
   };
 
   const buttons: { id: ButtonId; label: string; items: string[]; links: string[]; delay: string }[] = [
@@ -382,8 +466,7 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
         </div>
       </section>
       
-      {/* "But how?" section */}
-      {/* 
+      {/* "But How?" section */}
       <section className="relative h-[100dvh] w-full bg-background">
         <div
           className="absolute inset-0 z-0 [background-image:linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] [background-size:20px_20px]"
@@ -395,15 +478,73 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
             <span className="text-[var(--contrast)]">{t("home.but-how-2")}</span>
           </h2>
           <p className='ml-10 mt-2 text-xl '>{t("home.but-how-description")}</p>
-          <div className='flex flex-col items-center justify-center'>
-              <p className='text-4xl font-bold text-primary mt-8'>Try it now!</p>
-              <div className='flex w-3/4 h-72 bg-white rounded-[2rem]'>
-              
-              </div>
+          <div className='flex flex-col items-center justify-center mt-8'>
+            <div className='flex flex-col w-3/4 bg-white rounded-[2rem] p-6 shadow-xl' onClick={(e) => e.stopPropagation()}>
+              <p className='text-4xl font-bold font-nunito text-primary mb-4'>Try it now!</p>
+                <div className='flex flex-col w-full gap-2'>
+                  <div className='grid w-full grid-cols-3 gap-3'>
+                    {(["primary", "secondary", "sixthForm"] as GeneratorLevel[]).map((level) => (
+                      <button
+                        key={level}
+                        type='button'
+                        onClick={() => setActiveGeneratorLevel(level)}
+                        className={`flex h-12 w-full items-center justify-center rounded-lg text-sm font-semibold transition-colors duration-200 ${
+                          activeGeneratorLevel === level
+                            ? 'bg-primary text-white'
+                            : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                        }`}
+                      >
+                        {generatorLabels[level]}
+                      </button>
+                    ))}
+                  </div>
+
+                  <p className='text-sm uppercase tracking-[0.22em] text-slate-400 mt-4'>Random question preview</p>
+                  <div className='rounded-[1.5rem] border border-slate-200 bg-slate-50 p-6 min-h-[220px] flex items-start justify-center'>
+                    {questionPreview ? (
+                      <div className='w-full space-y-4'>
+                        {previewPath && (
+                          <button
+                            type='button'
+                            onClick={() =>
+                              router.push(
+                                `/${lng}/${levelRoutePrefix(previewPath.level)}/${previewPath.topicId}/${previewPath.subtopicSlug}`
+                              )
+                            }
+                            className='block text-sm font-medium text-primary underline transition-colors hover:text-[var(--contrast)]'
+                          >
+                            {generatorLabels[previewPath.level]} &gt; {t(previewPath.topicTitleKey)} &gt; {t(previewPath.subtopicTitleKey)}
+                          </button>
+                        )}
+                        <div className='rounded-xl bg-slate-100 p-4 text-base leading-relaxed text-slate-900'>
+                          <BlockMath math={questionPreview.latex} />
+                        </div>
+                        {questionPreview.explanation && (
+                          <p className='text-sm text-slate-500'>
+                            {questionPreview.explanation}
+                          </p>
+                        )}
+                      </div>
+                    ) : (
+                      <p className='text-center text-lg text-slate-500'>
+                        Select a tab and press the button below to generate a random question.
+                      </p>
+                    )}
+                  </div>
+
+                  <button
+                    type='button'
+                    onClick={handleGenerateRandomQuestion}
+                    className='inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-base font-semibold text-white shadow-lg transition hover:bg-[#1f4c85] disabled:cursor-not-allowed disabled:opacity-60'
+                    disabled={isGenerating}
+                  >
+                    {isGenerating ? 'Generating...' : 'Generate Random Question'}
+                  </button>
+                </div>
+            </div>
           </div>
         </div>
       </section>
-      */}
       </div>
     </>
   );
