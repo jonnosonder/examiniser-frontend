@@ -234,11 +234,30 @@ export function QuestionSubtopicLeaf({
     const [selectedDifficulty, setSelectedDifficulty] = React.useState<number>(availableLevels[0] ?? 1);
     const [questionLatex, setQuestionLatex] = React.useState("");
     const [questionAnswers, setQuestionAnswers] = React.useState<string[]>([]);
+    const [questionOptions, setQuestionOptions] = React.useState<string[]>([]);
+    const [questionForceOption, setQuestionForceOption] = React.useState<0 | 1 | 2>(0);
+    const [answerMode, setAnswerMode] = React.useState<"typed" | "multipleChoice">("typed");
     const [userAnswer, setUserAnswer] = React.useState("");
     const [userAnswerLatex, setUserAnswerLatex] = React.useState("");
     const [answerCorrect, setAnswerCorrect] = React.useState<boolean | null>(null);
     const [feedback, setFeedback] = React.useState("");
     const [keyboardOpen, setKeyboardOpen] = React.useState(false);
+
+    const canType = questionForceOption !== 2;
+    const canChoose = questionOptions.length > 0 && questionForceOption !== 1;
+    const effectiveAnswerMode = answerMode === "multipleChoice" && canChoose ? "multipleChoice" : "typed";
+
+    React.useEffect(() => {
+        setQuestionLatex("");
+        setQuestionAnswers([]);
+        setQuestionOptions([]);
+        setQuestionForceOption(0);
+        setAnswerMode("typed");
+        setUserAnswer("");
+        setUserAnswerLatex("");
+        setAnswerCorrect(null);
+        setFeedback("");
+    }, [selectedDifficulty]);
 
     const levels = availableLevels;
 
@@ -329,11 +348,31 @@ export function QuestionSubtopicLeaf({
     };
 
     const handleGenerateQuestion = () => {
+        const hadPreviousSelectedOption = answerMode === "multipleChoice" && questionOptions.includes(userAnswer);
         const generator = getQuestionGenerator(level, subtopicSlug);
         const result = generator({ level, topicId, subtopicSlug, difficulty: selectedDifficulty });
+        const options = Array.isArray(result.options) ? result.options : [];
+        const previousOption = hadPreviousSelectedOption ? userAnswer : undefined;
+        const nextUserAnswer = result.forceOption === 1
+            ? ""
+            : previousOption
+                ? options.includes(previousOption)
+                    ? previousOption
+                    : options[0] ?? ""
+                : result.forceOption === 2
+                    ? options[0] ?? ""
+                    : "";
+
         setQuestionLatex(result.latex);
         setQuestionAnswers(Array.isArray(result.answer) ? result.answer : [result.answer]);
-        setUserAnswer("");
+        setQuestionOptions(options);
+        setQuestionForceOption(result.forceOption ?? 0);
+        setAnswerMode(
+            result.forceOption === 2 || (answerMode === "multipleChoice" && result.forceOption !== 1)
+                ? "multipleChoice"
+                : "typed"
+        );
+        setUserAnswer(nextUserAnswer);
         setUserAnswerLatex("");
         setAnswerCorrect(null);
         setFeedback("");
@@ -386,8 +425,6 @@ export function QuestionSubtopicLeaf({
         return null;
     }
 
-    const parentIcon = iconByTopicId[topicId] ?? null;
-
     return (
         <div className="flex w-full bg-background">
             <SidePanel lng={lng} buttons={navButtons} />
@@ -400,23 +437,20 @@ export function QuestionSubtopicLeaf({
                         <span className="underline">{t("general.back-to-home")}</span>&nbsp;→
                     </Link>
                 </div>
-                <div className="flex flex-1 flex-col items-center justify-start max-w-4xl mt-4 w-full">
+                <div className="flex flex-1 flex-col items-center justify-start max-w-4xl mt-2 w-full">
                     <div className="w-full flex flex-col items-center text-center">
-                        <div className="flex items-center justify-center">
-                            <h1 className="text-4xl font-nunito text-primary mr-4">{t(sub.titleKey)}</h1>
-                            <div className="w-24 h-24 text-primary">{parentIcon}</div>
-                        </div>
-                        <p className="mt-2 text-base leading-relaxed text-muted-foreground">{t(sub.descriptionKey)}</p>
+                        <h1 className="text-4xl font-nunito text-primary">{t(sub.titleKey)}</h1>
+                        <p className="text-base leading-relaxed text-muted-foreground">{t(sub.descriptionKey)}</p>
                     </div>
 
-                    <div className="mt-5 w-full rounded-[2rem] border border-primary/20 bg-white p-8 shadow-lg">
-                        <div className="flex flex-col gap-6">
+                    <div className="mt-2 w-full rounded-[2rem] border border-primary/20 bg-white p-6 shadow-lg">
+                        <div className="flex flex-col gap-4">
                             <div>
                                 <p className="text-xs uppercase tracking-[0.3em] text-primary font-semibold">
                                     {t("questions.level")}
                                 </p>
 
-                                <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                                <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
                                     <div className="flex flex-wrap gap-3">
                                         {levels.map((levelNumber) => (
                                             <button
@@ -460,15 +494,86 @@ export function QuestionSubtopicLeaf({
                                 </label>
 
                                 <div className="flex w-full flex-wrap items-center gap-3">
-                                    <div className="flex-1 min-w-[12rem]">
-                                        <MathShorthandEditor
-                                            value={userAnswer}
-                                            onChange={(value, latex) => {
-                                                setUserAnswer(value);
-                                                setUserAnswerLatex(latex);
-                                            }}
-                                            placeholder={t("questions.enter-answer-here")}
-                                        />
+                                    <div className={`flex-1 min-w-[12rem] mr-2 transition-shadow duration-200 ease-in-out ${
+                                        answerCorrect === true
+                                            ? "rounded-2xl shadow-[0_0_0_0.6rem_rgba(34,197,94,0.25)]"
+                                            : answerCorrect === false
+                                            ? "rounded-2xl shadow-[0_0_0_0.6rem_rgba(239,68,68,0.25)]"
+                                            : ""
+                                    }`}>
+                                        {canType && canChoose ? (
+                                            <div className="mb-4 flex flex-wrap gap-3">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setAnswerMode("typed");
+                                                        setUserAnswer("");
+                                                        setUserAnswerLatex("");
+                                                        setAnswerCorrect(null);
+                                                        setFeedback("");
+                                                    }}
+                                                    className={`rounded-2xl border px-4 py-2 text-sm transition ${
+                                                        effectiveAnswerMode === "typed"
+                                                            ? "border-primary bg-primary text-white"
+                                                            : "border-primary/20 bg-primary/5 text-primary"
+                                                    }`}
+                                                >
+                                                    {t("questions.type-answer", { defaultValue: "Type your answer" })}
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setAnswerMode("multipleChoice");
+                                                        setUserAnswer("");
+                                                        setUserAnswerLatex("");
+                                                        setAnswerCorrect(null);
+                                                        setFeedback("");
+                                                    }}
+                                                    className={`rounded-2xl border px-4 py-2 text-sm transition ${
+                                                        effectiveAnswerMode === "multipleChoice"
+                                                            ? "border-primary bg-primary text-white"
+                                                            : "border-primary/20 bg-primary/5 text-primary"
+                                                    }`}
+                                                >
+                                                    {t("questions.multiple-choice", { defaultValue: "Multiple choice" })}
+                                                </button>
+                                            </div>
+                                        ) : null}
+
+                                        {effectiveAnswerMode === "multipleChoice" && questionOptions.length > 0 ? (
+                                            <div className="grid gap-3 sm:grid-cols-2">
+                                                {questionOptions.map((option) => (
+                                                    <button
+                                                        key={option}
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setUserAnswer(option);
+                                                            setUserAnswerLatex("");
+                                                            setAnswerCorrect(null);
+                                                            setFeedback("");
+                                                        }}
+                                                        className={`rounded-2xl border px-4 py-3 text-left transition ${
+                                                            userAnswer === option
+                                                                ? "border-primary bg-primary/10 text-primary"
+                                                                : "border-primary/20 bg-primary/5 text-primary"
+                                                        }`}
+                                                    >
+                                                        {option}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <MathShorthandEditor
+                                                value={userAnswer}
+                                                onChange={(value, latex) => {
+                                                    setUserAnswer(value);
+                                                    setUserAnswerLatex(latex);
+                                                    setAnswerCorrect(null);
+                                                    setFeedback("");
+                                                }}
+                                                placeholder={t("questions.enter-answer-here")}
+                                            />
+                                        )}
                                     </div>
 
                                     <button

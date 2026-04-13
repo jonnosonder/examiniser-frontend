@@ -322,11 +322,12 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
           </div>
 
           {/* Buttons */}
-          <div className='flex space-x-8' onClick={(e) => e.stopPropagation()}>
+          <div className='flex space-x-8' onClick={handleClose}>
             {buttons.map(({ id, label, items, links, delay }) => (
               <div
                 key={id}
                 className="flex items-center justify-center"
+                onClick={handleClose}
                 style={{
                   opacity: buttonsReady ? 1 : 0,
                   transform: buttonsReady ? 'translateY(0)' : 'translateY(16px)',
@@ -335,6 +336,7 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
               >
                 <div
                   className="relative overflow-visible transition-all duration-300 ease-in-out"
+                  onClick={(e) => e.stopPropagation()}
                   style={{
                     width: activeButton === id ? "24rem" : "14rem",
                     height: activeButton === id ? "24rem" : "14rem",

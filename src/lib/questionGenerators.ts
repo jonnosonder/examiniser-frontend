@@ -13,16 +13,18 @@ export type QuestionGeneratorArgs = {
 export type QuestionResult = {
     latex: string;
     answer: string | string[];
+    options: string[];
+    forceOption: 0 | 1 | 2;
     explanation?: string;
 };
 
 export type QuestionGenerator = (args: QuestionGeneratorArgs) => QuestionResult;
-export type QuestionGeneratorWithLevels = QuestionGenerator & {
+export type QuestionGeneratorWithLevels = ((args: QuestionGeneratorArgs) => QuestionResult) & {
     availableDifficulties?: number[];
 };
 
 function createGenerator(generator: QuestionGenerator, availableDifficulties: number[]): QuestionGeneratorWithLevels {
-    const fn = generator as QuestionGeneratorWithLevels;
+    const fn = ((args: QuestionGeneratorArgs) => generator(args)) as QuestionGeneratorWithLevels;
     fn.availableDifficulties = availableDifficulties;
     return fn;
 }
@@ -32,6 +34,8 @@ const defaultGenerator: QuestionGeneratorWithLevels = createGenerator(
         latex: `\\text{No generator defined for ${level}/${subtopicSlug} at level ${difficulty}}`,
         answer: "",
         explanation: "Please add a generator for this level and subtopic",
+        options: [],
+        forceOption: 0,
     }),
     [1]
 );
@@ -49,9 +53,33 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             const answer = numbers[randomIndex];
             numbers[randomIndex] = "?";
 
+            // Generate 3 unique wrong options
+            const wrongOptions = new Set<number>();
+
+            while (wrongOptions.size < 3) {
+                const rand = Math.floor(Math.random() * 10) + 1;
+                if (rand !== answer) {
+                    wrongOptions.add(rand);
+                }
+            }
+
+            // Combine options
+            const options = [
+                answer as number,
+                ...wrongOptions
+            ].map(String);
+
+            // Shuffle (Fisher-Yates)
+            for (let i = options.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [options[i], options[j]] = [options[j], options[i]];
+            }
+
             return {
                 latex: `\\text{What is the missing number: } ${numbers.join(", ")}`,
                 answer: answer.toString(),
+                options,
+                forceOption: 0, // unchanged, since it's unrelated
             };
         }
 
@@ -74,6 +102,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             return {
                 latex: `\\text{What is the missing number: } ${display.join(", ")}`,
                 answer: answer.toString(),
+                options: [],
+                forceOption: 0,
             };
         }
 
@@ -95,6 +125,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
         return {
             latex: `\\text{What is the missing number: } ${display.join(", ")}`,
             answer: answer.toString(),
+            options: [],
+            forceOption: 0,
         };
 
     }, [1, 2, 3]),
@@ -115,6 +147,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             return {
                 latex: `\\text{What is the value of the digit } ${digit} \\text{ in the number } ${number}?`,
                 answer: placeValue.toString(),
+                options: [],
+                forceOption: 0,
             };
         }
 
@@ -136,6 +170,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             return {
                 latex: `\\text{A digit has a value of } ${value}. \\text{ What place is it in?}`,
                 answer: place.name,
+                options: [],
+                forceOption: 0,
             };
         }
 
@@ -165,6 +201,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             return {
                 latex: `\\text{What is the value of the digit } ${digit} \\text{ in } ${number}?`,
                 answer: value.toString(),
+                options: [],
+                forceOption: 0,
             };
         }
 
@@ -210,6 +248,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
         return {
             latex: `\\text{Which is greater: the value of the digit ${digit} in ${num1} or in ${num2}?}\\\\\\text{(Answer "first" or "second")}`,
             answer: answer,
+            options: [],
+            forceOption: 0,
         };
 
     }, [1, 2, 3, 4]),
@@ -234,6 +274,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             return {
                 latex: `\\text{True or False: } ${question}`,
                 answer: answer.toString(),
+                options: [],
+                forceOption: 0,
             };
         }
 
@@ -259,6 +301,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
         return {
             latex: `\\text{Sort the numbers: } ${question}\\\\\\text{(answer with commas to seperate the numbers)}`,
             answer: answer.join(","),
+            options: [],
+            forceOption: 0,
         };
 
     }, [1, 2]),
@@ -287,6 +331,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             return {
                 latex: `\\text{Calculate: } ${question}`,
                 answer: answer.toString(),
+                options: [],
+                forceOption: 0,
             };
         }
 
@@ -320,6 +366,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             return {
                 latex: `\\text{Calculate: } ${question}`,
                 answer: answer.toString(),
+                options: [],
+                forceOption: 0,
             };
         }
 
@@ -347,6 +395,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
         return {
             latex: `\\text{Calculate: } ${question}`,
             answer: answer.toString(),
+            options: [],
+            forceOption: 0,
         };
 
     }, [1, 2, 3]),
@@ -361,6 +411,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             return {
                 latex: `\\text{Calculate: } ${question}`,
                 answer: answer.toString(),
+                options: [],
+                forceOption: 0,
             };
         }
 
@@ -376,6 +428,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             return {
                 latex: `\\text{Calculate: } ${question}`,
                 answer: answer.toString(),
+                options: [],
+                forceOption: 0,
             };
         }
 
@@ -405,6 +459,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
         return {
             latex: `\\text{Calculate: } ${question}`,
             answer: answer.toString(),
+            options: [],
+            forceOption: 0,
         };
 
     }, [1, 2, 3]),
@@ -417,6 +473,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             return {
                 latex: `\\text{Round to the nearest whole number: } ${num}`,
                 answer: rounded.toString(),
+                options: [],
+                forceOption: 0,
             };
         }
 
@@ -439,6 +497,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             return {
                 latex: `\\text{Round } ${num} \\text{ to the nearest ${place.name}.}`,
                 answer: answer.toString(),
+                options: [],
+                forceOption: 0,
             };
         }
 
@@ -479,6 +539,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
         return {
             latex: `\\text{Estimate to the nearest ${place.name}: } ${question}`,
             answer: answer.toString(),
+            options: [],
+            forceOption: 0,
         };
 
     }, [1, 2, 3]),
@@ -502,6 +564,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             return {
                 latex: `\\text{A shape is split into } ${denom} \\text{ equal parts. } ${numer} \\text{ part(s) are shaded. What fraction is shaded?}`,
                 answer: answers,
+                options: [],
+                forceOption: 0,
             };
         }
 
@@ -518,6 +582,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
                     ? `\\text{In the fraction } \\frac{${numer}}{${denom}} \\text{, what is the numerator?}`
                     : `\\text{In the fraction } \\frac{${numer}}{${denom}} \\text{, what is the denominator?}`,
                 answer: askNumerator ? numer.toString() : denom.toString(),
+                options: [],
+                forceOption: 0,
             };
         }
 
@@ -536,6 +602,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             return {
                 latex: `\\text{True or False: } \\frac{${a}}{${denom}} ${symbol} \\frac{${b}}{${denom}}`,
                 answer,
+                options: [],
+                forceOption: 0,
             };
         }
 
@@ -561,6 +629,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
         return {
             latex: `\\text{Sort in ${isAscending ? "ascending" : "descending"} order: } ${display}\\\\\\text{(answer as a/b,c/d,e/f)}`,
             answer,
+            options: [],
+            forceOption: 0,
         };
 
     }, [1, 2, 3, 4]),
@@ -579,6 +649,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             return {
                 latex: `\\frac{${numer1}}{${denom1}} = \\frac{?}{${denom2}}`,
                 answer: numer2.toString(),
+                options: [],
+                forceOption: 0,
             };
         }
 
@@ -595,6 +667,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             return {
                 latex: `\\frac{${numer2}}{${denom2}} = \\frac{${numer1}}{?}`,
                 answer: denom1.toString(),
+                options: [],
+                forceOption: 0,
             };
         }
 
@@ -616,6 +690,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
                 return {
                     latex: `\\text{Simplify: } \\frac{${factor}}{${denom}}`,
                     answer: `1/${denom / factor}`,
+                    options: [],
+                    forceOption: 0,
                 };
             }
 
@@ -626,6 +702,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             return {
                 latex: `\\text{Simplify: } \\frac{${numer}}{${denom}}`,
                 answer: `${simplifiedNumer}/${simplifiedDenom}`,
+                options: [],
+                forceOption: 0,
             };
         }
 
@@ -649,6 +727,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
         return {
             latex: `\\text{True or False: } \\frac{${numer1}}{${denom1}} = \\frac{${numer2}}{${denom2}}`,
             answer: isEquivalent.toString(),
+            options: [],
+            forceOption: 0,
         };
 
     }, [1, 2, 3, 4]),
@@ -668,6 +748,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             return {
                 latex: `\\frac{${a}}{${denom}} + \\frac{${b}}{${denom}} = ?\\\\\\text{(answer as a/b or a whole number)}`,
                 answer: sumNumer === denom ? "1" : `${sumNumer}/${denom}`,
+                options: [],
+                forceOption: 0,
             };
         }
 
@@ -684,6 +766,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             return {
                 latex: `\\frac{${a}}{${denom}} - \\frac{${b}}{${denom}} = ?\\\\\\text{(answer as a/b)}`,
                 answer: `${diffNumer}/${denom}`,
+                options: [],
+                forceOption: 0,
             };
         }
 
@@ -713,6 +797,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             return {
                 latex: `\\frac{${numer1}}{${base}} + \\frac{${numer2}}{${denom2}} = ?\\\\\\text{(answer as a/b or a whole number)}`,
                 answer: ansDenom === 1 ? ansNumer.toString() : `${ansNumer}/${ansDenom}`,
+                options: [],
+                forceOption: 0,
             };
         }
 
@@ -746,6 +832,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
         return {
             latex: `\\frac{${n1}}{${d1}} ${op} \\frac{${n2}}{${d2}} = ?\\\\\\text{(answer as a/b or a whole number)}`,
             answer: ansDenom === 1 ? ansNumer.toString() : `${ansNumer}/${ansDenom}`,
+            options: [],
+            forceOption: 0,
         };
 
     }, [1, 2, 3, 4]),
@@ -759,6 +847,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             return {
                 latex: `\\text{Write as a decimal: } ${wholes} \\text{ and } ${tenths} \\text{ tenth(s)}`,
                 answer: `${wholes}.${tenths}`,
+                options: [],
+                forceOption: 0,
             };
         }
 
@@ -775,6 +865,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             return {
                 latex: `\\text{True or False: } ${a} ${symbol} ${b}`,
                 answer,
+                options: [],
+                forceOption: 0,
             };
         }
 
@@ -789,12 +881,16 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
                 return {
                     latex: `\\text{Round to the nearest tenth: } ${num}`,
                     answer,
+                    options: [],
+                    forceOption: 0,
                 };
             } else {
                 answer = Math.round(num).toString();
                 return {
                     latex: `\\text{Round to the nearest whole number: } ${num}`,
                     answer,
+                    options: [],
+                    forceOption: 0,
                 };
             }
         }
@@ -820,6 +916,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
         return {
             latex: `\\text{Calculate: } ${question}`,
             answer: result.toString(),
+            options: [],
+            forceOption: 0,
         };
 
     }, [1, 2, 3, 4]),
@@ -848,6 +946,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             return {
                 latex: `\\text{Write } \\frac{${pair.numer}}{${pair.denom}} \\text{ as a decimal.}`,
                 answer: pair.decimal,
+                options: [],
+                forceOption: 0,
             };
         }
 
@@ -860,11 +960,15 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
                 return {
                     latex: `\\text{Write } \\frac{${pair.numer}}{${pair.denom}} \\text{ as a decimal.}`,
                     answer: pair.decimal,
+                    options: [],
+                    forceOption: 0,
                 };
             } else {
                 return {
                     latex: `\\text{Write } ${pair.decimal} \\text{ as a fraction in its simplest form.}`,
                     answer: `${pair.numer}/${pair.denom}`,
+                    options: [],
+                    forceOption: 0,
                 };
             }
         }
@@ -893,6 +997,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             return {
                 latex: `\\text{Sort in ${isAscending ? "ascending" : "descending"} order: } ${display}\\\\\\text{(answer as decimals separated by commas)}`,
                 answer,
+                options: [],
+                forceOption: 0,
             };
         }
 
@@ -905,11 +1011,15 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             return {
                 latex: `\\text{Write } \\frac{${numer}}{100} \\text{ as a decimal.}`,
                 answer: decimal,
+                options: [],
+                forceOption: 0,
             };
         } else {
             return {
                 latex: `\\text{Write } ${decimal} \\text{ as a fraction out of 100 (e.g. a/100).}`,
                 answer: `${numer}/100`,
+                options: [],
+                forceOption: 0,
             };
         }
 
@@ -923,6 +1033,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             return {
                 latex: `\\text{What is } ${percent}\\% \\text{ as a fraction out of 100? (e.g. a/100)}`,
                 answer: `${percent}/100`,
+                options: [],
+                forceOption: 0,
             };
         }
 
@@ -945,6 +1057,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             return {
                 latex: `\\text{Find } ${percent}\\% \\text{ of } ${num}`,
                 answer: answer.toString(),
+                options: [],
+                forceOption: 0,
             };
         }
 
@@ -965,16 +1079,22 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
                 return {
                     latex: `\\text{Write } ${val.fraction} \\text{ as a percentage.}`,
                     answer: `${val.percent}%`,
+                    options: [],
+                    forceOption: 0,
                 };
             } else if (type === 1) {
                 return {
                     latex: `\\text{Write } ${val.decimal} \\text{ as a percentage.}`,
                     answer: `${val.percent}%`,
+                    options: [],
+                    forceOption: 0,
                 };
             } else {
                 return {
                     latex: `\\text{Write } ${val.percent}\\% \\text{ as a fraction in its simplest form.}`,
                     answer: val.fraction,
+                    options: [],
+                    forceOption: 0,
                 };
             }
         }
@@ -992,6 +1112,8 @@ const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
         return {
             latex: `\\text{Find } ${percent}\\% \\text{ of } ${num}`,
             answer: answer.toString(),
+            options: [],
+            forceOption: 0,
         };
 
     }, [1, 2, 3, 4]),
@@ -1003,17 +1125,23 @@ const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             return {
                 latex: "\\text{Simplify } 2x + 3x.",
                 answer: "5x",
+                options: [],
+                forceOption: 0,
             };
         }
         if (difficulty === 2) {
             return {
                 latex: "\\text{Simplify } 4x - 2x + 7.",
                 answer: "2x + 7",
+                options: [],
+                forceOption: 0,
             };
         }
         return {
             latex: "\\text{Simplify } 3(x + 2) - x.",
             answer: "2x + 6",
+            options: [],
+            forceOption: 0,
         };
     }, [1, 2, 3]),
 };
@@ -1024,17 +1152,23 @@ const sixthFormGenerators: Record<string, QuestionGeneratorWithLevels> = {
             return {
                 latex: "\\frac{d}{dx}(x^2)",
                 answer: "2x",
+                options: [],
+                forceOption: 0,
             };
         }
         if (difficulty === 2) {
             return {
                 latex: "\\frac{d}{dx}(3x^3 + 2x)",
                 answer: "9x^2 + 2",
+                options: [],
+                forceOption: 0,
             };
         }
         return {
             latex: "\\frac{d}{dx}(5x^4 - x^2 + 7)",
             answer: "20x^3 - 2x",
+            options: [],
+            forceOption: 0,
         };
     }, [1, 2, 3]),
 };

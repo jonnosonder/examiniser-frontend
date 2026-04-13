@@ -540,9 +540,10 @@ function renderMathNodes(
     nodes: MathNode[],
     cursor: number,
     onClick: (position: number) => void,
-    cursorPath: MathNodePathEntry[]
+    cursorPath: MathNodePathEntry[],
+    isFocused: boolean
 ): React.ReactNode {
-    const renderCursor = (key: string) => renderCursorElement(key);
+    const renderCursor = (key: string) => (isFocused ? renderCursorElement(key) : null);
 
     const renderNode = (node: MathNode, index: number): React.ReactNode => {
         const commonProps = {
@@ -564,7 +565,7 @@ function renderMathNodes(
                     className="inline-flex items-center whitespace-pre text-base text-primary"
                 >
                     {beforeText}
-                    {showCursor ? renderCursor(`text-${index}-${node.start}-${node.end}-${offset}`) : null}
+                    {showCursor && isFocused ? renderCursor(`text-${index}-${node.start}-${node.end}-${offset}`) : null}
                     {afterText || " "}
                 </span>
             );
@@ -638,7 +639,7 @@ function renderMathNodes(
                         </span>
                     ) : (
                         <span className="inline-flex items-center">
-                            {renderMathNodes(groupNode.children, cursor, onClick, cursorPath)}
+                            {renderMathNodes(groupNode.children, cursor, onClick, cursorPath, isFocused)}
                         </span>
                     )}
                     <span
@@ -667,7 +668,7 @@ function renderMathNodes(
                             onClick(node.numerator[0]?.start ?? node.start);
                         }}
                     >
-                        {renderMathNodes(node.numerator, cursor, onClick, cursorPath)}
+                        {renderMathNodes(node.numerator, cursor, onClick, cursorPath, isFocused)}
                     </span>
                     <span
                         className="px-2 py-1"
@@ -676,7 +677,7 @@ function renderMathNodes(
                             onClick(node.denominator[0]?.start ?? node.start);
                         }}
                     >
-                        {renderMathNodes(node.denominator, cursor, onClick, cursorPath)}
+                        {renderMathNodes(node.denominator, cursor, onClick, cursorPath, isFocused)}
                     </span>
                     {showCursorAfter && renderCursor(`frac-after-${index}-${node.end}`)}
                 </span>
@@ -695,7 +696,7 @@ function renderMathNodes(
                     {showCursorBefore && renderCursor(`sqrt-before-${index}-${node.start}`)}
                     <span className="text-lg">√</span>
                     <span className="border border-current rounded-sm px-2 py-1">
-                        {renderMathNodes(node.body, cursor, onClick, cursorPath)}
+                        {renderMathNodes(node.body, cursor, onClick, cursorPath, isFocused)}
                     </span>
                     {showCursorAfter && renderCursor(`sqrt-after-${index}-${node.end}`)}
                 </span>
@@ -712,8 +713,8 @@ function renderMathNodes(
                     className={`inline-flex items-baseline mx-0.5`}
                 >
                     {showCursorBefore && renderCursor(`sup-before-${index}-${node.start}`)}
-                    {renderMathNodes(node.base, cursor, onClick, cursorPath)}
-                    <sup className="text-sm leading-none">{renderMathNodes(node.exponent, cursor, onClick, cursorPath)}</sup>
+                    {renderMathNodes(node.base, cursor, onClick, cursorPath, isFocused)}
+                    <sup className="text-sm leading-none">{renderMathNodes(node.exponent, cursor, onClick, cursorPath, isFocused)}</sup>
                     {showCursorAfter && renderCursor(`sup-after-${index}-${node.end}`)}
                 </span>
             );
@@ -729,8 +730,8 @@ function renderMathNodes(
                     className={`inline-flex items-baseline mx-0.5`}
                 >
                     {showCursorBefore && renderCursor(`sub-before-${index}-${node.start}`)}
-                    {renderMathNodes(node.base, cursor, onClick, cursorPath)}
-                    <sub className="text-sm leading-none">{renderMathNodes(node.subscript, cursor, onClick, cursorPath)}</sub>
+                    {renderMathNodes(node.base, cursor, onClick, cursorPath, isFocused)}
+                    <sub className="text-sm leading-none">{renderMathNodes(node.subscript, cursor, onClick, cursorPath, isFocused)}</sub>
                     {showCursorAfter && renderCursor(`sub-after-${index}-${node.end}`)}
                 </span>
             );
@@ -863,10 +864,11 @@ export default function MathShorthandEditor({ value, onChange, placeholder, disa
                     </div>
                 ) : (
                     <div className="flex flex-wrap items-center gap-0.5 text-base leading-relaxed">
-                        {renderMathNodes(nodes, cursorIndex, handleClickPosition, cursorPath)}
+                        {renderMathNodes(nodes, cursorIndex, handleClickPosition, cursorPath, isFocused)}
                     </div>
                 )}
             </div>
+            {/* Debug panel 
             <div className="mt-3 rounded-2xl border border-primary/10 bg-primary/5 p-3 text-xs text-primary">
                 <div className="mb-2 font-semibold text-sm">Debug</div>
                 <div className="mb-1">
@@ -889,6 +891,7 @@ export default function MathShorthandEditor({ value, onChange, placeholder, disa
                     </span>
                 </div>
             </div>
+            */}
         </div>
     );
 }
