@@ -351,17 +351,8 @@ export function QuestionSubtopicLeaf({
         const hadPreviousSelectedOption = answerMode === "multipleChoice" && questionOptions.includes(userAnswer);
         const generator = getQuestionGenerator(level, subtopicSlug);
         const result = generator({ level, topicId, subtopicSlug, difficulty: selectedDifficulty });
-        const options = Array.isArray(result.options) ? result.options : [];
+        const options = result.options ?? [];
         const previousOption = hadPreviousSelectedOption ? userAnswer : undefined;
-        const nextUserAnswer = result.forceOption === 1
-            ? ""
-            : previousOption
-                ? options.includes(previousOption)
-                    ? previousOption
-                    : options[0] ?? ""
-                : result.forceOption === 2
-                    ? options[0] ?? ""
-                    : "";
 
         setQuestionLatex(result.latex);
         setQuestionAnswers(Array.isArray(result.answer) ? result.answer : [result.answer]);
@@ -372,7 +363,7 @@ export function QuestionSubtopicLeaf({
                 ? "multipleChoice"
                 : "typed"
         );
-        setUserAnswer(nextUserAnswer);
+        setUserAnswer("");
         setUserAnswerLatex("");
         setAnswerCorrect(null);
         setFeedback("");
