@@ -106,7 +106,13 @@
     "show-solution": "显示解决方案",
     "no-question-generated": "还没有生成问题，点击下面的按钮来生成一个！",
     "correct": "正确！",
-    "wrong": "错误。正确答案是 {{answer}}。"
+    "wrong": "错误。正确答案是 {{answer}}。",
+    "show-keyboard": "显示键盘",
+    "hide-keyboard": "隐藏键盘",
+    "clear": "清除",
+    "space": "空格",
+    "keyboard-hint": "使用 LaTeX 键输入你的答案。",
+    "answer-preview": "答案预览"
   },
   "start": {
     "CNP": "创建新考试试卷",

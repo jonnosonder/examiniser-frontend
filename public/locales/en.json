@@ -106,7 +106,13 @@
     "show-solution": "Show Solution",
     "no-question-generated": "No question generated yet, click the button below to generate one!",
     "correct": "Correct!",
-    "wrong": "Wrong answer. Correct answer: {{answer}}."
+    "wrong": "Wrong answer. Correct answer: {{answer}}.",
+    "show-keyboard": "Show keyboard",
+    "hide-keyboard": "Hide keyboard",
+    "clear": "Clear",
+    "space": "Space",
+    "keyboard-hint": "Use LaTeX keys to type your answer.",
+    "answer-preview": "Answer preview"
   },
   "start": {
     "CNP": "Create New Paper",

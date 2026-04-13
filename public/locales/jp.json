@@ -107,7 +107,13 @@
     "show-solution": "解決策を表示",
     "no-question-generated": "まだ質問が生成されていません。下のボタンをクリックして生成してください！",
     "correct": "正解！",
-    "wrong": "不正解です。正しい答えは {{answer}} です。"
+    "wrong": "不正解です。正しい答えは {{answer}} です。",
+    "show-keyboard": "キーボードを表示",
+    "hide-keyboard": "キーボードを非表示",
+    "clear": "クリア",
+    "space": "スペース",
+    "keyboard-hint": "LaTeXキーを使って答えを入力してください。",
+    "answer-preview": "回答プレビュー"
   },
   "start": {
     "CNP": "新しい試験問題を作成",

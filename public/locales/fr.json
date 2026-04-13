@@ -106,7 +106,13 @@
     "show-solution": "Afficher la Solution",
     "no-question-generated": "Aucune question générée pour le moment, cliquez sur le bouton ci-dessous pour en générer une !",
     "correct": "Correct !",
-    "wrong": "Mauvaise réponse. La bonne réponse est {{answer}}."
+    "wrong": "Mauvaise réponse. La bonne réponse est {{answer}}.",
+    "show-keyboard": "Afficher le clavier",
+    "hide-keyboard": "Masquer le clavier",
+    "clear": "Effacer",
+    "space": "Espace",
+    "keyboard-hint": "Utilisez les touches LaTeX pour saisir votre réponse.",
+    "answer-preview": "Aperçu de la réponse"
   },
   "start": {
     "CNP": "Créer un nouveau sujet d'examen",

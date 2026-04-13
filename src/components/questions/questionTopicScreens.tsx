@@ -9,6 +9,7 @@ import { BlockMath } from "react-katex";
 import "katex/dist/katex.min.css";
 import { Locale } from "@/lib/locales";
 import SidePanel from "@/components/questions/sidePanel";
+import MathShorthandEditor from "@/components/questions/MathShorthandEditor";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { buildQuestionNavButtons } from "@/lib/questionTopicNav";
@@ -232,19 +233,108 @@ export function QuestionSubtopicLeaf({
 
     const [selectedDifficulty, setSelectedDifficulty] = React.useState<number>(availableLevels[0] ?? 1);
     const [questionLatex, setQuestionLatex] = React.useState("");
-    const [questionAnswer, setQuestionAnswer] = React.useState("");
+    const [questionAnswers, setQuestionAnswers] = React.useState<string[]>([]);
     const [userAnswer, setUserAnswer] = React.useState("");
+    const [userAnswerLatex, setUserAnswerLatex] = React.useState("");
     const [answerCorrect, setAnswerCorrect] = React.useState<boolean | null>(null);
     const [feedback, setFeedback] = React.useState("");
+    const [keyboardOpen, setKeyboardOpen] = React.useState(false);
 
     const levels = availableLevels;
+
+    const keyboardButtons = React.useMemo(
+        () => [
+            [
+                { label: "7", value: "7" },
+                { label: "8", value: "8" },
+                { label: "9", value: "9" },
+                { label: "(", value: "(" },
+                { label: ")", value: ")" },
+                { label: "√", value: "√(" },
+            ],
+            [
+                { label: "4", value: "4" },
+                { label: "5", value: "5" },
+                { label: "6", value: "6" },
+                { label: "/", value: "/" },
+                { label: "^", value: "^" },
+                { label: "π", value: "π" },
+            ],
+            [
+                { label: "1", value: "1" },
+                { label: "2", value: "2" },
+                { label: "3", value: "3" },
+                { label: "×", value: "×" },
+                { label: "÷", value: "÷" },
+                { label: "^2", value: "^2" },
+            ],
+            [
+                { label: "0", value: "0" },
+                { label: ".", value: "." },
+                { label: "-", value: "-" },
+                { label: "+", value: "+" },
+                { label: "=", value: "=" },
+                { label: "θ", value: "theta" },
+            ],
+            [
+                { label: "sin", value: "sin(" },
+                { label: "cos", value: "cos(" },
+                { label: "tan", value: "tan(" },
+                { label: "log", value: "log(" },
+                { label: "ln", value: "ln(" },
+                { label: "√(", value: "√(" },
+            ],
+            [
+                { label: <BlockMath math="\\frac{1}{2}" />, value: "1/2" },
+                { label: <BlockMath math="\\frac{1}{3}" />, value: "1/3" },
+                { label: <BlockMath math="\\frac{1}{4}" />, value: "1/4" },
+                { label: <BlockMath math="\\frac{3}{4}" />, value: "3/4" },
+                { label: <BlockMath math="\\frac{\\pi}{2}" />, value: "π/2" },
+                { label: <BlockMath math="\\frac{\\pi}{4}" />, value: "π/4" },
+            ],
+            [
+                { label: "x", value: "x" },
+                { label: "y", value: "y" },
+                { label: "z", value: "z" },
+                { label: "{", value: "{" },
+                { label: "}", value: "}" },
+                { label: "[", value: "[" },
+            ],
+            [
+                { label: "⌫", value: "backspace" },
+                { label: t("questions.clear"), value: "clear" },
+                { label: t("questions.space"), value: "space" },
+            ],
+        ],
+        [t]
+    );
+
+    const handleKeyboardInput = (value: string) => {
+        if (value === "backspace") {
+            setUserAnswer((current) => current.slice(0, -1));
+            return;
+        }
+
+        if (value === "clear") {
+            setUserAnswer("");
+            return;
+        }
+
+        if (value === "space") {
+            setUserAnswer((current) => `${current} `);
+            return;
+        }
+
+        setUserAnswer((current) => `${current}${value}`);
+    };
 
     const handleGenerateQuestion = () => {
         const generator = getQuestionGenerator(level, subtopicSlug);
         const result = generator({ level, topicId, subtopicSlug, difficulty: selectedDifficulty });
         setQuestionLatex(result.latex);
-        setQuestionAnswer(result.answer);
+        setQuestionAnswers(Array.isArray(result.answer) ? result.answer : [result.answer]);
         setUserAnswer("");
+        setUserAnswerLatex("");
         setAnswerCorrect(null);
         setFeedback("");
     };
@@ -252,33 +342,37 @@ export function QuestionSubtopicLeaf({
     const handleCheckAnswer = () => {
         const normalized = userAnswer
             .trim()
-            .replace(/\s+/g, "")   // removes all whitespace (spaces, tabs, etc.)
-            .replace(/ /g, "");    // explicitly removes normal spaces (extra safety)
-
-        const expected = questionAnswer
-            .trim()
             .replace(/\s+/g, "")
             .replace(/ /g, "");
 
-        if (!questionAnswer) {
+        if (!questionAnswers.length) {
             setFeedback("Generate a question first before checking your answer.");
             setAnswerCorrect(null);
             return;
         }
 
         if (!normalized) {
-            setFeedback("Enter an answer before checking.");
+            setFeedback("Enter an answer before checking your answer.");
             setAnswerCorrect(null);
             return;
         }
 
-        const correct = normalized.toLowerCase() === expected.toLowerCase();
+        const expectedAnswers = questionAnswers.map((answer) =>
+            answer
+                .toString()
+                .trim()
+                .replace(/\s+/g, "")
+                .replace(/ /g, "")
+                .toLowerCase()
+        );
+
+        const correct = expectedAnswers.some((expected) => normalized.toLowerCase() === expected);
 
         setAnswerCorrect(correct);
         setFeedback(
             correct
                 ? t("questions.correct")
-                : t("questions.wrong", { answer: questionAnswer })
+                : t("questions.wrong", { answer: questionAnswers.join(", ") })
         );
     };
 
@@ -360,18 +454,19 @@ export function QuestionSubtopicLeaf({
                                 )}
                             </div>
 
-                            <div className="flex flex-col gap-2">
+                            <div className="flex flex-col gap-3">
                                 <label className="text-sm font-medium text-primary">
                                     {t("questions.your-answer")}
                                 </label>
 
                                 <div className="flex w-full flex-wrap items-center gap-3">
                                     <div className="flex-1 min-w-[12rem]">
-                                        <input
-                                            type="text"
+                                        <MathShorthandEditor
                                             value={userAnswer}
-                                            onChange={(event) => setUserAnswer(event.target.value)}
-                                            className="w-full rounded-2xl border border-primary/20 bg-white px-4 py-3 text-lg outline-none focus:border-primary"
+                                            onChange={(value, latex) => {
+                                                setUserAnswer(value);
+                                                setUserAnswerLatex(latex);
+                                            }}
                                             placeholder={t("questions.enter-answer-here")}
                                         />
                                     </div>
@@ -385,6 +480,19 @@ export function QuestionSubtopicLeaf({
                                         {t("questions.check-answer")}
                                     </button>
                                 </div>
+
+                                <div className="flex flex-wrap items-center gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => setKeyboardOpen((current) => !current)}
+                                        className="rounded-2xl border border-primary/20 bg-primary/5 px-4 py-2 text-sm text-primary transition hover:bg-primary/10"
+                                    >
+                                        {keyboardOpen ? t("questions.hide-keyboard") : t("questions.show-keyboard")}
+                                    </button>
+                                    <p className="text-xs text-muted-foreground">
+                                        {t("questions.keyboard-hint")}
+                                    </p>
+                                </div>
                             </div>
 
                             {feedback ? (
@@ -394,6 +502,25 @@ export function QuestionSubtopicLeaf({
                             ) : null}
                         </div>
                     </div>
+
+                    {keyboardOpen ? (
+                        <div className="mt-5 w-full rounded-[1.5rem] border border-primary/10 bg-slate-950/95 p-3 text-white shadow-inner">
+                            {keyboardButtons.map((row, rowIndex) => (
+                                <div key={rowIndex} className="grid gap-2 sm:grid-cols-6 mb-2 last:mb-0">
+                                    {row.map((key) => (
+                                        <button
+                                            key={key.value}
+                                            type="button"
+                                            onClick={() => handleKeyboardInput(key.value)}
+                                            className={`rounded-2xl border border-white/10 bg-white/10 px-2 py-2 text-sm font-medium transition hover:border-primary hover:bg-primary/20 ${key.value === "backspace" || key.value === "clear" ? "col-span-2 sm:col-span-2" : ""}`}
+                                        >
+                                            {key.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            ))}
+                        </div>
+                    ) : null}
                 </div>
             </div>
         </div>
