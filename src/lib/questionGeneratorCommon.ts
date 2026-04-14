@@ -138,12 +138,12 @@ function generateOptionsFromAnswer(answer: any): string[] {
         // ---- WORD ----
         else if (isWord) {
             const pool = [
-                "first",
-                "second",
-                "ones",
-                "tens",
-                "hundreds",
-                "thousands",
+                "First",
+                "Second",
+                "Ones",
+                "Tens",
+                "Hundreds",
+                "Thousands",
             ];
 
             wrong = pool[Math.floor(Math.random() * pool.length)];

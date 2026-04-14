@@ -93,17 +93,32 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
     }, [1, 2, 3, 4]),
     "place-value": createGenerator(({ difficulty }) => {
         if (difficulty === 1) {
-            const number = Math.floor(100 + Math.random() * 900); // 3-digit number
-            const digits = number.toString().split("");
+            // pick digit first (1–9)
+            const digit = Math.floor(Math.random() * 9) + 1;
 
-            const validIndexes = digits
-                .map((d, i) => (d !== "0" ? i : -1))
-                .filter(i => i !== -1);
+            // choose position: 0 = hundreds, 1 = tens, 2 = units
+            const index = Math.floor(Math.random() * 3);
 
-            const index = validIndexes[Math.floor(Math.random() * validIndexes.length)];
-            const digit = parseInt(digits[index]);
+            const digits: number[] = [];
 
-            const placeValue = digit * Math.pow(10, digits.length - index - 1);
+            for (let i = 0; i < 3; i++) {
+                if (i === index) {
+                    digits.push(digit);
+                } else {
+                    let d;
+                    do {
+                        d = Math.floor(Math.random() * 10);
+                    } while (
+                        d === digit ||           // avoid duplicate target digit
+                        (i === 0 && d === 0)     // avoid leading zero
+                    );
+                    digits.push(d);
+                }
+            }
+
+            const number = parseInt(digits.join(""));
+
+            const placeValue = digit * Math.pow(10, 2 - index);
 
             return {
                 latex: `\\text{What is the value of the digit } ${digit} \\text{ in the number } ${number}?`,
@@ -154,25 +169,29 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
                 forceOption: 2,
             };
         }
-
         if (difficulty === 3) {
-            const integerPart = Math.floor(Math.random() * 9) + 1; // 1–9
+            const integerPart = Math.floor(Math.random() * 9) + 1;
 
-            const decimalDigits = Array.from({ length: 3 }, () =>
-                Math.floor(Math.random() * 10)
-            );
+            // pick digit first (1–9 avoids ambiguity with leading zeros)
+            const digit = Math.floor(Math.random() * 9) + 1;
 
-            const validIndexes = decimalDigits
-                .map((d, i) => (d !== 0 ? i : -1))
-                .filter(i => i !== -1);
+            // choose position (0 = tenths, 1 = hundredths, 2 = thousandths)
+            const index = Math.floor(Math.random() * 3);
 
-            if (validIndexes.length === 0) {
-                decimalDigits[0] = Math.floor(Math.random() * 9) + 1;
-                validIndexes.push(0);
+            const decimalDigits = [];
+
+            for (let i = 0; i < 3; i++) {
+                if (i === index) {
+                    decimalDigits.push(digit);
+                } else {
+                    // ensure different digit
+                    let d;
+                    do {
+                        d = Math.floor(Math.random() * 10);
+                    } while (d === digit);
+                    decimalDigits.push(d);
+                }
             }
-
-            const index = validIndexes[Math.floor(Math.random() * validIndexes.length)];
-            const digit = decimalDigits[index];
 
             const number = `${integerPart}.${decimalDigits.join("")}`;
 
@@ -713,7 +732,7 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             const sumNumer = a + b;
 
             return {
-                latex: `\\frac{${a}}{${denom}} + \\frac{${b}}{${denom}} = ?\\\\\\text{(answer as a/b or a whole number)}`,
+                latex: `\\frac{${a}}{${denom}} + \\frac{${b}}{${denom}} = ?`,
                 answer: sumNumer === denom ? "1" : `${sumNumer}/${denom}`,
                 forceOption: 0,
             };
@@ -730,7 +749,7 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             const diffNumer = a - b;
 
             return {
-                latex: `\\frac{${a}}{${denom}} - \\frac{${b}}{${denom}} = ?\\\\\\text{(answer as a/b)}`,
+                latex: `\\frac{${a}}{${denom}} - \\frac{${b}}{${denom}} = ?`,
                 answer: `${diffNumer}/${denom}`,
                 forceOption: 0,
             };
@@ -760,7 +779,7 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             const ansDenom = commonDenom / g;
 
             return {
-                latex: `\\frac{${numer1}}{${base}} + \\frac{${numer2}}{${denom2}} = ?\\\\\\text{(answer as a/b or a whole number)}`,
+                latex: `\\frac{${numer1}}{${base}} + \\frac{${numer2}}{${denom2}} = ?`,
                 answer: ansDenom === 1 ? ansNumer.toString() : `${ansNumer}/${ansDenom}`,
                 forceOption: 0,
             };
@@ -794,7 +813,7 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             : [numer2, denom2, numer1, denom1];
 
         return {
-            latex: `\\frac{${n1}}{${d1}} ${op} \\frac{${n2}}{${d2}} = ?\\\\\\text{(answer as a/b or a whole number)}`,
+            latex: `\\frac{${n1}}{${d1}} ${op} \\frac{${n2}}{${d2}} = ?`,
             answer: ansDenom === 1 ? ansNumer.toString() : `${ansNumer}/${ansDenom}`,
             forceOption: 0,
         };
@@ -1064,8 +1083,1109 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
         };
 
     }, [1, 2, 3, 4]),
+    "length-mass-volume-time": createGenerator(({ difficulty }) => {
+        // ---------- DIFFICULTY 1: LENGTH ----------
+        if (difficulty === 1) {
+            const conversions = [
+                { from: "mm", to: "cm", factor: 0.1 },
+                { from: "cm", to: "mm", factor: 10 },
+                { from: "cm", to: "m", factor: 0.01 },
+                { from: "m", to: "cm", factor: 100 },
+                { from: "m", to: "km", factor: 0.001 },
+                { from: "km", to: "m", factor: 1000 },
+            ];
+
+            const c = conversions[Math.floor(Math.random() * conversions.length)];
+            const value = Math.floor(Math.random() * 100) + 1;
+
+            const correctValue = Number((value * c.factor).toFixed(2));
+            const unit = c.to;
+
+            const optionsSet = new Set<number>();
+            optionsSet.add(correctValue);
+
+            while (optionsSet.size < 4) {
+                const type = Math.floor(Math.random() * 3);
+                let wrong;
+
+                if (type === 0) wrong = correctValue + (Math.floor(Math.random() * 5) - 2);
+                else if (type === 1) wrong = Math.random() < 0.5 ? correctValue * 10 : correctValue / 10;
+                else wrong = correctValue + (Math.floor(Math.random() * 20) - 10);
+
+                if (wrong !== correctValue && Number.isFinite(wrong)) {
+                    optionsSet.add(Number(wrong.toFixed(2)));
+                }
+            }
+
+            const options = Array.from(optionsSet)
+                .map(x => `${x}${unit}`)
+                .sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `\\text{Convert } ${value}${c.from} \\text{ to } ${c.to}`,
+                answer: `${correctValue}${unit}`,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // ---------- DIFFICULTY 2: MASS ----------
+        if (difficulty === 2) {
+            const conversions = [
+                { from: "g", to: "kg", factor: 0.001 },
+                { from: "kg", to: "g", factor: 1000 },
+            ];
+
+            const c = conversions[Math.floor(Math.random() * conversions.length)];
+            const value = Math.floor(Math.random() * 1000) + 1;
+
+            const correctValue = Number((value * c.factor).toFixed(3));
+            const unit = c.to;
+
+            const optionsSet = new Set<number>();
+            optionsSet.add(correctValue);
+
+            while (optionsSet.size < 4) {
+                const type = Math.floor(Math.random() * 3);
+                let wrong;
+
+                if (type === 0) wrong = correctValue + (Math.floor(Math.random() * 5) - 2);
+                else if (type === 1) wrong = Math.random() < 0.5 ? correctValue * 10 : correctValue / 10;
+                else wrong = correctValue + (Math.floor(Math.random() * 20) - 10);
+
+                if (wrong !== correctValue && Number.isFinite(wrong)) {
+                    optionsSet.add(Number(wrong.toFixed(3)));
+                }
+            }
+
+            const options = Array.from(optionsSet)
+                .map(x => `${x}${unit}`)
+                .sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `\\text{Convert } ${value}${c.from} \\text{ to } ${c.to}`,
+                answer: `${correctValue}${unit}`,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // ---------- DIFFICULTY 3: 12h ↔ 24h ----------
+        if (difficulty === 3) {
+
+            if (Math.random() < 0.5) {
+                // 12 → 24
+                const hour = Math.floor(Math.random() * 12) + 1;
+                const minute = Math.floor(Math.random() * 60);
+                const isPM = Math.random() < 0.5;
+
+                const minStr = minute.toString().padStart(2, "0");
+
+                let h24 = hour % 12;
+                if (isPM) h24 += 12;
+
+                const correct = `${h24.toString().padStart(2, "0")}:${minStr}`;
+
+                const optionsSet = new Set<string>();
+                optionsSet.add(correct);
+
+                while (optionsSet.size < 4) {
+                    let nh = (h24 + (Math.floor(Math.random() * 3) - 1) + 24) % 24;
+                    let nm = minute + (Math.floor(Math.random() * 3) - 1) * 5;
+
+                    if (nm < 0) { nm += 60; nh = (nh - 1 + 24) % 24; }
+                    if (nm >= 60) { nm -= 60; nh = (nh + 1) % 24; }
+
+                    const wrong = `${nh.toString().padStart(2, "0")}:${nm.toString().padStart(2, "0")}`;
+                    if (wrong !== correct) optionsSet.add(wrong);
+                }
+
+                const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+                return {
+                    latex: `\\text{Convert } ${hour}:${minStr} ${isPM ? "PM" : "AM"} \\text{ to 24-hour time}`,
+                    answer: correct,
+                    options,
+                    forceOption: 0,
+                };
+
+            } else {
+                // 24 → 12
+                const h24 = Math.floor(Math.random() * 24);
+                const minute = Math.floor(Math.random() * 60);
+
+                const minStr = minute.toString().padStart(2, "0");
+
+                const isPM = h24 >= 12;
+                let h12 = h24 % 12;
+                if (h12 === 0) h12 = 12;
+
+                const correct = `${h12}:${minStr} ${isPM ? "PM" : "AM"}`;
+
+                const optionsSet = new Set<string>();
+                optionsSet.add(correct);
+
+                while (optionsSet.size < 4) {
+                    const h = Math.floor(Math.random() * 12) + 1;
+                    const m = Math.floor(Math.random() * 60);
+                    const pm = Math.random() < 0.5;
+
+                    const wrong = `${h}:${m.toString().padStart(2, "0")} ${pm ? "PM" : "AM"}`;
+                    if (wrong !== correct) optionsSet.add(wrong);
+                }
+
+                const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+                return {
+                    latex: `\\text{Convert } ${h24.toString().padStart(2, "0")}:${minStr} \\text{ to 12-hour time}`,
+                    answer: correct,
+                    options,
+                    forceOption: 0,
+                };
+            }
+        }
+
+        // ---------- DIFFICULTY 4: ADD TIME ----------
+        if (difficulty === 4) {
+            const hour = Math.floor(Math.random() * 24);
+            const minute = Math.floor(Math.random() * 60);
+
+            const addH = Math.floor(Math.random() * 5);
+            const addM = Math.floor(Math.random() * 60);
+
+            let total = hour * 60 + minute + addH * 60 + addM;
+            total %= (24 * 60);
+
+            const h = Math.floor(total / 60);
+            const m = total % 60;
+
+            const correct = `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
+
+            const optionsSet = new Set<string>();
+            optionsSet.add(correct);
+
+            while (optionsSet.size < 4) {
+                let nh = (h + (Math.floor(Math.random() * 3) - 1) + 24) % 24;
+                let nm = m + (Math.floor(Math.random() * 3) - 1) * 5;
+
+                if (nm < 0) { nm += 60; nh = (nh - 1 + 24) % 24; }
+                if (nm >= 60) { nm -= 60; nh = (nh + 1) % 24; }
+
+                const wrong = `${nh.toString().padStart(2, "0")}:${nm.toString().padStart(2, "0")}`;
+                if (wrong !== correct) optionsSet.add(wrong);
+            }
+
+            const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `\\text{What is } ${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")} + ${addH}\\text{h } ${addM}\\text{m?}`,
+                answer: correct,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // ---------- DIFFICULTY 5: VOLUME ----------
+        const l = Math.floor(Math.random() * 10) + 1;
+        const w = Math.floor(Math.random() * 10) + 1;
+        const h = Math.floor(Math.random() * 10) + 1;
+
+        const correctValue = l * w * h;
+        const unit = "cm^3";
+
+        const optionsSet = new Set<number>();
+        optionsSet.add(correctValue);
+
+        while (optionsSet.size < 4) {
+            const type = Math.floor(Math.random() * 3);
+            let wrong;
+
+            if (type === 0) wrong = l * w + h;
+            else if (type === 1) wrong = l + w + h;
+            else wrong = correctValue + (Math.floor(Math.random() * 20) - 10);
+
+            if (wrong !== correctValue) optionsSet.add(wrong);
+        }
+
+        const options = Array.from(optionsSet)
+            .map(x => `${x}${unit}`)
+            .sort(() => Math.random() - 0.5);
+
+        return {
+            latex: `\\text{Find the volume of a cuboid with dimensions } ${l}cm, ${w}cm, ${h}cm`,
+            answer: `${correctValue}${unit}`,
+            options,
+            forceOption: 0,
+        };
 
 
+    }, [1, 2, 3, 4, 5]),
+    "units": createGenerator(({ difficulty }) => {
+        // ---------- DIFFICULTY 1: CHOOSE SENSIBLE UNIT ----------
+        if (difficulty === 1) {
+            const questions = [
+                // --- LENGTH ---
+                {
+                    latex: `\\text{Which is the most sensible unit to measure the length of a pencil?}`,
+                    correct: "cm",
+                    options: ["mm", "cm", "m", "km"],
+                },
+                {
+                    latex: `\\text{Which is the most sensible unit to measure the height of a person?}`,
+                    correct: "m",
+                    options: ["mm", "cm", "m", "km"],
+                },
+                {
+                    latex: `\\text{Which is the most sensible unit to measure the length of a football pitch?}`,
+                    correct: "m",
+                    options: ["cm", "m", "km", "mm"],
+                },
+                {
+                    latex: `\\text{Which is the most sensible unit to measure the distance between two cities?}`,
+                    correct: "km",
+                    options: ["m", "cm", "mm", "km"],
+                },
+                {
+                    latex: `\\text{Which is the most sensible unit to measure the thickness of a coin?}`,
+                    correct: "mm",
+                    options: ["mm", "cm", "m", "km"],
+                },
+
+                // --- MASS ---
+                {
+                    latex: `\\text{Which is the most sensible unit to measure the mass of a person?}`,
+                    correct: "kg",
+                    options: ["g", "kg", "mg", "tonnes"],
+                },
+                {
+                    latex: `\\text{Which is the most sensible unit to measure the mass of a bag of sugar?}`,
+                    correct: "kg",
+                    options: ["mg", "g", "kg", "tonnes"],
+                },
+                {
+                    latex: `\\text{Which is the most sensible unit to measure the mass of a paperclip?}`,
+                    correct: "g",
+                    options: ["mg", "g", "kg", "tonnes"],
+                },
+                {
+                    latex: `\\text{Which is the most sensible unit to measure the mass of a lorry?}`,
+                    correct: "tonnes",
+                    options: ["g", "kg", "mg", "tonnes"],
+                },
+                {
+                    latex: `\\text{Which is the most sensible unit to measure the mass of a tablet?}`,
+                    correct: "mg",
+                    options: ["mg", "g", "kg", "tonnes"],
+                },
+
+                // --- VOLUME ---
+                {
+                    latex: `\\text{Which is the most sensible unit to measure the volume of a drink?}`,
+                    correct: "ml",
+                    options: ["ml", "litres", "cm^3", "m^3"],
+                },
+                {
+                    latex: `\\text{Which is the most sensible unit to measure the capacity of a water bottle?}`,
+                    correct: "litres",
+                    options: ["ml", "litres", "m^3", "cm^3"],
+                },
+                {
+                    latex: `\\text{Which is the most sensible unit to measure the volume of a swimming pool?}`,
+                    correct: "m^3",
+                    options: ["ml", "litres", "cm^3", "m^3"],
+                },
+                {
+                    latex: `\\text{Which is the most sensible unit to measure the volume of a small cube?}`,
+                    correct: "cm^3",
+                    options: ["ml", "litres", "cm^3", "m^3"],
+                },
+
+                // --- TIME ---
+                {
+                    latex: `\\text{Which is the most sensible unit to measure a journey time?}`,
+                    correct: "hours",
+                    options: ["seconds", "minutes", "hours", "milliseconds"],
+                },
+                {
+                    latex: `\\text{Which is the most sensible unit to measure how long a lesson lasts?}`,
+                    correct: "minutes",
+                    options: ["seconds", "minutes", "hours", "days"],
+                },
+                {
+                    latex: `\\text{Which is the most sensible unit to measure how long it takes to blink?}`,
+                    correct: "seconds",
+                    options: ["seconds", "minutes", "hours", "days"],
+                },
+                {
+                    latex: `\\text{Which is the most sensible unit to measure how long a movie lasts?}`,
+                    correct: "hours",
+                    options: ["seconds", "minutes", "hours", "milliseconds"],
+                },
+
+                // --- MONEY ---
+                {
+                    latex: `\\text{Which is the most sensible unit to measure the price of a chocolate bar?}`,
+                    correct: ["£", "$", "€", "¥"],
+                    options: ["mm", "£", "kg", "cm"],
+                },
+                {
+                    latex: `\\text{Which is the most sensible unit to measure the price of a car?}`,
+                    correct: ["£", "$", "€", "¥"],
+                    options: ["mm", "£", "kg", "m"],
+                },
+                {
+                    latex: `\\text{Which is the most sensible unit to measure the cost of a table?}`,
+                    correct: ["£", "$", "€", "¥"],
+                    options: ["mm", "£", "kg", "cm"],
+                },
+            ];
+
+            const q = questions[Math.floor(Math.random() * questions.length)];
+
+            const options = [...q.options].sort(() => Math.random() - 0.5);
+
+            return {
+                latex: q.latex,
+                answer: q.correct,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // ---------- DIFFICULTY 2: SIMPLE CONVERSIONS ----------
+        if (difficulty === 2) {
+            const conversions = [
+                { from: "cm", to: "m", factor: 0.01 },
+                { from: "m", to: "cm", factor: 100 },
+                { from: "g", to: "kg", factor: 0.001 },
+                { from: "kg", to: "g", factor: 1000 },
+            ];
+
+            const c = conversions[Math.floor(Math.random() * conversions.length)];
+            const value = Math.floor(Math.random() * 100) + 1;
+
+            const correctValue = Number((value * c.factor).toFixed(2));
+            const correct = `${correctValue}${c.to}`;
+
+            const optionsSet = new Set<string>();
+            optionsSet.add(correct);
+
+            while (optionsSet.size < 4) {
+                let wrongVal;
+
+                const type = Math.floor(Math.random() * 3);
+
+                if (type === 0) wrongVal = correctValue * 10;
+                else if (type === 1) wrongVal = correctValue / 10;
+                else wrongVal = correctValue + (Math.floor(Math.random() * 10) - 5);
+
+                const wrong = `${Number(wrongVal.toFixed(2))}${c.to}`;
+                if (wrong !== correct) optionsSet.add(wrong);
+            }
+
+            const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `\\text{Convert } ${value}${c.from} \\text{ to } ${c.to}`,
+                answer: correct,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // ---------- DIFFICULTY 3: MONEY ----------
+        if (difficulty === 3) {
+            const pounds = Math.floor(Math.random() * 20) + 1;
+            const pence = Math.floor(Math.random() * 100);
+
+            if (Math.random() < 0.5) {
+                // £ → p
+                const total = pounds * 100 + pence;
+                const correct = `${total}p`;
+
+                const optionsSet = new Set<string>();
+                optionsSet.add(correct);
+
+                while (optionsSet.size < 4) {
+                    const wrong = total + (Math.floor(Math.random() * 50) - 25);
+                    const str = `${wrong}p`;
+                    if (str !== correct) optionsSet.add(str);
+                }
+
+                const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+                return {
+                    latex: `\\text{Convert } £${pounds}.${pence.toString().padStart(2,"0")} \\text{ to pence}`,
+                    answer: correct,
+                    options,
+                    forceOption: 0,
+                };
+
+            } else {
+                // p → £
+                const total = Math.floor(Math.random() * 2000) + 1;
+
+                const correct = `£${(total / 100).toFixed(2)}`;
+
+                const optionsSet = new Set<string>();
+                optionsSet.add(correct);
+
+                while (optionsSet.size < 4) {
+                    const wrong = total + (Math.floor(Math.random() * 50) - 25);
+                    const str = `£${(wrong / 100).toFixed(2)}`;
+                    if (str !== correct) optionsSet.add(str);
+                }
+
+                const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+                return {
+                    latex: `\\text{Convert } ${total}p \\text{ to pounds}`,
+                    answer: correct,
+                    options,
+                    forceOption: 0,
+                };
+            }
+        }
+
+        // ---------- DIFFICULTY 4: MULTI-STEP / MIXED ----------
+        if (difficulty === 4) {
+            if (Math.random() < 0.5) {
+                // litres → millilitres
+                const value = Math.floor(Math.random() * 5) + 1;
+
+                const correctValue = value * 1000;
+                const correct = `${correctValue}ml`;
+
+                const optionsSet = new Set<string>();
+                optionsSet.add(correct);
+
+                while (optionsSet.size < 4) {
+                    let wrongVal;
+
+                    const type = Math.floor(Math.random() * 3);
+
+                    if (type === 0) wrongVal = correctValue * 10;
+                    else if (type === 1) wrongVal = correctValue / 10;
+                    else wrongVal = correctValue + (Math.floor(Math.random() * 500) - 250);
+
+                    const wrong = `${Math.round(wrongVal)}ml`;
+                    if (wrong !== correct && wrongVal > 0) optionsSet.add(wrong);
+                }
+
+                const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+                return {
+                    latex: `\\text{Convert } ${value}\\text{ litres to millilitres}`,
+                    answer: correct,
+                    options,
+                    forceOption: 0,
+                };
+
+            } else {
+                // millilitres → litres
+                const value = (Math.floor(Math.random() * 5) + 1) * 1000;
+
+                const correctValue = value / 1000;
+                const correct = `${correctValue}litres`;
+
+                const optionsSet = new Set<string>();
+                optionsSet.add(correct);
+
+                while (optionsSet.size < 4) {
+                    let wrongVal;
+
+                    const type = Math.floor(Math.random() * 3);
+
+                    if (type === 0) wrongVal = correctValue * 10;
+                    else if (type === 1) wrongVal = correctValue / 10;
+                    else wrongVal = correctValue + (Math.floor(Math.random() * 5) - 2);
+
+                    const wrong = `${Number(wrongVal.toFixed(2))}litres`;
+                    if (wrong !== correct && wrongVal > 0) optionsSet.add(wrong);
+                }
+
+                const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+                return {
+                    latex: `\\text{Convert } ${value}\\text{ ml to litres}`,
+                    answer: correct,
+                    options,
+                    forceOption: 0,
+                };
+            }
+        }
+
+
+        const units = [
+            { name: "m", toMeters: 1 },
+            { name: "km", toMeters: 1000 },
+            { name: "miles", toMeters: 1600 }, // using 1 mile ≈ 1600 m
+        ];
+
+        // pick different units
+        let from = units[Math.floor(Math.random() * units.length)];
+        let to = units[Math.floor(Math.random() * units.length)];
+
+        while (to.name === from.name) {
+            to = units[Math.floor(Math.random() * units.length)];
+        }
+
+        // generate value (avoid awkward decimals for miles)
+        let value;
+        if (from.name === "m") value = Math.floor(Math.random() * 5000) + 100;
+        else if (from.name === "km") value = Math.floor(Math.random() * 10) + 1;
+        else value = Math.floor(Math.random() * 5) + 1; // miles
+
+        // convert → meters → target
+        const valueInMeters = value * from.toMeters;
+        const correctValueRaw = valueInMeters / to.toMeters;
+
+        // clean formatting
+        const correctValue = Number(correctValueRaw.toFixed(2));
+        const correct = `${correctValue}${to.name}`;
+
+        // distractors
+        const optionsSet = new Set<string>();
+        optionsSet.add(correct);
+
+        while (optionsSet.size < 4) {
+            let wrongVal;
+
+            const type = Math.floor(Math.random() * 3);
+
+            if (type === 0) wrongVal = correctValue * 10;
+            else if (type === 1) wrongVal = correctValue / 10;
+            else wrongVal = correctValue + (Math.random() * 4 - 2);
+
+            const rounded = Number(wrongVal.toFixed(2));
+
+            if (rounded > 0) {
+                const wrong = `${rounded}${to.name}`;
+                if (wrong !== correct) optionsSet.add(wrong);
+            }
+        }
+
+        const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+        // build latex (include mile info if needed)
+        let latex;
+
+        if (from.name === "miles" || to.name === "miles") {
+            latex = `\\text{1 mile} = 1.600\\text{ km. } \\text{Convert } ${value}\\text{ ${from.name} to ${to.name}}`;
+        } else {
+            latex = `\\text{Convert } ${value}\\text{ ${from.name} to ${to.name}}`;
+        }
+
+        return {
+            latex,
+            answer: correct,
+            options,
+            forceOption: 0,
+        };
+
+
+    }, [1, 2, 3, 4, 5]),
+    "reading-clocks": createGenerator(({ difficulty }) => {
+        // ---------- DIFFICULTY 1: WORDS → TIME ----------
+        if (difficulty === 1) {
+            const hour = Math.floor(Math.random() * 12) + 1;
+            const minute = Math.floor(Math.random() * 12) * 5;
+
+            let text;
+
+            if (minute === 0) {
+                text = `${hour} \\ o'clock`;
+            } else if (minute === 15) {
+                text = `quarter \\ past \\ ${hour}`;
+            } else if (minute === 30) {
+                text = `half \\ past \\ ${hour}`;
+            } else if (minute === 45) {
+                text = `quarter \\ to \\ ${hour === 12 ? 1 : hour + 1}`;
+            } else if (minute < 30) {
+                text = `${minute}\\ past \\ ${hour}`;
+            } else {
+                text = `${60 - minute} \\ to \\ ${hour === 12 ? 1 : hour + 1}`;
+            }
+
+            const correct = `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`;
+
+            const optionsSet = new Set<string>();
+            optionsSet.add(correct);
+
+            while (optionsSet.size < 4) {
+                const h = Math.floor(Math.random() * 12) + 1;
+                const m = Math.floor(Math.random() * 12) * 5;
+
+                const wrong = `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
+                if (wrong !== correct) optionsSet.add(wrong);
+            }
+
+            const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `\\text{Write the time } "${text}" \\text{ in digital format}`,
+                answer: correct,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        throw new Error(`Unhandled difficulty: ${difficulty}`);
+
+    }, [1]),
+    "money-calculations": createGenerator(({ difficulty }) => {
+        // helper inline formatter (no function, just reuse pattern)
+        const format = (v: number) => `£${v.toFixed(2)}`;
+
+        // ---------- DIFFICULTY 1: ADD SIMPLE AMOUNTS ----------
+        if (difficulty === 1) {
+            const a = (Math.floor(Math.random() * 500) + 50) / 100;
+            const b = (Math.floor(Math.random() * 500) + 50) / 100;
+
+            const correctValue = a + b;
+            const correct = format(correctValue);
+
+            const optionsSet = new Set<string>();
+            optionsSet.add(correct);
+
+            while (optionsSet.size < 4) {
+                let wrong;
+
+                const type = Math.floor(Math.random() * 3);
+
+                if (type === 0) wrong = correctValue + 1;
+                else if (type === 1) wrong = correctValue - 1;
+                else wrong = correctValue + (Math.random() - 0.5);
+
+                const val = Number(wrong.toFixed(2));
+                if (val > 0) optionsSet.add(format(val));
+            }
+
+            const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `\\text{What is } £${a.toFixed(2)} + £${b.toFixed(2)}?`,
+                answer: correct,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // ---------- DIFFICULTY 2: MONEY - SUBTRACTION & CHANGE ----------
+        if (difficulty === 2) {
+
+            const format = (v: number) => `£${v.toFixed(2)}`;
+
+            const type = Math.random() < 0.5 ? "left" : "change";
+
+            // ---------- CASE 1: MONEY LEFT ----------
+            if (type === "left") {
+                const total = (Math.floor(Math.random() * 1000) + 200) / 100;
+                const spend = (Math.floor(Math.random() * (total * 100 - 50)) + 50) / 100;
+
+                const correctValue = total - spend;
+                const correct = format(correctValue);
+
+                const optionsSet = new Set<string>();
+                optionsSet.add(correct);
+
+                while (optionsSet.size < 4) {
+                    let wrong;
+
+                    const t = Math.floor(Math.random() * 3);
+
+                    if (t === 0) wrong = correctValue + 1;
+                    else if (t === 1) wrong = correctValue - 1;
+                    else wrong = correctValue + (Math.random() - 0.5);
+
+                    const val = Number(wrong.toFixed(2));
+                    if (val > 0) optionsSet.add(format(val));
+                }
+
+                const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+                return {
+                    latex: `\\text{You have } £${total.toFixed(2)} \\text{ and spend } £${spend.toFixed(2)}. \\text{ How much is left?}`,
+                    answer: correct,
+                    options,
+                    forceOption: 0,
+                };
+            }
+
+            // ---------- CASE 2: FIND CHANGE ----------
+            const cost = (Math.floor(Math.random() * 800) + 50) / 100;
+
+            const paidOptions = [1, 2, 5, 10, 20];
+            const paid = paidOptions.find(p => p > cost) || 10;
+
+            const correctValue = paid - cost;
+            const correct = format(correctValue);
+
+            const optionsSet = new Set<string>();
+            optionsSet.add(correct);
+
+            while (optionsSet.size < 4) {
+                let wrong;
+
+                const t = Math.floor(Math.random() * 3);
+
+                if (t === 0) wrong = correctValue + 1;
+                else if (t === 1) wrong = correctValue - 1;
+                else wrong = correctValue + (Math.random() - 0.5);
+
+                const val = Number(wrong.toFixed(2));
+                if (val >= 0) optionsSet.add(format(val));
+            }
+
+            const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `\\text{An item costs } £${cost.toFixed(2)} \\text{ and you pay } £${paid}. \\text{ How much change do you get?}`,
+                answer: correct,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // ---------- DIFFICULTY 3: MULTI-ITEM TOTAL ----------
+        if (difficulty === 3) {
+            const a = (Math.floor(Math.random() * 400) + 50) / 100;
+            const b = (Math.floor(Math.random() * 400) + 50) / 100;
+            const c = (Math.floor(Math.random() * 400) + 50) / 100;
+
+            const correctValue = a + b + c;
+            const correct = format(correctValue);
+
+            const optionsSet = new Set<string>();
+            optionsSet.add(correct);
+
+            while (optionsSet.size < 4) {
+                let wrong;
+
+                const type = Math.floor(Math.random() * 3);
+
+                if (type === 0) wrong = correctValue + 1;
+                else if (type === 1) wrong = correctValue - 1;
+                else wrong = correctValue + (Math.random() - 0.5);
+
+                const val = Number(wrong.toFixed(2));
+                if (val > 0) optionsSet.add(format(val));
+            }
+
+            const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `\\text{A sandwich costs } £${a.toFixed(2)}, \\text{ a drink } £${b.toFixed(2)}, \\text{ and a snack } £${c.toFixed(2)}. \\text{ What is the total cost?}`,
+                answer: correct,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // ---------- DIFFICULTY 4: MULTI-STEP CHANGE ----------
+        if (difficulty === 4) {
+            const a = (Math.floor(Math.random() * 400) + 50) / 100;
+            const b = (Math.floor(Math.random() * 400) + 50) / 100;
+
+            const total = a + b;
+            const paidOptions = [5, 10, 20];
+
+            const paid = paidOptions.find(p => p > total) || 10;
+
+            const correctValue = paid - total;
+            const correct = format(correctValue);
+
+            const optionsSet = new Set<string>();
+            optionsSet.add(correct);
+
+            while (optionsSet.size < 4) {
+                let wrong;
+
+                const type = Math.floor(Math.random() * 3);
+
+                if (type === 0) wrong = correctValue + 1;
+                else if (type === 1) wrong = correctValue - 1;
+                else wrong = correctValue + (Math.random() - 0.5);
+
+                const val = Number(wrong.toFixed(2));
+                if (val >= 0) optionsSet.add(format(val));
+            }
+
+            const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `\\text{You buy items costing } £${a.toFixed(2)} \\text{ and } £${b.toFixed(2)}. \\text{ You pay } £${paid}. \\text{ How much change do you get?}`,
+                answer: correct,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        throw new Error(`Unhandled difficulty: ${difficulty}`);
+
+    }, [1, 2, 3, 4]),
+    "perimeter-and-area": createGenerator(({ difficulty }) => {
+        // ---------- DIFFICULTY 1: PERIMETER (SQUARE/RECTANGLE) ----------
+        if (difficulty === 1) {
+            const isSquare = Math.random() < 0.5;
+
+            if (isSquare) {
+                const side = Math.floor(Math.random() * 10) + 1;
+                const correct = `${4 * side}cm`;
+
+                const optionsSet = new Set<string>();
+                optionsSet.add(correct);
+
+                while (optionsSet.size < 4) {
+                    const wrongVal = (4 * side) + (Math.floor(Math.random() * 10) - 5);
+                    const wrong = `${wrongVal}cm`;
+                    if (wrong !== correct && wrongVal > 0) optionsSet.add(wrong);
+                }
+
+                const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+                return {
+                    latex: `\\text{Find the perimeter of a square with side } ${side}cm`,
+                    answer: correct,
+                    options,
+                    forceOption: 0,
+                };
+            } else {
+                const l = Math.floor(Math.random() * 10) + 1;
+                const w = Math.floor(Math.random() * 10) + 1;
+
+                const correct = `${2 * (l + w)}cm`;
+
+                const optionsSet = new Set<string>();
+                optionsSet.add(correct);
+
+                while (optionsSet.size < 4) {
+                    const wrongVal = 2 * (l + w) + (Math.floor(Math.random() * 10) - 5);
+                    const wrong = `${wrongVal}cm`;
+                    if (wrong !== correct && wrongVal > 0) optionsSet.add(wrong);
+                }
+
+                const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+                return {
+                    latex: `\\text{Find the perimeter of a rectangle with length } ${l}cm \\text{ and width } ${w}cm`,
+                    answer: correct,
+                    options,
+                    forceOption: 0,
+                };
+            }
+        }
+
+        // ---------- DIFFICULTY 2: AREA (SQUARE/RECTANGLE) ----------
+        if (difficulty === 2) {
+            const isSquare = Math.random() < 0.5;
+
+            if (isSquare) {
+                const side = Math.floor(Math.random() * 10) + 1;
+                const correct = `${side * side}cm^2`;
+
+                const optionsSet = new Set<string>();
+                optionsSet.add(correct);
+
+                while (optionsSet.size < 4) {
+                    const wrongVal = (side * side) + (Math.floor(Math.random() * 10) - 5);
+                    const wrong = `${wrongVal}cm^2`;
+                    if (wrong !== correct && wrongVal > 0) optionsSet.add(wrong);
+                }
+
+                const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+                return {
+                    latex: `\\text{Find the area of a square with side } ${side}cm`,
+                    answer: correct,
+                    options,
+                    forceOption: 0,
+                };
+            } else {
+                const l = Math.floor(Math.random() * 10) + 1;
+                const w = Math.floor(Math.random() * 10) + 1;
+
+                const correct = `${l * w}cm^2`;
+
+                const optionsSet = new Set<string>();
+                optionsSet.add(correct);
+
+                while (optionsSet.size < 4) {
+                    const wrongVal = (l * w) + (Math.floor(Math.random() * 10) - 5);
+                    const wrong = `${wrongVal}cm^2`;
+                    if (wrong !== correct && wrongVal > 0) optionsSet.add(wrong);
+                }
+
+                const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+                return {
+                    latex: `\\text{Find the area of a rectangle with length } ${l}cm \\text{ and width } ${w}cm`,
+                    answer: correct,
+                    options,
+                    forceOption: 0,
+                };
+            }
+        }
+
+        // ---------- DIFFICULTY 3: REVERSE (FIND MISSING SIDE FROM PERIMETER) ----------
+        if (difficulty === 3) {
+            const isSquare = Math.random() < 0.5;
+
+            if (isSquare) {
+                const side = Math.floor(Math.random() * 10) + 1;
+                const perimeter = 4 * side;
+
+                const correct = `${side}cm`;
+
+                const optionsSet = new Set<string>();
+                optionsSet.add(correct);
+
+                while (optionsSet.size < 4) {
+                    const wrongVal = side + (Math.floor(Math.random() * 5) - 2);
+                    const wrong = `${wrongVal}cm`;
+                    if (wrong !== correct && wrongVal > 0) optionsSet.add(wrong);
+                }
+
+                const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+                return {
+                    latex: `\\text{A square has perimeter } ${perimeter}cm. \\text{ Find the side length.}`,
+                    answer: correct,
+                    options,
+                    forceOption: 0,
+                };
+            } else {
+                const l = Math.floor(Math.random() * 10) + 1;
+                const w = Math.floor(Math.random() * 10) + 1;
+
+                const perimeter = 2 * (l + w);
+
+                const correct = `${l}cm`;
+
+                const optionsSet = new Set<string>();
+                optionsSet.add(correct);
+
+                while (optionsSet.size < 4) {
+                    const wrongVal = l + (Math.floor(Math.random() * 5) - 2);
+                    const wrong = `${wrongVal}cm`;
+                    if (wrong !== correct && wrongVal > 0) optionsSet.add(wrong);
+                }
+
+                const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+                return {
+                    latex: `\\text{A rectangle has perimeter } ${perimeter}cm \\text{ and width } ${w}cm. \\text{ Find the length.}`,
+                    answer: correct,
+                    options,
+                    forceOption: 0,
+                };
+            }
+        }
+
+        // ---------- DIFFICULTY 4: REVERSE AREA ----------
+        if (difficulty === 4) {
+            const isSquare = Math.random() < 0.5;
+
+            if (isSquare) {
+                const side = Math.floor(Math.random() * 10) + 1;
+                const area = side * side;
+
+                const correct = `${side}cm`;
+
+                const optionsSet = new Set<string>();
+                optionsSet.add(correct);
+
+                while (optionsSet.size < 4) {
+                    const wrongVal = side + (Math.floor(Math.random() * 5) - 2);
+                    const wrong = `${wrongVal}cm`;
+                    if (wrong !== correct && wrongVal > 0) optionsSet.add(wrong);
+                }
+
+                const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+                return {
+                    latex: `\\text{A square has area } ${area}cm^2. \\text{ Find the side length.}`,
+                    answer: correct,
+                    options,
+                    forceOption: 0,
+                };
+            } else {
+                const l = Math.floor(Math.random() * 10) + 1;
+                const w = Math.floor(Math.random() * 10) + 1;
+
+                const area = l * w;
+
+                const correct = `${l}cm`;
+
+                const optionsSet = new Set<string>();
+                optionsSet.add(correct);
+
+                while (optionsSet.size < 4) {
+                    const wrongVal = l + (Math.floor(Math.random() * 5) - 2);
+                    const wrong = `${wrongVal}cm`;
+                    if (wrong !== correct && wrongVal > 0) optionsSet.add(wrong);
+                }
+
+                const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+                return {
+                    latex: `\\text{A rectangle has area } ${area}cm^2 \\text{ and width } ${w}cm. \\text{ Find the length.}`,
+                    answer: correct,
+                    options,
+                    forceOption: 0,
+                };
+            }
+        }
+
+        // ---------- DIFFICULTY 5: MIXED PROBLEM ----------
+        const l = Math.floor(Math.random() * 10) + 2;
+        const w = Math.floor(Math.random() * 10) + 2;
+
+        const type = Math.random() < 0.5 ? "area" : "perimeter";
+
+        if (type === "area") {
+            const correct = `${l * w}cm^2`;
+
+            const optionsSet = new Set<string>();
+            optionsSet.add(correct);
+
+            while (optionsSet.size < 4) {
+                const wrongVal = (l * w) + (Math.floor(Math.random() * 10) - 5);
+                const wrong = `${wrongVal}cm^2`;
+                if (wrong !== correct && wrongVal > 0) optionsSet.add(wrong);
+            }
+
+            const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `\\text{Find the area of a rectangle with length } ${l}cm \\text{ and width } ${w}cm`,
+                answer: correct,
+                options,
+                forceOption: 0,
+            };
+        } else {
+            const correct = `${2 * (l + w)}cm`;
+
+            const optionsSet = new Set<string>();
+            optionsSet.add(correct);
+
+            while (optionsSet.size < 4) {
+                const wrongVal = 2 * (l + w) + (Math.floor(Math.random() * 10) - 5);
+                const wrong = `${wrongVal}cm`;
+                if (wrong !== correct && wrongVal > 0) optionsSet.add(wrong);
+            }
+
+            const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `\\text{Find the perimeter of a rectangle with length } ${l}cm \\text{ and width } ${w}cm`,
+                answer: correct,
+                options,
+                forceOption: 0,
+            };
+        }
+
+    }, [1, 2, 3, 4, 5]),
 
     "missing-numbers": createGenerator(({ difficulty }) => {
         if (difficulty === 1) {
