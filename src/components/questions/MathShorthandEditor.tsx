@@ -197,7 +197,7 @@ function renderLaTeX(nodes: MathNode[]): string {
         .map((node) => {
             switch (node.type) {
                 case "text":
-                    return node.value.replace(/([_^{}])/g, "\\$1");
+                    return node.value.replace(/([_^%{}])/g, "\\$1");
                 case "symbol":
                     return node.latex;
                 case "group":
@@ -217,6 +217,10 @@ function renderLaTeX(nodes: MathNode[]): string {
             }
         })
         .join("");
+}
+
+export function shorthandToLatex(value: string): string {
+    return renderLaTeX(parseMathExpression(value));
 }
 
 function findFractionTabTarget(nodes: MathNode[], cursor: number): number | null {

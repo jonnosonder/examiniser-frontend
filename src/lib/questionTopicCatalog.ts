@@ -108,7 +108,7 @@ export const QUESTION_CATALOG: Record<QuestionLevel, MainTopicDef[]> = {
             titleKey: "secondary-topics.number",
             descriptionKey: "descriptions.secondary.number",
             subtopics: [
-                { slug: "integers", titleKey: "secondary-subtopics.integers", descriptionKey: "descriptions.secondarySub.number.integers" },
+                { slug: "negative-integers", titleKey: "secondary-subtopics.negative-integers", descriptionKey: "descriptions.secondarySub.number.negative-integers" },
                 { slug: "factors-multiples-primes", titleKey: "secondary-subtopics.factors-multiples-primes", descriptionKey: "descriptions.secondarySub.number.factors-multiples-primes" },
                 { slug: "lcm-hcf", titleKey: "secondary-subtopics.lcm-hcf", descriptionKey: "descriptions.secondarySub.number.lcm-hcf" },
                 { slug: "powers-and-roots", titleKey: "secondary-subtopics.powers-and-roots", descriptionKey: "descriptions.secondarySub.number.powers-and-roots" },

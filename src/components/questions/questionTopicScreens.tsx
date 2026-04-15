@@ -9,7 +9,7 @@ import { BlockMath } from "react-katex";
 import "katex/dist/katex.min.css";
 import { Locale } from "@/lib/locales";
 import SidePanel from "@/components/questions/sidePanel";
-import MathShorthandEditor from "@/components/questions/MathShorthandEditor";
+import MathShorthandEditor, { shorthandToLatex } from "@/components/questions/MathShorthandEditor";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { buildQuestionNavButtons } from "@/lib/questionTopicNav";
@@ -263,6 +263,26 @@ export function QuestionSubtopicLeaf({
     }, [selectedDifficulty]);
 
     const levels = availableLevels;
+
+    const renderOptionLabel = React.useCallback((option: string) => {
+        const parts = option.split(",").map((part) => part.trim()).filter(Boolean);
+        if (parts.length <= 1) {
+            return <BlockMath math={shorthandToLatex(option)} />;
+        }
+
+        return (
+            <span className="inline-flex flex-wrap items-center gap-1">
+                {parts.map((part, index) => (
+                    <React.Fragment key={`${option}-${index}`}>
+                        <span className="inline-flex items-center">
+                            <BlockMath math={shorthandToLatex(part)} />
+                        </span>
+                        {index < parts.length - 1 ? <span className="text-base text-primary">,</span> : null}
+                    </React.Fragment>
+                ))}
+            </span>
+        );
+    }, []);
 
     const keyboardButtons = React.useMemo(
         () => [
@@ -594,7 +614,7 @@ export function QuestionSubtopicLeaf({
                                                         }
                                                         `}
                                                     >
-                                                        {option}
+                                                        {renderOptionLabel(option)}
                                                     </button>
                                                 ))}
                                             </div>

@@ -651,7 +651,6 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             };
         }
 
-        // difficulty === 4: Order fractions with different denominators (use 2, 4, 8 family or 3, 6)
         const families = [[2, 4, 8], [3, 6, 12], [2, 5, 10]];
         const family = families[Math.floor(Math.random() * families.length)];
 
@@ -661,6 +660,8 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
         });
 
         const isAscending = Math.random() < 0.5;
+
+        // correct order
         const sorted = [...fractions].sort((a, b) =>
             isAscending
                 ? a.numer / a.denom - b.numer / b.denom
@@ -668,11 +669,39 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
         );
 
         const display = fractions.map(f => `\\frac{${f.numer}}{${f.denom}}`).join(", ");
-        const answer = sorted.map(f => `${f.numer}/${f.denom}`).join(",");
 
+        const correct = sorted.map(f => `${f.numer}/${f.denom}`).join(",");
+
+        // -----------------------------
+        // OPTIONS (PERMUTATIONS)
+        // -----------------------------
+        const permutations = new Set<string>();
+
+        // helper to shuffle array
+        const shuffle = (arr: typeof fractions) =>
+            [...arr].sort(() => Math.random() - 0.5);
+
+        // add correct answer
+        permutations.add(correct);
+
+        // generate distractors
+        while (permutations.size < 4) {
+            const shuffled = shuffle(fractions)
+                .map(f => `${f.numer}/${f.denom}`)
+                .join(",");
+
+            permutations.add(shuffled);
+        }
+
+        const options = Array.from(permutations).sort(() => Math.random() - 0.5);
+
+        // -----------------------------
+        // RETURN
+        // -----------------------------
         return {
             latex: `\\text{Sort in ${isAscending ? "ascending" : "descending"} order: } ${display}`,
-            answer,
+            answer: correct,
+            options,
             forceOption: 0,
         };
 
@@ -1085,37 +1114,90 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
         }
 
         if (difficulty === 3) {
-            // Convert between percentages, fractions, and decimals
+
             const commonValues = [
                 { percent: 10, fraction: "1/10", decimal: "0.1" },
-                { percent: 20, fraction: "1/5",  decimal: "0.2" },
-                { percent: 25, fraction: "1/4",  decimal: "0.25" },
-                { percent: 50, fraction: "1/2",  decimal: "0.5" },
-                { percent: 75, fraction: "3/4",  decimal: "0.75" },
+                { percent: 20, fraction: "1/5", decimal: "0.2" },
+                { percent: 25, fraction: "1/4", decimal: "0.25" },
+                { percent: 50, fraction: "1/2", decimal: "0.5" },
+                { percent: 75, fraction: "3/4", decimal: "0.75" },
             ];
 
             const val = commonValues[Math.floor(Math.random() * commonValues.length)];
-            const type = Math.floor(Math.random() * 3); // 0=fraction→%, 1=decimal→%, 2=%→fraction
+            const type = Math.floor(Math.random() * 3); // 0 frac→%, 1 dec→%, 2 %→frac
 
+            let latex = "";
+            let answer = "";
+
+            const optionsSet = new Set<string>();
+
+            // -----------------------------
+            // CASE 1: fraction → %
+            // -----------------------------
             if (type === 0) {
-                return {
-                    latex: `\\text{Write } ${val.fraction} \\text{ as a percentage.}`,
-                    answer: `${val.percent}%`,
-                    forceOption: 0,
-                };
-            } else if (type === 1) {
-                return {
-                    latex: `\\text{Write } ${val.decimal} \\text{ as a percentage.}`,
-                    answer: `${val.percent}%`,
-                    forceOption: 0,
-                };
-            } else {
-                return {
-                    latex: `\\text{Write } ${val.percent}\\% \\text{ as a fraction in its simplest form.}`,
-                    answer: val.fraction,
-                    forceOption: 0,
-                };
+
+                latex = `\\text{Write } ${val.fraction} \\text{ as a percentage.}`;
+                answer = `${val.percent}%`;
+
+                optionsSet.add(answer);
+
+                const offsets = [-10, -5, 5, 10];
+                for (const o of offsets) {
+                    optionsSet.add(`${Math.max(0, val.percent + o)}%`);
+                }
             }
+
+            // -----------------------------
+            // CASE 2: decimal → %
+            // -----------------------------
+            else if (type === 1) {
+
+                latex = `\\text{Write } ${val.decimal} \\text{ as a percentage.}`;
+                answer = `${val.percent}%`;
+
+                optionsSet.add(answer);
+
+                const offsets = [-0.2, -0.1, 0.1, 0.2];
+                for (const o of offsets) {
+                    const wrong = Math.max(0, Number(val.decimal) + o);
+                    optionsSet.add(`${Math.round(wrong * 100)}%`);
+                }
+            }
+
+            // -----------------------------
+            // CASE 3: % → fraction
+            // -----------------------------
+            else {
+
+                latex = `\\text{Write } ${val.percent}\\% \\text{ as a fraction in simplest form.}`;
+                answer = val.fraction;
+
+                optionsSet.add(answer);
+
+                const distractors = [
+                    "2/4",
+                    "3/6",
+                    "4/8",
+                    "1/3",
+                    "2/5",
+                    "3/5"
+                ];
+
+                for (const d of distractors) {
+                    optionsSet.add(d);
+                }
+            }
+
+            const options = Array.from(optionsSet)
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 4);
+
+            return {
+                latex,
+                answer,
+                options,
+                forceOption: 0,
+            };
         }
 
         // difficulty === 4: Find a percentage of a number (less common percents: 5, 15, 30, 40, 60)
