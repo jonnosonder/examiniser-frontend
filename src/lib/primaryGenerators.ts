@@ -619,7 +619,7 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
         const answer = sorted.map(f => `${f.numer}/${f.denom}`).join(",");
 
         return {
-            latex: `\\text{Sort in ${isAscending ? "ascending" : "descending"} order: } ${display}\\\\\\text{(answer as a/b,c/d,e/f)}`,
+            latex: `\\text{Sort in ${isAscending ? "ascending" : "descending"} order: } ${display}`,
             answer,
             forceOption: 0,
         };
@@ -1686,8 +1686,80 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
 
     }, [1, 2, 3, 4, 5]),
     "reading-clocks": createGenerator(({ difficulty }) => {
-        // ---------- DIFFICULTY 1: WORDS → TIME ----------
+        // ---------- DIFFICULTY 1: ANALOGUE CLOCK → DIGITAL ----------
         if (difficulty === 1) {
+
+            const hour = Math.floor(Math.random() * 12) + 1;
+            const minute = Math.floor(Math.random() * 12) * 5;
+
+            const minuteAngle = (minute / 60) * 360;
+            const hourAngle = ((hour % 12) / 12) * 360 + (minute / 60) * 30;
+
+            const correct = `${hour.toString().padStart(2, "0")}:${minute
+                .toString()
+                .padStart(2, "0")}`;
+
+            const svg = `
+            <svg width="200" height="200" viewBox="0 0 100 100">
+
+                <!-- clock face -->
+                <circle cx="50" cy="50" r="40" stroke="black" fill="none"/>
+
+                <!-- hour numbers -->
+                ${Array.from({ length: 12 }, (_, i) => {
+                    const angle = ((i + 1) / 12) * 2 * Math.PI;
+                    const x = 50 + 32 * Math.sin(angle);
+                    const y = 50 - 32 * Math.cos(angle);
+                    return `<text x="${x}" y="${y}" font-size="6" text-anchor="middle" dominant-baseline="middle">
+                                ${i + 1}
+                            </text>`;
+                }).join("")}
+
+                <!-- hour hand -->
+                <line x1="50" y1="50"
+                    x2="${50 + 18 * Math.sin((Math.PI * hourAngle) / 180)}"
+                    y2="${50 - 18 * Math.cos((Math.PI * hourAngle) / 180)}"
+                    stroke="black"/>
+
+                <!-- minute hand -->
+                <line x1="50" y1="50"
+                    x2="${50 + 28 * Math.sin((Math.PI * minuteAngle) / 180)}"
+                    y2="${50 - 28 * Math.cos((Math.PI * minuteAngle) / 180)}"
+                    stroke="black"/>
+
+                <!-- centre dot -->
+                <circle cx="50" cy="50" r="2" fill="black"/>
+
+            </svg>`;
+
+            const optionsSet = new Set<string>();
+            optionsSet.add(correct);
+
+            while (optionsSet.size < 4) {
+                const h = Math.floor(Math.random() * 12) + 1;
+                const m = Math.floor(Math.random() * 12) * 5;
+
+                const wrong = `${h.toString().padStart(2, "0")}:${m
+                    .toString()
+                    .padStart(2, "0")}`;
+
+                if (wrong !== correct) optionsSet.add(wrong);
+            }
+
+            const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `\\text{What time is shown on the clock?}`,
+                svg,
+                answer: correct,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // ---------- DIFFICULTY 2: WORDS → DIGITAL TIME ----------
+        if (difficulty === 2) {
+
             const hour = Math.floor(Math.random() * 12) + 1;
             const minute = Math.floor(Math.random() * 12) * 5;
 
@@ -1702,12 +1774,14 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             } else if (minute === 45) {
                 text = `quarter \\ to \\ ${hour === 12 ? 1 : hour + 1}`;
             } else if (minute < 30) {
-                text = `${minute}\\ past \\ ${hour}`;
+                text = `${minute} \\ past \\ ${hour}`;
             } else {
                 text = `${60 - minute} \\ to \\ ${hour === 12 ? 1 : hour + 1}`;
             }
 
-            const correct = `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`;
+            const correct = `${hour.toString().padStart(2, "0")}:${minute
+                .toString()
+                .padStart(2, "0")}`;
 
             const optionsSet = new Set<string>();
             optionsSet.add(correct);
@@ -1716,7 +1790,10 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
                 const h = Math.floor(Math.random() * 12) + 1;
                 const m = Math.floor(Math.random() * 12) * 5;
 
-                const wrong = `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
+                const wrong = `${h.toString().padStart(2, "0")}:${m
+                    .toString()
+                    .padStart(2, "0")}`;
+
                 if (wrong !== correct) optionsSet.add(wrong);
             }
 
@@ -1732,7 +1809,7 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
 
         throw new Error(`Unhandled difficulty: ${difficulty}`);
 
-    }, [1]),
+    }, [1, 2]),
     "money-calculations": createGenerator(({ difficulty }) => {
         // helper inline formatter (no function, just reuse pattern)
         const format = (v: number) => `£${v.toFixed(2)}`;
@@ -2186,6 +2263,349 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
         }
 
     }, [1, 2, 3, 4, 5]),
+    "shapes-2d": createGenerator(({ difficulty }) => {
+        // ---------- DIFFICULTY 1: IDENTIFY BASIC SHAPES ----------
+        if (difficulty === 1) {
+            const shapes = [
+                {
+                    name: "triangle",
+                    svg: `<svg width="100" height="100">
+                            <polygon points="10,90 90,90 50,10" stroke="black" fill="none"/>
+                        </svg>`
+                },
+                {
+                    name: "square",
+                    svg: `<svg width="100" height="100">
+                            <rect x="10" y="10" width="80" height="80" stroke="black" fill="none"/>
+                        </svg>`
+                },
+                {
+                    name: "rectangle",
+                    svg: `<svg width="120" height="80">
+                            <rect x="10" y="10" width="100" height="60" stroke="black" fill="none"/>
+                        </svg>`
+                },
+                {
+                    name: "pentagon",
+                    svg: `<svg width="100" height="100">
+                            <polygon points="50,10 90,40 70,90 30,90 10,40" stroke="black" fill="none"/>
+                        </svg>`
+                },
+            ];
+
+            const q = shapes[Math.floor(Math.random() * shapes.length)];
+
+            const optionsSet = new Set<string>();
+            optionsSet.add(q.name);
+
+            const allNames = ["triangle", "square", "rectangle", "pentagon", "hexagon"];
+
+            while (optionsSet.size < 4) {
+                const wrong = allNames[Math.floor(Math.random() * allNames.length)];
+                optionsSet.add(wrong);
+            }
+
+            const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `\\text{What shape is this?}`,
+                svg: q.svg,
+                answer: q.name,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // ---------- DIFFICULTY 2: NUMBER OF SIDES ----------
+        if (difficulty === 2) {
+            const shapes = [
+                { name: "triangle", sides: 3 },
+                { name: "square", sides: 4 },
+                { name: "rectangle", sides: 4 },
+                { name: "pentagon", sides: 5 },
+                { name: "hexagon", sides: 6 },
+            ];
+
+            const q = shapes[Math.floor(Math.random() * shapes.length)];
+
+            const correct = `${q.sides}`;
+
+            const optionsSet = new Set<string>();
+            optionsSet.add(correct);
+
+            while (optionsSet.size < 4) {
+                const wrong = Math.floor(Math.random() * 8) + 3;
+                optionsSet.add(wrong.toString());
+            }
+
+            const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `\\text{How many sides does a } ${q.name} \\text{ have?}`,
+                answer: correct,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // ---------- DIFFICULTY 3: IDENTIFY FROM PROPERTIES ----------
+        if (difficulty === 3) {
+            const questions = [
+                {
+                    latex: `\\text{Which shape has 4 equal sides and 4 right angles?}`,
+                    correct: "square",
+                },
+                {
+                    latex: `\\text{Which shape has 3 sides?}`,
+                    correct: "triangle",
+                },
+                {
+                    latex: `\\text{Which shape has 5 sides?}`,
+                    correct: "pentagon",
+                },
+                {
+                    latex: `\\text{Which shape has 6 sides?}`,
+                    correct: "hexagon",
+                },
+            ];
+
+            const q = questions[Math.floor(Math.random() * questions.length)];
+
+            const all = ["triangle", "square", "rectangle", "pentagon", "hexagon"];
+
+            const optionsSet = new Set<string>();
+            optionsSet.add(q.correct);
+
+            while (optionsSet.size < 4) {
+                const wrong = all[Math.floor(Math.random() * all.length)];
+                optionsSet.add(wrong);
+            }
+
+            const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+            return {
+                latex: q.latex,
+                answer: q.correct,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // ---------- DIFFICULTY 4: REGULAR VS IRREGULAR ----------
+        const isRegular = Math.random() < 0.5;
+
+        // ---------- REGULAR SHAPES (PREDEFINED) ----------
+        const regularShapes = [
+            // triangle
+            `<svg width="120" height="120" viewBox="0 0 100 100">
+                <polygon points="50,10 90,80 10,80"
+                        stroke="black" fill="none" stroke-width="2"/>
+            </svg>`,
+
+            // square
+            `<svg width="120" height="120" viewBox="0 0 100 100">
+                <rect x="20" y="20" width="60" height="60"
+                    stroke="black" fill="none" stroke-width="2"/>
+            </svg>`,
+
+            // pentagon
+            `<svg width="120" height="120" viewBox="0 0 100 100">
+                <polygon points="50,10 85,35 70,80 30,80 15,35"
+                        stroke="black" fill="none" stroke-width="2"/>
+            </svg>`,
+
+            // hexagon
+            `<svg width="120" height="120" viewBox="0 0 100 100">
+                <polygon points="30,10 70,10 90,50 70,90 30,90 10,50"
+                        stroke="black" fill="none" stroke-width="2"/>
+            </svg>`
+        ];
+
+        // ---------- IRREGULAR SHAPE (RANDOM GENERATION) ----------
+        let svg: string;
+
+        if (isRegular) {
+            svg = regularShapes[Math.floor(Math.random() * regularShapes.length)];
+        } else {
+            const sides = Math.floor(Math.random() * 3) + 5; // 5–7
+
+            const cx = 50;
+            const cy = 50;
+            const baseRadius = 35;
+
+            const points: string[] = [];
+
+            // generate sorted angles with spacing
+            const angles: number[] = [];
+
+            for (let i = 0; i < sides; i++) {
+                angles.push((i / sides) * 2 * Math.PI);
+            }
+
+            // add small jitter (prevents perfect regularity)
+            for (let i = 0; i < angles.length; i++) {
+                angles[i] += (Math.random() - 0.5) * (Math.PI / sides * 0.5);
+            }
+
+            // sort again to maintain order
+            angles.sort((a, b) => a - b);
+
+            for (let i = 0; i < sides; i++) {
+                // controlled radius variation (prevents sharp spikes)
+                const radius = baseRadius + (Math.random() - 0.5) * 10;
+
+                const x = cx + radius * Math.cos(angles[i]);
+                const y = cy + radius * Math.sin(angles[i]);
+
+                points.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+            }
+
+            svg = `<svg width="120" height="120" viewBox="0 0 100 100">
+                <polygon points="${points.join(" ")}"
+                        stroke="black" fill="none" stroke-width="2"/>
+            </svg>`;
+        }
+
+        const correct = isRegular ? "regular" : "irregular";
+
+        const options = ["Regular", "Irregular",]
+            .sort(() => Math.random() - 0.5);
+
+        return {
+            latex: `\\text{Is this shape regular or irregular?}`,
+            svg,
+            answer: correct,
+            options,
+            forceOption: 0,
+        };
+        
+    }, [1, 2, 3, 4]),
+    "shapes-3d": createGenerator(({ difficulty }) => {
+
+        const shapes = [
+            {
+                name: "cube",
+                edges: 12,
+                vertices: 8,
+                svg: `<svg width="120" height="120" viewBox="0 0 100 100">
+                    <rect x="20" y="30" width="40" height="40" stroke="black" fill="none"/>
+                    <rect x="35" y="15" width="40" height="40" stroke="black" fill="none"/>
+                    <line x1="20" y1="30" x2="35" y2="15" stroke="black"/>
+                    <line x1="60" y1="30" x2="75" y2="15" stroke="black"/>
+                    <line x1="20" y1="70" x2="35" y2="55" stroke="black"/>
+                    <line x1="60" y1="70" x2="75" y2="55" stroke="black"/>
+                </svg>`
+            },
+            {
+                name: "cuboid",
+                edges: 12,
+                vertices: 8,
+                svg: `<svg width="120" height="120" viewBox="0 0 100 100">
+                    <rect x="15" y="35" width="50" height="30" stroke="black" fill="none"/>
+                    <rect x="30" y="20" width="50" height="30" stroke="black" fill="none"/>
+                    <line x1="15" y1="35" x2="30" y2="20" stroke="black"/>
+                    <line x1="65" y1="35" x2="80" y2="20" stroke="black"/>
+                    <line x1="15" y1="65" x2="30" y2="50" stroke="black"/>
+                    <line x1="65" y1="65" x2="80" y2="50" stroke="black"/>
+                </svg>`
+            },
+            {
+                name: "pyramid",
+                edges: 8,
+                vertices: 5,
+                svg: `<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M24 90H96L78 66H42L24 90Z" stroke="black" stroke-dasharray="1.5 1.5"/>
+                    <path d="M24 90L60 18" stroke="black" stroke-width="1.2"/>
+                    <path d="M96 90L60 18" stroke="black" stroke-width="1.2"/>
+                    <path d="M78 66L60 18" stroke="black" stroke-dasharray="1.5 1.5"/>
+                    <path d="M42 66L60 18" stroke="black" stroke-dasharray="1.5 1.5"/>
+                    <path d="M24 90H96" stroke="black"/>
+                </svg>`
+            },
+            {
+                name: "cylinder",
+                edges: 2,
+                vertices: 0,
+                svg: `<svg width="120" height="120" viewBox="0 0 100 100">
+                    <ellipse cx="50" cy="25" rx="25" ry="10" stroke="black" fill="none"/>
+                    <ellipse cx="50" cy="75" rx="25" ry="10" stroke="black" fill="none"/>
+                    <line x1="25" y1="25" x2="25" y2="75" stroke="black"/>
+                    <line x1="75" y1="25" x2="75" y2="75" stroke="black"/>
+                </svg>`
+            },
+            {
+                name: "cone",
+                edges: 1,
+                vertices: 1,
+                svg: `<svg width="120" height="120" viewBox="0 0 100 100">
+                    <ellipse cx="50" cy="75" rx="25" ry="10" stroke="black" fill="none"/>
+                    <line x1="25" y1="75" x2="50" y2="20" stroke="black"/>
+                    <line x1="75" y1="75" x2="50" y2="20" stroke="black"/>
+                </svg>`
+            },
+            {
+                name: "sphere",
+                edges: 0,
+                vertices: 0,
+                svg: `<svg width="120" height="120" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="30" stroke="black" fill="none"/>
+                    <ellipse cx="50" cy="50" rx="30" ry="10" stroke="black" fill="none"/>
+                </svg>`
+            }
+        ];
+
+        const q = shapes[Math.floor(Math.random() * shapes.length)];
+
+        // ---------- DIFFICULTY 1: NAME SHAPE ----------
+        if (difficulty === 1) {
+            const allNames = shapes.map(s => s.name);
+
+            const optionsSet = new Set<string>();
+            optionsSet.add(q.name);
+
+            while (optionsSet.size < 4) {
+                const wrong = allNames[Math.floor(Math.random() * allNames.length)];
+                optionsSet.add(wrong);
+            }
+
+            const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `\\text{What 3D shape is this?}`,
+                svg: q.svg,
+                answer: q.name,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // ---------- DIFFICULTY 2: EDGES OR VERTICES ----------
+        const askEdges = Math.random() < 0.5;
+
+        const correctValue = askEdges ? q.edges : q.vertices;
+        const correct = correctValue.toString();
+
+        const optionsSet = new Set<string>();
+        optionsSet.add(correct);
+
+        while (optionsSet.size < 4) {
+            const wrong = Math.floor(Math.random() * 15);
+            optionsSet.add(wrong.toString());
+        }
+
+        const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+        return {
+            latex: askEdges
+                ? `\\text{How many edges does this shape have?}`
+                : `\\text{How many corners (vertices) does this shape have?}`,
+            svg: q.svg,
+            answer: correct,
+            options,
+            forceOption: 0,
+        };
+
+    }, [1, 2]),
 
     "missing-numbers": createGenerator(({ difficulty }) => {
         if (difficulty === 1) {

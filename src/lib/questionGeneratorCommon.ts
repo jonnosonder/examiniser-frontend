@@ -16,6 +16,7 @@ export type QuestionResult = {
     options?: string[];
     forceOption: 0 | 1 | 2;
     explanation?: string;
+    svg?: string;
 };
 
 export type QuestionGenerator = (args: QuestionGeneratorArgs) => QuestionResult;

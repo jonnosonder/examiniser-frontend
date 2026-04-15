@@ -233,6 +233,7 @@ export function QuestionSubtopicLeaf({
 
     const [selectedDifficulty, setSelectedDifficulty] = React.useState<number>(availableLevels[0] ?? 1);
     const [questionLatex, setQuestionLatex] = React.useState("");
+    const [questionSvg, setQuestionSvg] = React.useState("");
     const [questionAnswers, setQuestionAnswers] = React.useState<string[]>([]);
     const [questionOptions, setQuestionOptions] = React.useState<string[]>([]);
     const [questionForceOption, setQuestionForceOption] = React.useState<0 | 1 | 2>(0);
@@ -250,6 +251,7 @@ export function QuestionSubtopicLeaf({
 
     React.useEffect(() => {
         setQuestionLatex("");
+        setQuestionSvg("");
         setQuestionAnswers([]);
         setQuestionOptions([]);
         setQuestionForceOption(0);
@@ -377,6 +379,7 @@ export function QuestionSubtopicLeaf({
         const previousOption = hadPreviousSelectedOption ? userAnswer : undefined;
 
         setQuestionLatex(result.latex);
+        setQuestionSvg(result.svg ?? "");
         setQuestionAnswers(Array.isArray(result.answer) ? result.answer : [result.answer]);
         setQuestionOptions(options);
         setQuestionForceOption(result.forceOption ?? 0);
@@ -508,6 +511,14 @@ export function QuestionSubtopicLeaf({
                                         {t("questions.no-question-generated")}
                                     </p>
                                 )}
+                                {questionSvg ? (
+                                    <div className="flex items-center justify-center">
+                                        <div
+                                            className="mx-auto max-w-full overflow-auto"
+                                            dangerouslySetInnerHTML={{ __html: questionSvg }}
+                                        />
+                                    </div>
+                                ) : null}
                             </div>
 
                             <div className="flex flex-col gap-3">

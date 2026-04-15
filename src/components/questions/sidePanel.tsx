@@ -3,6 +3,7 @@
 
 "use client";
 
+import * as React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { ReloadLink } from '../editor/reloadLink';
 import SwitchLanuageDropDown from '../editor/switchLanuageDropDown';
@@ -15,6 +16,8 @@ function normalizePath(path: string): string {
     }
     return path;
 }
+
+const SCROLL_KEY = "examiniser_sidePanelScrollTop";
 
 export default function QuestionNavBar({
     lng,
@@ -32,6 +35,27 @@ export default function QuestionNavBar({
 }) {
     const router = useRouter();
     const pathname = normalizePath(usePathname() ?? "");
+    const panelRef = React.useRef<HTMLDivElement | null>(null);
+
+    React.useLayoutEffect(() => {
+        if (!panelRef.current) return;
+        const saved = window.sessionStorage.getItem(SCROLL_KEY);
+        if (saved !== null) {
+            panelRef.current.scrollTop = Number(saved) || 0;
+        }
+    }, [pathname]);
+
+    React.useEffect(() => {
+        return () => {
+            if (!panelRef.current) return;
+            window.sessionStorage.setItem(SCROLL_KEY, String(panelRef.current.scrollTop));
+        };
+    }, []);
+
+    const handleScroll = () => {
+        if (!panelRef.current) return;
+        window.sessionStorage.setItem(SCROLL_KEY, String(panelRef.current.scrollTop));
+    };
 
     return (
         <div className='sticky top-0 flex flex-col h-screen w-44 sm:w-48 lg:w-52 border-r border-r-[var(--grey)] bg-white shadow-[0.1rem_0_6px_-1px_var(--grey)]'>
@@ -44,7 +68,7 @@ export default function QuestionNavBar({
                 Examiniser
             </ReloadLink>
 
-            <div className="flex-1 m-2 overflow-y-auto">
+            <div ref={panelRef} onScroll={handleScroll} className="flex-1 m-2 overflow-y-auto">
                 {buttons.map((button) => {
                     const mainPath = normalizePath(button.link);
                     const mainActive = pathname === mainPath || pathname.startsWith(mainPath + "/");
