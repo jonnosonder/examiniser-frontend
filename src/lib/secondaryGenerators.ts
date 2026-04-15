@@ -446,11 +446,367 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
 
     }, [1, 2, 3, 4, 5, 6]),
     "powers-and-roots": createGenerator(({ difficulty }) => {
-        throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+        const randInt = (min: number, max: number) =>
+            Math.floor(Math.random() * (max - min + 1)) + min;
+
+        let latex = "";
+        let answer = "";
+
+        // -----------------------------
+        // D1: simple powers
+        // -----------------------------
+        if (difficulty === 1) {
+
+            const base = randInt(2, 6);
+            const exp = randInt(2, 4);
+
+            const result = Math.pow(base, exp);
+
+            latex = `\\text{Calculate: } ${base}^{${exp}}`;
+            answer = String(result);
+        }
+
+        // -----------------------------
+        // D2: square and cube roots
+        // -----------------------------
+        else if (difficulty === 2) {
+
+            const type = Math.random() < 0.5 ? "sqrt" : "cbrt";
+
+            let n: number;
+            let result: number;
+
+            if (type === "sqrt") {
+                const base = randInt(2, 12);
+                n = base * base;
+                result = base;
+
+                latex = `\\text{Calculate: } \\sqrt{${n}}`;
+            } else {
+                const base = randInt(2, 6);
+                n = base * base * base;
+                result = base;
+
+                latex = `\\text{Calculate: } \\sqrt[3]{${n}}`;
+            }
+
+            answer = String(result);
+        }
+
+        // -----------------------------
+        // D3: mixed evaluation
+        // -----------------------------
+        else if (difficulty === 3) {
+
+            const base = randInt(2, 5);
+            const exp = randInt(2, 3);
+
+            const rootBase = randInt(2, 6);
+            const squared = rootBase * rootBase;
+
+            const useRoot = Math.random() < 0.5;
+
+            if (useRoot) {
+                latex = `\\text{Calculate: } ${base}^{${exp}} + \\sqrt{${squared}}`;
+                answer = String(Math.pow(base, exp) + rootBase);
+            } else {
+                const cubeBase = randInt(2, 4);
+                const cube = cubeBase * cubeBase * cubeBase;
+
+                latex = `\\text{Calculate: } ${base}^{${exp}} + \\sqrt[3]{${cube}}`;
+                answer = String(Math.pow(base, exp) + cubeBase);
+            }
+        }
+
+        else {
+            throw new Error(`Unhandled difficulty: ${difficulty}`);
+        }
+
+        // -----------------------------
+        // OPTIONS
+        // -----------------------------
+        const optionsSet = new Set<string>();
+        optionsSet.add(answer);
+
+        const answerNum = Number(answer);
+
+        while (optionsSet.size < 4) {
+            const offset = randInt(-5, 5);
+            optionsSet.add(String(answerNum + offset));
+        }
+
+        const options = Array.from(optionsSet)
+            .sort(() => Math.random() - 0.5);
+
+        return {
+            latex,
+            answer,
+            options,
+            forceOption: 0,
+        };
+
+    }, [1, 2, 3]),
     "standard-form": createGenerator(({ difficulty }) => {
-        throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+
+        const randInt = (min: number, max: number) =>
+            Math.floor(Math.random() * (max - min + 1)) + min;
+
+        const randDecimal = () => {
+            const options = [1.2, 1.5, 2.5, 3.2, 4.8, 5.5, 6.4, 7.2, 8.1, 9.6];
+            return options[randInt(0, options.length - 1)];
+        };
+
+        const toStandard = (n: number) => {
+            if (n === 0) return { a: 0, b: 0 };
+            const b = Math.floor(Math.log10(Math.abs(n)));
+            const a = n / Math.pow(10, b);
+            return { a: Number(a.toFixed(2)), b };
+        };
+
+        let latex = "";
+        let answer: string = "";
+        let options: string[] = [];
+
+        // -----------------------------
+        // D1: integer → standard form
+        // -----------------------------
+        if (difficulty === 1) {
+
+            const useSmallDecimal = Math.random() < 0.4;
+
+            let n: number;
+
+            if (useSmallDecimal) {
+                // generate numbers like 0.00xxx to 0.xxxx (clean decimals)
+                const exponent = randInt(3, 6); // controls number of leading zeros
+                const base = randInt(1, 9999);
+
+                n = base / Math.pow(10, exponent);
+            } else {
+                n = randInt(1000, 999999);
+            }
+
+            const { a, b } = toStandard(n);
+
+            latex = `\\text{Write } ${n} \\text{ in standard form.}`;
+            answer = `${a} \\times 10^{${b}}`;
+
+            const set = new Set<string>([answer]);
+
+            while (set.size < 4) {
+                const wrongUseDecimal = Math.random() < 0.3;
+
+                let wrong: number;
+
+                if (wrongUseDecimal) {
+                    const exponent = randInt(3, 6);
+                    const base = randInt(1, 9999);
+                    wrong = base / Math.pow(10, exponent);
+                } else {
+                    wrong = randInt(1000, 999999);
+                }
+
+                const { a: wa, b: wb } = toStandard(Math.abs(wrong));
+                set.add(`${wa} \\times 10^{${wb}}`);
+            }
+
+            options = Array.from(set).sort(() => Math.random() - 0.5);
+        }
+
+        // -----------------------------
+        // D2: standard form → number (with negatives introduced)
+        // -----------------------------
+        else if (difficulty === 2) {
+
+            const b = Math.random() < 0.3 ? randInt(-3, -1) : randInt(2, 6);
+            const a = randDecimal();
+
+            const n = a * Math.pow(10, b);
+
+            latex = `\\text{Write } ${a} \\times 10^{${b}} \\text{ as an ordinary number.}`;
+            answer = String(n);
+
+            const set = new Set<string>([answer]);
+
+            while (set.size < 4) {
+                set.add(String(n + randInt(-500, 500)));
+            }
+
+            options = Array.from(set).sort(() => Math.random() - 0.5);
+        }
+
+        // -----------------------------
+        // D3: comparison (includes negatives)
+        // -----------------------------
+        else if (difficulty === 3) {
+
+            const a1 = randDecimal();
+            const a2 = randDecimal();
+
+            const b1 = randInt(-2, 6);
+            const b2 = randInt(-2, 6);
+
+            const n1 = a1 * Math.pow(10, b1);
+            const n2 = a2 * Math.pow(10, b2);
+
+            const symbols = ["<", ">", "="] as const;
+            const symbol = symbols[randInt(0, 2)];
+
+            const correct =
+                symbol === ">" ? n1 > n2 :
+                symbol === "<" ? n1 < n2 :
+                n1 === n2;
+
+            latex = `\\text{True or false: } ${a1} \\times 10^{${b1}} \\; ${symbol} \\; ${a2} \\times 10^{${b2}}`;
+
+            answer = correct ? "True" : "False";
+
+            options = ["True", "False"].sort(() => Math.random() - 0.5);
+        }
+
+        // -----------------------------
+        // D4: arithmetic (positive + negative powers)
+        // -----------------------------
+        else if (difficulty === 4) {
+
+            const a1 = randDecimal();
+            const a2 = randDecimal();
+
+            const b = randInt(-3, 6);
+
+            const n1 = a1 * Math.pow(10, b);
+            const n2 = a2 * Math.pow(10, b);
+
+            const op = Math.random() < 0.5 ? "+" : "-";
+
+            const result = op === "+" ? n1 + n2 : n1 - n2;
+            const { a, b: exp } = toStandard(result);
+
+            latex = `\\text{Calculate: } (${a1} \\times 10^{${b}}) ${op} (${a2} \\times 10^{${b}})`;
+            answer = `${a} \\times 10^{${exp}}`;
+
+            const set = new Set<string>([answer]);
+
+            while (set.size < 4) {
+                set.add(`${randDecimal()} \\times 10^{${randInt(-3, 6)}}`);
+            }
+
+            options = Array.from(set).sort(() => Math.random() - 0.5);
+        }
+
+        // -----------------------------
+        // D5: mixed (negative + positive + multiplication)
+        // -----------------------------
+        else if (difficulty === 5) {
+
+            const a = randDecimal();
+            const b = randDecimal();
+            const c = randInt(2, 9);
+
+            const exp1 = randInt(2, 5);
+            const exp2 = randInt(-3, 2);
+
+            const n1 = a * Math.pow(10, exp1);
+            const n2 = b * Math.pow(10, exp2);
+
+            const result = n1 + (n2 * c);
+
+            const { a: sa, b: sb } = toStandard(result);
+
+            latex = `\\text{Calculate: } (${a} \\times 10^{${exp1}}) + (${b} \\times 10^{${exp2}}) \\times ${c}`;
+            answer = `${sa} \\times 10^{${sb}}`;
+
+            const set = new Set<string>([answer]);
+
+            while (set.size < 4) {
+                set.add(`${randDecimal()} \\times 10^{${randInt(-3, 6)}}`);
+            }
+
+            options = Array.from(set).sort(() => Math.random() - 0.5);
+        }
+
+        // -----------------------------
+        // D6: division in standard form
+        // -----------------------------
+        else if (difficulty === 6) {
+
+            const a1 = randDecimal();
+            const a2 = randDecimal();
+
+            const b = randInt(2, 6);
+
+            const n1 = a1 * Math.pow(10, b);
+            const n2 = a2 * Math.pow(10, b);
+
+            const result = n1 / n2;
+
+            const toStandard = (n: number) => {
+                if (n === 0) return { a: 0, b: 0 };
+                const b = Math.floor(Math.log10(Math.abs(n)));
+                const a = n / Math.pow(10, b);
+                return { a: Number(a.toFixed(2)), b };
+            };
+
+            const { a, b: exp } = toStandard(result);
+
+            latex = `\\text{Calculate and give your answer in standard form: } \\\\ \\frac{${a1} \\times 10^{${b}}}{${a2} \\times 10^{${b}}}`;
+
+            answer = `${a} \\times 10^{${exp}}`;
+
+            const set = new Set<string>([answer]);
+
+            while (set.size < 4) {
+                const noise = result + randInt(-2, 2);
+                const { a: wa, b: wb } = toStandard(noise);
+                set.add(`${wa} \\times 10^{${wb}}`);
+            }
+
+            options = Array.from(set).sort(() => Math.random() - 0.5);
+        }
+        // -----------------------------
+        // D7: full composite (mixed operations + negative powers)
+        // -----------------------------
+        else if (difficulty === 7) {
+
+            const a = randDecimal();
+            const b = randDecimal();
+            const c = randDecimal();
+
+            const e1 = randInt(3, 6);
+            const e2 = randInt(-3, 3);
+
+            const n1 = a * Math.pow(10, e1);
+            const n2 = b * Math.pow(10, e2);
+
+            const result = (n1 + n2) / c;
+
+            const { a: sa, b: sb } = toStandard(result);
+
+            latex = `\\text{Calculate: } \\frac{(${a} \\times 10^{${e1}} + ${b} \\times 10^{${e2}})}{${c}}`;
+
+            answer = `${sa} \\times 10^{${sb}}`;
+
+            const set = new Set<string>([answer]);
+
+            while (set.size < 4) {
+                set.add(`${randDecimal()} \\times 10^{${randInt(-3, 6)}}`);
+            }
+
+            options = Array.from(set).sort(() => Math.random() - 0.5);
+        }
+
+        else {
+            throw new Error(`Unhandled difficulty: ${difficulty}`);
+        }
+
+        return {
+            latex,
+            answer,
+            options,
+            forceOption: 0,
+        };
+
+    }, [1, 2, 3, 4, 5, 6, 7]),
     "fractions-decimals-percentages": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
     }, [1, 2, 3, 4]),

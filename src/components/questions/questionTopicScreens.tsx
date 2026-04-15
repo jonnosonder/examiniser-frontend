@@ -265,23 +265,14 @@ export function QuestionSubtopicLeaf({
     const levels = availableLevels;
 
     const renderOptionLabel = React.useCallback((option: string) => {
-        const parts = option.split(",").map((part) => part.trim()).filter(Boolean);
-        if (parts.length <= 1) {
-            return <BlockMath math={shorthandToLatex(option)} />;
+        const trimmed = option.trim();
+        const isLatex = /\\|\^|_|\{|\}|\\frac|\\sqrt|\\pi|\\theta|\\times|\\div|\\sin|\\cos|\\tan|\\log|\\ln/.test(trimmed);
+
+        if (isLatex) {
+            return <BlockMath math={trimmed} />;
         }
 
-        return (
-            <span className="inline-flex flex-wrap items-center gap-1">
-                {parts.map((part, index) => (
-                    <React.Fragment key={`${option}-${index}`}>
-                        <span className="inline-flex items-center">
-                            <BlockMath math={shorthandToLatex(part)} />
-                        </span>
-                        {index < parts.length - 1 ? <span className="text-base text-primary">,</span> : null}
-                    </React.Fragment>
-                ))}
-            </span>
-        );
+        return <span>{trimmed}</span>;
     }, []);
 
     const keyboardButtons = React.useMemo(
