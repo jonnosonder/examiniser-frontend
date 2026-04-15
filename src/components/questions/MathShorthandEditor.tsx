@@ -36,7 +36,7 @@ const SYMBOL_PATTERNS = [
     { keys: ["√"], display: "√", latex: "\\sqrt" },
 ];
 
-const SPECIAL_CHARS = new Set(["(", ")", "^", "_", "/", "*", "+", "-", ">", "<", "!", " ", "\t", "\n"]);
+const SPECIAL_CHARS = new Set(["(", ")", "^", "_", "/", "*", "+", "-", ">", "<", "!", ",", " ", "\t", "\n"]);
 
 function skipWhitespace(source: string, pos: number) {
     while (pos < source.length && /[\s]/.test(source[pos])) {
@@ -179,6 +179,12 @@ function parseMathExpression(source: string): MathNode[] {
             const start = pos;
             pos += 1;
             return { type: "text", value: source[start], start, end: pos };
+        }
+
+        if (source[pos] === ",") {
+            const start = pos;
+            pos += 1;
+            return { type: "text", value: ",", start, end: pos };
         }
 
         const start = pos;

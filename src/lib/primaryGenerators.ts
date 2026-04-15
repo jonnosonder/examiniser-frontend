@@ -596,21 +596,43 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             // Identify a simple fraction from a visual description (numerator/denominator)
             const denominators = [2, 3, 4];
             const denom = denominators[Math.floor(Math.random() * denominators.length)];
-            const numer = Math.floor(Math.random() * denom) + 1; // 1 to denom
+            const numer = Math.floor(Math.random() * denom) + 1;
 
-            const answers = [`${numer}/${denom}`];
+            const toLatexFraction = (n: number, d: number) => `\\frac{${n}}{${d}}`;
+
+            const answers: string[] = [toLatexFraction(numer, denom)];
+
             if (numer === denom) {
                 if (numer === 4) {
-                    answers.push(`2/2`);
+                    answers.push(`\\frac{2}{2}`);
                 }
-                answers.push(`1/1`);
-                answers.push(`1`);                
+                answers.push(`1`);
+                answers.push(`1`);
             }
 
+            const optionsSet = new Set<string>();
+
+            // correct answer (no brackets)
+            optionsSet.add(toLatexFraction(numer, denom));
+
+            // derived answers
+            for (const a of answers) {
+                optionsSet.add(a);
+            }
+
+            // distractors
+            while (optionsSet.size < 4) {
+                const d = denominators[Math.floor(Math.random() * denominators.length)];
+                const n = Math.floor(Math.random() * d) + 1;
+                optionsSet.add(toLatexFraction(n, d));
+            }
+
+            const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
 
             return {
                 latex: `\\text{A shape is split into } ${denom} \\text{ equal parts. } ${numer} \\text{ part(s) are shaded. What fraction is shaded?}`,
-                answer: answers,
+                answer: toLatexFraction(numer, denom),
+                options,
                 forceOption: 0,
             };
         }
@@ -670,7 +692,7 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
 
         const display = fractions.map(f => `\\frac{${f.numer}}{${f.denom}}`).join(", ");
 
-        const correct = sorted.map(f => `${f.numer}/${f.denom}`).join(",");
+        const correct = sorted.map(f => `\\frac{${f.numer}}{${f.denom}}`).join(",");
 
         // -----------------------------
         // OPTIONS (PERMUTATIONS)
@@ -687,7 +709,7 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
         // generate distractors
         while (permutations.size < 4) {
             const shuffled = shuffle(fractions)
-                .map(f => `${f.numer}/${f.denom}`)
+                .map(f => `\\frac{${f.numer}}{${f.denom}}`)
                 .join(",");
 
             permutations.add(shuffled);
@@ -747,30 +769,97 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             const denominators = [4, 6, 8, 9, 10, 12, 15];
             const denom = denominators[Math.floor(Math.random() * denominators.length)];
 
-            // Find a numerator that shares a common factor with denom
             const factors = [];
             for (let i = 2; i <= denom; i++) {
                 if (denom % i === 0) factors.push(i);
             }
+
             const factor = factors[Math.floor(Math.random() * factors.length)];
 
             const maxNumer = denom / factor - 1;
+
+            const toLatexFraction = (n: number, d: number) =>
+                `\\frac{${n}}{${d}}`;
+
+            let numer: number;
+            let simplifiedNumer: number;
+            const simplifiedDenom = denom / factor;
+
+            // fallback case
             if (maxNumer < 1) {
-                // fallback: just use 1/denom simplified
+                numer = factor;
+
+                const answer = simplifiedDenom === 1
+                    ? `1`
+                    : toLatexFraction(1, simplifiedDenom);
+
+                const optionsSet = new Set<string>();
+                optionsSet.add(answer);
+
+                while (optionsSet.size < 4) {
+                    const wrongDenom = denominators[Math.floor(Math.random() * denominators.length)];
+                    const wrongFactor = Math.floor(Math.random() * (wrongDenom - 1)) + 1;
+
+                    const wrong = wrongDenom === wrongFactor
+                        ? `1`
+                        : toLatexFraction(wrongFactor, wrongDenom);
+
+                    optionsSet.add(wrong);
+                }
+
+                const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
                 return {
                     latex: `\\text{Simplify: } \\frac{${factor}}{${denom}}`,
-                    answer: `1/${denom / factor}`,
+                    answer,
+                    options,
                     forceOption: 0,
                 };
             }
 
-            const simplifiedNumer = Math.floor(Math.random() * maxNumer) + 1;
-            const numer = simplifiedNumer * factor;
-            const simplifiedDenom = denom / factor;
+            simplifiedNumer = Math.floor(Math.random() * maxNumer) + 1;
+            numer = simplifiedNumer * factor;
+
+            const simplified = simplifiedNumer === simplifiedDenom
+                ? `1`
+                : toLatexFraction(simplifiedNumer, simplifiedDenom);
+
+            const answer = simplified;
+
+            const optionsSet = new Set<string>();
+            optionsSet.add(answer);
+
+            // correct-style distractors
+            optionsSet.add(
+                (simplifiedNumer + 1 === simplifiedDenom + 1)
+                    ? `1`
+                    : toLatexFraction(simplifiedNumer + 1, simplifiedDenom)
+            );
+
+            optionsSet.add(toLatexFraction(simplifiedNumer, simplifiedDenom + 1));
+            optionsSet.add(toLatexFraction(simplifiedNumer * 2, simplifiedDenom));
+
+            // ensure 4 options
+            while (optionsSet.size < 4) {
+                const wrongD = denominators[Math.floor(Math.random() * denominators.length)];
+                const wrongF = Math.floor(Math.random() * (wrongD - 1)) + 1;
+
+                const wrongSimplifiedDenom = wrongD / Math.max(2, wrongD % 3 === 0 ? 3 : 2);
+
+                const wrong =
+                    wrongF === wrongSimplifiedDenom
+                        ? `1`
+                        : toLatexFraction(wrongF, wrongD);
+
+                optionsSet.add(wrong);
+            }
+
+            const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
 
             return {
                 latex: `\\text{Simplify: } \\frac{${numer}}{${denom}}`,
-                answer: `${simplifiedNumer}/${simplifiedDenom}`,
+                answer,
+                options,
                 forceOption: 0,
             };
         }
@@ -801,75 +890,191 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
     }, [1, 2, 3, 4]),
 
     "simple-addition-subtraction-of-fractions": createGenerator(({ difficulty }) => {
+        const toLatexFraction = (n: number, d: number) =>
+            `\\frac{${n}}{${d}}`;
+
+        // -------------------------
+        // D1: same denominator addition
+        // -------------------------
         if (difficulty === 1) {
-            // Add two fractions with the same denominator, no simplification needed
             const denominators = [2, 3, 4, 5, 6, 8, 10];
             const denom = denominators[Math.floor(Math.random() * denominators.length)];
 
             const a = Math.floor(Math.random() * (denom - 1)) + 1;
-            let b = Math.floor(Math.random() * (denom - a)) + 1; // ensure sum <= denom
-            if (b === 0) b = 1;
+            const b = Math.floor(Math.random() * (denom - a)) + 1;
 
             const sumNumer = a + b;
 
+            const toLatexFraction = (n: number, d: number) =>
+                `\\frac{${n}}{${d}}`;
+
+            const gcd = (x: number, y: number): number =>
+                y === 0 ? x : gcd(y, x % x);
+
+            let answers: string[] = [];
+
+            const g = gcd(sumNumer, denom);
+            const sn = sumNumer / g;
+            const sd = denom / g;
+
+            // -----------------------------
+            // CASE 1: simplifies to whole number
+            // -----------------------------
+            if (sn === sd) {
+                answers = [
+                    "1",
+                    toLatexFraction(sumNumer, denom) // e.g. 2/2, 3/3
+                ];
+            }
+
+            // -----------------------------
+            // CASE 2: general fraction
+            // -----------------------------
+            else if (sd === 1) {
+                answers = [`${sn}`];
+            } else {
+                answers = [
+                    toLatexFraction(sn, sd),
+                    toLatexFraction(sumNumer, denom)
+                ];
+            }
+
+            const optionsSet = new Set<string>(answers);
+
+            while (optionsSet.size < 4) {
+                const d = denominators[Math.floor(Math.random() * denominators.length)];
+                const n = Math.floor(Math.random() * (d - 1)) + 1;
+
+                const extra = Math.floor(Math.random() * d) + 1;
+
+                const val = extra === d
+                    ? "1"
+                    : toLatexFraction(extra, d);
+
+                optionsSet.add(val);
+            }
+
+            const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
             return {
                 latex: `\\frac{${a}}{${denom}} + \\frac{${b}}{${denom}} = ?`,
-                answer: sumNumer === denom ? "1" : `${sumNumer}/${denom}`,
+                answer: answers,
+                options,
                 forceOption: 0,
             };
         }
 
+        // -------------------------
+        // D2: subtraction same denominator
+        // -------------------------
         if (difficulty === 2) {
-            // Subtract two fractions with the same denominator
             const denominators = [3, 4, 5, 6, 8, 10];
             const denom = denominators[Math.floor(Math.random() * denominators.length)];
 
-            const a = Math.floor(Math.random() * (denom - 1)) + 2; // at least 2
-            const b = Math.floor(Math.random() * (a - 1)) + 1;     // b < a
+            const a = Math.floor(Math.random() * (denom - 1)) + 2;
+            const b = Math.floor(Math.random() * (a - 1)) + 1;
 
             const diffNumer = a - b;
 
+            const gcd = (x: number, y: number): number =>
+                y === 0 ? x : gcd(y, x % y);
+
+            const g = gcd(diffNumer, denom);
+            const sn = diffNumer / g;
+            const sd = denom / g;
+
+            let answers =
+                sd === 1
+                    ? [`${sn}`]
+                    : [
+                        toLatexFraction(sn, sd),
+                        toLatexFraction(diffNumer, denom)
+                    ];
+
+            const optionsSet = new Set<string>(answers);
+
+            while (optionsSet.size < 4) {
+                const d = denominators[Math.floor(Math.random() * denominators.length)];
+                const n = Math.floor(Math.random() * (d - 1)) + 1;
+
+                const m = Math.floor(Math.random() * n) + 1;
+                const res = n - m;
+
+                const g2 = (a: number, b: number): number =>
+                    b === 0 ? a : g2(b, a % b);
+
+                const gg = g2(res, d);
+                const rn = res / gg;
+                const rd = d / gg;
+
+                optionsSet.add(rd === 1 ? `${rn}` : toLatexFraction(rn, rd));
+            }
+
+            const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
             return {
                 latex: `\\frac{${a}}{${denom}} - \\frac{${b}}{${denom}} = ?`,
-                answer: `${diffNumer}/${denom}`,
+                answer: answers,
+                options,
                 forceOption: 0,
             };
         }
 
+        // -------------------------
+        // D3: related denominators
+        // -------------------------
         if (difficulty === 3) {
-            // Add fractions with related denominators (one is a multiple of the other)
+
             const bases = [2, 3, 4, 5];
             const base = bases[Math.floor(Math.random() * bases.length)];
-            const multiplier = Math.floor(Math.random() * 3) + 2; // 2–4
+            const multiplier = Math.floor(Math.random() * 3) + 2;
             const denom2 = base * multiplier;
 
             const numer1 = Math.floor(Math.random() * (base - 1)) + 1;
             const numer2 = Math.floor(Math.random() * (denom2 - 1)) + 1;
 
-            // Convert to common denominator
+            const gcd = (a: number, b: number): number =>
+                b === 0 ? a : gcd(b, a % b);
+
             const commonDenom = denom2;
             const equiv1 = numer1 * multiplier;
             const sumNumer = equiv1 + numer2;
 
-            // Simplify answer
-            function gcd(a: number, b: number): number {
-                return b === 0 ? a : gcd(b, a % b);
-            }
             const g = gcd(sumNumer, commonDenom);
             const ansNumer = sumNumer / g;
             const ansDenom = commonDenom / g;
 
+            let answers =
+                ansDenom === 1
+                    ? [`${ansNumer}`]
+                    : [
+                        toLatexFraction(ansNumer, ansDenom),
+                        toLatexFraction(sumNumer, commonDenom)
+                    ];
+
+            const optionsSet = new Set<string>(answers);
+
+            while (optionsSet.size < 4) {
+                const n = Math.floor(Math.random() * 10) + 1;
+                const d = [2, 3, 4, 5, 6, 8][Math.floor(Math.random() * 6)];
+                optionsSet.add(toLatexFraction(n, d));
+            }
+
+            const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
             return {
                 latex: `\\frac{${numer1}}{${base}} + \\frac{${numer2}}{${denom2}} = ?`,
-                answer: ansDenom === 1 ? ansNumer.toString() : `${ansNumer}/${ansDenom}`,
+                answer: answers,
+                options,
                 forceOption: 0,
             };
         }
 
-        // difficulty === 4: Add or subtract fractions with unrelated denominators (small values)
-        function gcd(a: number, b: number): number {
-            return b === 0 ? a : gcd(b, a % b);
-        }
+        // -------------------------
+        // D4: mixed denominators
+        // -------------------------
+        const gcd = (a: number, b: number): number =>
+            b === 0 ? a : gcd(b, a % b);
 
         const denomPairs = [[2, 3], [3, 4], [2, 5], [3, 5], [4, 5]];
         const [denom1, denom2] = denomPairs[Math.floor(Math.random() * denomPairs.length)];
@@ -880,22 +1085,55 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
         const isAddition = Math.random() < 0.5;
 
         const lcm = (denom1 * denom2) / gcd(denom1, denom2);
+
         const eq1 = numer1 * (lcm / denom1);
         const eq2 = numer2 * (lcm / denom2);
 
         const resultNumer = isAddition ? eq1 + eq2 : Math.abs(eq1 - eq2);
+
         const g = gcd(resultNumer, lcm);
+
         const ansNumer = resultNumer / g;
         const ansDenom = lcm / g;
 
-        const op = isAddition ? "+" : "-";
-        const [n1, d1, n2, d2] = isAddition || numer1 / denom1 >= numer2 / denom2
-            ? [numer1, denom1, numer2, denom2]
-            : [numer2, denom2, numer1, denom1];
+        let answers =
+            ansDenom === 1
+                ? [`${ansNumer}`]
+                : [
+                    toLatexFraction(ansNumer, ansDenom),
+                    toLatexFraction(resultNumer, lcm)
+                ];
+
+        const optionsSet = new Set<string>(answers);
+
+        while (optionsSet.size < 4) {
+            const d1 = [2, 3, 4, 5][Math.floor(Math.random() * 4)];
+            const d2 = [2, 3, 4, 5][Math.floor(Math.random() * 4)];
+
+            const n1 = Math.floor(Math.random() * d1) + 1;
+            const n2 = Math.floor(Math.random() * d2) + 1;
+
+            const g2 = (a: number, b: number): number =>
+                b === 0 ? a : g2(b, a % b);
+
+            const gg = g2(n1 + n2, d1);
+            const rn = (n1 + n2) / gg;
+            const rd = d1 / gg;
+
+            optionsSet.add(rd === 1 ? `${rn}` : toLatexFraction(rn, rd));
+        }
+
+        const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+        const [n1, d1, n2, d2] =
+            isAddition || numer1 / denom1 >= numer2 / denom2
+                ? [numer1, denom1, numer2, denom2]
+                : [numer2, denom2, numer1, denom1];
 
         return {
-            latex: `\\frac{${n1}}{${d1}} ${op} \\frac{${n2}}{${d2}} = ?`,
-            answer: ansDenom === 1 ? ansNumer.toString() : `${ansNumer}/${ansDenom}`,
+            latex: `\\frac{${n1}}{${d1}} ${isAddition ? "+" : "-"} \\frac{${n2}}{${d2}} = ?`,
+            answer: answers,
+            options,
             forceOption: 0,
         };
 
@@ -981,57 +1219,109 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
     }, [1, 2, 3, 4]),
 
     "link-between-fractions-and-decimals": createGenerator(({ difficulty }) => {
-        // Common fraction–decimal pairs used across difficulties
         const pairs: { numer: number; denom: number; decimal: string }[] = [
-            { numer: 1, denom: 2,  decimal: "0.5"   },
-            { numer: 1, denom: 4,  decimal: "0.25"  },
-            { numer: 3, denom: 4,  decimal: "0.75"  },
-            { numer: 1, denom: 5,  decimal: "0.2"   },
-            { numer: 2, denom: 5,  decimal: "0.4"   },
-            { numer: 3, denom: 5,  decimal: "0.6"   },
-            { numer: 4, denom: 5,  decimal: "0.8"   },
-            { numer: 1, denom: 10, decimal: "0.1"   },
-            { numer: 3, denom: 10, decimal: "0.3"   },
-            { numer: 7, denom: 10, decimal: "0.7"   },
-            { numer: 9, denom: 10, decimal: "0.9"   },
+            { numer: 1, denom: 2, decimal: "0.5" },
+            { numer: 1, denom: 4, decimal: "0.25" },
+            { numer: 3, denom: 4, decimal: "0.75" },
+            { numer: 1, denom: 5, decimal: "0.2" },
+            { numer: 2, denom: 5, decimal: "0.4" },
+            { numer: 3, denom: 5, decimal: "0.6" },
+            { numer: 4, denom: 5, decimal: "0.8" },
+            { numer: 1, denom: 10, decimal: "0.1" },
+            { numer: 3, denom: 10, decimal: "0.3" },
+            { numer: 7, denom: 10, decimal: "0.7" },
+            { numer: 9, denom: 10, decimal: "0.9" },
         ];
 
+        const toLatexFraction = (n: number, d: number) =>
+            `\\frac{${n}}{${d}}`;
+
+        // -------------------------
+        // D1: fraction → decimal
+        // -------------------------
         if (difficulty === 1) {
-            // Convert a simple fraction (halves, quarters, tenths) to a decimal
             const simplePairs = pairs.filter(p => [2, 4, 10].includes(p.denom));
             const pair = simplePairs[Math.floor(Math.random() * simplePairs.length)];
 
+            const correct = pair.decimal;
+
+            const optionsSet = new Set<string>();
+            optionsSet.add(correct);
+
+            while (optionsSet.size < 4) {
+                const p = simplePairs[Math.floor(Math.random() * simplePairs.length)];
+
+                const wrong = Math.random() < 0.5
+                    ? p.decimal
+                    : toLatexFraction(p.numer, p.denom);
+
+                optionsSet.add(wrong);
+            }
+
             return {
-                latex: `\\text{Write } \\frac{${pair.numer}}{${pair.denom}} \\text{ as a decimal.}`,
-                answer: pair.decimal,
-                options: [],
+                latex: `\\text{Write } ${toLatexFraction(pair.numer, pair.denom)} \\text{ as a decimal.}`,
+                answer: correct,
+                options: Array.from(optionsSet).sort(() => Math.random() - 0.5),
                 forceOption: 0,
             };
         }
 
+        // -------------------------
+        // D2: fraction ↔ decimal
+        // -------------------------
         if (difficulty === 2) {
-            // Convert a decimal to a fraction (fifths and tenths included)
             const pair = pairs[Math.floor(Math.random() * pairs.length)];
             const toDecimal = Math.random() < 0.5;
 
             if (toDecimal) {
+                const correct = pair.decimal;
+
+                const optionsSet = new Set<string>([correct]);
+
+                while (optionsSet.size < 4) {
+                    const p = pairs[Math.floor(Math.random() * pairs.length)];
+
+                    const wrong = Math.random() < 0.5
+                        ? p.decimal
+                        : toLatexFraction(p.numer, p.denom);
+
+                    optionsSet.add(wrong);
+                }
+
                 return {
-                    latex: `\\text{Write } \\frac{${pair.numer}}{${pair.denom}} \\text{ as a decimal.}`,
-                    answer: pair.decimal,
+                    latex: `\\text{Write } ${toLatexFraction(pair.numer, pair.denom)} \\text{ as a decimal.}`,
+                    answer: correct,
+                    options: Array.from(optionsSet).sort(() => Math.random() - 0.5),
                     forceOption: 0,
                 };
             } else {
+                const correct = toLatexFraction(pair.numer, pair.denom);
+
+                const optionsSet = new Set<string>([correct]);
+
+                while (optionsSet.size < 4) {
+                    const p = pairs[Math.floor(Math.random() * pairs.length)];
+
+                    const wrong = Math.random() < 0.5
+                        ? toLatexFraction(p.numer, p.denom)
+                        : p.decimal;
+
+                    optionsSet.add(wrong);
+                }
+
                 return {
                     latex: `\\text{Write } ${pair.decimal} \\text{ as a fraction in its simplest form.}`,
-                    answer: `${pair.numer}/${pair.denom}`,
+                    answer: correct,
+                    options: Array.from(optionsSet).sort(() => Math.random() - 0.5),
                     forceOption: 0,
                 };
             }
         }
 
+        // -------------------------
+        // D3: ordering
+        // -------------------------
         if (difficulty === 3) {
-            // Place fractions and decimals in order
-            // Pick 4 mixed values from the pairs list
             const shuffled = [...pairs].sort(() => Math.random() - 0.5).slice(0, 4);
             const isAscending = Math.random() < 0.5;
 
@@ -1041,37 +1331,67 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
                     : parseFloat(b.decimal) - parseFloat(a.decimal)
             );
 
-            // Display half as fractions, half as decimals
             const display = shuffled.map((p, i) =>
                 i % 2 === 0
-                    ? `\\frac{${p.numer}}{${p.denom}}`
+                    ? toLatexFraction(p.numer, p.denom)
                     : p.decimal
             ).join(", ");
 
-            const answer = sorted.map(p => p.decimal).join(",");
+            const correct = sorted.map(p => p.decimal).join(",");
+
+            const optionsSet = new Set<string>([correct]);
+
+            while (optionsSet.size < 4) {
+                const mix = [...pairs].sort(() => Math.random() - 0.5).slice(0, 4);
+                const wrong = mix.map(p => p.decimal).join(",");
+                optionsSet.add(wrong);
+            }
 
             return {
                 latex: `\\text{Sort in ${isAscending ? "ascending" : "descending"} order: } ${display}\\\\\\text{(answer as decimals separated by commas)}`,
-                answer,
+                answer: correct,
+                options: Array.from(optionsSet).sort(() => Math.random() - 0.5),
                 forceOption: 0,
             };
         }
 
-        // difficulty === 4: Convert a fraction with denominator 100 (hundredths) to a decimal and back
-        const numer = Math.floor(Math.random() * 99) + 1; // 1–99
+        // -------------------------
+        // D4: hundredths
+        // -------------------------
+        const numer = Math.floor(Math.random() * 99) + 1;
         const decimal = (numer / 100).toFixed(2);
         const toDecimal = Math.random() < 0.5;
 
         if (toDecimal) {
+            const correct = decimal;
+
+            const optionsSet = new Set<string>([correct]);
+
+            while (optionsSet.size < 4) {
+                const n = Math.floor(Math.random() * 99) + 1;
+                optionsSet.add((n / 100).toFixed(2));
+            }
+
             return {
-                latex: `\\text{Write } \\frac{${numer}}{100} \\text{ as a decimal.}`,
-                answer: decimal,
+                latex: `\\text{Write } ${toLatexFraction(numer, 100)} \\text{ as a decimal.}`,
+                answer: correct,
+                options: Array.from(optionsSet).sort(() => Math.random() - 0.5),
                 forceOption: 0,
             };
         } else {
+            const correct = toLatexFraction(numer, 100);
+
+            const optionsSet = new Set<string>([correct]);
+
+            while (optionsSet.size < 4) {
+                const n = Math.floor(Math.random() * 99) + 1;
+                optionsSet.add(toLatexFraction(n, 100));
+            }
+
             return {
-                latex: `\\text{Write } ${decimal} \\text{ as a fraction out of 100 (e.g. a/100).}`,
-                answer: `${numer}/100`,
+                latex: `\\text{Write } ${decimal} \\text{ as a fraction out of 100 (e.g. } \\frac{a}{100} \\text{).}`,
+                answer: correct,
+                options: Array.from(optionsSet).sort(() => Math.random() - 0.5),
                 forceOption: 0,
             };
         }
@@ -1083,9 +1403,25 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             // Understand what a percentage means (out of 100)
             const percent = [10, 20, 25, 50, 75, 100][Math.floor(Math.random() * 6)];
 
+            const correct = `\\frac{${percent}}{100}`;
+
+            const candidates = [10, 20, 25, 50, 75, 100];
+
+            const optionsSet = new Set<string>();
+            optionsSet.add(correct);
+
+            // add plausible distractors
+            while (optionsSet.size < 4) {
+                const wrong = candidates[Math.floor(Math.random() * candidates.length)];
+                optionsSet.add(`\\frac{${wrong}}{100}`);
+            }
+
+            const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
             return {
                 latex: `\\text{What is } ${percent}\\% \\text{ as a fraction out of 100? (e.g. a/100)}`,
-                answer: `${percent}/100`,
+                answer: correct,
+                options,
                 forceOption: 0,
             };
         }
@@ -1116,12 +1452,15 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
         if (difficulty === 3) {
 
             const commonValues = [
-                { percent: 10, fraction: "1/10", decimal: "0.1" },
-                { percent: 20, fraction: "1/5", decimal: "0.2" },
-                { percent: 25, fraction: "1/4", decimal: "0.25" },
-                { percent: 50, fraction: "1/2", decimal: "0.5" },
-                { percent: 75, fraction: "3/4", decimal: "0.75" },
+                { percent: 10, fraction: [1, 10], decimal: "0.1" },
+                { percent: 20, fraction: [1, 5], decimal: "0.2" },
+                { percent: 25, fraction: [1, 4], decimal: "0.25" },
+                { percent: 50, fraction: [1, 2], decimal: "0.5" },
+                { percent: 75, fraction: [3, 4], decimal: "0.75" },
             ];
+
+            const toLatexFraction = (n: number, d: number) =>
+                `\\frac{${n}}{${d}}`;
 
             const val = commonValues[Math.floor(Math.random() * commonValues.length)];
             const type = Math.floor(Math.random() * 3); // 0 frac→%, 1 dec→%, 2 %→frac
@@ -1136,7 +1475,7 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             // -----------------------------
             if (type === 0) {
 
-                latex = `\\text{Write } ${val.fraction} \\text{ as a percentage.}`;
+                latex = `\\text{Write } ${toLatexFraction(val.fraction[0], val.fraction[1])} \\text{ as a percentage.}`;
                 answer = `${val.percent}%`;
 
                 optionsSet.add(answer);
@@ -1169,18 +1508,22 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             // -----------------------------
             else {
 
-                latex = `\\text{Write } ${val.percent}\\% \\text{ as a fraction in simplest form.}`;
-                answer = val.fraction;
+                const correct = toLatexFraction(val.fraction[0], val.fraction[1]);
 
-                optionsSet.add(answer);
+                latex = `\\text{Write } ${val.percent}\\% \\text{ as a fraction in simplest form.}`;
+                answer = correct;
+
+                optionsSet.add(correct);
 
                 const distractors = [
-                    "2/4",
-                    "3/6",
-                    "4/8",
-                    "1/3",
-                    "2/5",
-                    "3/5"
+                    toLatexFraction(2, 4),
+                    toLatexFraction(3, 6),
+                    toLatexFraction(4, 8),
+                    toLatexFraction(1, 3),
+                    toLatexFraction(2, 5),
+                    toLatexFraction(3, 5),
+                    toLatexFraction(val.fraction[0] + 1, val.fraction[1]),
+                    toLatexFraction(val.fraction[0], val.fraction[1] + 1),
                 ];
 
                 for (const d of distractors) {

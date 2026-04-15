@@ -267,9 +267,14 @@ export function QuestionSubtopicLeaf({
     const renderOptionLabel = React.useCallback((option: string) => {
         const trimmed = option.trim();
         const isLatex = /\\|\^|_|\{|\}|\\frac|\\sqrt|\\pi|\\theta|\\times|\\div|\\sin|\\cos|\\tan|\\log|\\ln/.test(trimmed);
+        const isNumeric = /^-?\d+(?:\.\d+)?$/.test(trimmed);
 
-        if (isLatex) {
-            return <BlockMath math={trimmed} />;
+        if (isLatex || isNumeric) {
+            return (
+                <div className="flex w-full items-center justify-center">
+                    <BlockMath math={trimmed} />
+                </div>
+            );
         }
 
         return <span>{trimmed}</span>;
@@ -404,11 +409,15 @@ export function QuestionSubtopicLeaf({
         setAnswerCorrect(null);
     };
 
+    const normalizeAnswer = (answer: string) => {
+        const trimmed = answer.trim().replace(/\s+/g, "");
+        const isLatex = /\\|\^|_|\{|\}|\\frac|\\sqrt|\\pi|\\theta|\\sin|\\cos|\\tan|\\log|\\ln/.test(trimmed);
+        return isLatex ? trimmed : trimmed.toLowerCase();
+    };
+
     const handleCheckAnswer = () => {
-        const normalized = userAnswer
-            .trim()
-            .replace(/\s+/g, "")
-            .replace(/ /g, "");
+        const answerToCheck = userAnswerLatex || userAnswer;
+        const normalized = normalizeAnswer(answerToCheck);
 
         if (!questionAnswers.length) {
             setFeedback("Generate a question first before checking your answer.");
@@ -422,16 +431,9 @@ export function QuestionSubtopicLeaf({
             return;
         }
 
-        const expectedAnswers = questionAnswers.map((answer) =>
-            answer
-                .toString()
-                .trim()
-                .replace(/\s+/g, "")
-                .replace(/ /g, "")
-                .toLowerCase()
-        );
+        const expectedAnswers = questionAnswers.map((answer) => normalizeAnswer(answer.toString()));
 
-        const correct = expectedAnswers.some((expected) => normalized.toLowerCase() === expected);
+        const correct = expectedAnswers.some((expected) => normalized === expected);
 
         setAnswerCorrect(correct);
         setFeedback(
@@ -586,7 +588,7 @@ export function QuestionSubtopicLeaf({
                                                         type="button"
                                                         onClick={() => {
                                                             setUserAnswer(option);
-                                                            setUserAnswerLatex("");
+                                                            setUserAnswerLatex(option);
                                                             setAnswerCorrect(null);
                                                             setFeedback("");
                                                         }}
