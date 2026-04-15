@@ -448,7 +448,7 @@ export function QuestionSubtopicLeaf({
     }
 
     return (
-        <div className="flex w-full bg-background">
+        <div className="relative flex w-full bg-background">
             <SidePanel lng={lng} buttons={navButtons} />
             <div className="flex-1 flex flex-col items-center justify-start ml-10 mr-10">
                 <div className="flex w-full flex-wrap justify-between items-center gap-y-2 mt-5 gap-x-4">
@@ -644,7 +644,7 @@ export function QuestionSubtopicLeaf({
                                     <button
                                         type="button"
                                         onClick={() => setKeyboardOpen((current) => !current)}
-                                        className="rounded-2xl border border-primary/20 bg-primary/5 px-4 py-2 text-sm text-primary transition hover:bg-primary/10"
+                                        className="fixed right-6 bottom-2 z-50 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-2 text-sm text-primary transition hover:bg-primary/10"
                                     >
                                         {keyboardOpen ? t("questions.hide-keyboard") : t("questions.show-keyboard")}
                                     </button>

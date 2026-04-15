@@ -518,6 +518,14 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
                         )}
                         <div className='rounded-xl bg-slate-100 p-4 text-base leading-relaxed text-slate-900'>
                           <BlockMath math={questionPreview.latex} />
+                          {questionPreview.svg ? (
+                            <div className="flex items-center justify-center">
+                              <div
+                                className="mx-auto max-w-full overflow-auto"
+                                dangerouslySetInnerHTML={{ __html: questionPreview.svg  }}
+                              />
+                            </div>
+                          ) : null}
                         </div>
                         {questionPreview.explanation && (
                           <p className='text-sm text-slate-500'>

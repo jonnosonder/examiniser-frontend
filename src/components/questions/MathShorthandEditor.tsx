@@ -281,11 +281,7 @@ function getTokenDeleteRange(source: string, cursorIndex: number) {
 
     const char = source[index - 1];
     if (/\w|\d|\./.test(char)) {
-        let start = index - 1;
-        while (start > 0 && /[a-zA-Z0-9.]/.test(source[start - 1])) {
-            start -= 1;
-        }
-        return { start, end: index };
+        return { start: index - 1, end: index };
     }
 
     return { start: index - 1, end: index };
