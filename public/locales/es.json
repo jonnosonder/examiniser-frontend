@@ -13,7 +13,12 @@
     "easy": "Fácil",
     "but-how-1": "Pero",
     "but-how-2": "Cómo?",
-    "but-how-description": "Usando algoritmos inteligentes, podemos generar preguntas con soluciones en todos los niveles de dificultad dentro de un segundo."
+    "but-how-description": "Usando algoritmos inteligentes, podemos generar preguntas con soluciones en todos los niveles de dificultad dentro de un segundo.",
+    "try-it-now": "¡Pruébalo ahora!",
+    "random-question-preview": "Vista previa de pregunta aleatoria",
+    "random-question-hint": "Selecciona una pestaña y presiona el botón de abajo para generar una pregunta aleatoria.",
+    "generate-random-question": "Generar pregunta aleatoria",
+    "generating": "Generando..."
   },
   "general": {
     "back-to-home": "Volver a la Página Principal",
@@ -298,7 +303,7 @@
         "symmetry": "Encuentra ejes de simetría y completa dibujos simétricos.",
         "angles": "Compara ángulos y reconoce el ángulo recto.",
         "coordinates": "Lee y marca puntos en el primer cuadrante.",
-        "position-and-direction": "Description for Position And Direction."
+        "position-and-direction": "Usa posición y dirección para describir dónde están las figuras."
       },
       "algebra": {
         "patterns": "Continúa y describe patrones visuales y numéricos.",
@@ -632,7 +637,7 @@
     "reading-clocks": "Reading Clocks",
     "money-calculations": "Money Calculations",
     "perimeter-and-area": "Perimeter And Area",
-    "position-and-direction": "Position And Direction",
+    "position-and-direction": "Posición y dirección",
     "sorting-and-classifying": "Sorting And Classifying",
     "pictograms-bar-charts": "Pictograms Bar Charts",
     "basic-interpretation-of-data": "Basic Interpretation Of Data",

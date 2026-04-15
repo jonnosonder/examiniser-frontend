@@ -12,7 +12,12 @@
     "easy": "Faciles",
     "but-how-1": "Mais",
     "but-how-2": "Comment?",
-    "but-how-description": "En utilisant des algorithmes intelligents, nous pouvons générer des questions avec des solutions à tous les niveaux de difficulté en quelques secondes."
+    "but-how-description": "En utilisant des algorithmes intelligents, nous pouvons générer des questions avec des solutions à tous les niveaux de difficulté en quelques secondes.",
+    "try-it-now": "Essayez-le maintenant !",
+    "random-question-preview": "Aperçu de question aléatoire",
+    "random-question-hint": "Sélectionnez un onglet et appuyez sur le bouton ci-dessous pour générer une question aléatoire.",
+    "generate-random-question": "Générer une question aléatoire",
+    "generating": "Génération..."
   },
   "general": {
     "back-to-home": "Retour à l'accueil",
@@ -297,7 +302,7 @@
         "symmetry": "Trouve des axes de symétrie et complète des motifs.",
         "angles": "Compare des angles et reconnais l’angle droit.",
         "coordinates": "Lis et place des points dans le premier quadrant.",
-        "position-and-direction": "Description for Position And Direction."
+        "position-and-direction": "Utilise position et direction pour décrire où se trouvent les figures."
       },
       "algebra": {
         "patterns": "Poursuis et décris des motifs visuels et numériques.",
@@ -631,7 +636,7 @@
     "reading-clocks": "Reading Clocks",
     "money-calculations": "Money Calculations",
     "perimeter-and-area": "Perimeter And Area",
-    "position-and-direction": "Position And Direction",
+    "position-and-direction": "Position et direction",
     "sorting-and-classifying": "Sorting And Classifying",
     "pictograms-bar-charts": "Pictograms Bar Charts",
     "basic-interpretation-of-data": "Basic Interpretation Of Data",

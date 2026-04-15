@@ -19,14 +19,14 @@ export type QuestionResult = {
     svg?: string;
 };
 
-export type QuestionGenerator = (args: QuestionGeneratorArgs) => QuestionResult;
-export type QuestionGeneratorWithLevels = ((args: QuestionGeneratorArgs) => QuestionResult) & {
+export type QuestionGenerator = (args: QuestionGeneratorArgs) => QuestionResult | Promise<QuestionResult>;
+export type QuestionGeneratorWithLevels = ((args: QuestionGeneratorArgs) => Promise<QuestionResult>) & {
     availableDifficulties?: number[];
 };
 
 export function createGenerator(generator: QuestionGenerator, availableDifficulties: number[]): QuestionGeneratorWithLevels {
-    const fn = ((args: QuestionGeneratorArgs) => {
-        const result = generator(args);
+    const fn = (async (args: QuestionGeneratorArgs) => {
+        const result = await Promise.resolve(generator(args));
         const shouldFill = (result.forceOption === 0 || result.forceOption === 2);
         if ((Array.isArray(result.options) ? result.options.length === 0 : true) && shouldFill) {
             result.options = generateOptionsFromAnswer(result.answer);
@@ -51,7 +51,7 @@ export const defaultGenerator: QuestionGeneratorWithLevels = createGenerator(
     [1]
 );
 
-function generateOptionsFromAnswer(answer: any): string[] {
+function generateOptionsFromAnswer(answer: string | string[]): string[] {
     const raw = Array.isArray(answer)
         ? answer[0]
         : answer;

@@ -2,7 +2,59 @@
 // Copyright © 2025 Jonathan Kwok
 
 import { createGenerator } from './questionGeneratorCommon';
-import type { QuestionGeneratorWithLevels } from './questionGeneratorCommon';
+import type { QuestionGeneratorWithLevels, QuestionResult } from './questionGeneratorCommon';
+
+// When your site is built, this env var should point at the CloudFront URL
+// serving MathSample.json. If it is not set, the placeholder is used so the
+// project still compiles in development.
+const WORD_PROBLEM_JSON_URL = 'https://d2lpkm1h3gh3rw.cloudfront.net/bf708822519a6c22ccfa2aa8bed72e7b86587d0a587fe7e6bbc0d86068e2c57c.json';
+
+type WordProblemRecord = {
+    category?: string;
+    question: string;
+    answer: string | number;
+    explanation?: string;
+};
+
+let wordProblemCache: WordProblemRecord[] | null = null;
+
+async function fetchRandomWordProblem(): Promise<QuestionResult> {
+    try {
+        if (!wordProblemCache) {
+            const res = await fetch(WORD_PROBLEM_JSON_URL, { method: 'GET', mode: 'cors' });
+            if (!res.ok) {
+                throw new Error(`Failed to fetch word problems: ${res.status} ${res.statusText}`);
+            }
+            const data = await res.json();
+            if (!Array.isArray(data)) {
+                throw new Error('Word problems JSON is not an array');
+            }
+            wordProblemCache = data;
+        }
+
+        if (!wordProblemCache.length) {
+            throw new Error('Word problems list is empty');
+        }
+
+        const item = wordProblemCache[Math.floor(Math.random() * wordProblemCache.length)];
+        const answerText = item.answer === null || item.answer === undefined ? '' : String(item.answer);
+
+        return {
+            latex: `\\text{${item.question}}`,
+            answer: answerText,
+            explanation: item.explanation ?? '',
+            forceOption: 0,
+        };
+    } catch (error) {
+        console.log('Error fetching word problem:', error);
+        return {
+            latex: "\\text{Unable to load word problem from remote storage}",
+            answer: '',
+            explanation: String(error instanceof Error ? error.message : error),
+            forceOption: 0,
+        };
+    }
+}
 
 export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
     "counting": createGenerator(({ difficulty }) => {
@@ -207,7 +259,7 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
         const digit = Math.floor(Math.random() * 9) + 1;
         const places = [1, 10, 100, 1000];
 
-        let i1 = Math.floor(Math.random() * places.length);
+        const i1 = Math.floor(Math.random() * places.length);
         let i2;
         do {
             i2 = Math.floor(Math.random() * places.length);
@@ -261,8 +313,8 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
     }, [1, 2, 3, 4]),
     "comparing-and-ordering-numbers": createGenerator(({ difficulty }) => {
         if (difficulty === 1) {
-            let a = Math.floor(Math.random() * 21) - 10; // -10 to 10
-            let b = Math.floor(Math.random() * 21) - 10; // -10 to 10
+            const a = Math.floor(Math.random() * 21) - 10; // -10 to 10
+            const b = Math.floor(Math.random() * 21) - 10; // -10 to 10
 
             const isGreaterThan = Math.random() < 0.5;
 
@@ -284,7 +336,7 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             };
         }
 
-        let nums = [];
+        const nums: number[] = [];
 
         for (let i = 0; i < 5; i++) {
             nums.push(Math.floor(Math.random() * 21) - 10); // -10 to 10
@@ -403,8 +455,8 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
     }, [1, 2, 3]),
     "multiplication-and-division": createGenerator(({ difficulty }) => {
         if (difficulty === 1) {
-            let a = Math.floor(Math.random() * 12) + 1; // 1–12
-            let b = Math.floor(Math.random() * 12) + 1; // 1–12
+            const a = Math.floor(Math.random() * 12) + 1; // 1–12
+            const b = Math.floor(Math.random() * 12) + 1; // 1–12
 
             const question = `${a} × ${b}`;
             const answer = a * b;
@@ -417,10 +469,10 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
         }
 
         if (difficulty === 2) {
-            let divisor = Math.floor(Math.random() * 12) + 1; // 1–12
-            let quotient = Math.floor(Math.random() * 12) + 1; // 1–12
+            const divisor = Math.floor(Math.random() * 12) + 1; // 1–12
+            const quotient = Math.floor(Math.random() * 12) + 1; // 1–12
 
-            let dividend = divisor * quotient; // ensures whole number result
+            const dividend = divisor * quotient; // ensures whole number result
 
             const question = `${dividend} ÷ ${divisor}`;
             const answer = quotient;
@@ -464,7 +516,7 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
     }, [1, 2, 3]),
     "rounding-and-estimation": createGenerator(({ difficulty }) => {
         if (difficulty === 1) {
-            let num: number = parseFloat((Math.random() * 21 - 10).toFixed(1));
+            const num: number = parseFloat((Math.random() * 21 - 10).toFixed(1));
 
             const rounded: number = Math.round(num);
 
@@ -477,8 +529,8 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
 
         if (difficulty === 2) {
             // Generate a 2–5 digit number
-            let numDigits = Math.floor(Math.random() * 4) + 2; // 2 to 5 digits
-            let num = Math.floor(Math.random() * (10 ** numDigits));
+            const numDigits = Math.floor(Math.random() * 4) + 2; // 2 to 5 digits
+            const num = Math.floor(Math.random() * (10 ** numDigits));
 
             // Only valid rounding places for 2+ digit numbers
             const places = [
@@ -504,7 +556,7 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
 
         const count = Math.random() < 0.5 ? 2 : 3;
 
-        let nums = [];
+        const nums: number[] = [];
         for (let i = 0; i < count; i++) {
             nums.push(Math.floor(Math.random() * 9000) + 100);
         }
@@ -519,7 +571,7 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
 
         const place = places[Math.floor(Math.random() * places.length)];
 
-        let estimatedNums = nums.map(n => roundTo(n, place.value));
+        const estimatedNums = nums.map(n => roundTo(n, place.value));
 
         let answer;
         let question;
@@ -546,7 +598,7 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             const denom = denominators[Math.floor(Math.random() * denominators.length)];
             const numer = Math.floor(Math.random() * denom) + 1; // 1 to denom
 
-            let answers = [`${numer}/${denom}`];
+            const answers = [`${numer}/${denom}`];
             if (numer === denom) {
                 if (numer === 4) {
                     answers.push(`2/2`);
@@ -584,7 +636,7 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             // Compare two fractions with the same denominator
             const denominators = [4, 5, 6, 8, 10, 12];
             const denom = denominators[Math.floor(Math.random() * denominators.length)];
-            let a = Math.floor(Math.random() * (denom - 1)) + 1;
+            const a = Math.floor(Math.random() * (denom - 1)) + 1;
             let b = Math.floor(Math.random() * (denom - 1)) + 1;
             while (b === a) b = Math.floor(Math.random() * (denom - 1)) + 1;
 
@@ -802,7 +854,7 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
         const eq1 = numer1 * (lcm / denom1);
         const eq2 = numer2 * (lcm / denom2);
 
-        let resultNumer = isAddition ? eq1 + eq2 : Math.abs(eq1 - eq2);
+        const resultNumer = isAddition ? eq1 + eq2 : Math.abs(eq1 - eq2);
         const g = gcd(resultNumer, lcm);
         const ansNumer = resultNumer / g;
         const ansDenom = lcm / g;
@@ -1276,9 +1328,10 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             }
 
             const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+            const startTime = `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`;
 
             return {
-                latex: `\\text{What is } ${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")} + ${addH}\\text{h } ${addM}\\text{m?}`,
+                latex: `\\text{What time will it be } ${addH}\\text{ hours and } ${addM}\\text{ minutes after } ${startTime}?`,
                 answer: correct,
                 options,
                 forceOption: 0,
@@ -1623,7 +1676,7 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
         ];
 
         // pick different units
-        let from = units[Math.floor(Math.random() * units.length)];
+        const from = units[Math.floor(Math.random() * units.length)];
         let to = units[Math.floor(Math.random() * units.length)];
 
         while (to.name === from.name) {
@@ -2795,193 +2848,842 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
 
     }, [1, 2, 3, 4]),
     "position-and-direction": createGenerator(({ difficulty }) => {
-    const cols = ["A", "B", "C", "D", "E"];
-    const rows = ["1", "2", "3", "4", "5"];
+        const cols = ["A", "B", "C", "D", "E"];
+        const rows = ["1", "2", "3", "4", "5"];
 
-    const cellSize = 30;
-    const offset = 40;
+        const cellSize = 30;
+        const offset = 40;
 
-    const toCoord = (x: number, y: number) => `${cols[x]}${rows[y]}`;
+        const toCoord = (x: number, y: number) => `${cols[x]}${rows[y]}`;
 
-    const buildGrid = (startX: number, startY: number) => {
-        let svg = `<svg width="200" height="200" viewBox="0 0 200 200">`;
+        const buildGrid = (startX: number, startY: number) => {
+            let svg = `<svg width="200" height="200" viewBox="0 0 200 200">`;
 
-        // top labels (A–E)
-        for (let x = 0; x < 5; x++) {
-            const cx = offset + x * cellSize + cellSize / 2;
-            svg += `<text x="${cx}" y="25" font-size="12" text-anchor="middle">${cols[x]}</text>`;
+            // top labels (A–E)
+            for (let x = 0; x < 5; x++) {
+                const cx = offset + x * cellSize + cellSize / 2;
+                svg += `<text x="${cx}" y="25" font-size="12" text-anchor="middle">${cols[x]}</text>`;
+            }
+
+            // left labels (1–5)
+            for (let y = 0; y < 5; y++) {
+                const cy = offset + y * cellSize + cellSize / 2;
+                svg += `<text x="20" y="${cy + 4}" font-size="12" text-anchor="middle">${rows[4 - y]}</text>`;
+            }
+
+            // grid lines
+            for (let i = 0; i <= 5; i++) {
+                svg += `<line x1="${offset + i * cellSize}" y1="${offset}" x2="${offset + i * cellSize}" y2="${offset + 5 * cellSize}" stroke="black"/>`;
+                svg += `<line x1="${offset}" y1="${offset + i * cellSize}" x2="${offset + 5 * cellSize}" y2="${offset + i * cellSize}" stroke="black"/>`;
+            }
+
+            // start marker
+            const sx = offset + startX * cellSize + cellSize / 2;
+            const sy = offset + (4 - startY) * cellSize + cellSize / 2;
+
+            svg += `<circle cx="${sx}" cy="${sy}" r="5" fill="green"/>`;
+
+            svg += `</svg>`;
+            return svg;
+        };
+
+        // ---------------- LEVEL 1 ----------------
+        // random start, identify position
+        if (difficulty === 1) {
+            const x = Math.floor(Math.random() * 5);
+            const y = Math.floor(Math.random() * 5);
+
+            const svg = buildGrid(x, y);
+            const correct = toCoord(x, y);
+
+            const optionsSet = new Set<string>();
+            optionsSet.add(correct);
+
+            while (optionsSet.size < 4) {
+                optionsSet.add(toCoord(
+                    Math.floor(Math.random() * 5),
+                    Math.floor(Math.random() * 5)
+                ));
+            }
+
+            const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+            return {
+                svg,
+                latex: `\\text{Where is the green circle?}`,
+                answer: correct,
+                options,
+                forceOption: 0,
+            };
         }
 
-        // left labels (1–5)
-        for (let y = 0; y < 5; y++) {
-            const cy = offset + y * cellSize + cellSize / 2;
-            svg += `<text x="20" y="${cy + 4}" font-size="12" text-anchor="middle">${rows[4 - y]}</text>`;
+        // ---------------- LEVEL 2 ----------------
+        // fixed start, follow directions
+        if (difficulty === 2) {
+            let x = 2;
+            let y = 2;
+
+            const dirs = ["left", "right", "up", "down"];
+            const steps = Math.floor(Math.random() * 4) + 3;
+            const sequence: string[] = [];
+
+            for (let i = 0; i < steps; i++) {
+                let moved = false;
+
+                while (!moved) {
+                    const d = dirs[Math.floor(Math.random() * dirs.length)];
+
+                    if (d === "left" && x > 0) {
+                        x--; moved = true;
+                    } else if (d === "right" && x < 4) {
+                        x++; moved = true;
+                    } else if (d === "up" && y < 4) {
+                        y++; moved = true;
+                    } else if (d === "down" && y > 0) {
+                        y--; moved = true;
+                    }
+
+                    if (moved) sequence.push(d);
+                }
+            }
+
+            const svg = buildGrid(2, 2);
+            const correct = toCoord(x, y);
+
+            const optionsSet = new Set<string>();
+            optionsSet.add(correct);
+
+            while (optionsSet.size < 4) {
+                optionsSet.add(toCoord(
+                    Math.floor(Math.random() * 5),
+                    Math.floor(Math.random() * 5)
+                ));
+            }
+
+            const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+            return {
+                svg,
+                latex: `\\text{Start at the green circle. Follow: } ${sequence.join(", ")}. \\text{ Where do you end up?}`,
+                answer: correct,
+                options,
+                forceOption: 0,
+            };
         }
 
-        // grid lines
-        for (let i = 0; i <= 5; i++) {
-            svg += `<line x1="${offset + i * cellSize}" y1="${offset}" x2="${offset + i * cellSize}" y2="${offset + 5 * cellSize}" stroke="black"/>`;
-            svg += `<line x1="${offset}" y1="${offset + i * cellSize}" x2="${offset + 5 * cellSize}" y2="${offset + i * cellSize}" stroke="black"/>`;
+        // ---------------- LEVEL 3 ----------------
+        // random start, follow directions
+        if (difficulty === 3) {
+            const startX = Math.floor(Math.random() * 5);
+            const startY = Math.floor(Math.random() * 5);
+
+            let x = startX;
+            let y = startY;
+
+            const dirs = ["left", "right", "up", "down"];
+            const steps = Math.floor(Math.random() * 4) + 3;
+            const sequence: string[] = [];
+
+            for (let i = 0; i < steps; i++) {
+                let moved = false;
+
+                while (!moved) {
+                    const d = dirs[Math.floor(Math.random() * dirs.length)];
+
+                    if (d === "left" && x > 0) {
+                        x--;
+                        moved = true;
+                    } else if (d === "right" && x < 4) {
+                        x++;
+                        moved = true;
+                    } else if (d === "up" && y < 4) {
+                        y++;
+                        moved = true;
+                    } else if (d === "down" && y > 0) {
+                        y--;
+                        moved = true;
+                    }
+
+                    if (moved) sequence.push(d);
+                }
+            }
+
+            // IMPORTANT: grid shows START, not end
+            const svg = buildGrid(startX, startY);
+
+            const correct = toCoord(x, y);
+
+            const optionsSet = new Set<string>();
+            optionsSet.add(correct);
+
+            while (optionsSet.size < 4) {
+                const rx = Math.floor(Math.random() * 5);
+                const ry = Math.floor(Math.random() * 5);
+                optionsSet.add(toCoord(rx, ry));
+            }
+
+            const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+            return {
+                svg,
+                latex: `\\text{Start at the green circle. Follow: } ${sequence.join(", ")}. \\text{ Where do you end up?}`,
+                answer: correct,
+                options,
+                forceOption: 0,
+            };
         }
 
-        // start marker
-        const sx = offset + startX * cellSize + cellSize / 2;
-        const sy = offset + (4 - startY) * cellSize + cellSize / 2;
+        throw new Error(`Unhandled difficulty: ${difficulty}`);
+    }, [1, 2, 3]),
+    "sorting-and-classifying": createGenerator(({ difficulty }) => {
+        const shuffle = <T>(arr: T[]) => [...arr].sort(() => Math.random() - 0.5);
 
-        svg += `<circle cx="${sx}" cy="${sy}" r="5" fill="green"/>`;
+        const uniqueNumbers = (count: number, max: number) => {
+            const set = new Set<number>();
+            while (set.size < count) {
+                set.add(Math.floor(Math.random() * max) + 1);
+            }
+            return Array.from(set);
+        };
 
-        svg += `</svg>`;
-        return svg;
+        // ---------- DIFFICULTY 1: ODD ONE OUT ----------
+        if (difficulty === 1) {
+            const sets = [
+                // --- numbers ---
+                { items: ["2", "4", "6", "7"], answer: "7" },
+                { items: ["1", "3", "5", "8"], answer: "8" },
+                { items: ["10", "12", "14", "15"], answer: "15" },
+                { items: ["21", "23", "25", "30"], answer: "30" },
+
+                // --- food / plant vs fruit ---
+                { items: ["apple", "banana", "carrot", "pear"], answer: "carrot" },
+                { items: ["orange", "grape", "potato", "melon"], answer: "potato" },
+                { items: ["strawberry", "blueberry", "broccoli", "raspberry"], answer: "broccoli" },
+                { items: ["mango", "pineapple", "lettuce", "kiwi"], answer: "lettuce" },
+
+                // --- 2D vs 3D shapes ---
+                { items: ["triangle", "square", "circle", "cube"], answer: "cube" },
+                { items: ["rectangle", "pentagon", "hexagon", "sphere"], answer: "sphere" },
+                { items: ["circle", "triangle", "cube", "oval"], answer: "cube" },
+                { items: ["square", "rectangle", "cylinder", "triangle"], answer: "cylinder" },
+
+                // --- colours vs object ---
+                { items: ["red", "blue", "green", "dog"], answer: "dog" },
+                { items: ["yellow", "purple", "orange", "table"], answer: "table" },
+                { items: ["black", "white", "pink", "car"], answer: "car" },
+                { items: ["blue", "green", "brown", "chair"], answer: "chair" },
+
+                // --- units ---
+                { items: ["kg", "g", "cm", "tonne"], answer: "cm" },
+                { items: ["cm", "m", "km", "kg"], answer: "kg" },
+                { items: ["litre", "ml", "g", "cl"], answer: "g" },
+                { items: ["seconds", "minutes", "hours", "kg"], answer: "kg" },
+
+                // --- animals vs object ---
+                { items: ["cat", "dog", "fish", "car"], answer: "car" },
+                { items: ["lion", "tiger", "elephant", "bus"], answer: "bus" },
+                { items: ["cow", "sheep", "goat", "chair"], answer: "chair" },
+                { items: ["horse", "donkey", "zebra", "table"], answer: "table" },
+
+            ];
+
+            const q = sets[Math.floor(Math.random() * sets.length)];
+
+            return {
+                latex: `\\text{Which is the odd one out? } ${q.items.join(", ")}`,
+                answer: q.answer,
+                options: shuffle(q.items),
+                forceOption: 0,
+            };
+        }
+
+        // ---------- DIFFICULTY 2: GROUP BY PROPERTY ----------
+        if (difficulty === 2) {
+            const type = Math.floor(Math.random() * 3);
+
+            const buildOptions = (correct: string[], wrong: string[], size: number) => {
+                const set = new Set<string>();
+                set.add(correct.join(", "));
+
+                let attempts = 0;
+
+                while (set.size < 4 && attempts < 20) {
+                    attempts++;
+
+                    const mix: string[] = [];
+                    for (let i = 0; i < size; i++) {
+                        const pool = Math.random() < 0.5 ? correct : wrong;
+                        mix.push(pool[Math.floor(Math.random() * pool.length)]);
+                    }
+
+                    const unique = [...new Set(mix)];
+                    if (unique.join(", ") !== correct.join(", ")) {
+                        set.add(unique.join(", "));
+                    }
+                }
+
+                return shuffle(Array.from(set));
+            };
+
+            if (type === 0) {
+                const correct = ["2", "4", "6"];
+                const wrong = ["3", "5", "7"];
+
+                return {
+                    latex: `\\text{Which group contains only even numbers?}`,
+                    answer: correct.join(", "),
+                    options: buildOptions(correct, wrong, 3),
+                    forceOption: 2,
+                };
+            }
+
+            if (type === 1) {
+                const correct = ["Square", "Rectangle"];
+                const wrong = ["Triangle", "Circle"];
+
+                return {
+                    latex: `\\text{Which group has only 4-sided shapes?}`,
+                    answer: correct.join(", "),
+                    options: buildOptions(correct, wrong, 2),
+                    forceOption: 2,
+                };
+            }
+
+            const correct = ["cm", "m", "km"];
+            const wrong = ["kg", "Litres", "Seconds"];
+
+            return {
+                latex: `\\text{Which group contains only length units?}`,
+                answer: correct.join(", "),
+                options: buildOptions(correct, wrong, 3),
+                forceOption: 2,
+            };
+        }
+
+        // ---------- DIFFICULTY 3: SORT NUMBERS ----------
+        if (difficulty === 3) {
+            const nums = uniqueNumbers(6, 100);
+
+            const isAscending = Math.random() < 0.5;
+
+            const correctArr = [...nums].sort((a, b) => 
+                isAscending ? a - b : b - a
+            );
+
+            const correct = correctArr.join(", ");
+
+            const set = new Set<string>();
+            set.add(correct);
+
+            let attempts = 0;
+
+            while (set.size < 4 && attempts < 30) {
+                attempts++;
+
+                const shuffled = shuffle(nums).join(", ");
+
+                // avoid accidentally matching correct answer
+                if (shuffled !== correct) {
+                    set.add(shuffled);
+                }
+            }
+
+            return {
+                latex: `\\text{Put these numbers in ${isAscending ? "ascending" : "descending"} order: } ${nums.join(", ")}`,
+                answer: correct,
+                options: shuffle(Array.from(set)),
+                forceOption: 0,
+            };
+        }
+
+        // ---------- DIFFICULTY 4: CLASSIFY ITEM ----------
+        if (difficulty === 4) {
+            const items = [
+                { item: "triangle", group: "2D shape" },
+                { item: "cube", group: "3D shape" },
+                { item: "kg", group: "mass unit" },
+                { item: "cm", group: "length unit" },
+                { item: "litre", group: "volume unit" },
+                { item: "hour", group: "time unit" },
+            ];
+
+            const allGroups = ["2D Shape", "3D Shape", "Mass Unit", "Length Unit", "Volume Unit", "Time Unit"];
+
+            const q = items[Math.floor(Math.random() * items.length)];
+
+            const set = new Set<string>();
+            set.add(q.group);
+
+            while (set.size < 4) {
+                const g = allGroups[Math.floor(Math.random() * allGroups.length)];
+                set.add(g);
+            }
+
+            return {
+                latex: `\\text{Which group does } ${q.item} \\text{ belong to?}`,
+                answer: q.group,
+                options: shuffle(Array.from(set)),
+                forceOption: 2,
+            };
+        }
+
+        // ---------- DIFFICULTY 5: MULTI-CRITERIA ----------
+        const nums = uniqueNumbers(4, 20);
+
+        // randomly choose condition
+        const isEven = Math.random() < 0.5;
+
+        let correctArr = nums.filter(n => isEven ? n % 2 === 0 : n % 2 !== 0);
+
+        // Ensure at least one correct answer
+        if (correctArr.length === 0) {
+            // force first number to match condition
+            nums[0] = isEven ? 2 : 1;
+            correctArr = nums.filter(n => isEven ? n % 2 === 0 : n % 2 !== 0);
+        }
+
+        const correct = correctArr.join(", ");
+
+        const set = new Set<string>();
+        set.add(correct);
+
+        let attempts = 0;
+
+        while (set.size < 4 && attempts < 30) {
+            attempts++;
+
+            const subset = nums.filter(() => Math.random() < 0.5);
+            if (subset.length === 0) continue;
+
+            const str = subset.join(", ");
+            if (str !== correct) set.add(str);
+        }
+
+        return {
+            latex: `\\text{Select all ${isEven ? "even" : "odd"} numbers from: } ${nums.join(", ")}`,
+            answer: correct,
+            options: shuffle(Array.from(set)),
+            forceOption: 2,
+        };
+
+    }, [1, 2, 3, 4, 5]),
+
+    "pictograms-bar-charts": createGenerator(({ difficulty }) => {
+
+    const categories = ["Orange", "Apple", "Pears", "Other"];
+
+    // -----------------------------
+    // D3 UNIT DEFINITION (ONLY MEANING CHANGE)
+    // -----------------------------
+    const unitValue = difficulty === 3
+        ? Math.floor(Math.random() * 4) + 2 // 2–5 units per circle
+        : 1;
+
+    // -----------------------------
+    // VALUE GENERATION
+    // -----------------------------
+    const values = categories.map(() => {
+
+        if (difficulty === 1) {
+            return Math.floor(Math.random() * 5) + 1;
+        }
+
+        if (difficulty === 2) {
+            const full = Math.floor(Math.random() * 5) + 1;
+            const hasHalf = Math.random() < 0.5 ? 0.5 : 0;
+            return full + hasHalf;
+        }
+
+        // difficulty 3: still allows half-units, but in larger scale
+        const base = Math.floor(Math.random() * 5 + 2) * unitValue;
+        const hasHalf = Math.random() < 0.5 ? unitValue / 2 : 0;
+        return base + hasHalf;
+    });
+
+    const data = categories.map((label, i) => ({
+        label,
+        value: values[i]
+    }));
+
+    const target = data[Math.floor(Math.random() * data.length)];
+    const correct = String(target.value);
+
+    // -----------------------------
+    // OPTIONS
+    // -----------------------------
+    const optionsSet = new Set<string>();
+    optionsSet.add(correct);
+
+    while (optionsSet.size < 4) {
+        const base = target.value;
+
+        let wrong: number;
+
+        if (difficulty === 3) {
+            const step = unitValue / 2;
+            wrong = Math.max(0, base + (Math.floor(Math.random() * 5) - 2) * step);
+        } else {
+            const offset = (Math.floor(Math.random() * 5) - 2) * 0.5;
+            wrong = Math.max(0, base + offset);
+        }
+
+        optionsSet.add(String(wrong));
+    }
+
+    const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+    // -----------------------------
+    // SVG
+    // -----------------------------
+    const svg = `
+    <svg width="420" height="260" viewBox="0 0 420 260">
+
+        <text x="210" y="20" text-anchor="middle" font-size="12">
+            ${difficulty === 3
+                ? `1 full circle = ${unitValue} units`
+                : "1 full circle = 1 unit"
+            }
+        </text>
+
+        <rect x="10" y="30" width="400" height="220" fill="none" stroke="black"/>
+
+        ${data.map((d, i) => {
+
+            const y = 70 + i * 45;
+            const startX = 140;
+
+            const circles: string[] = [];
+
+            // -----------------------------
+            // SHARED RENDERING LOGIC (D1 / D2 / D3)
+            // -----------------------------
+
+            let full: number;
+            let half: boolean;
+
+            if (difficulty === 3) {
+                full = Math.floor(d.value / unitValue);
+                half = Math.abs(d.value % unitValue - unitValue / 2) < 1e-9;
+            } else {
+                full = Math.floor(d.value);
+                half = d.value % 1 !== 0;
+            }
+
+            let xIndex = 0;
+
+            // FULL CIRCLES
+            for (let j = 0; j < full; j++) {
+
+                const x = startX + xIndex * 22;
+
+                circles.push(`
+                    <circle cx="${x}" cy="${y}" r="7"
+                        fill="none" stroke="black"/>
+                `);
+
+                xIndex++;
+            }
+
+            // HALF CIRCLE (D2 + D3)
+            if (half && (difficulty === 2 || difficulty === 3)) {
+
+                const x = startX + xIndex * 22;
+                const r = 7;
+
+                circles.push(`
+                    <path d="
+                        M ${x - r} ${y}
+                        A ${r} ${r} 0 0 1 ${x + r} ${y}
+                        L ${x - r} ${y}
+                    "
+                    transform="rotate(-90 ${x} ${y})"
+                    fill="none"
+                    stroke="black"/>
+                `);
+            }
+
+            return `
+                <text x="80" y="${y + 4}" text-anchor="end">
+                    ${d.label}
+                </text>
+
+                ${circles.join("")}
+            `;
+        }).join("")}
+
+    </svg>`;
+
+    return {
+        latex: `\\text{How many units are shown for ${target.label}?}`,
+        svg,
+        answer: correct,
+        options,
+        forceOption: 0,
     };
 
-    // ---------------- LEVEL 1 ----------------
-    // random start, identify position
-    if (difficulty === 1) {
-        const x = Math.floor(Math.random() * 5);
-        const y = Math.floor(Math.random() * 5);
-
-        const svg = buildGrid(x, y);
-        const correct = toCoord(x, y);
-
-        const optionsSet = new Set<string>();
-        optionsSet.add(correct);
-
-        while (optionsSet.size < 4) {
-            optionsSet.add(toCoord(
-                Math.floor(Math.random() * 5),
-                Math.floor(Math.random() * 5)
-            ));
-        }
-
-        const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
-
-        return {
-            svg,
-            latex: `\\text{Where is the green circle?}`,
-            answer: correct,
-            options,
-            forceOption: 0,
-        };
-    }
-
-    // ---------------- LEVEL 2 ----------------
-    // fixed start, follow directions
-    if (difficulty === 2) {
-        let x = 2;
-        let y = 2;
-
-        const dirs = ["left", "right", "up", "down"];
-        const steps = Math.floor(Math.random() * 4) + 3;
-        const sequence: string[] = [];
-
-        for (let i = 0; i < steps; i++) {
-            let moved = false;
-
-            while (!moved) {
-                const d = dirs[Math.floor(Math.random() * dirs.length)];
-
-                if (d === "left" && x > 0) {
-                    x--; moved = true;
-                } else if (d === "right" && x < 4) {
-                    x++; moved = true;
-                } else if (d === "up" && y < 4) {
-                    y++; moved = true;
-                } else if (d === "down" && y > 0) {
-                    y--; moved = true;
-                }
-
-                if (moved) sequence.push(d);
-            }
-        }
-
-        const svg = buildGrid(2, 2);
-        const correct = toCoord(x, y);
-
-        const optionsSet = new Set<string>();
-        optionsSet.add(correct);
-
-        while (optionsSet.size < 4) {
-            optionsSet.add(toCoord(
-                Math.floor(Math.random() * 5),
-                Math.floor(Math.random() * 5)
-            ));
-        }
-
-        const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
-
-        return {
-            svg,
-            latex: `\\text{Start at the green circle. Follow: } ${sequence.join(", ")}. \\text{ Where do you end up?}`,
-            answer: correct,
-            options,
-            forceOption: 0,
-        };
-    }
-
-    // ---------------- LEVEL 3 ----------------
-    // random start, follow directions
-    if (difficulty === 3) {
-        let startX = Math.floor(Math.random() * 5);
-        let startY = Math.floor(Math.random() * 5);
-
-        let x = startX;
-        let y = startY;
-
-        const dirs = ["left", "right", "up", "down"];
-        const steps = Math.floor(Math.random() * 4) + 3;
-        const sequence: string[] = [];
-
-        for (let i = 0; i < steps; i++) {
-            let moved = false;
-
-            while (!moved) {
-                const d = dirs[Math.floor(Math.random() * dirs.length)];
-
-                if (d === "left" && x > 0) {
-                    x--;
-                    moved = true;
-                } else if (d === "right" && x < 4) {
-                    x++;
-                    moved = true;
-                } else if (d === "up" && y < 4) {
-                    y++;
-                    moved = true;
-                } else if (d === "down" && y > 0) {
-                    y--;
-                    moved = true;
-                }
-
-                if (moved) sequence.push(d);
-            }
-        }
-
-        // IMPORTANT: grid shows START, not end
-        const svg = buildGrid(startX, startY);
-
-        const correct = toCoord(x, y);
-
-        const optionsSet = new Set<string>();
-        optionsSet.add(correct);
-
-        while (optionsSet.size < 4) {
-            const rx = Math.floor(Math.random() * 5);
-            const ry = Math.floor(Math.random() * 5);
-            optionsSet.add(toCoord(rx, ry));
-        }
-
-        const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
-
-        return {
-            svg,
-            latex: `\\text{Start at the green circle. Follow: } ${sequence.join(", ")}. \\text{ Where do you end up?}`,
-            answer: correct,
-            options,
-            forceOption: 0,
-        };
-    }
-
-    throw new Error(`Unhandled difficulty: ${difficulty}`);
 }, [1, 2, 3]),
+
+    "tables": createGenerator(({ difficulty }) => {
+        // ---------- DIFFICULTY 1: READ FROM SIMPLE TABLE ----------
+        if (difficulty === 1) {
+
+            const names = ["Alice", "Ben", "Charlie", "Daisy"];
+            
+            const values = names.map(() => Math.floor(Math.random() * 10) + 1);
+
+            const tableData = names.map((name, i) => ({
+                name,
+                value: values[i]
+            }));
+
+            const targetIndex = Math.floor(Math.random() * tableData.length);
+            const target = tableData[targetIndex];
+
+            const correct = `${target.value}`;
+
+            const optionsSet = new Set<string>();
+            optionsSet.add(correct);
+
+            while (optionsSet.size < 4) {
+                const wrong = `${Math.floor(Math.random() * 10) + 1}`;
+                if (wrong !== correct) optionsSet.add(wrong);
+            }
+
+            const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+            const svg = `
+            <svg width="260" height="180" viewBox="0 0 260 170">
+
+                <!-- table border -->
+                <rect x="10" y="10" width="240" height="160" fill="none" stroke="black"/>
+
+                <!-- column lines -->
+                <line x1="130" y1="10" x2="130" y2="170" stroke="black"/>
+
+                <!-- row lines -->
+                <line x1="10" y1="50" x2="250" y2="50" stroke="black"/>
+                <line x1="10" y1="90" x2="250" y2="90" stroke="black"/>
+                <line x1="10" y1="130" x2="250" y2="130" stroke="black"/>
+
+                <!-- headers -->
+                <text x="70" y="35" text-anchor="middle">Name</text>
+                <text x="190" y="35" text-anchor="middle">Apples</text>
+
+                <!-- rows -->
+                ${tableData.map((row, i) => {
+                    const y = 75 + i * 40;
+                    return `
+                        <text x="70" y="${y}" text-anchor="middle">${row.name}</text>
+                        <text x="190" y="${y}" text-anchor="middle">${row.value}</text>
+                    `;
+                }).join("")}
+
+            </svg>`;
+
+            return {
+                latex: `\\text{How many apples does ${target.name} have?}`,
+                svg,
+                answer: correct,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // ---------- DIFFICULTY 2: COMPARE / TOTALS ----------
+        if (difficulty === 2) {
+
+            const names = ["Alex", "Bella", "Chris", "Dina"];
+
+            const apples = names.map(() => Math.floor(Math.random() * 10) + 1);
+            const oranges = names.map(() => Math.floor(Math.random() * 10) + 1);
+
+            const rows = names.map((name, i) => ({
+                name,
+                apples: apples[i],
+                oranges: oranges[i],
+                total: apples[i] + oranges[i]
+            }));
+
+            const type = Math.random();
+
+            let questionText: string;
+            let correctValue: string;
+
+            if (type < 0.33) {
+                const best = rows.reduce((a, b) => a.total > b.total ? a : b);
+                questionText = `Who has the highest total fruit?`;
+                correctValue = best.name;
+
+            } else if (type < 0.66) {
+                const a = rows[0];
+                const b = rows[1];
+                questionText = `How many more fruits does ${a.name} have than ${b.name}?`;
+                correctValue = String(Math.abs(a.total - b.total));
+
+            } else {
+                const r = rows[Math.floor(Math.random() * rows.length)];
+                questionText = `How many fruits does ${r.name} have in total?`;
+                correctValue = String(r.total);
+            }
+
+            const optionsSet = new Set<string>();
+            optionsSet.add(`${correctValue}`);
+
+            while (optionsSet.size < 4) {
+
+                let wrong: string;
+
+                // numeric answer case
+                if (!isNaN(Number(correctValue))) {
+                    const base = Number(correctValue);
+
+                    wrong = String(
+                        Math.max(0, base + Math.floor(Math.random() * 6 - 3))
+                    );
+                } 
+                // string answer case (e.g. names)
+                else {
+                    const names = ["Alex", "Bella", "Chris", "Dina"];
+
+                    wrong = names[Math.floor(Math.random() * names.length)];
+                }
+
+                if (wrong !== correctValue) {
+                    optionsSet.add(wrong);
+                }
+            }
+
+            const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+            const svg = `
+            <svg width="320" height="200" viewBox="0 0 320 220">
+
+                <!-- outer border -->
+                <rect x="10" y="10" width="300" height="200" fill="none" stroke="black"/>
+
+                <!-- grid -->
+                <line x1="110" y1="10" x2="110" y2="210" stroke="black"/>
+                <line x1="210" y1="10" x2="210" y2="210" stroke="black"/>
+
+                <line x1="10" y1="50" x2="310" y2="50" stroke="black"/>
+                <line x1="10" y1="90" x2="310" y2="90" stroke="black"/>
+                <line x1="10" y1="130" x2="310" y2="130" stroke="black"/>
+                <line x1="10" y1="170" x2="310" y2="170" stroke="black"/>
+
+                <!-- headers -->
+                <text x="60" y="35" text-anchor="middle">Name</text>
+                <text x="160" y="35" text-anchor="middle">Apples</text>
+                <text x="260" y="35" text-anchor="middle">Oranges</text>
+
+                <!-- rows -->
+                ${rows.map((r, i) => {
+                    const y = 75 + i * 40;
+                    return `
+                        <text x="60" y="${y}" text-anchor="middle">${r.name}</text>
+                        <text x="160" y="${y}" text-anchor="middle">${r.apples}</text>
+                        <text x="260" y="${y}" text-anchor="middle">${r.oranges}</text>
+                    `;
+                }).join("")}
+
+            </svg>`;
+
+            return {
+                latex: `\\text{${questionText}}`,
+                svg,
+                answer: String(correctValue),
+                options,
+                forceOption: 0,
+            };
+        }
+
+        throw new Error(`Unhandled difficulty: ${difficulty}`);
+
+    }, [1, 2]),
+
+    "word-problems": createGenerator(async ({ difficulty }) => {
+        if (difficulty === 1) {
+            return await fetchRandomWordProblem();
+        }
+        throw new Error(`Unhandled difficulty: ${difficulty}`);
+    }, [1]),
+
+    "patterns-and-sequences": createGenerator(({ difficulty }) => {
+        if (difficulty === 1) {
+
+            const shapes = ["Circle", "Square", "Triangle"] as const;
+
+            function renderShape(shape: string, cx: number, cy: number): string {
+                if (shape === "Circle") {
+                    return `<circle cx="${cx}" cy="${cy}" r="10" stroke="black" fill="none"/>`;
+                }
+
+                if (shape === "Square") {
+                    return `<rect x="${cx - 10}" y="${cy - 10}" width="20" height="20" stroke="black" fill="none"/>`;
+                }
+
+                if (shape === "Triangle") {
+                    return `
+                        <polygon points="
+                            ${cx},${cy - 12}
+                            ${cx - 10},${cy + 10}
+                            ${cx + 10},${cy + 10}
+                        " stroke="black" fill="none"/>
+                    `;
+                }
+
+                return "";
+            }
+
+            // -----------------------------
+            // PATTERN
+            // -----------------------------
+            const patternLength = 2 + Math.floor(Math.random() * 2);
+
+            const basePattern = Array.from({ length: patternLength }, () =>
+                shapes[Math.floor(Math.random() * shapes.length)]
+            );
+
+            const sequenceLength = 5;
+
+            const sequence = Array.from({ length: sequenceLength }, (_, i) =>
+                basePattern[i % patternLength]
+            );
+
+            const answerShape = basePattern[sequenceLength % patternLength];
+
+            // -----------------------------
+            // OPTIONS (NO INFINITE LOOP)
+            // -----------------------------
+            const options = [...shapes].sort(() => Math.random() - 0.5);
+
+            // -----------------------------
+            // SVG
+            // -----------------------------
+            const svg = `
+            <svg width="420" height="120" viewBox="0 0 420 120">
+
+                ${sequence.map((shape, i) => {
+                    const x = 60 + i * 60;
+                    return renderShape(shape, x, 60);
+                }).join("")}
+
+                <text x="${60 + sequence.length * 60}" y="65" font-size="24">?</text>
+
+            </svg>
+            `;
+
+            return {
+                latex: `\\text{What is the next shape in the pattern?}`,
+                svg,
+                answer: answerShape,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        throw new Error("Only difficulty 1 implemented");
+
+    }, [1]),
 
     "missing-numbers": createGenerator(({ difficulty }) => {
         if (difficulty === 1) {

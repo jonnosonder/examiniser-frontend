@@ -81,7 +81,6 @@ export const QUESTION_CATALOG: Record<QuestionLevel, MainTopicDef[]> = {
                 { slug: "sorting-and-classifying", titleKey: "primary-subtopics.sorting-and-classifying", descriptionKey: "descriptions.primarySub.data-handling.sorting-and-classifying" },
                 { slug: "pictograms-bar-charts", titleKey: "primary-subtopics.pictograms-bar-charts", descriptionKey: "descriptions.primarySub.data-handling.pictograms-bar-charts" },
                 { slug: "tables", titleKey: "primary-subtopics.tables", descriptionKey: "descriptions.primarySub.data-handling.tables" },
-                { slug: "basic-interpretation-of-data", titleKey: "primary-subtopics.basic-interpretation-of-data", descriptionKey: "descriptions.primarySub.data-handling.basic-interpretation-of-data" },
             ],
         },
         {
@@ -90,7 +89,6 @@ export const QUESTION_CATALOG: Record<QuestionLevel, MainTopicDef[]> = {
             descriptionKey: "descriptions.primary.problem-solving-reasoning",
             subtopics: [
                 { slug: "word-problems", titleKey: "primary-subtopics.word-problems", descriptionKey: "descriptions.primarySub.problem-solving-reasoning.word-problems" },
-                { slug: "logical-reasoning", titleKey: "primary-subtopics.logical-reasoning", descriptionKey: "descriptions.primarySub.problem-solving-reasoning.logical-reasoning" },
                 { slug: "patterns-and-sequences", titleKey: "primary-subtopics.patterns-and-sequences", descriptionKey: "descriptions.primarySub.problem-solving-reasoning.patterns-and-sequences" },
             ],
         },

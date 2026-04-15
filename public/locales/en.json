@@ -12,7 +12,12 @@
     "easy": "Easy",
     "but-how-1": "But",
     "but-how-2": "How?",
-    "but-how-description": "Using smart algorithms, we can generate questions with solutions at all levels of difficulty within a second."
+    "but-how-description": "Using smart algorithms, we can generate questions with solutions at all levels of difficulty within a second.",
+    "try-it-now": "Try it now!",
+    "random-question-preview": "Random question preview",
+    "random-question-hint": "Select a tab and press the button below to generate a random question.",
+    "generate-random-question": "Generate Random Question",
+    "generating": "Generating..."
   },
   "general": {
     "back-to-home": "Back to Home",
@@ -297,7 +302,7 @@
         "symmetry": "Find lines of symmetry and complete symmetric patterns.",
         "angles": "Compare angles and recognise right angles.",
         "coordinates": "Read and plot points in the first quadrant.",
-        "position-and-direction": "Description for Position And Direction."
+        "position-and-direction": "Use position and direction words to describe where shapes are."
       },
       "algebra": {
         "patterns": "Continue and describe visual and numeric patterns.",
@@ -631,7 +636,7 @@
     "reading-clocks": "Reading Clocks",
     "money-calculations": "Money Calculations",
     "perimeter-and-area": "Perimeter And Area",
-    "position-and-direction": "Position And Direction",
+    "position-and-direction": "Position and Direction",
     "sorting-and-classifying": "Sorting And Classifying",
     "pictograms-bar-charts": "Pictograms Bar Charts",
     "basic-interpretation-of-data": "Basic Interpretation Of Data",

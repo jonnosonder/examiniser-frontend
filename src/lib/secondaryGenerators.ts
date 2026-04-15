@@ -6,14 +6,6 @@ import type { QuestionGeneratorWithLevels } from './questionGeneratorCommon';
 
 const randInt = (min: number, max: number): number => Math.floor(Math.random() * (max - min + 1)) + min;
 const randomChoice = <T>(items: T[]): T => items[randInt(0, items.length - 1)];
-const shuffle = <T>(items: T[]): T[] => {
-    const result = [...items];
-    for (let i = result.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [result[i], result[j]] = [result[j], result[i]];
-    }
-    return result;
-};
 
 const gcd = (a: number, b: number): number => {
     a = Math.abs(a);
@@ -315,7 +307,6 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
         if (difficulty === 3) {
             const scale = randInt(2, 5);
             const a = randInt(2, 8);
-            const b = randInt(2, 8);
             return {
                 latex: `\\text{If a model is } ${scale} \\text{ times smaller than the real object, and the model measures }\\\\ ${a} \\text{ cm, how long is the real object?}`,
                 answer: (a * scale).toString(),

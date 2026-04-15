@@ -14,14 +14,14 @@ type WorkerResponse = {
   result: QuestionResult;
 };
 
-self.addEventListener("message", (event: MessageEvent<WorkerRequest>) => {
+self.addEventListener("message", async (event: MessageEvent<WorkerRequest>) => {
   const { id, args } = event.data;
   const generator = getQuestionGenerator(args.level, args.subtopicSlug);
 
   let result: QuestionResult;
 
   try {
-    result = generator(args);
+    result = await Promise.resolve(generator(args));
   } catch (error) {
     result = {
       latex: "\\text{Question generation error}",

@@ -13,7 +13,12 @@
     "creation": "作成",
     "but-how-1": "でも",
     "but-how-2": "どうやって?",
-    "but-how-description": "スマートなアルゴリズムを使用して、すべての難易度レベルの質問を1秒以内に解答とともに生成できます。"
+    "but-how-description": "スマートなアルゴリズムを使用して、すべての難易度レベルの質問を1秒以内に解答とともに生成できます。",
+    "try-it-now": "今すぐ試す！",
+    "random-question-preview": "ランダム問題プレビュー",
+    "random-question-hint": "タブを選択し、下のボタンを押してランダムな問題を生成してください。",
+    "generate-random-question": "ランダム問題を生成",
+    "generating": "生成中..."
   },
   "general": {
     "back-to-home": "ホームに戻る",
@@ -298,7 +303,7 @@
         "symmetry": "対称軸を見つけ対称な図形を完成させます。",
         "angles": "角を比べ、直角を認識します。",
         "coordinates": "第1象限で点を読み取り、プロットします。",
-        "position-and-direction": "Description for Position And Direction."
+        "position-and-direction": "図形の位置を左右・上下・前後で説明します。"
       },
       "algebra": {
         "patterns": "視覚・数の規則を続け、説明します。",
@@ -632,7 +637,7 @@
     "reading-clocks": "Reading Clocks",
     "money-calculations": "Money Calculations",
     "perimeter-and-area": "Perimeter And Area",
-    "position-and-direction": "Position And Direction",
+    "position-and-direction": "位置と方向",
     "sorting-and-classifying": "Sorting And Classifying",
     "pictograms-bar-charts": "Pictograms Bar Charts",
     "basic-interpretation-of-data": "Basic Interpretation Of Data",

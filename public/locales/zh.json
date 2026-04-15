@@ -12,7 +12,12 @@
     "easy": "轻松",
     "but-how-1": "但是",
     "but-how-2": "如何?",
-    "but-how-description": "使用智能算法，我们可以在一秒钟内生成所有难度级别的问题和解决方案。"
+    "but-how-description": "使用智能算法，我们可以在一秒钟内生成所有难度级别的问题和解决方案。",
+    "try-it-now": "现在试一试！",
+    "random-question-preview": "随机问题预览",
+    "random-question-hint": "选择一个选项卡并按下面的按钮生成一个随机问题。",
+    "generate-random-question": "生成随机问题",
+    "generating": "生成中..."
   },
   "general": {
     "back-to-home": "返回首页",
@@ -297,7 +302,7 @@
         "symmetry": "找对称轴并完成对称图形。",
         "angles": "比较角并认识直角。",
         "coordinates": "在第一象限读点、描点。",
-        "position-and-direction": "Description for Position And Direction."
+        "position-and-direction": "用位置和方向词简要说明图形所在位置。"
       },
       "algebra": {
         "patterns": "延续并描述视觉与数字规律。",
@@ -631,7 +636,7 @@
     "reading-clocks": "Reading Clocks",
     "money-calculations": "Money Calculations",
     "perimeter-and-area": "Perimeter And Area",
-    "position-and-direction": "Position And Direction",
+    "position-and-direction": "位置与方向",
     "sorting-and-classifying": "Sorting And Classifying",
     "pictograms-bar-charts": "Pictograms Bar Charts",
     "basic-interpretation-of-data": "Basic Interpretation Of Data",

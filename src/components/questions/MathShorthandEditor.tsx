@@ -38,10 +38,6 @@ const SYMBOL_PATTERNS = [
 
 const SPECIAL_CHARS = new Set(["(", ")", "^", "_", "/", "*", "+", "-", ">", "<", "!", " ", "\t", "\n"]);
 
-function isLetterOrDigit(character: string) {
-    return /[a-zA-Z0-9.]/.test(character);
-}
-
 function skipWhitespace(source: string, pos: number) {
     while (pos < source.length && /[\s]/.test(source[pos])) {
         pos += 1;
@@ -287,10 +283,6 @@ function getTokenDeleteRange(source: string, cursorIndex: number) {
     return { start: index - 1, end: index };
 }
 
-function isActiveRange(cursor: number, start: number, end: number) {
-    return cursor >= start && cursor <= end;
-}
-
 type NodeRegion = "root" | "children" | "numerator" | "denominator" | "body" | "exponent" | "subscript" | "group";
 
 type MathNodePathEntry = {
@@ -309,8 +301,7 @@ function findNodePath(
     nodes: MathNode[],
     cursor: number,
     parent: MathNodePathEntry | null = null,
-    region: NodeRegion = "root",
-    index = 0
+    region: NodeRegion = "root"
 ): MathNodePathEntry[] | null {
     for (let i = 0; i < nodes.length; i += 1) {
         const node = nodes[i];
@@ -606,18 +597,7 @@ function renderMathNodes(
 
             // FIX: cursor is inside the brackets but NOT inside any child node
             // This handles the case where children exist but cursor is between them or at boundary
-            const deepestNode = cursorPath[cursorPath.length - 1]?.node;
-            const cursorIsInsideGroup = cursor > node.start && cursor < node.end;
-
-            // Check if cursor is inside the group region at the group level (not in a child)
-            const pathHasGroupEntry = cursorPath.some(e => e.node === node && e.region === "group");
-            // If we're in the group region, the cursor rendering is handled by inner renderMathNodes call
-            // But if no children contain the cursor, we need to show it ourselves
             const innerCursorInEmptyGroup = groupNode.children.length === 0 && cursor > node.start && cursor < node.end;
-
-            // For non-empty groups: show cursor if cursor is at node.end - 1 (just before ')')
-            // and no child claimed the cursor
-            const cursorJustBeforeClose = cursor === node.end - 1 && cursorIsInsideGroup && !groupNode.children.some(c => cursor >= c.start && cursor <= c.end);
 
             return (
                 <span

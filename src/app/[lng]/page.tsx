@@ -46,10 +46,10 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
     sixthForm: sixthFormGenerators,
   } as const;
 
-  const generatorLabels: Record<GeneratorLevel, string> = {
-    primary: "Primary",
-    secondary: "Secondary",
-    sixthForm: "Sixth Form",
+  const generatorLabelKeys: Record<GeneratorLevel, string> = {
+    primary: 'education.primary-school',
+    secondary: 'education.secondary-school',
+    sixthForm: 'education.sixth-form',
   };
 
   const [activeGeneratorLevel, setActiveGeneratorLevel] = useState<GeneratorLevel>("primary");
@@ -480,7 +480,7 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
           <p className='ml-10 mt-2 text-xl '>{t("home.but-how-description")}</p>
           <div className='flex flex-col items-center justify-center mt-8'>
             <div className='flex flex-col w-3/4 bg-white rounded-[2rem] p-6 shadow-xl' onClick={(e) => e.stopPropagation()}>
-              <p className='text-4xl font-bold font-nunito text-primary mb-4'>Try it now!</p>
+              <p className='text-2xl font-bold font-nunito text-primary mb-4'>{t('home.try-it-now')}</p>
                 <div className='flex flex-col w-full gap-2'>
                   <div className='grid w-full grid-cols-3 gap-3'>
                     {(["primary", "secondary", "sixthForm"] as GeneratorLevel[]).map((level) => (
@@ -488,21 +488,21 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
                         key={level}
                         type='button'
                         onClick={() => setActiveGeneratorLevel(level)}
-                        className={`flex h-12 w-full items-center justify-center rounded-lg text-sm font-semibold transition-colors duration-200 ${
+                        className={`flex h-12 w-full items-center justify-center rounded-lg text-base font-semibold transition-colors duration-200 ${
                           activeGeneratorLevel === level
                             ? 'bg-primary text-white'
                             : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                         }`}
                       >
-                        {generatorLabels[level]}
+                        {t(generatorLabelKeys[level])}
                       </button>
                     ))}
                   </div>
 
-                  <p className='text-sm uppercase tracking-[0.22em] text-slate-400 mt-4'>Random question preview</p>
-                  <div className='rounded-[1.5rem] border border-slate-200 bg-slate-50 p-6 min-h-[220px] flex items-start justify-center'>
+                  <p className='text-sm uppercase tracking-[0.22em] text-slate-400 mt-2'>{t('home.random-question-preview')}</p>
+                  <div className='rounded-[1.5rem] border border-slate-200 bg-slate-100 p-6 h-[20rem] flex items-start justify-center'>
                     {questionPreview ? (
-                      <div className='w-full space-y-4'>
+                      <div className='w-full'>
                         {previewPath && (
                           <button
                             type='button'
@@ -513,10 +513,10 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
                             }
                             className='block text-sm font-medium text-primary underline transition-colors hover:text-[var(--contrast)]'
                           >
-                            {generatorLabels[previewPath.level]} &gt; {t(previewPath.topicTitleKey)} &gt; {t(previewPath.subtopicTitleKey)}
+                            {t(generatorLabelKeys[previewPath.level])} &gt; {t(previewPath.topicTitleKey)} &gt; {t(previewPath.subtopicTitleKey)}
                           </button>
                         )}
-                        <div className='rounded-xl bg-slate-100 p-4 text-base leading-relaxed text-slate-900'>
+                        <div className='rounded-xl p-4 text-base leading-relaxed text-slate-900 mt-0 overflow-auto h-[18rem]'>
                           <BlockMath math={questionPreview.latex} />
                           {questionPreview.svg ? (
                             <div className="flex items-center justify-center">
@@ -535,7 +535,7 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
                       </div>
                     ) : (
                       <p className='text-center text-lg text-slate-500'>
-                        Select a tab and press the button below to generate a random question.
+                        {t('home.random-question-hint')}
                       </p>
                     )}
                   </div>
@@ -546,7 +546,7 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
                     className='inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-base font-semibold text-white shadow-lg transition hover:bg-[#1f4c85] disabled:cursor-not-allowed disabled:opacity-60'
                     disabled={isGenerating}
                   >
-                    {isGenerating ? 'Generating...' : 'Generate Random Question'}
+                    {isGenerating ? t('home.generating') : t('home.generate-random-question')}
                   </button>
                 </div>
             </div>
