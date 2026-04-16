@@ -238,11 +238,9 @@ export function QuestionSubtopicLeaf({
     const [questionOptions, setQuestionOptions] = React.useState<string[]>([]);
     const [questionForceOption, setQuestionForceOption] = React.useState<0 | 1 | 2>(0);
     const [answerMode, setAnswerMode] = React.useState<"typed" | "multipleChoice">("typed");
-    const [userAnswer, setUserAnswer] = React.useState("");
     const [userAnswerLatex, setUserAnswerLatex] = React.useState("");
     const [answerCorrect, setAnswerCorrect] = React.useState<boolean | null>(null);
     const [feedback, setFeedback] = React.useState("");
-    const [keyboardOpen, setKeyboardOpen] = React.useState(false);
     const [isGenerating, setIsGenerating] = React.useState(false);
 
     const canType = questionForceOption !== 2;
@@ -256,7 +254,6 @@ export function QuestionSubtopicLeaf({
         setQuestionOptions([]);
         setQuestionForceOption(0);
         setAnswerMode("typed");
-        setUserAnswer("");
         setUserAnswerLatex("");
         setAnswerCorrect(null);
         setFeedback("");
@@ -280,97 +277,11 @@ export function QuestionSubtopicLeaf({
         return <span>{trimmed}</span>;
     }, []);
 
-    const keyboardButtons = React.useMemo(
-        () => [
-            [
-                { label: "7", value: "7" },
-                { label: "8", value: "8" },
-                { label: "9", value: "9" },
-                { label: "(", value: "(" },
-                { label: ")", value: ")" },
-                { label: "√", value: "√(" },
-            ],
-            [
-                { label: "4", value: "4" },
-                { label: "5", value: "5" },
-                { label: "6", value: "6" },
-                { label: "/", value: "/" },
-                { label: "^", value: "^" },
-                { label: "π", value: "π" },
-            ],
-            [
-                { label: "1", value: "1" },
-                { label: "2", value: "2" },
-                { label: "3", value: "3" },
-                { label: "×", value: "×" },
-                { label: "÷", value: "÷" },
-                { label: "^2", value: "^2" },
-            ],
-            [
-                { label: "0", value: "0" },
-                { label: ".", value: "." },
-                { label: "-", value: "-" },
-                { label: "+", value: "+" },
-                { label: "=", value: "=" },
-                { label: "θ", value: "theta" },
-            ],
-            [
-                { label: "sin", value: "sin(" },
-                { label: "cos", value: "cos(" },
-                { label: "tan", value: "tan(" },
-                { label: "log", value: "log(" },
-                { label: "ln", value: "ln(" },
-                { label: "√(", value: "√(" },
-            ],
-            [
-                { label: <BlockMath math="\\frac{1}{2}" />, value: "1/2" },
-                { label: <BlockMath math="\\frac{1}{3}" />, value: "1/3" },
-                { label: <BlockMath math="\\frac{1}{4}" />, value: "1/4" },
-                { label: <BlockMath math="\\frac{3}{4}" />, value: "3/4" },
-                { label: <BlockMath math="\\frac{\\pi}{2}" />, value: "π/2" },
-                { label: <BlockMath math="\\frac{\\pi}{4}" />, value: "π/4" },
-            ],
-            [
-                { label: "x", value: "x" },
-                { label: "y", value: "y" },
-                { label: "z", value: "z" },
-                { label: "{", value: "{" },
-                { label: "}", value: "}" },
-                { label: "[", value: "[" },
-            ],
-            [
-                { label: "⌫", value: "backspace" },
-                { label: t("questions.clear"), value: "clear" },
-                { label: t("questions.space"), value: "space" },
-            ],
-        ],
-        [t]
-    );
-
-    const handleKeyboardInput = (value: string) => {
-        if (value === "backspace") {
-            setUserAnswer((current) => current.slice(0, -1));
-            return;
-        }
-
-        if (value === "clear") {
-            setUserAnswer("");
-            return;
-        }
-
-        if (value === "space") {
-            setUserAnswer((current) => `${current} `);
-            return;
-        }
-
-        setUserAnswer((current) => `${current}${value}`);
-    };
 
     const handleGenerateQuestion = async () => {
         setIsGenerating(true);
         setFeedback("");
         setAnswerCorrect(null);
-        setUserAnswer("");
         setUserAnswerLatex("");
 
         const result = await generateQuestionWithTimeout(
@@ -391,8 +302,8 @@ export function QuestionSubtopicLeaf({
         }
 
         const options = result.options ?? [];
-        const hadPreviousSelectedOption = answerMode === "multipleChoice" && questionOptions.includes(userAnswer);
-        const previousOption = hadPreviousSelectedOption ? userAnswer : undefined;
+        const hadPreviousSelectedOption = answerMode === "multipleChoice" && questionOptions.includes(userAnswerLatex);
+        const previousOption = hadPreviousSelectedOption ? userAnswerLatex : undefined;
 
         setQuestionLatex(result.latex);
         setQuestionSvg(result.svg ?? "");
@@ -404,19 +315,26 @@ export function QuestionSubtopicLeaf({
                 ? "multipleChoice"
                 : "typed"
         );
-        setUserAnswer(previousOption ?? "");
-        setUserAnswerLatex("");
+        setUserAnswerLatex(previousOption ?? "");
         setAnswerCorrect(null);
     };
 
     const normalizeAnswer = (answer: string) => {
         const trimmed = answer.trim().replace(/\s+/g, "");
         const isLatex = /\\|\^|_|\{|\}|\\frac|\\sqrt|\\pi|\\theta|\\sin|\\cos|\\tan|\\log|\\ln/.test(trimmed);
-        return isLatex ? trimmed : trimmed.toLowerCase();
+        const fixFractions = addFractionFences(trimmed);
+        return isLatex ? fixFractions : fixFractions.toLowerCase();
     };
 
+    const addFractionFences = (latex: string): string => { // mathlive outputs \frac12 instead of \frac{1}{2}, which causes issues when comparing user input to expected answers. This function adds the necessary braces around single-digit numerators and denominators.
+        return latex.replace(
+            /\\frac\s*(\d)\s*(\d)/g,
+            "\\frac{$1}{$2}"
+        );
+    }
+
     const handleCheckAnswer = () => {
-        const answerToCheck = userAnswerLatex || userAnswer;
+        const answerToCheck = userAnswerLatex;
         const normalized = normalizeAnswer(answerToCheck);
 
         if (!questionAnswers.length) {
@@ -441,10 +359,12 @@ export function QuestionSubtopicLeaf({
                 ? t("questions.correct")
                 : t("questions.wrong", { answer: questionAnswers.join(", ") })
         );
+
+        console.log(userAnswerLatex)
+        console.log(questionAnswers)
     };
 
     const handleClearAnswer = () => {
-        setUserAnswer("");
         setUserAnswerLatex("");
         setAnswerCorrect(null);
         setFeedback("");
@@ -462,8 +382,11 @@ export function QuestionSubtopicLeaf({
 
     return (
         <div className="relative flex w-full bg-background">
-            <SidePanel lng={lng} buttons={navButtons} />
-            <div className="flex-1 flex flex-col items-center justify-start ml-10 mr-10">
+            <div className="relative flex-shrink-0 w-44 sm:w-48 lg:w-52">
+                <SidePanel lng={lng} buttons={navButtons} />
+            </div>
+
+            <div className="flex-1 min-w-0 flex flex-col items-center justify-start ml-10 mr-10 transition-all duration-300">
                 <div className="flex w-full flex-wrap justify-between items-center gap-y-2 mt-5 gap-x-4">
                     <Link href={hubHref} className="text-sm text-primary">
                         ←&nbsp;<span className="underline">{t("general.back-to-topic", { topic: t(topic.titleKey) })}</span>
@@ -547,7 +470,6 @@ export function QuestionSubtopicLeaf({
                                                     type="button"
                                                     onClick={() => {
                                                         setAnswerMode("typed");
-                                                        setUserAnswer("");
                                                         setUserAnswerLatex("");
                                                         setAnswerCorrect(null);
                                                         setFeedback("");
@@ -564,7 +486,6 @@ export function QuestionSubtopicLeaf({
                                                     type="button"
                                                     onClick={() => {
                                                         setAnswerMode("multipleChoice");
-                                                        setUserAnswer("");
                                                         setUserAnswerLatex("");
                                                         setAnswerCorrect(null);
                                                         setFeedback("");
@@ -587,17 +508,16 @@ export function QuestionSubtopicLeaf({
                                                         key={option}
                                                         type="button"
                                                         onClick={() => {
-                                                            setUserAnswer(option);
                                                             setUserAnswerLatex(option);
                                                             setAnswerCorrect(null);
                                                             setFeedback("");
                                                         }}
                                                         className={`rounded-2xl border px-4 py-3 text-left transition ${
-                                                            userAnswer === option
+                                                            userAnswerLatex === option
                                                                 ? "border-primary bg-primary/10 text-primary"
                                                                 : "border-primary/20 bg-primary/5 text-primary"
                                                         }
-                                                        ${ userAnswer === option && (
+                                                        ${ userAnswerLatex === option && (
                                                             answerCorrect === true
                                                             ? "rounded-2xl shadow-[0_0_0_0.4rem_rgba(34,197,94,0.5)]"
                                                             : answerCorrect === false
@@ -618,17 +538,16 @@ export function QuestionSubtopicLeaf({
                                             ? "rounded-2xl shadow-[0_0_0_0.6rem_rgba(239,68,68,0.5)]"
                                             : ""}`}>
                                                 <MathShorthandEditor
-                                                    value={userAnswer}
-                                                    onChange={(value, latex) => {
-                                                        if (value === userAnswer && latex === userAnswerLatex) {
+                                                    value={userAnswerLatex}
+                                                    onChange={(_, latex) => {
+                                                        if (latex === userAnswerLatex) {
                                                             return;
                                                         }
-                                                        setUserAnswer(value);
                                                         setUserAnswerLatex(latex);
                                                         setAnswerCorrect(null);
                                                         setFeedback("");
                                                     }}
-                                                    placeholder={t("questions.enter-answer-here")}
+                                                    placeholder={t("questions.enter-answer-here").replaceAll(" ", " \\ ")}
                                                 />
                                             </span>
                                         )}
@@ -653,15 +572,6 @@ export function QuestionSubtopicLeaf({
                                     </div>
                                 </div>
 
-                                <div className="flex flex-wrap items-center">
-                                    <button
-                                        type="button"
-                                        onClick={() => setKeyboardOpen((current) => !current)}
-                                        className="fixed right-6 bottom-2 z-50 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-2 text-sm text-primary transition hover:bg-primary/10"
-                                    >
-                                        {keyboardOpen ? t("questions.hide-keyboard") : t("questions.show-keyboard")}
-                                    </button>
-                                </div>
                             </div>
 
                             {feedback ? (
@@ -671,27 +581,9 @@ export function QuestionSubtopicLeaf({
                             ) : null}
                         </div>
                     </div>
-
-                    {keyboardOpen ? (
-                        <div className="mt-5 w-full rounded-[1.5rem] border border-primary/10 bg-slate-950/95 p-3 text-white shadow-inner">
-                            {keyboardButtons.map((row, rowIndex) => (
-                                <div key={rowIndex} className="grid gap-2 sm:grid-cols-6 mb-2 last:mb-0">
-                                    {row.map((key) => (
-                                        <button
-                                            key={key.value}
-                                            type="button"
-                                            onClick={() => handleKeyboardInput(key.value)}
-                                            className={`rounded-2xl border border-white/10 bg-white/10 px-2 py-2 text-sm font-medium transition hover:border-primary hover:bg-primary/20 ${key.value === "backspace" || key.value === "clear" ? "col-span-2 sm:col-span-2" : ""}`}
-                                        >
-                                            {key.label}
-                                        </button>
-                                    ))}
-                                </div>
-                            ))}
-                        </div>
-                    ) : null}
                 </div>
             </div>
+
         </div>
     );
 }

@@ -808,7 +808,88 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
 
     }, [1, 2, 3, 4, 5, 6, 7]),
     "fractions-decimals-percentages": createGenerator(({ difficulty }) => {
+        if (difficulty === 1) {
+
+            const denominators = [2, 3, 4, 5, 6, 8, 10];
+            const denom = denominators[Math.floor(Math.random() * denominators.length)];
+
+            const a = Math.floor(Math.random() * (denom - 1)) + 1;
+            const b = Math.floor(Math.random() * (denom - 1)) + 1;
+
+            const isAddition = Math.random() < 0.5;
+
+            let numer1 = a;
+            let numer2 = b;
+
+            // ensure subtraction stays positive
+            if (!isAddition && numer2 > numer1) {
+                [numer1, numer2] = [numer2, numer1];
+            }
+
+            const resultNumer = isAddition ? numer1 + numer2 : numer1 - numer2;
+
+            const gcd = (x: number, y: number): number =>
+                y === 0 ? x : gcd(y, x % y);
+
+            const g = gcd(resultNumer, denom);
+            const sn = resultNumer / g;
+            const sd = denom / g;
+
+            let answers: string[] = [];
+
+            // case: whole number
+            if (sd === 1) {
+                answers = [
+                    `${sn}`,
+                    `\\frac{${resultNumer}}{${denom}}`
+                ];
+            } else if (g > 1) {
+                // simplified + unsimplified
+                answers = [
+                    `\\frac{${sn}}{${sd}}`,
+                    `\\frac{${resultNumer}}{${denom}}`
+                ];
+            } else {
+                // already simplest
+                answers = [`\\frac{${sn}}{${sd}}`];
+            }
+
+            // special case: equals 1
+            if (resultNumer === denom) {
+                answers = [
+                    `\\frac{${resultNumer}}{${denom}}`,
+                    "1"
+                ];
+            }
+
+            const optionsSet = new Set<string>(answers);
+
+            while (optionsSet.size < 4) {
+                const d = denominators[Math.floor(Math.random() * denominators.length)];
+                const n = Math.floor(Math.random() * d) + 1;
+
+                if (n === d) {
+                    optionsSet.add("1");
+                } else {
+                    optionsSet.add(`\\frac{${n}}{${d}}`);
+                }
+            }
+
+            const options = Array.from(optionsSet)
+                .sort(() => Math.random() - 0.5);
+
+            const op = isAddition ? "+" : "-";
+
+            return {
+                latex: `\\frac{${numer1}}{${denom}} ${op} \\frac{${numer2}}{${denom}} = ?`,
+                answer: answers,
+                options,
+                forceOption: 0,
+            };
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
+
     }, [1, 2, 3, 4]),
     "ratio-and-proportion": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);

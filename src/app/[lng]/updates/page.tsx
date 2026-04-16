@@ -63,8 +63,9 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                                         - New question library created<br/>
                                         - Website Rework (question library is now the main feature)<br/>
                                         - Editor has been temporarily disabled<br/>
-                                        - Question are only in english (plan to add all languages in the future)<br/>
-                                        - No explanations for questions yet
+                                        - Questions are only in english<br/>
+                                        - No explanations for questions yet<br/>
+                                        - Primary and Secondary questions added
                                     </p>
                                     
                                 </div>

@@ -47,3 +47,7 @@ body {
   color: var(--primary);
   border-color: var(--primary);
 }
+
+math-field::part(active-background) {
+  background-color: rgba(255, 0, 0, 0.2) !important;
+}
