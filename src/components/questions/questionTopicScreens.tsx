@@ -372,7 +372,7 @@ export function QuestionSubtopicLeaf({
         setFeedback(
             correct
                 ? t("questions.correct")
-                : t("questions.wrong", { answer: questionAnswers.join(", ") })
+                : t("questions.wrong", { answer: questionAnswers.join(" or ") })
         );
 
     };

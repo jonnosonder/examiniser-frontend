@@ -1895,6 +1895,7 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
             return {
                 latex,
                 answer,
+                checkWeakLatexEquivalent: true,
                 options: makeOptions(answer, () => {
                     const a = randInt(-3, 3) || 1;
                     const b = randInt(-3, 3) || 1;
@@ -2051,17 +2052,752 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
 
     }, [1, 2, 3, 4, 5]),
     "substitution": createGenerator(({ difficulty }) => {
+        if (difficulty === 1) {
+
+            // variable values
+            const a = Math.floor(Math.random() * 5) + 1;
+            const b = Math.floor(Math.random() * 5) + 1;
+
+            // coefficients
+            const c1 = Math.floor(Math.random() * 8) + 1;
+            const c2 = Math.floor(Math.random() * 8) + 1;
+
+            // optional constant
+            const constant = Math.floor(Math.random() * 11) - 5;
+
+            // randomly choose signs
+            const sign1 = Math.random() < 0.5 ? 1 : -1;
+            const sign2 = Math.random() < 0.5 ? 1 : -1;
+
+            // build expression string manually
+            let expression = "";
+
+            // first term
+            const term1 = sign1 * c1;
+            expression += (term1 === 1 ? "a" : term1 === -1 ? "-a" : `${term1}a`);
+
+            // second term
+            const term2 = sign2 * c2;
+            if (term2 < 0) {
+                expression += " - " + (Math.abs(term2) === 1 ? "b" : `${Math.abs(term2)}b`);
+            } else {
+                expression += " + " + (term2 === 1 ? "b" : `${term2}b`);
+            }
+
+            // constant term (optional)
+            if (constant !== 0) {
+                if (constant < 0) {
+                    expression += " - " + Math.abs(constant);
+                } else {
+                    expression += " + " + constant;
+                }
+            }
+
+            // calculate answer
+            const answerValue =
+                term1 * a +
+                term2 * b +
+                constant;
+
+            const answer = `${answerValue}`;
+
+            // simple wrong options
+            const options = [answer];
+            while (options.length < 4) {
+                const wrong = `${answerValue + (Math.floor(Math.random() * 11) - 5)}`;
+                if (!options.includes(wrong)) {
+                    options.push(wrong);
+                }
+            }
+
+            // shuffle
+            options.sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `\\text{If } a=${a},\\ b=${b},\\ \\text{ find } ${expression}`,
+                answer,
+                checkEqualMathJS: false,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 2) {
+            // variable values
+            let a = Math.floor(Math.random() * 5) + 1;
+            let b = Math.floor(Math.random() * 5) + 1;
+
+            const type = Math.floor(Math.random() * 3);
+
+            let expression = "";
+            let answerValue = 0;
+
+            // -----------------------------
+            // TYPE 1: a^2 + b^2
+            // -----------------------------
+            if (type === 0) {
+
+                expression = `a^2 + b^2`;
+                answerValue = a * a + b * b;
+            }
+
+            // -----------------------------
+            // TYPE 2: √a + b^2 (force a square)
+            // -----------------------------
+            else if (type === 1) {
+
+                const squareValues = [1, 4, 9, 16];
+                a = squareValues[Math.floor(Math.random() * squareValues.length)];
+
+                expression = `\\sqrt{a} + b^2`;
+                answerValue = Math.sqrt(a) + b * b;
+            }
+
+            // -----------------------------
+            // TYPE 3: 2a^2 - √b (force b square)
+            // -----------------------------
+            else {
+
+                const squareValues = [1, 4, 9, 16];
+                b = squareValues[Math.floor(Math.random() * squareValues.length)];
+
+                expression = `2a^2 - \\sqrt{b}`;
+                answerValue = 2 * a * a - Math.sqrt(b);
+            }
+
+            const answer = `${answerValue}`;
+
+            // options
+            const options = [answer];
+            while (options.length < 4) {
+                const wrong = `${answerValue + (Math.floor(Math.random() * 7) - 3)}`;
+                if (!options.includes(wrong)) {
+                    options.push(wrong);
+                }
+            }
+
+            // shuffle
+            options.sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `\\text{If } a=${a},\\ b=${b},\\ \\text{ find } ${expression}`,
+                answer,
+                checkEqualMathJS: false,
+                options,
+                forceOption: 0,
+            };
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
+
+    }, [1, 2]),
     "linear-equations": createGenerator(({ difficulty }) => {
+        // -----------------------------
+        // D1: ax + b = c
+        // -----------------------------
+        if (difficulty === 1) {
+
+            const v = ["x", "y", "a"][Math.floor(Math.random() * 3)];
+
+            const solution = Math.floor(Math.random() * 10) - 5;
+
+            const m = Math.floor(Math.random() * 5) + 1;
+            const c = Math.floor(Math.random() * 11) - 5;
+
+            const rhs = m * solution + c;
+
+            let left = m === 1 ? v : `${m}${v}`;
+            if (c !== 0) left += c > 0 ? ` + ${c}` : ` - ${Math.abs(c)}`;
+
+            const equation = `${left} = ${rhs}`;
+            const answer = `${solution}`;
+
+            const options = [answer];
+            while (options.length < 4) {
+                const wrong = `${solution + (Math.floor(Math.random() * 7) - 3)}`;
+                if (!options.includes(wrong)) options.push(wrong);
+            }
+
+            options.sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `\\text{Solve: } ${equation}`,
+                answer,
+                checkEqualMathJS: false,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // -----------------------------
+        // D2: ax + b = cx + d
+        // -----------------------------
+        if (difficulty === 2) {
+
+            const v = ["x", "y", "a"][Math.floor(Math.random() * 3)];
+
+            const solution = Math.floor(Math.random() * 10) - 5;
+
+            let a = Math.floor(Math.random() * 5) + 1;
+            let c = Math.floor(Math.random() * 5) + 1;
+
+            // ensure a ≠ c (otherwise no solution or infinite)
+            while (a === c) {
+                c = Math.floor(Math.random() * 5) + 1;
+            }
+
+            const b = Math.floor(Math.random() * 11) - 5;
+            const d = Math.floor(Math.random() * 11) - 5;
+
+            // build equation using solution
+            const leftVal = a * solution + b;
+            const rightVal = c * solution + d;
+
+            // build left side
+            let left = a === 1 ? v : `${a}${v}`;
+            if (b !== 0) left += b > 0 ? ` + ${b}` : ` - ${Math.abs(b)}`;
+
+            // build right side
+            let right = c === 1 ? v : `${c}${v}`;
+            if (d !== 0) right += d > 0 ? ` + ${d}` : ` - ${Math.abs(d)}`;
+
+            const equation = `${left} = ${right}`;
+            const answer = `${solution}`;
+
+            const options = [answer];
+            while (options.length < 4) {
+                const wrong = `${solution + (Math.floor(Math.random() * 7) - 3)}`;
+                if (!options.includes(wrong)) options.push(wrong);
+            }
+
+            options.sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `\\text{Solve: } ${equation}`,
+                answer,
+                checkEqualMathJS: false,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // -----------------------------
+        // D3: a(x + b) = c
+        // -----------------------------
+        if (difficulty === 3) {
+
+            const v = ["x", "y", "a"][Math.floor(Math.random() * 3)];
+
+            const solution = Math.floor(Math.random() * 10) - 5;
+
+            const a = Math.floor(Math.random() * 5) + 1;
+            const b = Math.floor(Math.random() * 6) - 3;
+
+            // construct RHS using solution
+            const rhs = a * (solution + b);
+
+            // build bracket expression
+            let bracket = v;
+            if (b !== 0) {
+                bracket += b > 0 ? ` + ${b}` : ` - ${Math.abs(b)}`;
+            }
+
+            const equation = `${a}(${bracket}) = ${rhs}`;
+            const answer = `${solution}`;
+
+            const options = [answer];
+            while (options.length < 4) {
+                const wrong = `${solution + (Math.floor(Math.random() * 7) - 3)}`;
+                if (!options.includes(wrong)) options.push(wrong);
+            }
+
+            options.sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `\\text{Solve: } ${equation}`,
+                answer,
+                checkEqualMathJS: false,
+                options,
+                forceOption: 0,
+            };
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
+
+    }, [1, 2, 3]),
     "simultaneous-equations": createGenerator(({ difficulty }) => {
+
+        if (difficulty === 1) {
+
+            // generate clean integer solution first
+            const xVal = Math.floor(Math.random() * 7) - 3; // -3 to 3
+            const yVal = Math.floor(Math.random() * 7) - 3;
+
+            // coefficients (keep simple)
+            const a1 = 1; // ensures easy solving
+            const b1 = Math.floor(Math.random() * 5) + 1;
+
+            const a2 = 1;
+            const b2 = -(Math.floor(Math.random() * 5) + 1);
+
+            // build RHS using solution
+            const c1 = a1 * xVal + b1 * yVal;
+            const c2 = a2 * xVal + b2 * yVal;
+
+            // build equation 1: x + by = c
+            let eq1 = "x";
+            if (b1 !== 0) {
+                eq1 += b1 > 0 ? ` + ${b1}y` : ` - ${Math.abs(b1)}y`;
+            }
+            eq1 += ` = ${c1}`;
+
+            // build equation 2: x - by = c
+            let eq2 = "x";
+            if (b2 !== 0) {
+                eq2 += b2 > 0 ? ` + ${Math.abs(b2)}y` : ` - ${Math.abs(b2)}y`;
+            }
+            eq2 += ` = ${c2}`;
+
+            const answer = [`x=${xVal}, y=${yVal}`, `y=${yVal}, x=${xVal}`];
+
+            // simple wrong options
+            const options = [`x=${xVal}, y=${yVal}`];
+            while (options.length < 4) {
+                const wrongX = xVal + (Math.floor(Math.random() * 5) - 2);
+                const wrongY = yVal + (Math.floor(Math.random() * 5) - 2);
+                const wrong = `x=${wrongX}, y=${wrongY}`;
+                if (!options.includes(wrong)) {
+                    options.push(wrong);
+                }
+            }
+
+            // shuffle
+            options.sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `\\text{Solve, } \\\\ ${eq1} \\\\ ${eq2} \\\\ \\text{Give your answer in the form } x=?,\\ y=?`,
+                answer,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 2) {
+
+            // generate clean integer solution
+            const xVal = Math.floor(Math.random() * 7) - 3;
+            const yVal = Math.floor(Math.random() * 7) - 3;
+
+            // coefficients (now not identical → requires elimination step)
+            let a1 = Math.floor(Math.random() * 3) + 1; // 1–3
+            let a2 = Math.floor(Math.random() * 3) + 1;
+
+            // ensure at least one coefficient > 1
+            if (a1 === 1 && a2 === 1) {
+                if (Math.random() < 0.5) {
+                    a1 = Math.floor(Math.random() * 2) + 2; // 2–3
+                } else {
+                    a2 = Math.floor(Math.random() * 2) + 2; // 2–3
+                }
+            }
+
+            let b1 = Math.floor(Math.random() * 3) + 1;
+            let b2 = -(Math.floor(Math.random() * 3) + 1);
+
+            // avoid proportional equations (no unique solution)
+            while (a1 * b2 === a2 * b1) {
+                a2 = Math.floor(Math.random() * 3) + 1;
+                b2 = -(Math.floor(Math.random() * 3) + 1);
+            }
+
+            // build RHS
+            const c1 = a1 * xVal + b1 * yVal;
+            const c2 = a2 * xVal + b2 * yVal;
+
+            // equation 1
+            let eq1 = a1 === 1 ? "x" : `${a1}x`;
+            if (b1 !== 0) {
+                eq1 += b1 > 0 ? ` + ${b1}y` : ` - ${Math.abs(b1)}y`;
+            }
+            eq1 += ` = ${c1}`;
+
+            // equation 2
+            let eq2 = a2 === 1 ? "x" : `${a2}x`;
+            if (b2 !== 0) {
+                eq2 += b2 > 0 ? ` + ${Math.abs(b2)}y` : ` - ${Math.abs(b2)}y`;
+            }
+            eq2 += ` = ${c2}`;
+
+            const answer = [`x=${xVal}, y=${yVal}`, `y=${yVal}, x=${xVal}`];
+
+            // options
+            const options = [`x=${xVal}, y=${yVal}`];
+            while (options.length < 4) {
+                const wrongX = xVal + (Math.floor(Math.random() * 5) - 2);
+                const wrongY = yVal + (Math.floor(Math.random() * 5) - 2);
+                const wrong = `x=${wrongX}, y=${wrongY}`;
+                if (!options.includes(wrong)) {
+                    options.push(wrong);
+                }
+            }
+
+            options.sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `\\text{Solve, } \\\\ ${eq1} \\\\ ${eq2} \\\\ \\text{Give your answer in the form } x=?,\\ y=?`,
+                answer,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 3) {
+            // -------------------------------------------------
+            // 1. GENERATE SOLUTION FIRST
+            // -------------------------------------------------
+            const xVal = Math.floor(Math.random() * 6) + 1; // strictly positive
+            const yVal = Math.floor(Math.random() * 6) + 1; // strictly positive
+
+            // -------------------------------------------------
+            // 2. TEMPLATE BANK (NO RANDOM INSIDE)
+            // -------------------------------------------------
+            const templates = [
+
+                // -------------------------------------------------
+                // 1. SHOP PURCHASES (2 independent transactions)
+                // -------------------------------------------------
+                (p1: number, p2: number, a: number, b: number, c: number, d: number) => ({
+                    latex:
+            `\\text{A shop sells item A for £${p1} and item B for £${p2}.} \\\\
+            \\text{Customer 1 buys ${a} of A and ${b} of B costing £${p1 * (a * xVal + b * yVal)}.} \\\\
+            \\text{Customer 2 buys ${c} of A and ${d} of B costing £${p1 * (c * xVal + d * yVal)}.} \\\\
+            \\text{Find } x \\text{ and } y.`,
+                }),
+
+                // -------------------------------------------------
+                // 2. STATIONERY SHOP
+                // -------------------------------------------------
+                (p1: number, p2: number, a: number, b: number, c: number, d: number) => ({
+                    latex:
+            `\\text{Pens cost £${p1} and pencils cost £${p2}.} \\\\
+            \\text{A student buys ${a} pens and ${b} pencils costing £${p1 * (a * xVal + b * yVal)}.} \\\\
+            \\text{Another student buys ${c} pens and ${d} pencils costing £${p1 * (c * xVal + d * yVal)}.} \\\\
+            \\text{Find } x \\text{ and } y.`,
+                }),
+
+                // -------------------------------------------------
+                // 3. SWEETS
+                // -------------------------------------------------
+                (p1: number, p2: number, a: number, b: number, c: number, d: number) => ({
+                    latex:
+            `\\text{Chocolates cost £${p1}, sweets cost £${p2}.} \\\\
+            \\text{Order 1: ${a} chocolates and ${b} sweets cost £${p1 * (a * xVal + b * yVal)}.} \\\\
+            \\text{Order 2: ${c} chocolates and ${d} sweets cost £${p1 * (c * xVal + d * yVal)}.} \\\\
+            \\text{Find } x \\text{ and } y.`,
+                }),
+
+                // -------------------------------------------------
+                // 4. CAFE
+                // -------------------------------------------------
+                (p1: number, p2: number, a: number, b: number, c: number, d: number) => ({
+                    latex:
+            `\\text{Coffee costs £${p1}, tea costs £${p2}.} \\\\
+            \\text{Order 1: ${a} coffees and ${b} teas cost £${p1 * (a * xVal + b * yVal)}.} \\\\
+            \\text{Order 2: ${c} coffees and ${d} teas cost £${p1 * (c * xVal + d * yVal)}.} \\\\
+            \\text{Find } x \\text{ and } y.`,
+                }),
+
+                // -------------------------------------------------
+                // 5. CINEMA SNACK BAR
+                // -------------------------------------------------
+                (p1: number, p2: number, a: number, b: number, c: number, d: number) => ({
+                    latex:
+            `\\text{Popcorn costs £${p1}, drinks cost £${p2}.} \\\\
+            \\text{Order 1: ${a} popcorn and ${b} drinks cost £${p1 * (a * xVal + b * yVal)}.} \\\\
+            \\text{Order 2: ${c} popcorn and ${d} drinks cost £${p1 * (c * xVal + d * yVal)}.} \\\\
+            \\text{Find } x \\text{ and } y.`,
+                }),
+
+                // -------------------------------------------------
+                // 6. SPORTS SHOP
+                // -------------------------------------------------
+                (p1: number, p2: number, a: number, b: number, c: number, d: number) => ({
+                    latex:
+            `\\text{Footballs cost £${p1}, basketballs cost £${p2}.} \\\\
+            \\text{Order 1: ${a} footballs and ${b} basketballs cost £${p1 * (a * xVal + b * yVal)}.} \\\\
+            \\text{Order 2: ${c} footballs and ${d} basketballs cost £${p1 * (c * xVal + d * yVal)}.} \\\\
+            \\text{Find } x \\text{ and } y.`,
+                }),
+
+                // -------------------------------------------------
+                // 7. BOOKSTORE
+                // -------------------------------------------------
+                (p1: number, p2: number, a: number, b: number, c: number, d: number) => ({
+                    latex:
+            `\\text{Novels cost £${p1}, comics cost £${p2}.} \\\\
+            \\text{Order 1: ${a} novels and ${b} comics cost £${p1 * (a * xVal + b * yVal)}.} \\\\
+            \\text{Order 2: ${c} novels and ${d} comics cost £${p1 * (c * xVal + d * yVal)}.} \\\\
+            \\text{Find } x \\text{ and } y.`,
+                }),
+
+                // -------------------------------------------------
+                // 8. SCHOOL SHOP
+                // -------------------------------------------------
+                (p1: number, p2: number, a: number, b: number, c: number, d: number) => ({
+                    latex:
+            `\\text{Notebooks cost £${p1}, folders cost £${p2}.} \\\\
+            \\text{Order 1: ${a} notebooks and ${b} folders cost £${p1 * (a * xVal + b * yVal)}.} \\\\
+            \\text{Order 2: ${c} notebooks and ${d} folders cost £${p1 * (c * xVal + d * yVal)}.} \\\\
+            \\text{Find } x \\text{ and } y.`,
+                })
+
+            ];
+
+            // -------------------------------------------------
+            // 3. SAFE PARAMETERS (NO NEGATIVE USAGE)
+            // -------------------------------------------------
+            const price1 = Math.floor(Math.random() * 5) + 2;
+            const price2 = Math.floor(Math.random() * 4) + 1;
+            const a = Math.floor(Math.random() * 3) + 1;
+            const b = Math.floor(Math.random() * 3) + 1;
+            const c = Math.floor(Math.random() * 3) + 1;
+            const d = Math.floor(Math.random() * 3) + 1;
+
+            // -------------------------------------------------
+            // 4. PICK TEMPLATE
+            // -------------------------------------------------
+            const templateFn = templates[Math.floor(Math.random() * templates.length)];
+
+            const { latex } = templateFn(price1, price2, a, b, c, d);
+
+            // -------------------------------------------------
+            // 5. ANSWER
+            // -------------------------------------------------
+            const answer = [`x=${xVal}, y=${yVal}`, `y=${yVal}, x=${xVal}`];
+
+            // -------------------------------------------------
+            // 6. OPTIONS
+            // -------------------------------------------------
+            const options = [`x=${xVal}, y=${yVal}`];
+
+            while (options.length < 4) {
+                const wrongX = Math.max(1, xVal + (Math.floor(Math.random() * 3) - 1));
+                const wrongY = Math.max(1, yVal + (Math.floor(Math.random() * 3) - 1));
+
+                const wrong = `x=${wrongX}, y=${wrongY}`;
+                if (!options.includes(wrong)) {
+                    options.push(wrong);
+                }
+            }
+
+            options.sort(() => Math.random() - 0.5);
+
+            return {
+                latex,
+                answer,
+                options,
+                forceOption: 0,
+            };
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
+
+    }, [1, 2, 3]),
     "quadratic-equations": createGenerator(({ difficulty }) => {
+        // -------------------------------------------------
+        // D1: (x+a)(x+b)=0
+        // -------------------------------------------------
+        if (difficulty === 1) {
+            const a = Math.floor(Math.random() * 6) + 1;
+            const b = Math.floor(Math.random() * 6) + 1;
+
+            const r1 = -a;
+            const r2 = -b;
+
+            const latex =
+                `\\text{Solve: } (x + ${a})(x + ${b}) = 0`;
+
+            const answer = [
+                `x=${r1}, ${r2}`,
+                `x=${r2}, ${r1}`
+            ];
+
+            const options = [
+                `x=${r1}, ${r2}`,
+                `x=${r2}, ${r1}`,
+            ];
+
+            while (options.length < 4) {
+                const dx = Math.floor(Math.random() * 5) - 2;
+                const dy = Math.floor(Math.random() * 5) - 2;
+
+                const x = r1 + dx;
+                const y = r2 + dy;
+
+                if (x === 0 || y === 0) continue;
+
+                const opt = `x=${x}, ${y}`;
+                if (!options.includes(opt)) options.push(opt);
+            }
+
+            options.sort(() => Math.random() - 0.5);
+
+            return {
+                latex,
+                answer,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // -------------------------------------------------
+        // D2: (ax+b)(cx+d)=0
+        // -------------------------------------------------
+        if (difficulty === 2) {
+            const a = Math.floor(Math.random() * 4) + 1;
+            const b = Math.floor(Math.random() * 6) + 1;
+            const c = Math.floor(Math.random() * 4) + 1;
+            const d = Math.floor(Math.random() * 6) + 1;
+
+            const r1 = -b / a;
+            const r2 = -d / c;
+
+            const r1i = Math.round(r1);
+            const r2i = Math.round(r2);
+
+            const latex =
+                `\\text{Solve: } (${a}x + ${b})(${c}x + ${d}) = 0`;
+
+            const answer = [
+                `x=${r1i}, ${r2i}`,
+                `x=${r2i}, ${r1i}`
+            ];
+
+            const options = [
+                `x=${r1i}, ${r2i}`,
+                `x=${r2i}, ${r1i}`,
+            ];
+
+            while (options.length < 4) {
+                const dx = Math.floor(Math.random() * 5) - 2;
+                const dy = Math.floor(Math.random() * 5) - 2;
+
+                const x = r1i + dx;
+                const y = r2i + dy;
+
+                if (x === 0 || y === 0) continue;
+
+                const opt = `x=${x}, ${y}`;
+                if (!options.includes(opt)) options.push(opt);
+            }
+
+            options.sort(() => Math.random() - 0.5);
+
+            return {
+                latex,
+                answer,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // -------------------------------------------------
+        // D3: x^2 + ax + b
+        // -------------------------------------------------
+        if (difficulty === 3) {
+            const r1 = Math.floor(Math.random() * 8) + 1;
+            const r2 = Math.floor(Math.random() * 8) + 1;
+
+            const a = -(r1 + r2);
+            const b = r1 * r2;
+
+            const latex =
+                `\\text{Solve: } x^2 + ${a}x + ${b} = 0`;
+
+            const answer = [
+                `x=${r1}, ${r2}`,
+                `x=${r2}, ${r1}`
+            ];
+
+            const options = [
+                `x=${r1}, ${r2}`,
+                `x=${r2}, ${r1}`,
+            ];
+
+            while (options.length < 4) {
+                const dx = Math.floor(Math.random() * 5) - 2;
+                const dy = Math.floor(Math.random() * 5) - 2;
+
+                const x = r1 + dx;
+                const y = r2 + dy;
+
+                if (x === 0 || y === 0) continue;
+
+                const opt = `x=${x}, ${y}`;
+                if (!options.includes(opt)) options.push(opt);
+            }
+
+            options.sort(() => Math.random() - 0.5);
+
+            return {
+                latex,
+                answer,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // -------------------------------------------------
+        // D4: ax^2 + bx + c (factorable)
+        // -------------------------------------------------
+        if (difficulty === 4) {
+            const r1 = Math.floor(Math.random() * 8) + 1;
+            const r2 = Math.floor(Math.random() * 8) + 1;
+
+            const a = Math.floor(Math.random() * 4) + 1;
+
+            const b = -a * (r1 + r2);
+            const c = a * r1 * r2;
+
+            const latex =
+                `\\text{Solve: } ${a}x^2 + ${b}x + ${c} = 0`;
+
+            const answer = [
+                `x=${r1}, ${r2}`,
+                `x=${r2}, ${r1}`
+            ];
+
+            const options = [
+                `x=${r1}, ${r2}`,
+                `x=${r2}, ${r1}`,
+            ];
+
+            while (options.length < 4) {
+                const dx = Math.floor(Math.random() * 5) - 2;
+                const dy = Math.floor(Math.random() * 5) - 2;
+
+                const x = r1 + dx;
+                const y = r2 + dy;
+
+                if (x === 0 || y === 0) continue;
+
+                const opt = `x=${x}, ${y}`;
+                if (!options.includes(opt)) options.push(opt);
+            }
+
+            options.sort(() => Math.random() - 0.5);
+
+            return {
+                latex,
+                answer,
+                options,
+                forceOption: 0,
+            };
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
+
+    }, [1, 2, 3, 4]),
     "inequalities": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
     }, []),
