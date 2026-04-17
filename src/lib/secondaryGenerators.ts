@@ -1786,6 +1786,7 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
             return {
                 latex,
                 answer,
+                checkWeakLatexEquivalent: true,
                 options: makeOptions(answer, () => {
                     const c2 = randInt(-5, 5) || 1;
                     const a2 = randInt(-5, 5);
@@ -1826,6 +1827,7 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
             return {
                 latex,
                 answer,
+                checkWeakLatexEquivalent: true,
                 options: makeOptions(answer, () => {
                     const n2 = randInt(-5, 5) || 1;
                     const d2 = randInt(2, 6);
@@ -2282,7 +2284,7 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
         }
 
         // -----------------------------
-        // D3: a(x + b) = c
+        // D3: a(x + b) = c  OR  (x + b)/a = c
         // -----------------------------
         if (difficulty === 3) {
 
@@ -2293,16 +2295,34 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
             const a = Math.floor(Math.random() * 5) + 1;
             const b = Math.floor(Math.random() * 6) - 3;
 
-            // construct RHS using solution
-            const rhs = a * (solution + b);
-
             // build bracket expression
             let bracket = v;
             if (b !== 0) {
                 bracket += b > 0 ? ` + ${b}` : ` - ${Math.abs(b)}`;
             }
 
-            const equation = `${a}(${bracket}) = ${rhs}`;
+            const isMultiply = Math.random() < 0.5;
+
+            let equation: string;
+
+            if (isMultiply) {
+                // a(x + b) = RHS
+                const rhs = a * (solution + b);
+                equation = `${a}(${bracket}) = ${rhs}`;
+            } else {
+                // (x + b)/a = RHS
+                const rhs = (solution + b) / a;
+
+                // avoid ugly decimals → force integer RHS
+                if (!Number.isInteger(rhs)) {
+                    // fallback to multiplication case
+                    const rhsFix = a * (solution + b);
+                    equation = `${a}(${bracket}) = ${rhsFix}`;
+                } else {
+                    equation = `\\frac{${bracket}}{${a}} = ${rhs}`;
+                }
+            }
+
             const answer = `${solution}`;
 
             const options = [answer];
@@ -2799,17 +2819,546 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
 
     }, [1, 2, 3, 4]),
     "inequalities": createGenerator(({ difficulty }) => {
+        const rels = ["<", "<=", ">", ">="];
+
+        const makeOptions = (correct: string, x: number) => {
+            const options = new Set<string>();
+            options.add(correct);
+
+            const all = [
+                `x < ${x}`,
+                `x <= ${x}`,
+                `x > ${x}`,
+                `x >= ${x}`,
+                `x < ${x + 1}`,
+                `x > ${x - 1}`,
+                `x <= ${x + 1}`,
+                `x >= ${x - 1}`
+            ];
+
+            while (options.size < 4) {
+                const opt = all[Math.floor(Math.random() * all.length)];
+                options.add(opt);
+            }
+
+            return Array.from(options).sort(() => Math.random() - 0.5);
+        };
+
+        // -------------------------------------------------
+        // D1
+        // -------------------------------------------------
+        if (difficulty === 1) {
+            const a = Math.floor(Math.random() * 5) + 1;
+            const x = Math.floor(Math.random() * 8) + 1;
+            const b = Math.floor(Math.random() * 10);
+
+            const rhs = a * x + b;
+
+            const flip = Math.random() < 0.5;
+            const rel = flip ? "<=" : "<";
+
+            const latex =
+                `\\text{Solve: } ${a}x + ${b} ${rel} ${rhs}`;
+
+            const correct = flip
+                ? `x <= ${x}`
+                : `x < ${x}`;
+
+            const options = makeOptions(correct, x);
+
+            return {
+                latex,
+                answer: [correct],
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // -------------------------------------------------
+        // D2
+        // -------------------------------------------------
+        if (difficulty === 2) {
+            const a = Math.floor(Math.random() * 5) + 1;
+            const b = Math.floor(Math.random() * 10);
+
+            let c = Math.floor(Math.random() * 5) + 1;
+            while (c === a) {
+                c = Math.floor(Math.random() * 5) + 1;
+            }
+
+            const d = Math.floor(Math.random() * 10);
+            const x = Math.floor(Math.random() * 8) + 1;
+
+            const lhsAtX = a * x + b;
+            const rhsAtX = c * x + d;
+
+            const isLess = lhsAtX < rhsAtX;
+
+            const latex =
+                `\\text{Solve: } ${a}x + ${b} < ${c}x + ${d}`;
+
+            const correct = isLess ? `x < ${x}` : `x > ${x}`;
+
+            const options = makeOptions(correct, x);
+
+            return {
+                latex,
+                answer: [correct],
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // -------------------------------------------------
+        // D3
+        // -------------------------------------------------
+        if (difficulty === 3) {
+            const a = Math.floor(Math.random() * 4) + 1;
+            const b = Math.floor(Math.random() * 5) + 1;
+            const c = Math.floor(Math.random() * 4) + 1;
+            const d = Math.floor(Math.random() * 5) + 1;
+
+            const x = Math.floor(Math.random() * 8) + 1;
+
+            const latex =
+                `\\text{Solve: } ${a}(x + ${b}) < ${c}(x + ${d})`;
+
+            const rel = Math.random() < 0.5 ? "<" : "<=";
+
+            const correct =
+                Math.random() < 0.5
+                    ? `x ${rel} ${x}`
+                    : `x ${rel === "<" ? "<=" : ">="} ${x}`;
+
+            const options = makeOptions(correct, x);
+
+            return {
+                latex,
+                answer: [correct],
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // -------------------------------------------------
+        // D4
+        // -------------------------------------------------
+        if (difficulty === 4) {
+            const a = Math.floor(Math.random() * 5) + 1;
+            const b = Math.floor(Math.random() * 10);
+
+            const x = Math.floor(Math.random() * 5) + 1;
+
+            const lhs = a * x + b;
+
+            const left = lhs - (Math.floor(Math.random() * 5) + 1);
+            const right = lhs + (Math.floor(Math.random() * 5) + 1);
+
+            const middle = b === 0 ? `${a}x` : `${a}x + ${b}`;
+
+            const latex =
+                `\\text{Solve: } ${left} < ${middle} < ${right}`;
+
+            // -------------------------------------------------
+            // FRACTION CONVERTER (inline, no helpers)
+            // -------------------------------------------------
+            const format = (n: number, d: number) => {
+                const sign = n * d < 0 ? "-" : "";
+                n = Math.abs(n);
+                d = Math.abs(d);
+
+                const g = (a: number, b: number): number =>
+                    b === 0 ? a : g(b, a % b);
+
+                const gg = g(n, d);
+
+                n /= gg;
+                d /= gg;
+
+                return d === 1
+                    ? `${sign}${n}`
+                    : `${sign}\\frac{${n}}{${d}}`;
+            };
+
+            const solLeft = (left - b);
+            const solRight = (right - b);
+
+            const min = solLeft / a;
+            const max = solRight / a;
+
+            const answer = [
+                `${format(min, 1)} < x < ${format(max, 1)}`, `${format(max, 1)} > x > ${format(min, 1)}`
+            ];
+
+            const options = [
+                answer[0],
+                `${format(min + 1, 1)} < x < ${format(max, 1)}`,
+                `${format(min, 1)} < x < ${format(max + 1, 1)}`,
+                `${format(min - 1, 1)} < x < ${format(max, 1)}`
+            ].sort(() => Math.random() - 0.5);
+
+            return {
+                latex,
+                answer,
+                options,
+                forceOption: 0,
+            };
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
+
+    }, [1, 2, 3, 4]),
     "arithmetic-sequences": createGenerator(({ difficulty }) => {
+        // -------------------------------------------------
+        // D1: given nth term → list first 5 terms
+        // -------------------------------------------------
+        if (difficulty === 1) {
+            const a = Math.floor(Math.random() * 7) - 3; // can be negative
+            const b = Math.floor(Math.random() * 10) - 5;
+
+            // build expression cleanly
+            let expr = `${a}n`;
+            if (b !== 0) {
+                expr += b > 0 ? ` + ${b}` : ` - ${Math.abs(b)}`;
+            }
+
+            const terms: number[] = [];
+            for (let n = 1; n <= 5; n++) {
+                terms.push(a * n + b);
+            }
+
+            const answer = terms.join(", ");
+
+            const options = [answer];
+            while (options.length < 4) {
+                const wrong = terms
+                    .map(t => t + (Math.floor(Math.random() * 5) - 2))
+                    .join(", ");
+
+                if (!options.includes(wrong)) options.push(wrong);
+            }
+
+            options.sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `\\text{The nth term is } ${expr}. \\\\ \\text{Write the first 5 terms.}`,
+                answer,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // -------------------------------------------------
+        // D2: given sequence → find nth term
+        // -------------------------------------------------
+        if (difficulty === 2) {
+            const a = Math.floor(Math.random() * 6) + 1; // keep positive for clarity
+            const b = Math.floor(Math.random() * 10) - 5;
+
+            const seq: number[] = [];
+            for (let n = 1; n <= 5; n++) {
+                seq.push(a * n + b);
+            }
+
+            let expr = `${a}n`;
+            if (b !== 0) {
+                expr += b > 0 ? ` + ${b}` : ` - ${Math.abs(b)}`;
+            }
+
+            const answer = expr;
+
+            const options = [answer];
+            while (options.length < 4) {
+                const wrongA = a + (Math.floor(Math.random() * 3) - 1);
+                const wrongB = b + (Math.floor(Math.random() * 5) - 2);
+
+                let wrong = `${wrongA}n`;
+                if (wrongB !== 0) {
+                    wrong += wrongB > 0 ? ` + ${wrongB}` : ` - ${Math.abs(wrongB)}`;
+                }
+
+                if (!options.includes(wrong)) options.push(wrong);
+            }
+
+            options.sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `\\text{Find the nth term of the sequence: } ${seq.join(", ")}`,
+                answer,
+                checkWeakLatexEquivalent: true,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // -------------------------------------------------
+        // D3: quadratic (n^2 type) → list first 5 terms
+        // -------------------------------------------------
+        if (difficulty === 3) {
+            const a = Math.floor(Math.random() * 3) + 1; // keep small
+            const b = Math.floor(Math.random() * 5) - 2;
+
+            let expr = `${a}n^2`;
+            if (b !== 0) {
+                expr += b > 0 ? ` + ${b}` : ` - ${Math.abs(b)}`;
+            }
+
+            const terms: number[] = [];
+            for (let n = 1; n <= 5; n++) {
+                terms.push(a * n * n + b);
+            }
+
+            const answer = terms.join(", ");
+
+            const options = [answer];
+            while (options.length < 4) {
+                const wrong = terms
+                    .map(t => t + (Math.floor(Math.random() * 5) - 2))
+                    .join(", ");
+
+                if (!options.includes(wrong)) options.push(wrong);
+            }
+
+            options.sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `\\text{The nth term is } ${expr}. \\\\ \\text{Write the first 5 terms.}`,
+                answer,
+                options,
+                forceOption: 0,
+            };
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
+
+    }, [1, 2, 3]),
     "geometric-sequences": createGenerator(({ difficulty }) => {
+        // -------------------------------------------------
+        // D1: find common ratio
+        // -------------------------------------------------
+        if (difficulty === 1) {
+
+            const start = Math.floor(Math.random() * 5) + 1;
+
+            let ratio = Math.floor(Math.random() * 5) + 2; // 2 → 6
+            if (Math.random() < 0.3) ratio *= -1; // sometimes negative
+
+            const seq: number[] = [start];
+
+            for (let i = 1; i < 5; i++) {
+                seq.push(seq[i - 1] * ratio);
+            }
+
+            const answer = `${ratio}`;
+
+            const options = [answer];
+
+            while (options.length < 4) {
+                const wrong = `${ratio + (Math.floor(Math.random() * 5) - 2)}`;
+                if (
+                    wrong !== answer &&
+                    wrong !== "1" &&   // avoid trivial
+                    !options.includes(wrong)
+                ) {
+                    options.push(wrong);
+                }
+            }
+
+            options.sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `\\text{Find the multiplier between terms in the sequence: } ${seq.join(", ")}`,
+                answer,
+                options,
+                forceOption: 0,
+            };
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
+
+    }, [1]),
     "functions-basic-understanding": createGenerator(({ difficulty }) => {
+        // -------------------------------------------------
+        // D1: function machine (SVG)
+        // -------------------------------------------------
+        if (difficulty === 1) {
+
+            const x = Math.floor(Math.random() * 6) + 1;
+
+            const ops = ["add", "sub", "mul", "div"];
+            const opType = ops[Math.floor(Math.random() * ops.length)];
+
+            const k = Math.floor(Math.random() * 5) + 1;
+
+            let output = 0;
+            let label = "";
+
+            if (opType === "add") {
+                output = x + k;
+                label = `+${k}`;
+            } else if (opType === "sub") {
+                output = x - k;
+                label = `-${k}`;
+            } else if (opType === "mul") {
+                output = x * k;
+                label = `×${k}`;
+            } else {
+                output = x / k;
+                label = `÷${k}`;
+            }
+
+            const svg = `
+            <svg width="220" height="100" xmlns="http://www.w3.org/2000/svg">
+                <line x1="10" y1="50" x2="70" y2="50" stroke="black"/>
+                <line x1="150" y1="50" x2="210" y2="50" stroke="black"/>
+                <rect x="70" y="25" width="80" height="50" fill="none" stroke="black"/>
+                <text x="25" y="45" font-size="12">input</text>
+                <text x="160" y="45" font-size="12">output</text>
+                <text x="110" y="58" font-size="28" text-anchor="middle">${label}</text>
+            </svg>
+            `;
+
+            const answer = `${output}`;
+
+            const options = [answer];
+            while (options.length < 4) {
+                const wrong = `${output + (Math.floor(Math.random() * 5) - 2)}`;
+                if (!options.includes(wrong)) options.push(wrong);
+            }
+
+            options.sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `\\text{If the input is } ${x}, \\text{ what is the output?}`,
+                svg,
+                checkWeakLatexEquivalent: true,
+                answer,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // -------------------------------------------------
+        // D2: f(x) = ax + b
+        // -------------------------------------------------
+        if (difficulty === 2) {
+
+            const a = Math.floor(Math.random() * 5) + 1;
+            const b = Math.floor(Math.random() * 10) - 5;
+            const x = Math.floor(Math.random() * 6) + 1;
+
+            const result = a * x + b;
+
+            let expr = `${a}x`;
+            if (b !== 0) {
+                expr += b > 0 ? ` + ${b}` : ` - ${Math.abs(b)}`;
+            }
+
+            const answer = `${result}`;
+
+            const options = [answer];
+            while (options.length < 4) {
+                const wrong = `${result + (Math.floor(Math.random() * 5) - 2)}`;
+                if (!options.includes(wrong)) options.push(wrong);
+            }
+
+            options.sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `\\text{Given } f(x) = ${expr}, \\text{ find } f(${x}).`,
+                answer,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // -------------------------------------------------
+        // D3: f(x) = ax^2 + bx + c
+        // -------------------------------------------------
+        if (difficulty === 3) {
+
+            const a = Math.floor(Math.random() * 3) + 1;
+            const b = Math.floor(Math.random() * 6) - 3;
+            const c = Math.floor(Math.random() * 6) - 3;
+            const x = Math.floor(Math.random() * 5) + 1;
+
+            const result = a * x * x + b * x + c;
+
+            let expr = `${a}x^2`;
+
+            if (b !== 0) {
+                expr += b > 0 ? ` + ${b}x` : ` - ${Math.abs(b)}x`;
+            }
+
+            if (c !== 0) {
+                expr += c > 0 ? ` + ${c}` : ` - ${Math.abs(c)}`;
+            }
+
+            const answer = `${result}`;
+
+            const options = [answer];
+            while (options.length < 4) {
+                const wrong = `${result + (Math.floor(Math.random() * 7) - 3)}`;
+                if (!options.includes(wrong)) options.push(wrong);
+            }
+
+            options.sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `\\text{Given } f(x) = ${expr}, \\text{ find } f(${x}).`,
+                answer,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // -------------------------------------------------
+        // D4: composite functions f(g(x))
+        // -------------------------------------------------
+        if (difficulty === 4) {
+
+            const a = Math.floor(Math.random() * 4) + 1;
+            const b = Math.floor(Math.random() * 5) - 2;
+
+            const c = Math.floor(Math.random() * 4) + 1;
+            const d = Math.floor(Math.random() * 5) - 2;
+
+            const x = Math.floor(Math.random() * 5) + 1;
+
+            const gx = c * x + d;
+            const result = a * gx + b;
+
+            let fExpr = `${a}x`;
+            if (b !== 0) {
+                fExpr += b > 0 ? ` + ${b}` : ` - ${Math.abs(b)}`;
+            }
+
+            let gExpr = `${c}x`;
+            if (d !== 0) {
+                gExpr += d > 0 ? ` + ${d}` : ` - ${Math.abs(d)}`;
+            }
+
+            const answer = `${result}`;
+
+            const options = [answer];
+            while (options.length < 4) {
+                const wrong = `${result + (Math.floor(Math.random() * 7) - 3)}`;
+                if (!options.includes(wrong)) options.push(wrong);
+            }
+
+            options.sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `\\text{Given } f(x) = ${fExpr} \\text{ and } g(x) = ${gExpr}, \\\\ \\text{find } f(g(${x})).`,
+                answer,
+                options,
+                forceOption: 0,
+            };
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
+
+    }, [1, 2, 3, 4]),
     "linear-graphs": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
     }, []),
