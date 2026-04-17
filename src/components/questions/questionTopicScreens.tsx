@@ -15,8 +15,9 @@ import Link from "next/link";
 import { buildQuestionNavButtons } from "@/lib/questionTopicNav";
 import { generateQuestionWithTimeout, getQuestionGeneratorLevels } from "@/lib/questionGenerators";
 import { getSubtopicOrNull, getTopicOrNull, levelRoutePrefix, type QuestionLevel } from "@/lib/questionTopicCatalog";
+import { weakLatexEquivalent } from "./weakLatexEquivalent";
 
-type IconMap = Record<string, React.ReactNode>;
+type IconMap = Record<string, React.ReactNode>  
 
 export function QuestionLevelOverview({
     lng,
@@ -240,6 +241,7 @@ export function QuestionSubtopicLeaf({
     const [answerMode, setAnswerMode] = React.useState<"typed" | "multipleChoice">("typed");
     const [userAnswerLatex, setUserAnswerLatex] = React.useState("");
     const [answerCorrect, setAnswerCorrect] = React.useState<boolean | null>(null);
+    const [checkWeakLatexEquivalent, setcheckWeakLatexEquivalent] = React.useState<boolean>(false);
     const [feedback, setFeedback] = React.useState("");
     const [isGenerating, setIsGenerating] = React.useState(false);
 
@@ -274,7 +276,7 @@ export function QuestionSubtopicLeaf({
             );
         }
 
-        return <span>{trimmed}</span>;
+        return <span className="flex text-center items-center justify-center">{trimmed}</span>;
     }, []);
 
 
@@ -309,6 +311,7 @@ export function QuestionSubtopicLeaf({
         setQuestionSvg(result.svg ?? "");
         setQuestionAnswers(Array.isArray(result.answer) ? result.answer : [result.answer]);
         setQuestionOptions(options);
+        setcheckWeakLatexEquivalent(result.checkWeakLatexEquivalent ?? false)
         setQuestionForceOption(result.forceOption ?? 0);
         setAnswerMode(
             result.forceOption === 2 || (answerMode === "multipleChoice" && result.forceOption !== 1)
@@ -351,7 +354,19 @@ export function QuestionSubtopicLeaf({
 
         const expectedAnswers = questionAnswers.map((answer) => normalizeAnswer(answer.toString()));
 
-        const correct = expectedAnswers.some((expected) => normalized === expected);
+        let correct = expectedAnswers.some((expected) => normalized === expected);
+
+        if (!correct && checkWeakLatexEquivalent) {
+            expectedAnswers.forEach(answer => {
+                const result = weakLatexEquivalent(answer, normalized)
+                if (result){
+                    correct = true
+                    return
+                }
+            });
+
+            
+        }
 
         setAnswerCorrect(correct);
         setFeedback(
@@ -360,8 +375,6 @@ export function QuestionSubtopicLeaf({
                 : t("questions.wrong", { answer: questionAnswers.join(", ") })
         );
 
-        console.log(userAnswerLatex)
-        console.log(questionAnswers)
     };
 
     const handleClearAnswer = () => {
@@ -533,9 +546,9 @@ export function QuestionSubtopicLeaf({
                                             </div>
                                         ) : (
                                             <span className={`flex ${answerCorrect === true
-                                            ? "rounded-2xl shadow-[0_0_0_0.6rem_rgba(34,197,94,0.5)]"
+                                            ? "rounded-[1.5rem] shadow-[0_0_0_0.6rem_rgba(34,197,94,0.5)]"
                                             : answerCorrect === false
-                                            ? "rounded-2xl shadow-[0_0_0_0.6rem_rgba(239,68,68,0.5)]"
+                                            ? "rounded-[1.5rem] shadow-[0_0_0_0.6rem_rgba(239,68,68,0.5)]"
                                             : ""}`}>
                                                 <MathShorthandEditor
                                                     value={userAnswerLatex}

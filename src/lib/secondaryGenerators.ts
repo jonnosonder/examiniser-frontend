@@ -1498,10 +1498,431 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
 
     }, [1, 2, 3, 4]),
     "algebraic-notation": createGenerator(({ difficulty }) => {
+        if (difficulty === 1) {
+
+            const variables = ["x", "y", "a", "b"];
+            const ops = [
+                { word: "add", type: "add", symbol: "+" },
+                { word: "plus", type: "add", symbol: "+" },
+                { word: "subtract", type: "sub", symbol: "-" },
+                { word: "minus", type: "sub", symbol: "-" },
+                { word: "times", type: "mul" },
+                { word: "multiplied by", type: "mul" },
+                { word: "divide by", type: "div" }
+            ];
+
+            const num = Math.floor(Math.random() * 9) + 1;
+            const variable = variables[Math.floor(Math.random() * variables.length)];
+
+            // random order: number-variable OR variable-number
+            const leftIsNum = Math.random() < 0.5;
+
+            const left = leftIsNum ? num : variable;
+            const right = leftIsNum ? variable : num;
+
+            const op = ops[Math.floor(Math.random() * ops.length)];
+
+            const latex = `\\text{${left} ${op.word} ${right}. Write the exact algebraic notation.}`;
+
+            let answer = "";
+
+            // -----------------------------
+            // ADD / SUB
+            // -----------------------------
+            if (op.type === "add") {
+                answer = `${num}${variable}`; // order irrelevant for + but normalized
+            }
+
+            else if (op.type === "sub") {
+                if (leftIsNum) {
+                    answer = `${num} - ${variable}`;
+                } else {
+                    answer = `${variable} - ${num}`;
+                }
+            }
+
+            // -----------------------------
+            // MULTIPLICATION
+            // -----------------------------
+            else if (op.type === "mul") {
+                answer = `${num}${variable}`;
+            }
+
+            // -----------------------------
+            // DIVISION
+            // -----------------------------
+            else if (op.type === "div") {
+                if (leftIsNum) {
+                    answer = `\\frac{${num}}{${variable}}`;
+                } else {
+                    answer = `\\frac{${variable}}{${num}}`;
+                }
+            }
+
+            const optionsSet = new Set<string>();
+            optionsSet.add(answer);
+
+            while (optionsSet.size < 4) {
+
+                const wrongOp = ops[Math.floor(Math.random() * ops.length)];
+
+                let wrong = "";
+
+                if (wrongOp.type === "add") {
+                    wrong = `${num}${variable}`;
+                }
+                else if (wrongOp.type === "sub") {
+                    wrong = Math.random() < 0.5
+                        ? `${num} - ${variable}`
+                        : `${variable} - ${num}`;
+                }
+                else if (wrongOp.type === "mul") {
+                    wrong = `${num}${variable}`;
+                }
+                else if (wrongOp.type === "div") {
+                    wrong = Math.random() < 0.5
+                        ? `\\frac{${num}}{${variable}}`
+                        : `\\frac{${variable}}{${num}}`;
+                }
+
+                optionsSet.add(wrong);
+            }
+
+            return {
+                latex,
+                answer,
+                options: Array.from(optionsSet).sort(() => Math.random() - 0.5),
+                forceOption: 0,
+            };
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+
+    }, [1]),
     "simplifying-expressions": createGenerator(({ difficulty }) => {
+        const randInt = (min: number, max: number) =>
+            Math.floor(Math.random() * (max - min + 1)) + min;
+
+        const randVar = () => ["a", "x", "y", "z"][randInt(0, 3)];
+
+        const simplifyFrac = (n: number, d: number) => {
+            const g = gcd(n, d);
+            n /= g;
+            d /= g;
+            if (d < 0) {
+                n *= -1;
+                d *= -1;
+            }
+            return { n, d };
+        };
+
+        const gcd = (a: number, b: number): number =>
+            b === 0 ? Math.abs(a) : gcd(b, a % b);
+
+        const frac = (n: number, d: number) => {
+            if (n === 0) return "0";
+
+            const sign = n * d < 0 ? "-" : "";
+            const nn = Math.abs(n);
+            const dd = Math.abs(d);
+
+            const g = gcd(nn, dd);
+            const sn = nn / g;
+            const sd = dd / g;
+
+            return sd === 1
+                ? `${sign}${sn}`
+                : `${sign}\\frac{${sn}}{${sd}}`;
+        };
+
+        const formatTerm = (c: number, v?: string) => {
+            if (c === 0) return "";
+            if (!v) return `${c}`;
+            if (c === 1) return v;
+            if (c === -1) return `-${v}`;
+            return `${c}${v}`;
+        };
+
+        function buildExpression(terms: string[]): string {
+            const filtered = terms
+                .map(t => t?.trim())
+                .filter(t => t && t !== "0");
+
+            if (filtered.length === 0) return "0";
+
+            let result = "";
+            console.log(filtered)
+
+            for (let i = 0; i < filtered.length; i++) {
+                const term = filtered[i];
+
+                if (i === 0) {
+                    result += term.startsWith("-") ? term : term;
+                } else {
+                    if (term.startsWith("-")) {
+                        result += " - " + term.slice(1);
+                    } else {
+                        result += " + " + term;
+                    }
+                }
+            }
+            console.log(result)
+
+            return result;
+        }
+
+        const makeOptions = (correct: string, generator: () => string) => {
+            const set = new Set<string>();
+            set.add(correct);
+
+            while (set.size < 4) {
+                const opt = generator();
+                if (opt && !opt.includes("0x") && opt !== "0") {
+                    set.add(opt);
+                }
+            }
+
+            return Array.from(set).sort(() => Math.random() - 0.5);
+        };
+
+        // -------------------------------------------------
+        // D1: collect like terms (FIXED AGGREGATION MODEL)
+        // -------------------------------------------------
+        if (difficulty === 1) {
+            const VAR_POOL = ["a", "x", "y", "z"];
+
+            const vars: string[] = [];
+            while (vars.length < 3) {
+                const v = VAR_POOL[randInt(0, VAR_POOL.length - 1)];
+                if (!vars.includes(v)) vars.push(v);
+            }
+
+            const coeffMap: Record<string, number> = Object.fromEntries(
+                vars.map(v => [v, 0])
+            );
+
+            let constantSum = 0;
+            const rawTerms: string[] = [];
+
+            const termCount = randInt(4, 7);
+
+            for (let i = 0; i < termCount; i++) {
+                const type = randInt(0, 2);
+
+                if (type === 0 || type === 1) {
+                    const c = (type === 0 ? 1 : -1) * randInt(1, 5);
+                    const v = vars[randInt(0, vars.length - 1)];
+
+                    coeffMap[v] += c;
+                    rawTerms.push(formatTerm(c, v));
+                } else {
+                    const c = randInt(-5, 5);
+                    if (c !== 0) {
+                        constantSum += c;
+                        rawTerms.push(`${c}`);
+                    }
+                }
+            }
+
+            const simplified: string[] = [];
+
+            for (const v of new Set(vars)) {
+                const c = coeffMap[v];
+                if (c !== 0) simplified.push(formatTerm(c, v));
+            }
+
+            if (constantSum !== 0) {
+                simplified.push(`${constantSum}`);
+            }
+            
+            console.log(coeffMap)
+            console.log(simplified)
+
+            const answer = simplified.length ? buildExpression(simplified) : "0";
+
+            // question is purely raw expression (unsimplified)
+            const question = buildExpression(rawTerms) || "0";
+
+            const options = makeOptions(answer, () => {
+                const v = randVar();
+                const c = randInt(-5, 5);
+                const k = randInt(-5, 5);
+
+                const parts: string[] = [];
+                if (c !== 0) parts.push(formatTerm(c, v));
+                if (k !== 0) parts.push(`${k}`);
+
+                return buildExpression(parts.length ? parts : ["0"]);
+            });
+
+            return {
+                latex: `\\text{Simplify: } ${question}`,
+                answer,
+                checkWeakLatexEquivalent: true,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // -------------------------------------------------
+        // D2: expand brackets
+        // -------------------------------------------------
+        if (difficulty === 2) {
+            const c = randInt(-5, 5) || 1;
+            const v = randVar();
+            const a = randInt(-5, 5);
+            const b = randInt(-5, 5);
+
+            const latex = `\\text{Expand: } ${c}(${a}${v} + ${b})`;
+
+            const x = c * a;
+            const k = c * b;
+
+            // FIX: filter empty strings so buildExpression doesn't produce " + 5"
+            const answer = buildExpression(
+                [x !== 0 ? formatTerm(x, v) : "", k !== 0 ? `${k}` : ""].filter(Boolean)
+            ) || "0";
+
+            return {
+                latex,
+                answer,
+                options: makeOptions(answer, () => {
+                    const c2 = randInt(-5, 5) || 1;
+                    const a2 = randInt(-5, 5);
+                    const b2 = randInt(-5, 5);
+
+                    const x2 = c2 * a2;
+                    const k2 = c2 * b2;
+
+                    return buildExpression(
+                        [x2 !== 0 ? formatTerm(x2, v) : "", k2 !== 0 ? `${k2}` : ""].filter(Boolean)
+                    ) || "0";
+                }),
+                forceOption: 0,
+            };
+        }
+
+        // -------------------------------------------------
+        // D3: fractions outside brackets
+        // -------------------------------------------------
+        if (difficulty === 3) {
+            const n = randInt(-5, 5) || 1;
+            const d = randInt(2, 6);
+
+            const v = randVar();
+            const a = randInt(-5, 5);
+            const b = randInt(-5, 5);
+
+            const latex = `\\text{Expand: } ${frac(n, d)}(${a}${v} + ${b})`;
+
+            // FIX: filter empty strings
+            const answer = buildExpression(
+                [
+                    a !== 0 ? `${frac(n * a, d)}${v}` : "",
+                    b !== 0 ? `${frac(n * b, d)}` : "",
+                ].filter(Boolean)
+            ) || "0";
+
+            return {
+                latex,
+                answer,
+                options: makeOptions(answer, () => {
+                    const n2 = randInt(-5, 5) || 1;
+                    const d2 = randInt(2, 6);
+                    const a2 = randInt(-5, 5) || 1;  // FIX: guaranteed non-zero to avoid stalling makeOptions
+                    const b2 = randInt(-5, 5);
+
+                    return buildExpression(
+                        [
+                            `${frac(n2 * a2, d2)}${v}`,
+                            b2 !== 0 ? `${frac(n2 * b2, d2)}` : "",
+                        ].filter(Boolean)
+                    ) || "0";
+                }),
+                forceOption: 0,
+            };
+        }
+
+        // -------------------------------------------------
+        // D4: mixed expressions
+        // -------------------------------------------------
+        if (difficulty === 4) {
+            const v = randVar();
+
+            const c1 = randInt(1, 4);
+            const c2 = randInt(1, 4);
+
+            const n1 = randInt(-4, 4) || 1;
+            const d1 = randInt(2, 5);
+
+            const n2 = randInt(-4, 4) || 1;
+            const d2 = randInt(2, 5);
+
+            const k1 = randInt(-5, 5);
+            const k2 = randInt(-5, 5);
+            const k3 = randInt(-5, 5);
+
+            const term1Var = simplifyFrac(c1 * n1, d1);
+            const term2Var = simplifyFrac(c2 * n2, d2);
+
+            const varCoeff = simplifyFrac(
+                term1Var.n * term2Var.d - term2Var.n * term1Var.d,
+                term1Var.d * term2Var.d
+            );
+
+            const constTotal = c1 * k1 - c2 * k2 + k3;
+
+            const latex =
+                `\\text{Simplify: } ${c1}(${frac(n1, d1)}${v} + ${k1}) - ${c2}(${frac(n2, d2)}${v} + ${k2}) + ${k3}`;
+
+            const answerParts: string[] = [];
+
+            if (varCoeff.n !== 0) {
+                answerParts.push(
+                    varCoeff.d === 1
+                        ? formatTerm(varCoeff.n, v)
+                        : `${frac(varCoeff.n, varCoeff.d)}${v}`
+                );
+            }
+
+            if (constTotal !== 0) {
+                answerParts.push(`${constTotal}`);
+            }
+
+            // FIX: use buildExpression instead of manual join + brittle regex replace
+            const answer = answerParts.length ? buildExpression(answerParts) : "0";
+
+            return {
+                latex,
+                answer,
+                options: makeOptions(answer, () => {
+                    const a = randInt(-3, 3) || 1;
+                    const b = randInt(-3, 3) || 1;
+                    const c = randInt(-3, 3) || 1;
+
+                    const coeff = simplifyFrac(a, randInt(2, 5));
+
+                    const parts: string[] = [];
+
+                    if (coeff.n !== 0) {
+                        parts.push(
+                            coeff.d === 1 ? formatTerm(coeff.n, v) : `${frac(coeff.n, coeff.d)}${v}`
+                        );
+                    }
+
+                    // FIX: collapse b and c into a single constant term
+                    // (previously pushed separately, producing "3x + 2 + -1")
+                    const constD = b + c;
+                    if (constD !== 0) parts.push(`${constD}`);
+
+                    return buildExpression(parts.length ? parts : ["0"]);
+                }),
+                forceOption: 0,
+            };
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
+
     }, [1, 2, 3, 4]),
     "expanding-and-factorising": createGenerator(({ difficulty }) => {
         let latex = "";
@@ -1623,6 +2044,7 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
         return {
             latex,
             answer,
+            checkWeakLatexEquivalent: true,
             options,
             forceOption: 0,
         };
@@ -1630,123 +2052,123 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
     }, [1, 2, 3, 4, 5]),
     "substitution": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "linear-equations": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "simultaneous-equations": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "quadratic-equations": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "inequalities": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "arithmetic-sequences": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "geometric-sequences": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "functions-basic-understanding": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "linear-graphs": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "quadratic-graphs": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "angles-rules-parallel-lines": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "properties-of-polygons": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "congruence-and-similarity": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "translation": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "rotation": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "reflection": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "enlargement": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "pythagoras-theorem": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "sine-cosine-tangent": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "right-angled-triangles": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "circumference-and-area": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "arcs-and-sectors": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "area-and-perimeter": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "prisms": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "cylinders": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "spheres": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "unit-conversions": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "compound-measures": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "data-collection-methods": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "mean-median-mode": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "range": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "bar-charts": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "histograms": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "pie-charts": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "basic-probability-rules": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "tree-diagrams": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "venn-diagrams": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "multi-step-problems": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "mathematical-proofs": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
     "logical-deduction": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, [1, 2, 3, 4]),
+    }, []),
 };
 
