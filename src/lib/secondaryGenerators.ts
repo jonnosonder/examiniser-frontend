@@ -808,6 +808,9 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
 
     }, [1, 2, 3, 4, 5, 6, 7]),
     "fractions-decimals-percentages": createGenerator(({ difficulty }) => {
+        // -----------------------------
+        // D1: same denominator add/sub
+        // -----------------------------
         if (difficulty === 1) {
 
             const denominators = [2, 3, 4, 5, 6, 8, 10];
@@ -821,7 +824,6 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
             let numer1 = a;
             let numer2 = b;
 
-            // ensure subtraction stays positive
             if (!isAddition && numer2 > numer1) {
                 [numer1, numer2] = [numer2, numer1];
             }
@@ -837,29 +839,16 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
 
             let answers: string[] = [];
 
-            // case: whole number
             if (sd === 1) {
-                answers = [
-                    `${sn}`,
-                    `\\frac{${resultNumer}}{${denom}}`
-                ];
+                answers = [`${sn}`, `\\frac{${resultNumer}}{${denom}}`];
             } else if (g > 1) {
-                // simplified + unsimplified
-                answers = [
-                    `\\frac{${sn}}{${sd}}`,
-                    `\\frac{${resultNumer}}{${denom}}`
-                ];
+                answers = [`\\frac{${sn}}{${sd}}`, `\\frac{${resultNumer}}{${denom}}`];
             } else {
-                // already simplest
                 answers = [`\\frac{${sn}}{${sd}}`];
             }
 
-            // special case: equals 1
             if (resultNumer === denom) {
-                answers = [
-                    `\\frac{${resultNumer}}{${denom}}`,
-                    "1"
-                ];
+                answers = [`\\frac{${resultNumer}}{${denom}}`, "1"];
             }
 
             const optionsSet = new Set<string>(answers);
@@ -867,22 +856,238 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
             while (optionsSet.size < 4) {
                 const d = denominators[Math.floor(Math.random() * denominators.length)];
                 const n = Math.floor(Math.random() * d) + 1;
-
-                if (n === d) {
-                    optionsSet.add("1");
-                } else {
-                    optionsSet.add(`\\frac{${n}}{${d}}`);
-                }
+                optionsSet.add(n === d ? "1" : `\\frac{${n}}{${d}}`);
             }
 
-            const options = Array.from(optionsSet)
-                .sort(() => Math.random() - 0.5);
-
-            const op = isAddition ? "+" : "-";
+            const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
 
             return {
-                latex: `\\frac{${numer1}}{${denom}} ${op} \\frac{${numer2}}{${denom}} = ?`,
+                latex: `\\frac{${numer1}}{${denom}} ${isAddition ? "+" : "-"} \\frac{${numer2}}{${denom}} = ?`,
                 answer: answers,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // -----------------------------
+        // D2: simplify fractions
+        // -----------------------------
+        if (difficulty === 2) {
+
+            const denom = [4, 6, 8, 9, 10, 12][Math.floor(Math.random() * 6)];
+            const factor = Math.floor(Math.random() * (denom / 2)) + 2;
+
+            const base = Math.floor(Math.random() * 4) + 1;
+            const numer = base * factor;
+
+            const gcd = (x: number, y: number): number =>
+                y === 0 ? x : gcd(y, x % y);
+
+            const g = gcd(numer, denom);
+            const sn = numer / g;
+            const sd = denom / g;
+
+            const answers = [
+                `\\frac{${sn}}{${sd}}`,
+                `\\frac{${numer}}{${denom}}`
+            ];
+
+            if (sn === sd) answers.push("1");
+
+            const optionsSet = new Set<string>(answers);
+
+            while (optionsSet.size < 4) {
+                const n = Math.floor(Math.random() * 10) + 1;
+                const d = Math.floor(Math.random() * 10) + 2;
+                optionsSet.add(`\\frac{${n}}{${d}}`);
+            }
+
+            return {
+                latex: `\\text{Simplify: } \\frac{${numer}}{${denom}}`,
+                answer: answers,
+                options: Array.from(optionsSet).sort(() => Math.random() - 0.5),
+                forceOption: 0,
+            };
+        }
+
+        // -----------------------------
+        // D3: add different denominators
+        // -----------------------------
+        if (difficulty === 3) {
+
+            const denomList = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+
+            const d1 = denomList[Math.floor(Math.random() * denomList.length)];
+
+            let d2 = denomList[Math.floor(Math.random() * denomList.length)];
+            while (d2 === d1) {
+                d2 = denomList[Math.floor(Math.random() * denomList.length)];
+            }
+
+            const n1 = Math.floor(Math.random() * (d1 - 1)) + 1;
+            const n2 = Math.floor(Math.random() * (d2 - 1)) + 1;
+
+            const gcd = (a: number, b: number): number =>
+                b === 0 ? a : gcd(b, a % b);
+
+            const lcm = (d1 * d2) / gcd(d1, d2);
+
+            const sum = n1 * (lcm / d1) + n2 * (lcm / d2);
+
+            const g = gcd(sum, lcm);
+
+            const sn = sum / g;
+            const sd = lcm / g;
+
+            const answers = sd === 1
+                ? [`${sn}`, `\\frac{${sum}}{${lcm}}`]
+                : [`\\frac{${sn}}{${sd}}`, `\\frac{${sum}}{${lcm}}`];
+
+            const optionsSet = new Set<string>(answers);
+
+            while (optionsSet.size < 4) {
+                const n = Math.floor(Math.random() * 10) + 1;
+                const d = Math.floor(Math.random() * 10) + 2;
+                optionsSet.add(`\\frac{${n}}{${d}}`);
+            }
+
+            return {
+                latex: `\\frac{${n1}}{${d1}} + \\frac{${n2}}{${d2}} = ?`,
+                answer: answers,
+                options: Array.from(optionsSet).sort(() => Math.random() - 0.5),
+                forceOption: 0,
+            };
+        }
+
+        // -----------------------------
+        // D4: convert between forms
+        // -----------------------------
+        if (difficulty === 4) {
+
+            const types = ["fraction", "decimal", "percent"];
+
+            const from = types[Math.floor(Math.random() * types.length)];
+
+            let to = types[Math.floor(Math.random() * types.length)];
+            while (to === from) {
+                to = types[Math.floor(Math.random() * types.length)];
+            }
+
+            // generate fraction that converts cleanly
+            const denominators = [2, 4, 5, 10];
+            const denom = denominators[Math.floor(Math.random() * denominators.length)];
+            const numer = Math.floor(Math.random() * (denom - 1)) + 1;
+
+            const decimal = (numer / denom).toString();
+            const percent = `${(numer / denom) * 100}\\%`;
+            const fraction = `\\frac{${numer}}{${denom}}`;
+
+            const get = (type: string) => {
+                if (type === "fraction") return fraction;
+                if (type === "decimal") return decimal;
+                return percent;
+            };
+
+            const latex = `\\text{Convert } ${get(from)} \\text{ to a ${to}.}`;
+            const answer = get(to);
+
+            const optionsSet = new Set<string>();
+            optionsSet.add(answer);
+
+            while (optionsSet.size < 4) {
+
+                const d = denominators[Math.floor(Math.random() * denominators.length)];
+                const n = Math.floor(Math.random() * (d - 1)) + 1;
+
+                const dec = (n / d).toString();
+                const per = `${(n / d) * 100}\\%`;
+                const frac = `\\frac{${n}}{${d}}`;
+
+                optionsSet.add(
+                    to === "fraction" ? frac :
+                    to === "decimal" ? dec :
+                    per
+                );
+            }
+
+            return {
+                latex,
+                answer,
+                options: Array.from(optionsSet).sort(() => Math.random() - 0.5),
+                forceOption: 0,
+            };
+        }
+
+        // -----------------------------
+        // D5: add decimals
+        // -----------------------------
+        if (difficulty === 5) {
+
+            const a = (Math.random() * 5).toFixed(2);
+            const b = (Math.random() * 5).toFixed(2);
+
+            const sum = (Number(a) + Number(b)).toFixed(2);
+
+            const options = [
+                sum,
+                (Number(sum) + 1).toFixed(2),
+                (Number(sum) - 1).toFixed(2),
+                (Number(sum) + 0.5).toFixed(2)
+            ].sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `${a} + ${b}`,
+                answer: sum,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // -----------------------------
+        // D6: percentage of value
+        // -----------------------------
+        if (difficulty === 6) {
+
+            const percent = [10, 20, 25, 50][Math.floor(Math.random() * 4)];
+            const value = Math.floor(Math.random() * 100) + 20;
+
+            const result = (percent / 100) * value;
+
+            const options = [
+                `${result}`,
+                `${result + 10}`,
+                `${result - 10}`,
+                `${result * 2}`
+            ].sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `\\text{Find } ${percent}\\% \\text{ of } ${value}`,
+                answer: `${result}`,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // -----------------------------
+        // D7: reverse percentage
+        // -----------------------------
+        if (difficulty === 7) {
+
+            const percent = [50, 25, 20][Math.floor(Math.random() * 3)];
+            const original = Math.floor(Math.random() * 100) + 50;
+
+            const reduced = (percent / 100) * original;
+
+            const options = [
+                `${original}`,
+                `${original + 20}`,
+                `${original - 20}`,
+                `${original * 2}`
+            ].sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `\\text{${reduced} is ${percent}\\% of what number?}`,
+                answer: `${original}`,
                 options,
                 forceOption: 0,
             };
@@ -890,12 +1095,407 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
 
         throw new Error(`Unhandled difficulty: ${difficulty}`);
 
-    }, [1, 2, 3, 4]),
+    }, [1, 2, 3, 4, 5, 6, 7]),
     "ratio-and-proportion": createGenerator(({ difficulty }) => {
+        const gcd = (a: number, b: number): number =>
+            b === 0 ? a : gcd(b, a % b);
+
+        // -----------------------------
+        // D1: ratio from context
+        // -----------------------------
+        if (difficulty === 1) {
+
+            const red = Math.floor(Math.random() * 10) + 1;
+            const blue = Math.floor(Math.random() * 10) + 1;
+
+            const answer = `${red}:${blue}`;
+
+            const optionsSet = new Set<string>();
+            optionsSet.add(answer);
+
+            while (optionsSet.size < 4) {
+                const r = Math.floor(Math.random() * 10) + 1;
+                const b = Math.floor(Math.random() * 10) + 1;
+                optionsSet.add(`${r}:${b}`);
+            }
+
+            return {
+                latex: `\\text{A bag contains } ${red} \\text{ red balls and } ${blue} \\text{ blue balls. Write the ratio of red to blue.}`,
+                answer,
+                options: Array.from(optionsSet).sort(() => Math.random() - 0.5),
+                forceOption: 0,
+            };
+        }
+
+        // -----------------------------
+        // D2: simplify ratio
+        // -----------------------------
+        if (difficulty === 2) {
+
+            const baseA = Math.floor(Math.random() * 5) + 1;
+            const baseB = Math.floor(Math.random() * 5) + 1;
+            const factor = Math.floor(Math.random() * 5) + 2;
+
+            const a = baseA * factor;
+            const b = baseB * factor;
+
+            const g = gcd(a, b);
+
+            const simplified = `${a / g}:${b / g}`;
+
+            const answers = [
+                simplified,
+                `${a}:${b}`
+            ];
+
+            const optionsSet = new Set<string>(answers);
+
+            while (optionsSet.size < 4) {
+                const r = Math.floor(Math.random() * 10) + 1;
+                const s = Math.floor(Math.random() * 10) + 1;
+                optionsSet.add(`${r}:${s}`);
+            }
+
+            return {
+                latex: `\\text{Simplify the ratio } ${a}:${b}`,
+                answer: answers,
+                options: Array.from(optionsSet).sort(() => Math.random() - 0.5),
+                forceOption: 0,
+            };
+        }
+
+        // -----------------------------
+        // D3: scale ratio
+        // -----------------------------
+        if (difficulty === 3) {
+
+            const redRatio = Math.floor(Math.random() * 5) + 1;
+            const blueRatio = Math.floor(Math.random() * 5) + 1;
+
+            const multiplier = Math.floor(Math.random() * 5) + 2;
+
+            const red = redRatio * multiplier;
+            const blue = blueRatio * multiplier;
+
+            const answer = `${blue}`;
+
+            const optionsSet = new Set<string>();
+            optionsSet.add(answer);
+
+            while (optionsSet.size < 4) {
+                optionsSet.add(String(Math.floor(Math.random() * 50) + 1));
+            }
+
+            return {
+                latex: `\\text{The ratio of red to blue balls is } ${redRatio}:${blueRatio}.\\\\\\text{If there are } ${red} \\text{ red balls, how many blue balls are there?}`,
+                answer,
+                options: Array.from(optionsSet).sort(() => Math.random() - 0.5),
+                forceOption: 0,
+            };
+        }
+
+        // -----------------------------
+        // D4: combine ratios
+        // -----------------------------
+        if (difficulty === 4) {
+
+            const a = Math.floor(Math.random() * 5) + 1;
+            const b1 = Math.floor(Math.random() * 5) + 1;
+            const b2 = Math.floor(Math.random() * 5) + 1;
+            const c = Math.floor(Math.random() * 5) + 1;
+
+            // a:b and b:c → scale so middle matches
+            const lcm = (b1 * b2) / gcd(b1, b2);
+
+            const scale1 = lcm / b1;
+            const scale2 = lcm / b2;
+
+            const A = a * scale1;
+            const B = lcm;
+            const C = c * scale2;
+
+            const g = gcd(gcd(A, B), C);
+
+            const simplified = `${A / g}:${B / g}:${C / g}`;
+
+            const answers = [
+                simplified,
+                `${A}:${B}:${C}`
+            ];
+
+            const optionsSet = new Set<string>(answers);
+
+            while (optionsSet.size < 4) {
+                const x = Math.floor(Math.random() * 10) + 1;
+                const y = Math.floor(Math.random() * 10) + 1;
+                const z = Math.floor(Math.random() * 10) + 1;
+                optionsSet.add(`${x}:${y}:${z}`);
+            }
+
+            return {
+                latex: `\\text{Given } a:b = ${a}:${b1} \\text{ and } b:c = ${b2}:${c}, \\\\ \\text{find } a:b:c \\text{ in its simplest form.}`,
+                answer: answers,
+                options: Array.from(optionsSet).sort(() => Math.random() - 0.5),
+                forceOption: 0,
+            };
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
+
     }, [1, 2, 3, 4]),
     "financial-maths": createGenerator(({ difficulty }) => {
+        // -----------------------------
+        // D1: profit / markup / loss
+        // -----------------------------
+        if (difficulty === 1) {
+
+            const type = Math.floor(Math.random() * 3);
+            let latex = "";
+            let answer = "";
+            const optionsSet = new Set<string>();
+
+            if (type === 0) {
+                // percentage profit
+                const cost = Math.floor(Math.random() * 200) + 50;
+                const profitPercent = [10, 15, 20, 25, 30][Math.floor(Math.random() * 5)];
+                const sell = cost * (1 + profitPercent / 100);
+
+                latex = `\\text{An item costs £${cost} and is sold for £${sell}. Find the percentage profit.}`;
+
+                answer = `${profitPercent}\\%`;
+
+                optionsSet.add(answer);
+                optionsSet.add(`${profitPercent + 5}\\%`);
+                optionsSet.add(`${Math.max(0, profitPercent - 5)}\\%`);
+                optionsSet.add(`${profitPercent + 10}\\%`);
+            }
+
+            else if (type === 1) {
+                // markup → selling price
+                const cost = Math.floor(Math.random() * 100) + 20;
+                const markup = [10, 20, 25, 50][Math.floor(Math.random() * 4)];
+                const sell = Math.round(cost * (1 + markup / 100));
+
+                latex = `\\text{A shop buys an item for £${cost} and sells it at a } ${markup}\\% \\text{ markup. Find the selling price.}`;
+
+                answer = `£${sell}`;
+
+                optionsSet.add(answer);
+                optionsSet.add(`£${sell + 10}`);
+                optionsSet.add(`£${Math.max(1, sell - 10)}`);
+                optionsSet.add(`£${sell + 20}`);
+            }
+
+            else {
+                // loss → original price
+                const original = Math.floor(Math.random() * 400) + 200;
+                const loss = [10, 20, 25, 30][Math.floor(Math.random() * 4)];
+                const sell = Math.round(original * (1 - loss / 100));
+
+                latex = `\\text{An item is sold for £${sell} at a } ${loss}\\% \\text{ loss. Find the original price.}`;
+
+                answer = `£${original}`;
+
+                optionsSet.add(answer);
+                optionsSet.add(`£${original + 50}`);
+                optionsSet.add(`£${Math.max(1, original - 50)}`);
+                optionsSet.add(`£${original + 100}`);
+            }
+
+            return {
+                latex,
+                answer,
+                options: Array.from(optionsSet).sort(() => Math.random() - 0.5),
+                forceOption: 0,
+            };
+        }
+
+        // -----------------------------
+        // D2: currency conversion
+        // -----------------------------
+        if (difficulty === 2) {
+
+            const type = Math.floor(Math.random() * 3);
+            let latex = "";
+            let answer = "";
+            const optionsSet = new Set<string>();
+
+            if (type === 0) {
+                const rate = 1.1 + Math.random() * 0.5;
+                const pounds = Math.floor(Math.random() * 500) + 50;
+                const euros = Math.round(pounds * rate);
+
+                latex = `\\text{£1 = €${rate.toFixed(2)}. Convert £${pounds} to euros.}`;
+                answer = `€${euros}`;
+            }
+
+            else if (type === 1) {
+                const rate = 1.1 + Math.random() * 0.5;
+                const euros = Math.floor(Math.random() * 500) + 50;
+                const pounds = Math.round(euros / rate);
+
+                latex = `\\text{€${euros} is converted to pounds at £1 = €${rate.toFixed(2)}. How many pounds?}`;
+                answer = `£${pounds}`;
+            }
+
+            else {
+                const rate = 1.2 + Math.random() * 0.6;
+                const dollars = Math.floor(Math.random() * 1000) + 100;
+                const pounds = Math.round(dollars / rate);
+
+                latex = `\\text{A cost is $${dollars}. If £1 = $${rate.toFixed(2)}, find the cost in pounds.}`;
+                answer = `£${pounds}`;
+            }
+
+            optionsSet.add(answer);
+
+            while (optionsSet.size < 4) {
+                const noise = Math.floor(Math.random() * 50) - 25;
+                const num = parseInt(answer.replace(/[^\d]/g, "")) + noise;
+
+                if (answer.startsWith("£")) optionsSet.add(`£${Math.max(1, num)}`);
+                else optionsSet.add(`€${Math.max(1, num)}`);
+            }
+
+            return {
+                latex,
+                answer,
+                options: Array.from(optionsSet).sort(() => Math.random() - 0.5),
+                forceOption: 0,
+            };
+        }
+
+        // -----------------------------
+        // D3: simple interest
+        // -----------------------------
+        if (difficulty === 3) {
+
+            const type = Math.floor(Math.random() * 3);
+            let latex = "";
+            let answer = "";
+            const optionsSet = new Set<string>();
+
+            if (type === 0) {
+                const P = Math.floor(Math.random() * 1000) + 200;
+                const r = [2, 3, 4, 5][Math.floor(Math.random() * 4)];
+                const t = Math.floor(Math.random() * 5) + 2;
+
+                const interest = P * r * t / 100;
+                const total = P + interest;
+
+                latex = `\\text{£${P} is invested at } ${r}\\% \\text{ per year for } ${t} \\text{ years. Find the total amount.}`;
+                answer = `£${total}`;
+            }
+
+            else if (type === 1) {
+                const P = Math.floor(Math.random() * 1000) + 200;
+                const r = [3, 4, 5, 6][Math.floor(Math.random() * 4)];
+                const t = Math.floor(Math.random() * 4) + 1;
+
+                const interest = P * r * t / 100;
+
+                latex = `\\text{A loan of £${P} is taken at } ${r}\\% \\text{ simple interest for } ${t} \\text{ years. How much interest is paid?}`;
+                answer = `£${interest}`;
+            }
+
+            else {
+                const P = 1000;
+                const r = [2, 4, 5][Math.floor(Math.random() * 3)];
+                const interest = Math.floor(Math.random() * 400) + 100;
+
+                const t = interest / (P * r / 100);
+
+                latex = `\\text{How long will it take £${P} to earn £${interest} interest at } ${r}\\% \\text{ per year?}`;
+                answer = `${t} \\text{ years}`;
+            }
+
+            optionsSet.add(answer);
+
+            while (optionsSet.size < 4) {
+                const noise = Math.floor(Math.random() * 200) - 100;
+                const num = parseInt(answer.replace(/[^\d]/g, "")) + noise;
+
+                if (answer.includes("years")) {
+                    optionsSet.add(`${Math.max(1, num)} \\text{ years}`);
+                } else {
+                    optionsSet.add(`£${Math.max(1, num)}`);
+                }
+            }
+
+            return {
+                latex,
+                answer,
+                options: Array.from(optionsSet).sort(() => Math.random() - 0.5),
+                forceOption: 0,
+            };
+        }
+
+        // -----------------------------
+        // D4: compound interest / growth
+        // -----------------------------
+        if (difficulty === 4) {
+
+            const type = Math.floor(Math.random() * 3);
+            let latex = "";
+            let answer = "";
+            const optionsSet = new Set<string>();
+
+            if (type === 0) {
+                const P = Math.floor(Math.random() * 1000) + 500;
+                const r = [2, 3, 5][Math.floor(Math.random() * 3)];
+                const t = Math.floor(Math.random() * 4) + 2;
+
+                const A = Math.round(P * Math.pow(1 + r / 100, t));
+
+                latex = `\\text{£${P} is invested at } ${r}\\% \\text{ compound interest for } ${t} \\text{ years. Find the final amount.}`;
+                answer = `£${A}`;
+            }
+
+            else if (type === 1) {
+                const P = Math.floor(Math.random() * 800) + 200;
+                const r = [1, 2, 3][Math.floor(Math.random() * 3)];
+                const t = Math.floor(Math.random() * 6) + 3;
+
+                const A = Math.round(P * Math.pow(1 + r / 100, t));
+
+                latex = `\\text{A savings account offers } ${r}\\% \\text{ compound interest annually.} \\\\\\text{How much will £${P} become after } ${t} \\text{ years?}`;
+                answer = `£${A}`;
+            }
+
+            else {
+                const P = Math.floor(Math.random() * 50000) + 10000;
+                const r = [2, 3, 4][Math.floor(Math.random() * 3)];
+                const t = Math.floor(Math.random() * 5) + 2;
+
+                const A = Math.round(P * Math.pow(1 + r / 100, t));
+
+                latex = `\\text{A population starts at } ${P}. \\text{ It grows by } ${r}\\% \\text{ per year. Find the population after } ${t} \\text{ years.}`;
+                answer = `${A}`;
+            }
+
+            optionsSet.add(answer);
+
+            while (optionsSet.size < 4) {
+                const noise = Math.floor(Math.random() * 500) - 250;
+                const num = parseInt(answer.replace(/[^\d]/g, "")) + noise;
+
+                if (answer.startsWith("£")) {
+                    optionsSet.add(`£${Math.max(1, num)}`);
+                } else {
+                    optionsSet.add(`${Math.max(1, num)}`);
+                }
+            }
+
+            return {
+                latex,
+                answer,
+                options: Array.from(optionsSet).sort(() => Math.random() - 0.5),
+                forceOption: 0,
+            };
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
+
     }, [1, 2, 3, 4]),
     "algebraic-notation": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
