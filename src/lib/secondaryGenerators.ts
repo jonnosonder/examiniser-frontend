@@ -3360,14 +3360,397 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
 
     }, [1, 2, 3, 4]),
     "linear-graphs": createGenerator(({ difficulty }) => {
-        throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
+        const formatSlopeTerm = (slope: number) => {
+            if (slope === 1) return "x";
+            if (slope === -1) return "-x";
+            if (slope === 0.5) return `\\frac{1}{2}x`;
+            if (slope === -0.5) return `-\\frac{1}{2}x`;
+            return `${slope}x`;
+        };
+
+        const formatInterceptTerm = (c: number) => {
+            if (c === 0) return "";
+            return c > 0 ? ` + ${c}` : ` - ${Math.abs(c)}`;
+        };
+
+        const formatEquation = (m: number, c: number) => {
+            const slopeStr = formatSlopeTerm(m);
+            const interceptStr = formatInterceptTerm(c);
+            return `y=${slopeStr}${interceptStr}`;
+        };
+
+        const chooseRandom = <T>(items: T[]) => items[Math.floor(Math.random() * items.length)];
+
+        if (difficulty === 1) {
+            const questions = [
+                {
+                    latex: `\\text{Which of these is the general equation of a straight line?}`,
+                    answer: `y=mx+c`,
+                    options: [`y = mx + c`, `y=ax^2+bx+c`, `x^2+y^2=r^2`, `y=\\frac{m}{x}+c`],
+                },
+                {
+                    latex: `\\text{In } y=mx+c, \\text{what does } m \\text{ represent?}`,
+                    answer: `gradient`,
+                    options: [`Gradient`, `y-Intercept`, `x-Intercept`, `Constant`],
+                },
+                {
+                    latex: `\\text{In } y=mx+c, \\text{what does } c \\text{ represent?}`,
+                    answer: `y-intercept`,
+                    options: [`Gradient`, `y-Intercept`, `x-Intercept`, `Constant`],
+                },
+                {
+                    latex: `\\text{True or false: } y=mx+c \\text{ always represents a straight line.}`,
+                    answer: `True`,
+                    options: [`True`, `False`],
+                },
+            ];
+
+            const question = chooseRandom(questions);
+            return {
+                latex: question.latex,
+                answer: question.answer,
+                options: question.options.sort(() => Math.random() - 0.5),
+                forceOption: 2,
+            };
+        }
+
+        const xMin = 0;
+        const xMax = 6;
+        const yMin = 0;
+        const yMax = 10;
+        const graphWidth = 160;
+        const graphHeight = 160;
+        const left = 40;
+        const top = 20;
+
+        const slopeOptions = [2, 1, 0.5, -0.5, -1, -2];
+        const interceptOptions = [0, 1, 2, 3, 4, 5];
+
+        let slope = 1;
+        let intercept = 0;
+        let x0 = 0;
+        let y0 = 0;
+        let x1 = 3;
+        let y1 = 0;
+
+        const x1Candidate = (s: number) => (s === 0.5 || s === -0.5 ? 4 : 3);
+
+        for (let attempts = 0; attempts < 50; attempts++) {
+            slope = chooseRandom(slopeOptions);
+            intercept = chooseRandom(interceptOptions);
+            x1 = x1Candidate(slope);
+            y0 = intercept;
+            y1 = slope * x1 + intercept;
+
+            if (y0 >= yMin && y0 <= yMax && y1 >= yMin && y1 <= yMax) {
+                break;
+            }
+        }
+
+        const answer = formatEquation(slope, intercept);
+
+        const wrongEquations = new Set<string>();
+        const candidateSlopes = [slope + 1, slope - 1, -slope, slope === 0.5 ? 1 : 0.5, slope === -0.5 ? -1 : -0.5];
+        const candidateIntercepts = [intercept + 1, intercept - 1, intercept + 2, intercept - 2];
+
+        for (const m of candidateSlopes) {
+            if (wrongEquations.size >= 3) break;
+            if (m === slope) continue;
+            wrongEquations.add(formatEquation(m, intercept));
+        }
+
+        for (const c of candidateIntercepts) {
+            if (wrongEquations.size >= 3) break;
+            if (c === intercept) continue;
+            if (c >= yMin && c <= yMax) {
+                wrongEquations.add(formatEquation(slope, c));
+            }
+        }
+
+        while (wrongEquations.size < 3) {
+            const m = chooseRandom([1, 2, -1, -2, 0.5, -0.5]);
+            const c = chooseRandom([0, 1, 2, 3, 4, 5]);
+            const wrong = formatEquation(m, c);
+            if (wrong !== answer) wrongEquations.add(wrong);
+        }
+
+        const options = [answer, ...Array.from(wrongEquations).slice(0, 3)];
+
+        const toPx = (x: number, y: number) => {
+            const px = left + ((x - xMin) / (xMax - xMin)) * graphWidth;
+            const py = top + graphHeight - ((y - yMin) / (yMax - yMin)) * graphHeight;
+            return { px, py };
+        };
+
+        const p0 = toPx(x0, y0);
+        const p1 = toPx(x1, y1);
+
+        const tickLines = Array.from({ length: xMax - xMin + 1 }, (_, i) => {
+            const x = xMin + i;
+            const px = left + (i / (xMax - xMin)) * graphWidth;
+            return `<line x1="${px}" y1="${top}" x2="${px}" y2="${top + graphHeight}" stroke="#ddd" stroke-width="1" />`;
+        }).join("\n");
+
+        const yTicks = Array.from({ length: yMax - yMin + 1 }, (_, i) => {
+            const y = yMin + i;
+            const py = top + graphHeight - (i / (yMax - yMin)) * graphHeight;
+            return `<line x1="${left}" y1="${py}" x2="${left + graphWidth}" y2="${py}" stroke="#eee" stroke-width="1" />`;
+        }).join("\n");
+
+        const labelX = Math.max(0, p0.px - 34);
+
+        const svg = `
+            <svg width="220" height="220" viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+                ${tickLines}
+                ${yTicks}
+                <line x1="${left}" y1="${top}" x2="${left}" y2="${top + graphHeight}" stroke="black" stroke-width="2" />
+                <line x1="${left}" y1="${top + graphHeight}" x2="${left + graphWidth}" y2="${top + graphHeight}" stroke="black" stroke-width="2" />
+                <text x="${left + graphWidth + 8}" y="${top + graphHeight + 4}" font-size="12">x</text>
+                <text x="${left - 10}" y="${top - 6}" font-size="12">y</text>
+                <line x1="${p0.px}" y1="${p0.py}" x2="${p1.px}" y2="${p1.py}" stroke="blue" stroke-width="2" />
+                <circle cx="${p0.px}" cy="${p0.py}" r="3" fill="red" />
+                <circle cx="${p1.px}" cy="${p1.py}" r="3" fill="red" />
+                <text x="${labelX}" y="${p0.py - 6}" font-size="10">(${x0},${y0})</text>
+                <text x="${p1.px + 6}" y="${p1.py - 6}" font-size="10">(${x1},${y1})</text>
+            </svg>
+        `;
+
+        return {
+            latex: `\\text{Write down the equation of the line shown on the graph.}`,
+            svg,
+            answer,
+            checkWeakLatexEquivalent: true,
+            options: options.sort(() => Math.random() - 0.5),
+            forceOption: 0,
+        };
+    }, [1, 2]),
     "quadratic-graphs": createGenerator(({ difficulty }) => {
+        const chooseRandom = <T>(items: T[]) => items[Math.floor(Math.random() * items.length)];
+
+        if (difficulty === 1) {
+            const questions = [
+                {
+                    latex: `\\text{What is the general form of a quadratic equation?}`,
+                    answer: `ax^2 + bx + c = 0`,
+                    options: [`ax^2 + bx + c = 0`, `ax + b = 0`, `ax^2 + bx + c`, `x^2 + y^2 = r^2`],
+                },
+                {
+                    latex: `\\text{What does the discriminant ($b^2 - 4ac$) tell us about the roots?}`,
+                    answer: `Number of real roots`,
+                    options: [`Number of real roots`, `The roots themselves`, `The vertex`, `The axis of symmetry`],
+                },
+                {
+                    latex: `\\text{If the discriminant is positive, how many real roots does the quadratic have?}`,
+                    answer: `Two distinct real roots`,
+                    options: [`Two distinct real roots`, `One real root`, `No real roots`, `Complex roots`],
+                },
+                {
+                    latex: `\\text{If the discriminant is zero, how many real roots does the quadratic have?}`,
+                    answer: `One repeated real root`,
+                    options: [`One repeated real root`, `Two distinct real roots`, `No real roots`, `Complex roots`],
+                },
+                {
+                    latex: `\\text{If the discriminant is negative, how many real roots does the quadratic have?}`,
+                    answer: `No real roots`,
+                    options: [`No real roots`, `One real root`, `Two distinct real roots`, `Complex roots`],
+                },
+            ];
+
+            const question = chooseRandom(questions);
+            return {
+                latex: question.latex,
+                answer: question.answer,
+                options: question.options.sort(() => Math.random() - 0.5),
+                forceOption: 2,
+            };
+        }
+
+        const xMin = -8;
+        const xMax = 8;
+        const yMin = -8;
+        const yMax = 8;
+        const graphWidth = 400;
+        const graphHeight = 400;
+        const left = 60;
+        const top = 40;
+        const svgWidth = left + graphWidth + 60;
+        const svgHeight = top + graphHeight + 50;
+
+        const toPx = (x: number, y: number) => {
+            const px = left + ((x - xMin) / (xMax - xMin)) * graphWidth;
+            const py = top + graphHeight - ((y - yMin) / (yMax - yMin)) * graphHeight;
+            return { px, py };
+        };
+
+        const buildGridAndLabels = () => {
+            const parts: string[] = [];
+            const { px: originPx, py: originPy } = toPx(0, 0);
+
+            for (let i = xMin; i <= xMax; i++) {
+                const { px } = toPx(i, 0);
+                parts.push(`<line x1="${px}" y1="${top}" x2="${px}" y2="${top + graphHeight}" stroke="#e0e0e0" stroke-width="1" />`);
+                if (i !== 0) {
+                    parts.push(`<text x="${px}" y="${originPy + 18}" font-size="13" text-anchor="middle" fill="#333">${i}</text>`);
+                }
+            }
+
+            for (let i = yMin; i <= yMax; i++) {
+                const { py } = toPx(0, i);
+                parts.push(`<line x1="${left}" y1="${py}" x2="${left + graphWidth}" y2="${py}" stroke="#e0e0e0" stroke-width="1" />`);
+                if (i !== 0) {
+                    parts.push(`<text x="${originPx - 10}" y="${py + 4}" font-size="13" text-anchor="end" fill="#333">${i}</text>`);
+                }
+            }
+
+            parts.push(`<text x="${originPx - 10}" y="${originPy + 16}" font-size="13" text-anchor="middle" fill="#333">0</text>`);
+
+            return parts.join('\n');
+        };
+
+        const buildAxes = () => {
+            const { px: originPx, py: originPy } = toPx(0, 0);
+            return `
+                <line x1="${originPx}" y1="${top}" x2="${originPx}" y2="${top + graphHeight}" stroke="black" stroke-width="2" />
+                <line x1="${left}" y1="${originPy}" x2="${left + graphWidth}" y2="${originPy}" stroke="black" stroke-width="2" />
+                <text x="${left + graphWidth + 20}" y="${originPy + 4}" font-size="15" fill="black">x</text>
+                <text x="${originPx + 8}" y="${top - 10}" font-size="15" fill="black">y</text>
+            `;
+        };
+
+        const buildPath = (a: number, b: number, c: number) => {
+            const pathPoints: string[] = [];
+            let penDown = false;
+            for (let x = xMin - 0.5; x <= xMax + 0.5; x += 0.05) {
+                const y = a * x * x + b * x + c;
+                const xInBounds = x >= xMin && x <= xMax;
+                const yInBounds = y >= yMin && y <= yMax;
+
+                if (!xInBounds || !yInBounds) {
+                    penDown = false;
+                    continue;
+                }
+
+                const { px, py } = toPx(x, y);
+                pathPoints.push(`${penDown ? 'L' : 'M'} ${px.toFixed(1)} ${py.toFixed(1)}`);
+                penDown = true;
+            }
+            return pathPoints.join(' ');
+        };
+
+        const generateRootsAndCoeffs = () => {
+            const root1 = Math.floor(Math.random() * 9) - 4;
+            let root2 = Math.floor(Math.random() * 9) - 4;
+            while (root2 === root1) root2 = Math.floor(Math.random() * 9) - 4;
+
+            // Constrain a so the vertex stays within yMin/yMax
+            // vertex_y = a * (root1*root2 - (root1+root2)^2/4)
+            const vertexFactor = Math.abs(root1 * root2 - Math.pow(root1 + root2, 2) / 4);
+            const maxA = vertexFactor > 0 ? Math.floor(8 / vertexFactor) : 3;
+            const a = Math.min(Math.max(1, Math.floor(Math.random() * 3) + 1), Math.max(1, maxA));
+
+            const b = -a * (root1 + root2);
+            const c = a * root1 * root2;
+
+            return { root1, root2, a, b, c };
+        };
+
+        if (difficulty === 2) {
+            const { root1, root2, a, b, c } = generateRootsAndCoeffs();
+
+            const answer = [`x=${root1}, ${root2}`, `x=${root2}, ${root1}`];
+
+            const options = [`x=${root1}, ${root2}`];
+            while (options.length < 4) {
+                const wrong1 = root1 + (Math.floor(Math.random() * 3) - 1);
+                const wrong2 = root2 + (Math.floor(Math.random() * 3) - 1);
+                const wrong = `x=${wrong1}, ${wrong2}`;
+                if (!options.includes(wrong)) options.push(wrong);
+            }
+
+            const pathData = buildPath(a, b, c);
+
+            const svg = `
+                <svg width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}" xmlns="http://www.w3.org/2000/svg">
+                    ${buildGridAndLabels()}
+                    ${buildAxes()}
+                    <path d="${pathData}" stroke="blue" stroke-width="2.5" fill="none" />
+                </svg>
+            `;
+
+            return {
+                latex: `\\text{Find the roots of the quadratic shown on the graph.}`,
+                svg,
+                answer,
+                options: options.sort(() => Math.random() - 0.5),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 3) {
+            const { root1, root2, a, b, c } = generateRootsAndCoeffs();
+
+            const formatTerm = (coeff: number, power: number) => {
+                if (coeff === 0) return "";
+                if (power === 2) {
+                    if (coeff === 1) return "x^2";
+                    if (coeff === -1) return "-x^2";
+                    return `${coeff}x^2`;
+                }
+                if (power === 1) {
+                    if (coeff === 1) return "x";
+                    if (coeff === -1) return "-x";
+                    return `${coeff}x`;
+                }
+                return `${coeff}`;
+            };
+
+            const terms = [];
+            if (a !== 0) terms.push(formatTerm(a, 2));
+            if (b !== 0) terms.push(formatTerm(b, 1));
+            if (c !== 0) terms.push(formatTerm(c, 0));
+            const equation = terms.join(" + ").replace(/\+ -/g, "- ");
+
+            const answer = equation;
+
+            const options = [answer];
+            while (options.length < 4) {
+                const wrongA = a + (Math.floor(Math.random() * 3) - 1);
+                const wrongB = b + (Math.floor(Math.random() * 3) - 1);
+                const wrongC = c + (Math.floor(Math.random() * 3) - 1);
+                const wrongTerms = [];
+                if (wrongA !== 0) wrongTerms.push(formatTerm(wrongA, 2));
+                if (wrongB !== 0) wrongTerms.push(formatTerm(wrongB, 1));
+                if (wrongC !== 0) wrongTerms.push(formatTerm(wrongC, 0));
+                const wrong = wrongTerms.join(" + ").replace(/\+ -/g, "- ");
+                if (wrong && !options.includes(wrong)) options.push(wrong);
+            }
+
+            const pathData = buildPath(a, b, c);
+
+            const svg = `
+                <svg width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}" xmlns="http://www.w3.org/2000/svg">
+                    ${buildGridAndLabels()}
+                    ${buildAxes()}
+                    <path d="${pathData}" stroke="blue" stroke-width="2.5" fill="none" />
+                </svg>
+            `;
+
+            return {
+                latex: `\\text{Write down the equation of the quadratic shown on the graph.}`,
+                svg,
+                answer,
+                checkWeakLatexEquivalent: true,
+                options: options.sort(() => Math.random() - 0.5),
+                forceOption: 0,
+            };
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
+    }, [1, 2, 3]),
     "angles-rules-parallel-lines": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
     }, []),
+
     "properties-of-polygons": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
     }, []),

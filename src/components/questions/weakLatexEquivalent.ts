@@ -98,6 +98,29 @@ function normalize(expr: any): any {
         return normalize(["Add", normArgs[0], ["Negate", normArgs[1]]]);
     }
 
+    if (head === "Add") {
+        const flatArgs: any[] = [];
+
+        for (const arg of normArgs) {
+            if (Array.isArray(arg) && arg[0] === "Add") {
+                flatArgs.push(...arg.slice(1));
+            } else {
+                flatArgs.push(arg);
+            }
+        }
+
+        const filteredArgs = flatArgs.filter((arg) => {
+            if (arg === 0) return false;
+            if (Array.isArray(arg) && arg[0] === "Number" && arg[1] === 0) return false;
+            return true;
+        });
+
+        if (filteredArgs.length === 0) return 0;
+        if (filteredArgs.length === 1) return filteredArgs[0];
+
+        filteredArgs.sort((a, b) => key(a).localeCompare(key(b)));
+        return ["Add", ...filteredArgs];
+    }
 
     if (head === "Multiply") {
         let negativeCount = 0;
@@ -171,6 +194,7 @@ function normalize(expr: any): any {
  * Main equivalence checker
  */
 export function weakLatexEquivalent(a: string, b: string): boolean {
+    //console.log(a, b)
     try {
         const A = ce.parse(a, { form: "raw" });
         const B = ce.parse(b, { form: "raw" });
@@ -228,6 +252,8 @@ export function testWeakLatexEquivalent(): void {
         ["-1y+1", "-y+1"],
         ["1a + \\frac{4}{3}", "a + \\frac{4}{3}"],
         ["-\\frac{1}{2}y - \\frac{1}{6}", "-\\frac{1}{6} - \\frac{1}{2}y"],
+        ["y=x+1", "y=1+x"],
+        ["x^2 - x - 12", "x^2 - 12 - x"],
         // all bellow should return false
         ["a+2","1(a+2)"]
     ];

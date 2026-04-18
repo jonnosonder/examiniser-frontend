@@ -265,18 +265,12 @@ export function QuestionSubtopicLeaf({
 
     const renderOptionLabel = React.useCallback((option: string) => {
         const trimmed = option.trim();
-        const isLatex = /\\|\^|_|\{|\}|\\frac|\\sqrt|\\pi|\\theta|\\times|\\div|\\sin|\\cos|\\tan|\\log|\\ln/.test(trimmed);
-        const isNumeric = /^-?\d+(?:\.\d+)?$/.test(trimmed);
 
-        if (isLatex || isNumeric) {
-            return (
-                <div className="flex w-full items-center justify-center">
-                    <BlockMath math={trimmed} />
-                </div>
-            );
-        }
-
-        return <span className="flex text-center items-center justify-center">{trimmed}</span>;
+        return (
+            <div className="flex w-full items-center justify-center">
+                <BlockMath math={trimmed} />
+            </div>
+        );
     }, []);
 
 

@@ -327,9 +327,9 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
         <Navbar lng={lng} pageOn='/'/>
       </div>
 
-      <div className="w-full bg-background">
+      <div className="w-full bg-background h-screen overflow-y-auto snap-y snap-mandatory">
 
-      <section className="relative h-[100dvh] w-full overflow-hidden flex flex-col">
+      <section className="relative h-[100dvh] w-full overflow-hidden flex flex-col snap-start">
 
         {/* Grid background */}
         <div className="
@@ -467,18 +467,18 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
       </section>
       
       {/* "But How?" section */}
-      <section className="relative h-[100dvh] w-full bg-background">
+      <section className="relative h-[100dvh] w-full bg-background snap-start">
         <div
           className="absolute inset-0 z-0 [background-image:linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] [background-size:20px_20px]"
           aria-hidden
         />
-        <div className="relative z-[1] h-full w-full px-8 sm:px-12 lg:px-16 pt-12 sm:pt-16" onClick={handleClose}>
+        <div className="relative z-[1] h-full w-full px-8 sm:px-12 lg:px-16 pt-12 sm:pt-[5rem]" onClick={handleClose}>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-inter font-semibold text-primary text-left">
             {t("home.but-how-1")}{" "}
             <span className="text-[var(--contrast)]">{t("home.but-how-2")}</span>
           </h2>
           <p className='ml-10 mt-2 text-xl '>{t("home.but-how-description")}</p>
-          <div className='flex flex-col items-center justify-center mt-8'>
+          <div className='flex flex-col items-center justify-center mt-4'>
             <div className='flex flex-col w-3/4 bg-white rounded-[2rem] p-6 shadow-xl' onClick={(e) => e.stopPropagation()}>
               <p className='text-2xl font-bold font-nunito text-primary mb-4'>{t('home.try-it-now')}</p>
                 <div className='flex flex-col w-full gap-2'>
