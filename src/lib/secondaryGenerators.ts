@@ -3748,12 +3748,482 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
         throw new Error(`Unhandled difficulty: ${difficulty}`);
     }, [1, 2, 3]),
     "angles-rules-parallel-lines": createGenerator(({ difficulty }) => {
-        throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
+        const chooseRandom = <T>(items: T[]) => items[Math.floor(Math.random() * items.length)];
 
-    "properties-of-polygons": createGenerator(({ difficulty }) => {
+        // Helper to draw an arc with angle label
+        const drawArcWithLabel = (cx: number, cy: number, radius: number, startAngle: number, endAngle: number, label: string) => {
+            const toRad = (deg: number) => (deg * Math.PI) / 180;
+            const start = toRad(startAngle);
+            const end = toRad(endAngle);
+            const x1 = cx + radius * Math.cos(start);
+            const y1 = cy + radius * Math.sin(start);
+            const x2 = cx + radius * Math.cos(end);
+            const y2 = cy + radius * Math.sin(end);
+            const largeArc = endAngle - startAngle > 180 ? 1 : 0;
+            const midAngle = toRad((startAngle + endAngle) / 2);
+            const labelRadius = radius + 20;
+            const lx = cx + labelRadius * Math.cos(midAngle);
+            const ly = cy + labelRadius * Math.sin(midAngle);
+            return {
+                arc: `<path d="M ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2}" stroke="black" stroke-width="3" fill="none" />`,
+                label: `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" font-size="16" font-weight="bold" fill="black">${label}</text>`,
+            };
+        };
+
+        // -------------------------------------------------
+        // D1: Identify the angle rule
+        // -------------------------------------------------
+        if (difficulty === 1) {
+            const rules = Math.floor(Math.random() * 5);
+            let svg = "";
+            let answer = "";
+
+            if (rules === 0) {
+                // Alternate angles
+                answer = "Alternate";
+                const y1 = 80, y2 = 180;
+                const arc1 = drawArcWithLabel(100, y1, 30, 0, 58, "a");
+                const arc2 = drawArcWithLabel(160, y2, 30, 180, 238, "a");
+                svg = `
+                    <svg width="300" height="280" viewBox="0 0 300 280" xmlns="http://www.w3.org/2000/svg">
+                        <line x1="20" y1="${y1}" x2="240" y2="${y1}" stroke="black" stroke-width="2" />
+                        <line x1="20" y1="${y2}" x2="240" y2="${y2}" stroke="black" stroke-width="2" />
+                        <line x1="80" y1="40" x2="180" y2="220" stroke="black" stroke-width="2" />
+                        ${arc1.arc}
+                        ${arc1.label}
+                        ${arc2.arc}
+                        ${arc2.label}
+                    </svg>
+                `;
+            } else if (rules === 1) {
+                // Allied angles
+                answer = "Allied";
+                const y1 = 80, y2 = 180;
+                const arc1 = drawArcWithLabel(100, y1, 30, 0, 58, "b");
+                const arc2 = drawArcWithLabel(160, y2, 30, -122, 0, "b");
+                svg = `
+                    <svg width="300" height="280" viewBox="0 0 300 280" xmlns="http://www.w3.org/2000/svg">
+                        <line x1="20" y1="${y1}" x2="240" y2="${y1}" stroke="black" stroke-width="2" />
+                        <line x1="20" y1="${y2}" x2="240" y2="${y2}" stroke="black" stroke-width="2" />
+                        <line x1="80" y1="40" x2="180" y2="220" stroke="black" stroke-width="2" />
+                        ${arc1.arc}
+                        ${arc1.label}
+                        ${arc2.arc}
+                        ${arc2.label}
+                    </svg>
+                `;
+            } else if (rules === 2) {
+                // Corresponding angles
+                answer = "Corresponding";
+                const y1 = 80, y2 = 180;
+                const arc1 = drawArcWithLabel(100, y1, 30, 0, 58, "c");
+                const arc2 = drawArcWithLabel(158, y2, 30, 0, 60, "c");
+                svg = `
+                    <svg width="300" height="280" viewBox="0 0 300 280" xmlns="http://www.w3.org/2000/svg">
+                        <line x1="20" y1="${y1}" x2="240" y2="${y1}" stroke="black" stroke-width="2" />
+                        <line x1="20" y1="${y2}" x2="240" y2="${y2}" stroke="black" stroke-width="2" />
+                        <line x1="80" y1="40" x2="180" y2="220" stroke="black" stroke-width="2" />
+                        ${arc1.arc}
+                        ${arc1.label}
+                        ${arc2.arc}
+                        ${arc2.label}
+                    </svg>
+                `;
+            } else if (rules === 3) {
+                // Vertical opposite angles
+                answer = "Vertical Opposite";
+                const arc1 = drawArcWithLabel(120, 120, 30, -45, 45, "d");
+                const arc2 = drawArcWithLabel(120, 120, 30, 135, 225, "d");
+                svg = `
+                    <svg width="280" height="280" viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+                        <line x1="40" y1="40" x2="200" y2="200" stroke="black" stroke-width="2" />
+                        <line x1="200" y1="40" x2="40" y2="200" stroke="black" stroke-width="2" />
+                        ${arc1.arc}
+                        ${arc1.label}
+                        ${arc2.arc}
+                        ${arc2.label}
+                    </svg>
+                `;
+            } else {
+                // Angles around a point
+                answer = "Angles Around a Point";
+                const angles = [360];
+                let currentAngle = 0;
+                let svgArcs = "";
+                const labels = ["a"];
+
+                for (let i = 0; i < angles.length; i++) {
+                    const arc = drawArcWithLabel(140, 140, 50, currentAngle, currentAngle + angles[i], labels[i]);
+                    svgArcs += arc.arc + arc.label;
+                    currentAngle += angles[i];
+                }
+
+                svg = `
+                    <svg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="140" cy="140" r="50" fill="none" stroke="#ddd" stroke-width="1" />
+                        <circle cx="140" cy="140" r="3" fill="black" />
+                        ${svgArcs}
+                    </svg>
+                `;
+            }
+
+            return {
+                latex: `\\text{What angle rule is shown?}`,
+                svg,
+                answer,
+                options: ["Alternate", "Allied", "Corresponding", "Vertical Opposite", "Angles Around a Point"].sort(() => Math.random() - 0.5),
+                forceOption: 0,
+            };
+        }
+
+        // -------------------------------------------------
+        // D2: One-step angle finding with visual
+        // -------------------------------------------------
+        if (difficulty === 2) {
+            const ruleType = Math.floor(Math.random() * 5);
+            let svg = "";
+            let answer = "";
+
+            if (ruleType === 0) {
+                // Alternate angles
+                const givenAngle = Math.floor(Math.random() * 70) + 30;
+                answer = `${givenAngle}`;
+                const y1 = 80, y2 = 180;
+                const arc1 = drawArcWithLabel(100, y1, 30, 0, 58, `${givenAngle}°`);
+                const arc2 = drawArcWithLabel(160, y2, 30, 180, 238, "?");
+                svg = `
+                    <svg width="300" height="280" viewBox="0 0 300 280" xmlns="http://www.w3.org/2000/svg">
+                        <line x1="20" y1="${y1}" x2="240" y2="${y1}" stroke="black" stroke-width="2" />
+                        <line x1="20" y1="${y2}" x2="240" y2="${y2}" stroke="black" stroke-width="2" />
+                        <line x1="80" y1="40" x2="180" y2="220" stroke="black" stroke-width="2" />
+                        ${arc1.arc}
+                        ${arc1.label}
+                        ${arc2.arc}
+                        ${arc2.label}
+                        <text x="140" y="270" text-anchor="middle" font-size="14" fill="#666">Diagram not drawn accurately</text>
+                    </svg>
+                `;
+            } else if (ruleType === 1) {
+                // Allied angles
+                const givenAngle = Math.floor(Math.random() * 70) + 30;
+                const unknownAngle = 180 - givenAngle;
+                answer = `${unknownAngle}`;
+                const y1 = 80, y2 = 180;
+                const arc1 = drawArcWithLabel(100, y1, 30, 0, 58, `${givenAngle}°`);
+                const arc2 = drawArcWithLabel(160, y2, 30, -122, 0, "?");
+                svg = `
+                    <svg width="300" height="280" viewBox="0 0 300 280" xmlns="http://www.w3.org/2000/svg">
+                        <line x1="20" y1="${y1}" x2="240" y2="${y1}" stroke="black" stroke-width="2" />
+                        <line x1="20" y1="${y2}" x2="240" y2="${y2}" stroke="black" stroke-width="2" />
+                        <line x1="80" y1="40" x2="180" y2="220" stroke="black" stroke-width="2" />
+                        ${arc1.arc}
+                        ${arc1.label}
+                        ${arc2.arc}
+                        ${arc2.label}
+                        <text x="140" y="270" text-anchor="middle" font-size="14" fill="#666">Diagram not drawn accurately</text>
+                    </svg>
+                `;
+            } else if (ruleType === 2) {
+                // Corresponding angles
+                const givenAngle = Math.floor(Math.random() * 70) + 30;
+                answer = `${givenAngle}`;
+                const y1 = 80, y2 = 180;
+                const arc1 = drawArcWithLabel(100, y1, 30, 0, 58, `${givenAngle}°`);
+                const arc2 = drawArcWithLabel(158, y2, 30, 0, 60, "?");
+                svg = `
+                    <svg width="300" height="280" viewBox="0 0 300 280" xmlns="http://www.w3.org/2000/svg">
+                        <line x1="20" y1="${y1}" x2="240" y2="${y1}" stroke="black" stroke-width="2" />
+                        <line x1="20" y1="${y2}" x2="240" y2="${y2}" stroke="black" stroke-width="2" />
+                        <line x1="80" y1="40" x2="180" y2="220" stroke="black" stroke-width="2" />
+                        ${arc1.arc}
+                        ${arc1.label}
+                        ${arc2.arc}
+                        ${arc2.label}
+                        <text x="140" y="270" text-anchor="middle" font-size="14" fill="#666">Diagram not drawn accurately</text>
+                    </svg>
+                `;
+            } else if (ruleType === 3) {
+                // Vertical opposite angles
+                const givenAngle = Math.floor(Math.random() * 70) + 30;
+                answer = `${givenAngle}`;
+                const arc1 = drawArcWithLabel(120, 120, 30, -45, 45, `${givenAngle}°`);
+                const arc2 = drawArcWithLabel(120, 120, 30, 135, 225, "?");
+                svg = `
+                    <svg width="280" height="280" viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+                        <line x1="40" y1="40" x2="200" y2="200" stroke="black" stroke-width="2" />
+                        <line x1="200" y1="40" x2="40" y2="200" stroke="black" stroke-width="2" />
+                        ${arc1.arc}
+                        ${arc1.label}
+                        ${arc2.arc}
+                        ${arc2.label}
+                        <text x="140" y="270" text-anchor="middle" font-size="14" fill="#666">Diagram not drawn accurately</text>
+                    </svg>
+                `;
+            } else {
+                // Angles around a point
+                const angle1 = Math.floor(Math.random() * 60) + 40;
+                const angle2 = Math.floor(Math.random() * 60) + 40;
+                const angle3 = Math.floor(Math.random() * 60) + 40;
+                const unknown = 360 - angle1 - angle2 - angle3;
+                answer = `${unknown}`;
+
+                const angles = [angle1, angle2, angle3, unknown];
+                let currentAngle = 0;
+                let svgArcs = "";
+                const labels = [`${angle1}°`, `${angle2}°`, `${angle3}°`, "?"];
+
+                for (let i = 0; i < angles.length; i++) {
+                    const arc = drawArcWithLabel(140, 140, 50, currentAngle, currentAngle + angles[i], labels[i]);
+                    svgArcs += arc.arc + arc.label;
+                    currentAngle += angles[i];
+                }
+
+                svg = `
+                    <svg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="140" cy="140" r="50" fill="none" stroke="#ddd" stroke-width="1" />
+                        <circle cx="140" cy="140" r="3" fill="black" />
+                        ${svgArcs}
+                        <text x="140" y="270" text-anchor="middle" font-size="14" fill="#666">Diagram not drawn accurately</text>
+                    </svg>
+                `;
+            }
+
+            const answerNum = Number(answer);
+            const options = [answer];
+            while (options.length < 4) {
+                const offset = Math.floor(Math.random() * 20) - 10;
+                const wrong = String(Math.max(1, answerNum + offset));
+                if (!options.includes(wrong)) options.push(wrong);
+            }
+
+            return {
+                latex: `\\text{Find the angle marked with } ?`,
+                svg,
+                answer,
+                options: options.sort(() => Math.random() - 0.5),
+                forceOption: 0,
+            };
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
+
+    }, [1, 2]),
+    "properties-of-polygons": createGenerator(({ difficulty }) => {
+        const chooseRandom = <T>(items: T[]) => items[Math.floor(Math.random() * items.length)];
+        // Polygon data: name, sides, interior angle (regular), exterior angle
+        const polygons = [
+            { name: "Triangle",     sides: 3,  interior: 60,  exterior: 120 },
+            { name: "Quadrilateral",sides: 4,  interior: 90,  exterior: 90  },
+            { name: "Pentagon",     sides: 5,  interior: 108, exterior: 72  },
+            { name: "Hexagon",      sides: 6,  interior: 120, exterior: 60  },
+            { name: "Heptagon",     sides: 7,  interior: Math.round(900/7), exterior: Math.round(360/7) },
+            { name: "Octagon",      sides: 8,  interior: 135, exterior: 45  },
+            { name: "Nonagon",      sides: 9,  interior: 140, exterior: 40  },
+            { name: "Decagon",      sides: 10, interior: 144, exterior: 36  },
+        ];
+
+        // Draw a regular polygon SVG centred at (cx,cy) with given radius and n sides
+        const drawPolygon = (n: number, cx: number, cy: number, r: number, showAngle: "interior" | "exterior" | "none" = "none") => {
+            const points: [number, number][] = [];
+            for (let i = 0; i < n; i++) {
+                const angle = (Math.PI * 2 * i) / n - Math.PI / 2;
+                points.push([cx + r * Math.cos(angle), cy + r * Math.sin(angle)]);
+            }
+            const ptStr = points.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
+            let angleMarkup = "";
+
+            if (showAngle !== "none" && n >= 3) {
+                // Use the first vertex (top) and its two neighbours
+                const [vx, vy] = points[0];
+                const [ax, ay] = points[n - 1]; // previous vertex
+                const [bx, by] = points[1];     // next vertex
+
+                const len = 28;
+                // unit vectors from vertex toward each neighbour
+                const dAx = ax - vx, dAy = ay - vy;
+                const dBx = bx - vx, dBy = by - vy;
+                const magA = Math.hypot(dAx, dAy);
+                const magB = Math.hypot(dBx, dBy);
+                const uAx = dAx / magA, uAy = dAy / magA;
+                const uBx = dBx / magB, uBy = dBy / magB;
+
+                if (showAngle === "interior") {
+                    // Arc between the two edges, inside the polygon
+                    const p1x = vx + uAx * len, p1y = vy + uAy * len;
+                    const p2x = vx + uBx * len, p2y = vy + uBy * len;
+                    // interior angle < 180 always for convex polygon → largeArc = 0
+                    angleMarkup = `
+                        <path d="M ${p1x.toFixed(1)} ${p1y.toFixed(1)} A ${len} ${len} 0 0 1 ${p2x.toFixed(1)} ${p2y.toFixed(1)}"
+                            stroke="#E24B4A" stroke-width="2" fill="none"/>
+                        <text x="${(vx + (uAx + uBx) * 24).toFixed(1)}" y="${(vy + (uAy + uBy) * 24 + 5).toFixed(1)}"
+                            text-anchor="middle" font-size="15" font-weight="bold" fill="#E24B4A">?</text>`;
+                } else {
+                    // Exterior angle: extend edge A beyond the vertex, arc to edge B direction
+                    const extX = vx - uAx * len, extY = vy - uAy * len; // extension of incoming edge
+                    const p2x = vx + uBx * len, p2y = vy + uBy * len;
+                    angleMarkup = `
+                        <path d="M ${extX.toFixed(1)} ${extY.toFixed(1)} A ${len} ${len} 0 0 1 ${p2x.toFixed(1)} ${p2y.toFixed(1)}"
+                            stroke="#185FA5" stroke-width="2" fill="none"/>
+                        <line x1="${vx.toFixed(1)}" y1="${vy.toFixed(1)}" x2="${(vx - uAx * (len + 10)).toFixed(1)}" y2="${(vy - uAy * (len + 10)).toFixed(1)}"
+                            stroke="black" stroke-width="1.5" stroke-dasharray="4 3"/>
+                        <text x="${(vx + (-uAx + uBx) * 22).toFixed(1)}" y="${(vy + (-uAy + uBy) * 22 - 8).toFixed(1)}"
+                            text-anchor="middle" font-size="15" font-weight="bold" fill="#185FA5">?</text>`;
+                }
+            }
+
+            return { ptStr, angleMarkup, points };
+        };
+
+        // ─────────────────────────────────────────────────────────────────────
+        // D1: Name a polygon → how many edges?
+        // ─────────────────────────────────────────────────────────────────────
+        if (difficulty === 1) {
+            const poly = chooseRandom(polygons);
+
+            const wrongSides = new Set<string>();
+            const candidates = [poly.sides - 1, poly.sides + 1, poly.sides - 2, poly.sides + 2]
+                .filter(n => n >= 3 && n !== poly.sides);
+            for (const c of candidates) {
+                if (wrongSides.size < 3) wrongSides.add(String(c));
+            }
+            while (wrongSides.size < 3) {
+                const offset = Math.floor(Math.random() * 4) + 1;
+                const w = String(poly.sides + (Math.random() < 0.5 ? offset : -offset));
+                if (Number(w) >= 3 && w !== String(poly.sides)) wrongSides.add(w);
+            }
+
+            const options = [String(poly.sides), ...wrongSides].sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `\\text{How many edges does a } \\textbf{${poly.name}} \\text{ have?}`,
+                svg: "",
+                answer: String(poly.sides),
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
+        // D2: Show polygon SVG → find interior or exterior angle
+        // ─────────────────────────────────────────────────────────────────────
+        if (difficulty === 2) {
+            const eligiblePolygons = polygons.filter(p => p.sides !== 7);
+            const poly = chooseRandom(eligiblePolygons);
+            const angleType = Math.random() < 0.5 ? "interior" : "exterior";
+            const correctAngle = angleType === "interior" ? poly.interior : poly.exterior;
+
+            const W = 300, H = 300;
+            const cx = 140, cy = 145, r = 100;
+
+            // Build polygon points
+            const points: [number, number][] = [];
+            for (let i = 0; i < poly.sides; i++) {
+                const angle = (Math.PI * 2 * i) / poly.sides - Math.PI / 2;
+                points.push([cx + r * Math.cos(angle), cy + r * Math.sin(angle)]);
+            }
+            const ptStr = points.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
+
+            // Use vertex index 0 (top) and its neighbours
+            const [vx, vy] = points[0];
+            const [ax, ay] = points[poly.sides - 1]; // previous vertex (left neighbour)
+            const [bx, by] = points[1];              // next vertex (right neighbour)
+
+            const arcR = 30;
+            // Unit vectors FROM vertex TOWARD each neighbour (i.e. along the edges, inward)
+            const dAx = ax - vx, dAy = ay - vy;
+            const dBx = bx - vx, dBy = by - vy;
+            const magA = Math.hypot(dAx, dAy);
+            const magB = Math.hypot(dBx, dBy);
+            const uAx = dAx / magA, uAy = dAy / magA;
+            const uBx = dBx / magB, uBy = dBy / magB;
+
+            let angleMarkup = "";
+
+            if (angleType === "interior") {
+                // Arc from edge-toward-A to edge-toward-B, sweeping INSIDE the polygon.
+                // For a convex polygon with vertex at top, A is bottom-left and B is bottom-right,
+                // so we sweep clockwise (sweep-flag=1) from the A-side to the B-side.
+                const p1x = vx + uAx * arcR, p1y = vy + uAy * arcR;
+                const p2x = vx + uBx * arcR, p2y = vy + uBy * arcR;
+
+                // Label: push along the average inward direction, further from vertex
+                const midUx = uAx + uBx, midUy = uAy + uBy;
+                const midMag = Math.hypot(midUx, midUy);
+                const labelDist = 52;
+                const lx = vx + (midUx / midMag) * labelDist;
+                const ly = vy + (midUy / midMag) * labelDist;
+
+                angleMarkup = `
+                    <path d="M ${p1x.toFixed(1)} ${p1y.toFixed(1)} A ${arcR} ${arcR} 0 0 0 ${p2x.toFixed(1)} ${p2y.toFixed(1)}"
+                        stroke="#000000" stroke-width="2" fill="none"/>
+                    <text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}"
+                        text-anchor="middle" dominant-baseline="middle"
+                        font-size="15" font-weight="bold" fill="#000000">?</text>`;
+            } else {
+                // Exterior angle: arc between the extended-incoming-edge and the outgoing edge.
+                // Extend the edge coming FROM A (i.e. reverse uA direction) beyond the vertex.
+                const extX = vx - uAx * arcR, extY = vy - uAy * arcR;
+                const p2x = vx + uBx * arcR, p2y = vy + uBy * arcR;
+
+                // Label: average of the two arms (-uA and uB), pushed further out
+                const midUx = -uAx + uBx, midUy = -uAy + uBy;
+                const midMag = Math.hypot(midUx, midUy);
+                const labelDist = 50;
+                const lx = vx + (midUx / midMag) * labelDist;
+                const ly = vy + (midUy / midMag) * labelDist;
+
+                angleMarkup = `
+                    <line x1="${vx.toFixed(1)}" y1="${vy.toFixed(1)}"
+                        x2="${(vx - uAx * (arcR + 14)).toFixed(1)}" y2="${(vy - uAy * (arcR + 14)).toFixed(1)}"
+                        stroke="black" stroke-width="1.5" stroke-dasharray="4 3"/>
+                    <path d="M ${extX.toFixed(1)} ${extY.toFixed(1)} A ${arcR} ${arcR} 0 0 1 ${p2x.toFixed(1)} ${p2y.toFixed(1)}"
+                        stroke="#000000" stroke-width="2" fill="none"/>
+                    <text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}"
+                        text-anchor="middle" dominant-baseline="middle"
+                        font-size="15" font-weight="bold" fill="#000000">?</text>`;
+            }
+
+            const angleLabel = angleType === "interior" ? "interior" : "exterior";
+
+            const svg = `
+            <svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+                <polygon points="${ptStr}" fill="none" stroke="black" stroke-width="2"/>
+                ${angleMarkup}
+            </svg>`;
+
+            const wrongAngles = new Set<string>();
+            const complement = angleType === "interior" ? poly.exterior : poly.interior;
+            wrongAngles.add(String(complement));
+            const offsets = [10, 15, 20, 25, 30].filter(o => {
+                const lo = correctAngle - o, hi = correctAngle + o;
+                return lo > 0 && lo !== correctAngle && hi < 360 && hi !== correctAngle;
+            });
+            for (const o of offsets) {
+                if (wrongAngles.size >= 3) break;
+                const candidate = Math.random() < 0.5 ? correctAngle - o : correctAngle + o;
+                const s = String(candidate);
+                if (s !== String(correctAngle)) wrongAngles.add(s);
+            }
+            while (wrongAngles.size < 3) {
+                const o = Math.floor(Math.random() * 20) + 5;
+                const s = String(correctAngle + o);
+                if (s !== String(correctAngle)) wrongAngles.add(s);
+            }
+
+            const options = [String(correctAngle), ...wrongAngles].sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `\\text{Find the } \\textbf{${angleLabel} angle} \\text{ of a regular } \\textbf{${poly.name}}`,
+                svg,
+                answer: String(correctAngle),
+                options,
+                forceOption: 0,
+            };
+        }
+
+        throw new Error(`Unhandled difficulty: ${difficulty}`);
+
+    }, [1, 2]),
     "congruence-and-similarity": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
     }, []),
