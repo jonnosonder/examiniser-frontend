@@ -145,7 +145,7 @@ export const QUESTION_CATALOG: Record<QuestionLevel, MainTopicDef[]> = {
             subtopics: [
                 { slug: "angles-rules-parallel-lines", titleKey: "secondary-subtopics.angles-rules-parallel-lines", descriptionKey: "descriptions.secondarySub.geometry.angles-rules-parallel-lines" },
                 { slug: "properties-of-polygons", titleKey: "secondary-subtopics.properties-of-polygons", descriptionKey: "descriptions.secondarySub.geometry.properties-of-polygons" },
-                { slug: "congruence-and-similarity", titleKey: "secondary-subtopics.congruence-and-similarity", descriptionKey: "descriptions.secondarySub.geometry.congruence-and-similarity" },
+                //{ slug: "congruence-and-similarity", titleKey: "secondary-subtopics.congruence-and-similarity", descriptionKey: "descriptions.secondarySub.geometry.congruence-and-similarity" },
                 { slug: "translation", titleKey: "secondary-subtopics.translation", descriptionKey: "descriptions.secondarySub.geometry.translation" },
                 { slug: "rotation", titleKey: "secondary-subtopics.rotation", descriptionKey: "descriptions.secondarySub.geometry.rotation" },
                 { slug: "reflection", titleKey: "secondary-subtopics.reflection", descriptionKey: "descriptions.secondarySub.geometry.reflection" },

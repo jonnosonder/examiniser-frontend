@@ -4852,8 +4852,319 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
         throw new Error(`Unhandled difficulty: ${difficulty}`);
     }, [1, 2]),
     "enlargement": createGenerator(({ difficulty }) => {
+        const randInt = (min: number, max: number) =>
+            Math.floor(Math.random() * (max - min + 1)) + min;
+
+        const gridMin = -6;
+        const gridMax = 6;
+        const cell = 24;
+        const offset = 56;
+        const size = (gridMax - gridMin) * cell;
+        const svgW = offset * 2 + size;
+        const svgH = svgW;
+
+        const toPx = (x: number, y: number) => ({
+            px: offset + (x - gridMin) * cell,
+            py: offset + (gridMax - y) * cell,
+        });
+
+        const buildGrid = (args: {
+            original: { x: number; y: number }[];
+            image?: { x: number; y: number }[];
+            center?: { x: number; y: number };
+            showOriginalLabels?: boolean;
+            showImageLabels?: boolean;
+        }) => {
+            const {
+                original,
+                image = [],
+                center,
+                showOriginalLabels = true,
+                showImageLabels = true,
+            } = args;
+
+            let svg = `<svg width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg">`;
+
+            for (let i = gridMin; i <= gridMax; i++) {
+                const p = offset + (i - gridMin) * cell;
+                svg += `<line x1="${p}" y1="${offset}" x2="${p}" y2="${offset + size}" stroke="#d8dde5" stroke-width="1"/>`;
+                svg += `<line x1="${offset}" y1="${p}" x2="${offset + size}" y2="${p}" stroke="#d8dde5" stroke-width="1"/>`;
+            }
+
+            const xAxisY = toPx(0, 0).py;
+            const yAxisX = toPx(0, 0).px;
+
+            svg += `<line x1="${offset}" y1="${xAxisY}" x2="${offset + size}" y2="${xAxisY}" stroke="black" stroke-width="2"/>`;
+            svg += `<line x1="${yAxisX}" y1="${offset}" x2="${yAxisX}" y2="${offset + size}" stroke="black" stroke-width="2"/>`;
+
+            for (let i = gridMin; i <= gridMax; i++) {
+                if (i === 0) continue;
+                const { px } = toPx(i, 0);
+                const { py } = toPx(0, i);
+                svg += `<text x="${px}" y="${xAxisY + 15}" font-size="10" text-anchor="middle" fill="#222">${i}</text>`;
+                svg += `<text x="${yAxisX - 14}" y="${py + 4}" font-size="10" text-anchor="middle" fill="#222">${i}</text>`;
+            }
+
+            svg += `<text x="${offset + size + 14}" y="${xAxisY + 4}" font-size="12" fill="#111">x</text>`;
+            svg += `<text x="${yAxisX + 8}" y="${offset - 10}" font-size="12" fill="#111">y</text>`;
+
+            if (center) {
+                const c = toPx(center.x, center.y);
+                svg += `<circle cx="${c.px}" cy="${c.py}" r="4" fill="#111"/>`;
+                svg += `<text x="${c.px + 9}" y="${c.py - 8}" font-size="12" fill="#111">C</text>`;
+            }
+
+            if (original.length > 1) {
+                const path = original
+                    .map((p, i) => {
+                        const q = toPx(p.x, p.y);
+                        return `${i === 0 ? "M" : "L"} ${q.px} ${q.py}`;
+                    })
+                    .join(" ") + " Z";
+                svg += `<path d="${path}" fill="none" stroke="#2563eb" stroke-width="2"/>`;
+            }
+
+            if (image.length > 1) {
+                const path = image
+                    .map((p, i) => {
+                        const q = toPx(p.x, p.y);
+                        return `${i === 0 ? "M" : "L"} ${q.px} ${q.py}`;
+                    })
+                    .join(" ") + " Z";
+                svg += `<path d="${path}" fill="none" stroke="#16a34a" stroke-width="2" stroke-dasharray="5 3"/>`;
+            }
+
+            original.forEach((p, i) => {
+                const q = toPx(p.x, p.y);
+                const label = String.fromCharCode(65 + i);
+                svg += `<circle cx="${q.px}" cy="${q.py}" r="3.5" fill="#2563eb"/>`;
+                if (showOriginalLabels) {
+                    svg += `<text x="${q.px + 7}" y="${q.py - 7}" font-size="12" fill="#1d4ed8">${label}</text>`;
+                }
+            });
+
+            image.forEach((p, i) => {
+                const q = toPx(p.x, p.y);
+                const label = `${String.fromCharCode(65 + i)}'`;
+                svg += `<circle cx="${q.px}" cy="${q.py}" r="3.5" fill="#16a34a"/>`;
+                if (showImageLabels) {
+                    svg += `<text x="${q.px + 7}" y="${q.py - 7}" font-size="12" fill="#15803d">${label}</text>`;
+                }
+            });
+
+            svg += `</svg>`;
+            return svg;
+        };
+
+        const makeCoordinateOptions = (x: number, y: number) => {
+            const set = new Set<string>();
+            set.add(`\\left(${x}, ${y}\\right)`);
+
+            while (set.size < 4) {
+                const ox = Math.max(gridMin, Math.min(gridMax, x + randInt(-2, 2)));
+                const oy = Math.max(gridMin, Math.min(gridMax, y + randInt(-2, 2)));
+                set.add(`\\left(${ox}, ${oy}\\right)`);
+            }
+
+            return Array.from(set).sort(() => Math.random() - 0.5);
+        };
+
+        const isOnGrid = (p: { x: number; y: number }) =>
+            p.x >= gridMin && p.x <= gridMax && p.y >= gridMin && p.y <= gridMax;
+
+        // ---------------- LEVEL 1 ----------------
+        // Point enlarged from origin by integer scale factor
+        if (difficulty === 1) {
+            const sf = randInt(2, 3);
+            let x = 0;
+            let y = 0;
+
+            while (x === 0 && y === 0) {
+                x = randInt(-2, 2);
+                y = randInt(-2, 2);
+            }
+
+            const imageX = x * sf;
+            const imageY = y * sf;
+
+            const svg = buildGrid({
+                original: [{ x, y }],
+                center: { x: 0, y: 0 },
+                showImageLabels: false,
+            });
+
+            return {
+                svg,
+                latex: `\\text{Point } A(${x}, ${y}) \\text{ is enlarged about the origin with scale factor } ${sf} \\text{. }\\\\\\text{Find the coordinates of } A'.`,
+                answer: `\\left(${imageX}, ${imageY}\\right)`,
+                options: makeCoordinateOptions(imageX, imageY),
+                forceOption: 0,
+            };
+        }
+
+        // ---------------- LEVEL 2 ----------------
+        // Triangle enlarged from origin by integer scale factor
+        if (difficulty === 2) {
+            const sf = randInt(2, 3);
+            const baseX = randInt(-2, 1);
+            const baseY = randInt(-2, 1);
+
+            const original = [
+                { x: baseX, y: baseY },
+                { x: baseX + randInt(1, 2), y: baseY },
+                { x: baseX, y: baseY + randInt(1, 2) },
+            ];
+
+            const image = original.map((p) => ({ x: p.x * sf, y: p.y * sf }));
+
+            const vertexIndex = randInt(0, original.length - 1);
+            const vertexLabel = String.fromCharCode(65 + vertexIndex);
+            const target = image[vertexIndex];
+
+            const svg = buildGrid({
+                original,
+                center: { x: 0, y: 0 },
+                showImageLabels: false,
+            });
+
+            return {
+                svg,
+                latex: `\\text{Triangle } ABC \\text{ is enlarged about the origin by scale factor } ${sf}\\text{. } \\\\\\text{Find the coordinates of } ${vertexLabel}'.`,
+                answer: `\\left(${target.x}, ${target.y}\\right)`,
+                options: makeCoordinateOptions(target.x, target.y),
+                forceOption: 0,
+            };
+        }
+
+        // ---------------- LEVEL 3 ----------------
+        // Determine scale factor (includes reduction)
+        if (difficulty === 3) {
+            const factors = [
+                { label: "2", num: 2, den: 1 },
+                { label: "3", num: 3, den: 1 },
+                { label: "0.5", num: 1, den: 2 },
+            ];
+            const k = factors[randInt(0, factors.length - 1)];
+
+            const den = k.den;
+            let start = { x: 0, y: 0 };
+            let image = { x: 0, y: 0 };
+
+            while (true) {
+                const x = randInt(-4, 4);
+                const y = randInt(-4, 4);
+                start = {
+                    x: x - (x % den),
+                    y: y - (y % den),
+                };
+
+                image = {
+                    x: (start.x * k.num) / k.den,
+                    y: (start.y * k.num) / k.den,
+                };
+
+                if ((start.x !== 0 || start.y !== 0) && isOnGrid(start) && isOnGrid(image)) {
+                    break;
+                }
+            }
+
+            const svg = buildGrid({
+                original: [start],
+                image: [image],
+                center: { x: 0, y: 0 },
+            });
+
+            const optionsSet = new Set<string>([k.label]);
+            ["0.5", "2", "3", "-2", "-1"].forEach((v) => {
+                if (optionsSet.size < 4 && v !== k.label) optionsSet.add(v);
+            });
+
+            return {
+                svg,
+                latex: `\\text{Point } A \\text{ maps to } A' \\text{ under an enlargement about the origin. }\\\\\\text{Find the scale factor.}`,
+                answer: k.label,
+                options: Array.from(optionsSet).sort(() => Math.random() - 0.5),
+                forceOption: 0,
+            };
+        }
+
+        // ---------------- LEVEL 4 ----------------
+        // Enlargement with a non-origin centre and variable scale factor
+        if (difficulty === 4) {
+            const scaleFactors = [-4, -3, -2, -1, 1, 2, 3, 4];
+            let sf = scaleFactors[randInt(0, scaleFactors.length - 1)];
+
+            let center = { x: 0, y: 0 };
+            let signX = 1;
+            let signY = 1;
+
+            const templates = [
+                [
+                    { x: 1, y: 0 },
+                    { x: 1, y: 1 },
+                    { x: 2, y: 1 },
+                ],
+                [
+                    { x: 1, y: 0 },
+                    { x: 2, y: 0 },
+                    { x: 2, y: 1 },
+                ],
+                [
+                    { x: 1, y: 0 },
+                    { x: 1, y: 2 },
+                    { x: 2, y: 1 },
+                ],
+            ] as const;
+
+            let original: { x: number; y: number }[] = [];
+            let image: { x: number; y: number }[] = [];
+
+            let attempts = 0;
+            while (attempts < 200) {
+                attempts++;
+                center = { x: randInt(-2, 2), y: randInt(-2, 2) };
+                signX = Math.random() < 0.5 ? -1 : 1;
+                signY = Math.random() < 0.5 ? -1 : 1;
+                sf = scaleFactors[randInt(0, scaleFactors.length - 1)];
+
+                const template = templates[randInt(0, templates.length - 1)];
+
+                original = template.map((p) => ({
+                    x: center.x + signX * p.x,
+                    y: center.y + signY * p.y,
+                }));
+
+                image = original.map((p) => ({
+                    x: center.x + sf * (p.x - center.x),
+                    y: center.y + sf * (p.y - center.y),
+                }));
+
+                const allOnGrid = [...original, ...image].every(isOnGrid);
+
+                if (allOnGrid) break;
+            }
+
+            const vertexIndex = randInt(0, original.length - 1);
+            const vertexLabel = String.fromCharCode(65 + vertexIndex);
+            const target = image[vertexIndex];
+
+            const svg = buildGrid({
+                original,
+                center,
+                showImageLabels: false,
+            });
+
+            return {
+                svg,
+                latex: `\\text{Triangle } ABC \\text{ is enlarged with centre } O(${center.x}, ${center.y}) \\text{ and scale factor } ${sf}\\text{. }\\\\\\text{Find the coordinates of } ${vertexLabel}'.`,
+                answer: `\\left(${target.x}, ${target.y}\\right)`,
+                options: makeCoordinateOptions(target.x, target.y),
+                forceOption: 0,
+            };
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
+    }, [1, 2, 3, 4]),
     "pythagoras-theorem": createGenerator(({ difficulty }) => {
         const randInt = (min: number, max: number) =>
             Math.floor(Math.random() * (max - min + 1)) + min;
