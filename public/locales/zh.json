@@ -265,9 +265,9 @@
         "place-value": "理解十位、百位及数位如何决定数值大小。",
         "comparing-and-ordering-numbers": "用符号与列表比较并排序自然数。",
         "rounding-numbers": "四舍五入到整十、整百以便估算。",
-        "addition-and-subtraction": "Description for Addition And Subtraction.",
-        "multiplication-and-division": "Description for Multiplication And Division.",
-        "rounding-and-estimation": "Description for Rounding And Estimation."
+        "addition-and-subtraction": "学习Addition And Subtraction的关键概念。",
+        "multiplication-and-division": "学习Multiplication And Division的关键概念。",
+        "rounding-and-estimation": "学习Rounding And Estimation的关键概念。"
       },
       "addition-subtraction": {
         "mental-strategies": "利用加倍、近加倍与拆分进行心算。",
@@ -286,10 +286,10 @@
         "equivalent-fractions": "在示意图与数轴上找出等值分数。",
         "decimals": "理解十分位、百分位及小数记法。",
         "percentages": "把百分数与百分之几及简单分数联系起来。",
-        "fractions": "Description for Fractions.",
-        "simple-addition-subtraction-of-fractions": "Description for Simple Addition Subtraction Of Fractions.",
-        "link-between-fractions-and-decimals": "Description for Link Between Fractions And Decimals.",
-        "basic-percentages": "Description for Basic Percentages."
+        "fractions": "学习Fractions的关键概念。",
+        "simple-addition-subtraction-of-fractions": "学习Simple Addition Subtraction Of Fractions的关键概念。",
+        "link-between-fractions-and-decimals": "学习Link Between Fractions And Decimals的关键概念。",
+        "basic-percentages": "学习Basic Percentages的关键概念。"
       },
       "measurement": {
         "units": "为日常测量选择并换算合适单位。",
@@ -352,9 +352,9 @@
       "graphs": "绘制并理解与方程相关的直线、二次等图像。",
       "trigonometry": "勾股定理、直角三角形与基本三角比。",
       "problem-solving": "多步推理、建模与考试型综合题。",
-      "measurement": "Description for Measurement.",
-      "statistics": "Description for Statistics.",
-      "reasoning-problem-solving": "Description for Reasoning Problem Solving."
+      "measurement": "学习Measurement的关键概念。",
+      "statistics": "学习Statistics的关键概念。",
+      "reasoning-problem-solving": "学习Reasoning Problem Solving的关键概念。"
     },
     "secondarySub": {
       "number": {
@@ -362,31 +362,31 @@
         "indices-roots": "运用指数律、平方根与立方根及精确形式。",
         "standard-form": "用标准形式（科学记数法）书写与计算。",
         "rounding-estimation": "按有效数字四舍五入并用估算检验答案。",
-        "negative-integers": "Description for Negative Integers.",
-        "factors-multiples-primes": "Description for Factors Multiples Primes.",
-        "lcm-hcf": "Description for Lcm Hcf.",
-        "powers-and-roots": "Description for Powers And Roots.",
-        "fractions-decimals-percentages": "Description for Fractions Decimals Percentages.",
-        "ratio-and-proportion": "Description for Ratio And Proportion.",
-        "financial-maths": "Description for Financial Maths."
+        "negative-integers": "学习Negative Integers的关键概念。",
+        "factors-multiples-primes": "学习Factors Multiples Primes的关键概念。",
+        "lcm-hcf": "学习Lcm Hcf的关键概念。",
+        "powers-and-roots": "学习Powers And Roots的关键概念。",
+        "fractions-decimals-percentages": "学习Fractions Decimals Percentages的关键概念。",
+        "ratio-and-proportion": "学习Ratio And Proportion的关键概念。",
+        "financial-maths": "学习Financial Maths的关键概念。"
       },
       "algebra": {
         "expressions": "化简、合并同类项与单项式乘括号。",
         "expanding-factorising": "展开乘积并对单项括号因式分解。",
         "indices-algebra": "把指数律用于代数项。",
         "substitution": "代入数值求代数式与公式的值。",
-        "algebraic-notation": "Description for Algebraic Notation.",
-        "simplifying-expressions": "Description for Simplifying Expressions.",
-        "expanding-and-factorising": "Description for Expanding And Factorising.",
-        "linear-equations": "Description for Linear Equations.",
-        "simultaneous-equations": "Description for Simultaneous Equations.",
-        "quadratic-equations": "Description for Quadratic Equations.",
-        "inequalities": "Description for Inequalities.",
-        "arithmetic-sequences": "Description for Arithmetic Sequences.",
-        "geometric-sequences": "Description for Geometric Sequences.",
-        "functions-basic-understanding": "Description for Functions Basic Understanding.",
-        "linear-graphs": "Description for Linear Graphs.",
-        "quadratic-graphs": "Description for Quadratic Graphs."
+        "algebraic-notation": "学习Algebraic Notation的关键概念。",
+        "simplifying-expressions": "学习Simplifying Expressions的关键概念。",
+        "expanding-and-factorising": "学习Expanding And Factorising的关键概念。",
+        "linear-equations": "学习Linear Equations的关键概念。",
+        "simultaneous-equations": "学习Simultaneous Equations的关键概念。",
+        "quadratic-equations": "学习Quadratic Equations的关键概念。",
+        "inequalities": "学习Inequalities的关键概念。",
+        "arithmetic-sequences": "学习Arithmetic Sequences的关键概念。",
+        "geometric-sequences": "学习Geometric Sequences的关键概念。",
+        "functions-basic-understanding": "学习Functions Basic Understanding的关键概念。",
+        "linear-graphs": "学习Linear Graphs的关键概念。",
+        "quadratic-graphs": "学习Quadratic Graphs的关键概念。"
       },
       "equations": {
         "linear-equations": "解含括号与分数的一次方程。",
@@ -406,14 +406,14 @@
         "circles": "周长、面积、弧与扇形（基础层次）。",
         "area-volume": "组合图形、棱柱及面积、体积单位。",
         "transformations": "平移、轴对称、旋转与放大。",
-        "angles-rules-parallel-lines": "Description for Angles Rules Parallel Lines.",
-        "properties-of-polygons": "Description for Properties Of Polygons.",
-        "congruence-and-similarity": "Description for Congruence And Similarity.",
-        "translation": "Description for Translation.",
-        "rotation": "Description for Rotation.",
-        "reflection": "Description for Reflection.",
-        "enlargement": "Description for Enlargement.",
-        "pythagoras-theorem": "Description for Pythagoras Theorem."
+        "angles-rules-parallel-lines": "学习Angles Rules Parallel Lines的关键概念。",
+        "properties-of-polygons": "学习Properties Of Polygons的关键概念。",
+        "congruence-and-similarity": "学习Congruence And Similarity的关键概念。",
+        "translation": "学习Translation的关键概念。",
+        "rotation": "学习Rotation的关键概念。",
+        "reflection": "学习Reflection的关键概念。",
+        "enlargement": "学习Enlargement的关键概念。",
+        "pythagoras-theorem": "学习Pythagoras Theorem的关键概念。"
       },
       "probability-statistics": {
         "probability": "样本空间、期望与树状图。",
@@ -432,10 +432,10 @@
         "sohcahtoa": "用正弦、余弦、正切求角与边。",
         "bearings": "测量并解读三位数方位角。",
         "sine-cosine-rule": "必要时推广到非直角三角形。",
-        "sine-cosine-tangent": "Description for Sine Cosine Tangent.",
-        "right-angled-triangles": "Description for Right Angled Triangles.",
-        "circumference-and-area": "Description for Circumference And Area.",
-        "arcs-and-sectors": "Description for Arcs And Sectors."
+        "sine-cosine-tangent": "学习Sine Cosine Tangent的关键概念。",
+        "right-angled-triangles": "学习Right Angled Triangles的关键概念。",
+        "circumference-and-area": "学习Circumference And Area的关键概念。",
+        "arcs-and-sectors": "学习Arcs And Sectors的关键概念。"
       },
       "problem-solving": {
         "multi-step": "把复杂题目拆成有序步骤。",
@@ -443,28 +443,28 @@
         "exam-style": "限时综合练习并对照评分要点。"
       },
       "measurement": {
-        "area-and-perimeter": "Description for Area And Perimeter.",
-        "prisms": "Description for Prisms.",
-        "cylinders": "Description for Cylinders.",
-        "spheres": "Description for Spheres.",
-        "unit-conversions": "Description for Unit Conversions.",
-        "compound-measures": "Description for Compound Measures."
+        "area-and-perimeter": "学习Area And Perimeter的关键概念。",
+        "prisms": "学习Prisms的关键概念。",
+        "cylinders": "学习Cylinders的关键概念。",
+        "spheres": "学习Spheres的关键概念。",
+        "unit-conversions": "学习Unit Conversions的关键概念。",
+        "compound-measures": "学习Compound Measures的关键概念。"
       },
       "statistics": {
-        "data-collection-methods": "Description for Data Collection Methods.",
-        "mean-median-mode": "Description for Mean Median Mode.",
-        "range": "Description for Range.",
-        "bar-charts": "Description for Bar Charts.",
-        "histograms": "Description for Histograms.",
-        "pie-charts": "Description for Pie Charts.",
-        "basic-probability-rules": "Description for Basic Probability Rules.",
-        "tree-diagrams": "Description for Tree Diagrams.",
-        "venn-diagrams": "Description for Venn Diagrams."
+        "data-collection-methods": "学习Data Collection Methods的关键概念。",
+        "mean-median-mode": "学习Mean Median Mode的关键概念。",
+        "range": "学习Range的关键概念。",
+        "bar-charts": "学习Bar Charts的关键概念。",
+        "histograms": "学习Histograms的关键概念。",
+        "pie-charts": "学习Pie Charts的关键概念。",
+        "basic-probability-rules": "学习Basic Probability Rules的关键概念。",
+        "tree-diagrams": "学习Tree Diagrams的关键概念。",
+        "venn-diagrams": "学习Venn Diagrams的关键概念。"
       },
       "reasoning-problem-solving": {
-        "multi-step-problems": "Description for Multi Step Problems.",
-        "mathematical-proofs": "Description for Mathematical Proofs.",
-        "logical-deduction": "Description for Logical Deduction."
+        "multi-step-problems": "学习Multi Step Problems的关键概念。",
+        "mathematical-proofs": "学习Mathematical Proofs的关键概念。",
+        "logical-deduction": "学习Logical Deduction的关键概念。"
       }
     },
     "sixthForm": {
@@ -507,7 +507,7 @@
         "identities": "证明并运用勾股型与和角恒等式。",
         "equations": "在给定区间内解三角方程。",
         "sine-cosine-rule": "解三角形并建立二维模型。",
-        "trigonometric-graphs": "Description for Trigonometric Graphs."
+        "trigonometric-graphs": "学习Trigonometric Graphs的关键概念。"
       },
       "sequences-series": {
         "arithmetic-geometric": "通项、求和公式与求和符号。",
@@ -523,10 +523,10 @@
         "basics": "模、方向、加法与数乘。",
         "scalar-product": "点积、夹角与垂直条件。",
         "lines": "直线的向量方程与最短距离思想。",
-        "vector-notation": "Description for Vector Notation.",
-        "addition-and-scalar-multiplication": "Description for Addition And Scalar Multiplication.",
-        "dot-product": "Description for Dot Product.",
-        "equations-of-lines": "Description for Equations Of Lines."
+        "vector-notation": "学习Vector Notation的关键概念。",
+        "addition-and-scalar-multiplication": "学习Addition And Scalar Multiplication的关键概念。",
+        "dot-product": "学习Dot Product的关键概念。",
+        "equations-of-lines": "学习Equations Of Lines的关键概念。"
       },
       "probability-statistics": {
         "distributions": "二项、正态与离散分布。",
@@ -539,51 +539,51 @@
         "numerical-methods": "求根与数值积分方法。"
       },
       "algebra": {
-        "polynomial-functions": "Description for Polynomial Functions.",
-        "rational-expressions": "Description for Rational Expressions.",
-        "inequalities": "Description for Inequalities.",
-        "laws-of-logs": "Description for Laws Of Logs.",
-        "exponential-equations": "Description for Exponential Equations.",
-        "arithmetic-series": "Description for Arithmetic Series.",
-        "geometric-series": "Description for Geometric Series.",
-        "sigma-notation": "Description for Sigma Notation.",
-        "binomial-expansion": "Description for Binomial Expansion."
+        "polynomial-functions": "学习Polynomial Functions的关键概念。",
+        "rational-expressions": "学习Rational Expressions的关键概念。",
+        "inequalities": "学习Inequalities的关键概念。",
+        "laws-of-logs": "学习Laws Of Logs的关键概念。",
+        "exponential-equations": "学习Exponential Equations的关键概念。",
+        "arithmetic-series": "学习Arithmetic Series的关键概念。",
+        "geometric-series": "学习Geometric Series的关键概念。",
+        "sigma-notation": "学习Sigma Notation的关键概念。",
+        "binomial-expansion": "学习Binomial Expansion的关键概念。"
       },
       "functions": {
-        "function-notation": "Description for Function Notation.",
-        "domain-and-range": "Description for Domain And Range.",
-        "composite-functions": "Description for Composite Functions.",
-        "inverse-functions": "Description for Inverse Functions.",
-        "transformations-of-graphs": "Description for Transformations Of Graphs.",
-        "exponential-and-logarithmic-functions": "Description for Exponential And Logarithmic Functions."
+        "function-notation": "学习Function Notation的关键概念。",
+        "domain-and-range": "学习Domain And Range的关键概念。",
+        "composite-functions": "学习Composite Functions的关键概念。",
+        "inverse-functions": "学习Inverse Functions的关键概念。",
+        "transformations-of-graphs": "学习Transformations Of Graphs的关键概念。",
+        "exponential-and-logarithmic-functions": "学习Exponential And Logarithmic Functions的关键概念。"
       },
       "calculus": {
-        "limits": "Description for Limits.",
-        "rules-product-quotient-chain": "Description for Rules Product Quotient Chain.",
-        "tangents-and-normals": "Description for Tangents And Normals.",
-        "optimisation-problems": "Description for Optimisation Problems.",
-        "indefinite-and-definite-integrals": "Description for Indefinite And Definite Integrals.",
-        "area-under-curves": "Description for Area Under Curves.",
-        "differential-equations": "Description for Differential Equations."
+        "limits": "学习Limits的关键概念。",
+        "rules-product-quotient-chain": "学习Rules Product Quotient Chain的关键概念。",
+        "tangents-and-normals": "学习Tangents And Normals的关键概念。",
+        "optimisation-problems": "学习Optimisation Problems的关键概念。",
+        "indefinite-and-definite-integrals": "学习Indefinite And Definite Integrals的关键概念。",
+        "area-under-curves": "学习Area Under Curves的关键概念。",
+        "differential-equations": "学习Differential Equations的关键概念。"
       },
       "statistics": {
-        "binomial-distribution": "Description for Binomial Distribution.",
-        "normal-distribution": "Description for Normal Distribution.",
-        "statistical-sampling": "Description for Statistical Sampling.",
-        "hypothesis-testing": "Description for Hypothesis Testing.",
-        "correlation-and-regression": "Description for Correlation And Regression."
+        "binomial-distribution": "学习Binomial Distribution的关键概念。",
+        "normal-distribution": "学习Normal Distribution的关键概念。",
+        "statistical-sampling": "学习Statistical Sampling的关键概念。",
+        "hypothesis-testing": "学习Hypothesis Testing的关键概念。",
+        "correlation-and-regression": "学习Correlation And Regression的关键概念。"
       },
       "mechanics": {
-        "kinematics": "Description for Kinematics.",
-        "forces": "Description for Forces.",
-        "moments": "Description for Moments.",
-        "projectiles": "Description for Projectiles."
+        "kinematics": "学习Kinematics的关键概念。",
+        "forces": "学习Forces的关键概念。",
+        "moments": "学习Moments的关键概念。",
+        "projectiles": "学习Projectiles的关键概念。"
       },
       "discrete": {
-        "matrices": "Description for Matrices.",
-        "complex-numbers": "Description for Complex Numbers.",
-        "graph-theory": "Description for Graph Theory.",
-        "linear-programming": "Description for Linear Programming."
+        "matrices": "学习Matrices的关键概念。",
+        "complex-numbers": "学习Complex Numbers的关键概念。",
+        "graph-theory": "学习Graph Theory的关键概念。",
+        "linear-programming": "学习Linear Programming的关键概念。"
       }
     }
   },

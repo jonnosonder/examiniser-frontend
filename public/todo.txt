@@ -1,9 +1,2 @@
-Redo these questions:
-- secondary/number/fractions-decimals-percentages
-
-
-Add options for these question:
-- secondary/algebra/algebraic-notation
-
-Make it generate questions:
-- secondary/algebra/simplifying-expressions
+More difficulties:
+- http://localhost:3000/en/secondary/geometry/reflection add reflection on a line e.g. y=xx

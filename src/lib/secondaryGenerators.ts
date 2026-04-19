@@ -3888,20 +3888,33 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
                 // Alternate angles
                 const givenAngle = Math.floor(Math.random() * 70) + 30;
                 answer = `${givenAngle}`;
-                const y1 = 80, y2 = 180;
-                const arc1 = drawArcWithLabel(100, y1, 30, 0, 58, `${givenAngle}°`);
-                const arc2 = drawArcWithLabel(160, y2, 30, 180, 238, "?");
+
+                const y1 = 90, y2 = 190;
+                const cx = 150;
+
+                // arcs stay the same but centered around middle
+                const arc1 = drawArcWithLabel(120, y1, 30, 0, 58, `${givenAngle}°`);
+                const arc2 = drawArcWithLabel(175, y2, 30, 180, 238, "?");
+
                 svg = `
-                    <svg width="300" height="280" viewBox="0 0 300 280" xmlns="http://www.w3.org/2000/svg">
-                        <line x1="20" y1="${y1}" x2="240" y2="${y1}" stroke="black" stroke-width="2" />
-                        <line x1="20" y1="${y2}" x2="240" y2="${y2}" stroke="black" stroke-width="2" />
-                        <line x1="80" y1="40" x2="180" y2="220" stroke="black" stroke-width="2" />
-                        ${arc1.arc}
-                        ${arc1.label}
-                        ${arc2.arc}
-                        ${arc2.label}
-                        <text x="140" y="270" text-anchor="middle" font-size="14" fill="#666">Diagram not drawn accurately</text>
-                    </svg>
+                <svg width="300" height="280" viewBox="0 0 300 280" xmlns="http://www.w3.org/2000/svg">
+
+                    <!-- horizontal lines (centered) -->
+                    <line x1="50" y1="${y1}" x2="250" y2="${y1}" stroke="black" stroke-width="2" />
+                    <line x1="50" y1="${y2}" x2="250" y2="${y2}" stroke="black" stroke-width="2" />
+
+                    <!-- slanted transversal (centered) -->
+                    <line x1="${cx - 50}" y1="50" x2="${cx + 50}" y2="240" stroke="black" stroke-width="2" />
+
+                    ${arc1.arc}
+                    ${arc1.label}
+                    ${arc2.arc}
+                    ${arc2.label}
+
+                    <text x="150" y="270" text-anchor="middle" font-size="14" fill="#666">
+                        Diagram not drawn accurately
+                    </text>
+                </svg>
                 `;
             } else if (ruleType === 1) {
                 // Allied angles
@@ -3920,7 +3933,7 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
                         ${arc1.label}
                         ${arc2.arc}
                         ${arc2.label}
-                        <text x="140" y="270" text-anchor="middle" font-size="14" fill="#666">Diagram not drawn accurately</text>
+                        <text x="150" y="270" text-anchor="middle" font-size="14" fill="#666">Diagram not drawn accurately</text>
                     </svg>
                 `;
             } else if (ruleType === 2) {
@@ -3939,7 +3952,7 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
                         ${arc1.label}
                         ${arc2.arc}
                         ${arc2.label}
-                        <text x="140" y="270" text-anchor="middle" font-size="14" fill="#666">Diagram not drawn accurately</text>
+                        <text x="150" y="270" text-anchor="middle" font-size="14" fill="#666">Diagram not drawn accurately</text>
                     </svg>
                 `;
             } else if (ruleType === 3) {
@@ -3983,7 +3996,7 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
                         <circle cx="140" cy="140" r="50" fill="none" stroke="#ddd" stroke-width="1" />
                         <circle cx="140" cy="140" r="3" fill="black" />
                         ${svgArcs}
-                        <text x="140" y="270" text-anchor="middle" font-size="14" fill="#666">Diagram not drawn accurately</text>
+                        <text x="150" y="270" text-anchor="middle" font-size="14" fill="#666">Diagram not drawn accurately</text>
                     </svg>
                 `;
             }
@@ -4636,8 +4649,208 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
         throw new Error(`Unhandled difficulty: ${difficulty}`);
     }, [1, 2]),
     "reflection": createGenerator(({ difficulty }) => {
+        const randInt = (min: number, max: number) =>
+            Math.floor(Math.random() * (max - min + 1)) + min;
+
+        const buildGrid = (points: { x: number, y: number }[], extraSVG = "") => {
+            const cellSize = 25;
+            const offset = 70;
+
+            let svg = `<svg width="350" height="350" viewBox="0 0 350 350">`;
+
+            // grid
+            for (let i = -5; i <= 5; i++) {
+                const pos = offset + (i + 5) * cellSize;
+
+                svg += `<line x1="${pos}" y1="${offset}" x2="${pos}" y2="${offset + 10 * cellSize}" stroke="#ddd"/>`;
+                svg += `<line x1="${offset}" y1="${pos}" x2="${offset + 10 * cellSize}" y2="${pos}" stroke="#ddd"/>`;
+            }
+
+            // axes
+            svg += `<line x1="${offset}" y1="${offset + 5 * cellSize}" x2="${offset + 10 * cellSize}" y2="${offset + 5 * cellSize}" stroke="black" stroke-width="2"/>`;
+            svg += `<line x1="${offset + 5 * cellSize}" y1="${offset}" x2="${offset + 5 * cellSize}" y2="${offset + 10 * cellSize}" stroke="black" stroke-width="2"/>`;
+
+            // axis labels
+            for (let i = -5; i <= 5; i++) {
+                if (i === 0) continue;
+                const pos = offset + (i + 5) * cellSize;
+
+                svg += `<text x="${pos}" y="${offset + 5 * cellSize + 15}" font-size="10" text-anchor="middle">${i}</text>`;
+                svg += `<text x="${offset + 5 * cellSize - 15}" y="${pos + 3}" font-size="10" text-anchor="middle">${-i}</text>`;
+            }
+
+            // points
+            points.forEach((point, index) => {
+                const px = offset + (point.x + 5) * cellSize;
+                const py = offset + (-point.y + 5) * cellSize;
+
+                svg += `<circle cx="${px}" cy="${py}" r="4" fill="red"/>`;
+
+                const label = String.fromCharCode(65 + index);
+                svg += `<text x="${px + 10}" y="${py - 10}" font-size="12" fill="red">${label}</text>`;
+            });
+
+            // shape outline if needed
+            if (points.length > 2) {
+                const path = points
+                    .map((p, i) => {
+                        const px = offset + (p.x + 5) * cellSize;
+                        const py = offset + (-p.y + 5) * cellSize;
+                        return `${i === 0 ? "M" : "L"} ${px} ${py}`;
+                    })
+                    .join(" ") + " Z";
+
+                svg += `<path d="${path}" fill="none" stroke="red" stroke-width="2"/>`;
+            }
+
+            svg += extraSVG;
+            svg += `</svg>`;
+            return svg;
+        };
+
+        // ---------------- LEVEL 1 ----------------
+        if (difficulty === 1) {
+            const x = randInt(-4, 4);
+            const y = randInt(-4, 4);
+
+            const isVertical = randInt(0, 1) === 0;
+            let k: number, rx: number, ry: number, line: string, latex: string;
+
+            if (isVertical) {
+                k = randInt(-3, 3);
+                rx = 2 * k - x;
+                ry = y;
+
+                line = `<line x1="${70 + (k + 5) * 25}" y1="70" x2="${70 + (k + 5) * 25}" y2="320" stroke="blue" stroke-width="2"/>`;
+
+                latex = `\\text{Reflect the point in the line } x = ${k}.`;
+            } else {
+                k = randInt(-3, 3);
+                rx = x;
+                ry = 2 * k - y;
+
+                line = `<line x1="70" y1="${70 + (-k + 5) * 25}" x2="320" y2="${70 + (-k + 5) * 25}" stroke="blue" stroke-width="2"/>`;
+
+                latex = `\\text{Reflect the point in the line } y = ${k}.`;
+            }
+
+            const svg = buildGrid([{ x, y }], line);
+
+            const correct = `\\left(${rx}, ${ry}\\right)`;
+
+            const optionsSet = new Set<string>();
+            optionsSet.add(correct);
+
+            while (optionsSet.size < 4) {
+                const ox = randInt(-5, 5);
+                const oy = randInt(-5, 5);
+                optionsSet.add(`(${ox}, ${oy})`);
+            }
+
+            const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+            return {
+                svg,
+                latex: latex + `\\\\\\text{What are the new coordinates?}`,
+                answer: correct,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // ---------------- LEVEL 2 ----------------
+        if (difficulty === 2) {
+            const shapeType = randInt(0, 2);
+            let originalPoints: { x: number; y: number }[] = [];
+
+            // safe bounds so shapes + reflections stay in [-5, 5]
+            const safeMin = -3;
+            const safeMax = 3;
+
+            if (shapeType === 0) {
+                const bx = randInt(-2, 2);
+                const by = randInt(-2, 2);
+
+                originalPoints = [
+                    { x: bx, y: by },
+                    { x: Math.max(-5, Math.min(5, bx + randInt(1, 2))), y: by },
+                    { x: bx, y: Math.max(-5, Math.min(5, by + randInt(1, 2))) }
+                ];
+            } else if (shapeType === 1) {
+                const s = randInt(1, 2);
+
+                const bx = randInt(-3, 3 - s);
+                const by = randInt(-3, 3 - s);
+
+                originalPoints = [
+                    { x: bx, y: by },
+                    { x: bx + s, y: by },
+                    { x: bx + s, y: by + s },
+                    { x: bx, y: by + s }
+                ];
+            } else {
+                const w = randInt(1, 2);
+                const h = randInt(1, 2);
+
+                const bx = randInt(-3, 3 - w);
+                const by = randInt(-3, 3 - h);
+
+                originalPoints = [
+                    { x: bx, y: by },
+                    { x: bx + w, y: by },
+                    { x: bx + w, y: by + h },
+                    { x: bx, y: by + h }
+                ];
+            }
+
+            const isVertical = randInt(0, 1) === 0;
+
+            // reflection line also constrained so result stays in grid
+            const k = randInt(-2, 2);
+
+            const reflected = originalPoints.map(p =>
+                isVertical
+                    ? { x: 2 * k - p.x, y: p.y }
+                    : { x: p.x, y: 2 * k - p.y }
+            );
+
+            const vertexIndex = randInt(0, originalPoints.length - 1);
+            const vertexLabel = String.fromCharCode(65 + vertexIndex);
+
+            const svg = buildGrid(
+                originalPoints,
+                isVertical
+                    ? `<line x1="${70 + (k + 5) * 25}" y1="70" x2="${70 + (k + 5) * 25}" y2="320" stroke="blue" stroke-width="2"/>`
+                    : `<line x1="70" y1="${70 + (-k + 5) * 25}" x2="320" y2="${70 + (-k + 5) * 25}" stroke="blue" stroke-width="2"/>`
+            );
+
+            const correct = `\\left(${reflected[vertexIndex].x}, ${reflected[vertexIndex].y}\\right)`;
+
+            const optionsSet = new Set<string>();
+            optionsSet.add(correct);
+
+            while (optionsSet.size < 4) {
+                const p = reflected[vertexIndex];
+                const ox = Math.max(-5, Math.min(5, p.x + randInt(-1, 1)));
+                const oy = Math.max(-5, Math.min(5, p.y + randInt(-1, 1)));
+                optionsSet.add(`(${ox}, ${oy})`);
+            }
+
+            const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+            return {
+                svg,
+                latex:
+                    `\\text{Reflect the shape in the line } ${isVertical ? `x = ${k}` : `y = ${k}`}.\\\\` +
+                    `\\text{What are the coordinates of vertex } ${vertexLabel}\\text{ after reflection?}`,
+                answer: correct,
+                options,
+                forceOption: 0,
+            };
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
+    }, [1, 2]),
     "enlargement": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
     }, []),
@@ -4957,20 +5170,832 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
         throw new Error(`Unhandled difficulty: ${difficulty}`);
     }, []),
     "area-and-perimeter": createGenerator(({ difficulty }) => {
+        const randInt = (min: number, max: number) =>
+            Math.floor(Math.random() * (max - min + 1)) + min;
+        const randFloat = (min: number, max: number, dp = 1) =>
+            parseFloat((Math.random() * (max - min) + min).toFixed(dp));
+
+        const makeOptions = (correct: number | string, gen: () => number, count = 4): string[] => {
+            const s = new Set([String(correct)]);
+            let tries = 0;
+            while (s.size < count && tries++ < 200) {
+                const v = gen();
+                if (v > 0) s.add(String(v));
+            }
+            return [...s].sort(() => Math.random() - 0.5);
+        };
+
+        // ──────────────── LEVEL 1 ────────────────
+        // Basic area & perimeter of squares, rectangles, triangles (whole numbers)
+        if (difficulty === 1) {
+            const shapes = ["square", "rectangle", "triangle"];
+            const shape = shapes[randInt(0, 2)];
+            const qType = randInt(0, 1); // 0=area, 1=perimeter
+
+            if (shape === "square") {
+                const a = randInt(2, 12);
+                const [answer, label] = qType === 0 ? [a * a, "area"] : [4 * a, "perimeter"];
+                return {
+                    latex: `\\text{Find the ${label} of a square with side length } ${a} \\text{ cm.}`,
+                    answer: String(answer),
+                    options: makeOptions(answer, () => randInt(1, 144)),
+                    forceOption: 0,
+                };
+            }
+
+            if (shape === "rectangle") {
+                const w = randInt(2, 15), h = randInt(2, 12);
+                const [answer, label] = qType === 0 ? [w * h, "area"] : [2 * (w + h), "perimeter"];
+                return {
+                    latex: `\\text{Find the ${label} of a rectangle } ${w} \\text{ cm} \\times ${h} \\text{ cm.}`,
+                    answer: String(answer),
+                    options: makeOptions(answer, () => randInt(1, 200)),
+                    forceOption: 0,
+                };
+            }
+
+            // triangle
+            const b = randInt(4, 14), h = randInt(3, 10);
+            if (qType === 0) {
+                const area = parseFloat((0.5 * b * h).toFixed(1));
+                return {
+                    latex: `\\text{Find the area of a triangle with base } ${b} \\text{ cm and height } ${h} \\text{ cm.}`,
+                    answer: String(area),
+                    options: makeOptions(area, () => parseFloat((randInt(5, 80) * 0.5).toFixed(1))),
+                    forceOption: 0,
+                };
+            } else {
+                const s1 = randInt(4, 12), s2 = randInt(4, 12);
+                const p = b + s1 + s2;
+                return {
+                    latex: `\\text{A triangle has sides } ${b} \\text{ cm, } ${s1} \\text{ cm, and } ${s2} \\text{ cm. Find the perimeter.}`,
+                    answer: String(p),
+                    options: makeOptions(p, () => randInt(10, 50)),
+                    forceOption: 0,
+                };
+            }
+        }
+
+        // ──────────────── LEVEL 2 ────────────────
+        // Circles (area & circumference), parallelogram, trapezium — introduces decimals & π
+        if (difficulty === 2) {
+            const qChoice = randInt(0, 2);
+
+            if (qChoice === 0) {
+                // Circle
+                const r = randInt(2, 10);
+                const qType = randInt(0, 1);
+                const area = parseFloat((Math.PI * r * r).toFixed(1));
+                const circ = parseFloat((2 * Math.PI * r).toFixed(1));
+                if (qType === 0) {
+                    return {
+                        latex: `\\text{Find the area of a circle with radius } ${r} \\text{ cm. Give your answer to 1 d.p.}`,
+                        answer: String(area),
+                        options: makeOptions(area, () => parseFloat((randInt(5, 350) * 0.3).toFixed(1))),
+                        forceOption: 0,
+                    };
+                } else {
+                    return {
+                        latex: `\\text{Find the circumference of a circle with radius } ${r} \\text{ cm. Give your answer to 1 d.p.}`,
+                        answer: String(circ),
+                        options: makeOptions(circ, () => parseFloat((randInt(10, 150) * 0.4).toFixed(1))),
+                        forceOption: 0,
+                    };
+                }
+            }
+
+            if (qChoice === 1) {
+                // Parallelogram
+                const b = randInt(4, 14), h = randInt(3, 10);
+                const area = b * h;
+                return {
+                    latex: `\\text{Find the area of a parallelogram with base } ${b} \\text{ cm and perpendicular height } ${h} \\text{ cm.}`,
+                    answer: String(area),
+                    options: makeOptions(area, () => randInt(10, 150)),
+                    forceOption: 0,
+                };
+            }
+
+            // Trapezium
+            const a = randInt(3, 10), b = randInt(a + 2, 15), h = randInt(3, 10);
+            const area = parseFloat((0.5 * (a + b) * h).toFixed(1));
+            return {
+                latex: `\\text{A trapezium has parallel sides } ${a} \\text{ cm and } ${b} \\text{ cm, and height } ${h} \\text{ cm. Find the area.}`,
+                answer: String(area),
+                options: makeOptions(area, () => parseFloat((randInt(15, 150) * 0.5).toFixed(1))),
+                forceOption: 0,
+            };
+        }
+
+        // ──────────────── LEVEL 3 ────────────────
+        // Compound shapes & reverse problems (find missing side from area)
+        if (difficulty === 3) {
+            const qChoice = randInt(0, 2);
+
+            if (qChoice === 0) {
+                // Rectangle + triangle on top
+                const rw = randInt(6, 14), rh = randInt(4, 10), th = randInt(3, 8);
+                const area = parseFloat((rw * rh + 0.5 * rw * th).toFixed(1));
+                return {
+                    latex: `\\text{A compound shape is a rectangle } (${rw} \\times ${rh} \\text{ cm}) \\text{ with a triangle on top (base } ${rw} \\text{ cm, height } ${th} \\text{ cm). } \\\\ \\text{Find the total area.}`,
+                    answer: String(area),
+                    options: makeOptions(area, () => parseFloat((randInt(30, 250) * 0.5).toFixed(1))),
+                    forceOption: 0,
+                };
+            }
+
+            if (qChoice === 1) {
+                // Reverse: find missing side given area
+                const s1 = randInt(4, 12), s2 = randInt(4, 12);
+                const a2 = s1 * s2;
+                return {
+                    latex: `\\text{A rectangle has area } ${a2} \\text{ cm}^2 \\text{ and one side of length } ${s1} \\text{ cm. } \\\\ \\text{What is the other side?}`,
+                    answer: String(s2),
+                    options: makeOptions(s2, () => randInt(3, 15)),
+                    forceOption: 0,
+                };
+            }
+
+            // Rectangle with circular hole
+            const rw = randInt(10, 20), rh = randInt(8, 16), r = randInt(2, Math.min(rw, rh) / 2 - 1);
+            const area = parseFloat((rw * rh - Math.PI * r * r).toFixed(1));
+            return {
+                latex: `\\text{A rectangle } (${rw} \\times ${rh} \\text{ cm}) \\text{ has a circular hole of radius } ${r} \\text{ cm removed. } \\\\ \\text{Find the remaining area to 1 d.p.}`,
+                answer: String(area),
+                options: makeOptions(area, () => parseFloat((randInt(80, 300) - randInt(10, 50) * 0.1).toFixed(1))),
+                forceOption: 0,
+            };
+        }
+
+        // ──────────────── LEVEL 4 ────────────────
+        // Real-world word problems: cost of tiling/fencing, scale factor, sector area
+        if (difficulty === 4) {
+            const qChoice = randInt(0, 2);
+
+            if (qChoice === 0) {
+                const w = randInt(5, 20), h = randInt(5, 20);
+                if (randInt(0, 1) === 0) {
+                    const costPer = randInt(2, 8);
+                    const total = w * h * costPer;
+                    return {
+                        latex: `\\text{A rectangular room is } ${w} \\text{m} \\times ${h} \\text{m. Tiles cost £}${costPer} \\text{ per m}^2\\text{. What is the total cost?}`,
+                        answer: String(total),
+                        options: makeOptions(total, () => randInt(50, 2000)),
+                        forceOption: 0,
+                    };
+                } else {
+                    const costPer = randInt(3, 12);
+                    const total = 2 * (w + h) * costPer;
+                    return {
+                        latex: `\\text{A rectangular garden is } ${w} \\text{m} \\times ${h} \\text{m. Fencing costs £}${costPer} \\text{ per metre. } \\\\ \\text{What is the total cost to fence all four sides?}`,
+                        answer: String(total),
+                        options: makeOptions(total, () => randInt(50, 2000)),
+                        forceOption: 0,
+                    };
+                }
+            }
+
+            if (qChoice === 1) {
+                const origSide = randInt(3, 10);
+                const scale = randInt(2, 4);
+                const origArea = origSide * origSide;
+                const newArea = origArea * scale * scale;
+                return {
+                    latex: `\\text{A square has side } ${origSide} \\text{ cm (area = } ${origArea} \\text{ cm}^2\\text{). All sides are scaled by factor } ${scale}\\text{. What is the new area?}`,
+                    answer: String(newArea),
+                    options: makeOptions(newArea, () => randInt(10, 1000)),
+                    forceOption: 0,
+                };
+            }
+
+            // Sector area
+            const r = randInt(4, 12);
+            const fracs: [number, number][] = [[1, 2], [1, 4], [3, 4], [1, 3]];
+            const [num, den] = fracs[randInt(0, 3)];
+            const area = parseFloat(((num / den) * Math.PI * r * r).toFixed(1));
+            const fracLabel = `\\frac{${num}}{${den}}`;
+            return {
+                latex: `\\text{Find the area of } ${fracLabel} \\text{ of a circle with radius } ${r} \\text{ cm. Give your answer to 1 d.p.}`,
+                answer: String(area),
+                options: makeOptions(area, () => parseFloat((randInt(10, 600) * 0.1).toFixed(1))),
+                forceOption: 0,
+            };
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
+    }, [1, 2, 3, 4]),
     "prisms": createGenerator(({ difficulty }) => {
+        const randInt = (min: number, max: number) =>
+            Math.floor(Math.random() * (max - min + 1)) + min;
+        const randFloat = (min: number, max: number, dp = 1) =>
+            parseFloat((Math.random() * (max - min) + min).toFixed(dp));
+
+        const makeOptions = (
+            correct: number | string,
+            gen: () => number | string,
+            count = 4
+            ): string[] => {
+            const s = new Set([String(correct)]);
+            let tries = 0;
+
+            while (s.size < count && tries++ < 200) {
+                const v = gen();
+                if (Number(v) > 0 || typeof v === "string") {
+                s.add(String(v));
+                }
+            }
+
+            return [...s].sort(() => Math.random() - 0.5);
+        };
+
+        // ──────────────── LEVEL 1: 🟢 Easy ────────────────
+        if (difficulty === 1) {
+            const qType = randInt(0, 2);
+
+            if (qType === 0) {
+                // Rectangular prism volume
+                const w = randInt(3, 8), d = randInt(2, 6), l = randInt(8, 15);
+                const vol = w * d * l;
+                return {
+                    latex: `\\text{A prism has a rectangular cross-section measuring } ${w} \\text{ cm by } ${d} \\text{ cm and length } ${l} \\text{ cm. Find the volume.}`,
+                    answer: String(vol),
+                    options: makeOptions(vol, () => randInt(50, 600)),
+                    forceOption: 0,
+                };
+            }
+
+            if (qType === 1) {
+                // Triangular prism volume
+                const b = randInt(4, 10), h = randInt(3, 8), l = randInt(6, 14);
+                const vol = parseFloat((0.5 * b * h * l).toFixed(1));
+                return {
+                    latex: `\\text{A triangular prism has a triangle with base } ${b} \\text{ cm and height } ${h} \\text{ cm. The length of the prism is } ${l} \\text{ cm. Find the volume.}`,
+                    answer: String(vol),
+                    options: makeOptions(vol, () => parseFloat((randInt(30, 400) * 0.5).toFixed(1))),
+                    forceOption: 0,
+                };
+            }
+
+            // Cuboid total surface area
+            const l = randInt(4, 10), w = randInt(2, 7), h = randInt(3, 9);
+            const sa = 2 * (l * w + l * h + w * h);
+            return {
+                latex: `\\text{A cuboid has dimensions } ${l} \\text{ cm} \\times ${w} \\text{ cm} \\times ${h} \\text{ cm. Find the total surface area.}`,
+                answer: String(sa),
+                options: makeOptions(sa, () => randInt(80, 500)),
+                forceOption: 0,
+            };
+        }
+
+        // ──────────────── LEVEL 2: 🟡 Medium ────────────────
+        if (difficulty === 2) {
+            const qType = randInt(0, 3);
+
+            if (qType === 0) {
+                // Trapezium prism volume
+                const a = randInt(5, 12), b = randInt(a + 3, 18), ht = randInt(4, 9), l = randInt(10, 20);
+                const vol = parseFloat((0.5 * (a + b) * ht * l).toFixed(1));
+                return {
+                    latex: `\\text{A prism has a trapezium cross-section with parallel sides } ${a} \\text{ cm and } ${b} \\text{ cm, and height } ${ht} \\text{ cm. The length is } ${l} \\text{ cm. Find the volume.}`,
+                    answer: String(vol),
+                    options: makeOptions(vol, () => parseFloat((randInt(100, 800) * 0.6).toFixed(1))),
+                    forceOption: 0,
+                };
+            }
+
+            if (qType === 1) {
+                // Given cross-sectional area
+                const area = randInt(12, 40);
+                const l = randInt(7, 18);
+                const vol = area * l;
+                return {
+                    latex: `\\text{A triangular prism has cross-sectional area } ${area} \\text{ cm}^2 \\text{ and length } ${l} \\text{ cm. Find the volume.}`,
+                    answer: String(vol),
+                    options: makeOptions(vol, () => randInt(80, 700)),
+                    forceOption: 0,
+                };
+            }
+
+            if (qType === 2) {
+                // Rectangular prism surface area
+                const w = randInt(5, 12), d = randInt(4, 10), l = randInt(15, 30);
+                const sa = 2 * (w * d + w * l + d * l);
+                return {
+                    latex: `\\text{A prism has a rectangular cross-section } ${w} \\text{ cm by } ${d} \\text{ cm and length } ${l} \\text{ cm. Find the total surface area.}`,
+                    answer: String(sa),
+                    options: makeOptions(sa, () => randInt(200, 1200)),
+                    forceOption: 0,
+                };
+            }
+
+            // Rate of flow problem
+            const area = randInt(20, 45);
+            const height = randInt(8, 20);
+            const rate = randInt(40, 80);
+            const time = parseFloat(((area * height) / rate).toFixed(1));
+            return {
+                latex: `\\text{Water flows into a prism-shaped tank at } ${rate} \\text{ cm}^3\\text{/s. The tank has a constant cross-sectional area of } ${area} \\text{ cm}^2\\text{. How long does it take to fill the tank to a height of } ${height} \\text{ cm?}`,
+                answer: String(time),
+                options: makeOptions(time, () => randFloat(2, 25, 1)),
+                forceOption: 0,
+            };
+        }
+
+        // ──────────────── LEVEL 3: 🟠 Hard ────────────────
+        if (difficulty === 3) {
+            const qType = randInt(0, 2);
+
+            if (qType === 0) {
+                // Triangular prism total surface area
+                const leg1 = randInt(6, 12), leg2 = randInt(8, 15), l = randInt(12, 25);
+                const hyp = Math.sqrt(leg1**2 + leg2**2);
+                const sa = leg1*l + leg2*l + hyp*l + leg1*leg2;
+                const roundedSA = parseFloat(sa.toFixed(1));
+                return {
+                    latex: `\\text{A prism has a right-angled triangular cross-section with legs } ${leg1} \\text{ cm and } ${leg2} \\text{ cm. The length is } ${l} \\text{ cm. Find the total surface area to 1 d.p.}`,
+                    answer: String(roundedSA),
+                    options: makeOptions(roundedSA, () => randInt(300, 1500)),
+                    forceOption: 0,
+                };
+            }
+
+            if (qType === 1) {
+                // Reverse: solve for x
+                const base = randInt(5, 12);
+                const extra = randInt(1, 4);
+                const l = randInt(5, 10);
+                const vol = parseFloat((0.5 * base * (base + extra) * l).toFixed(1));
+                return {
+                    latex: `\\text{A prism has volume } ${vol} \\text{ cm}^3\\text{. Its triangular cross-section has base } x \\text{ cm and height } x+${extra} \\text{ cm. The length is } ${l} \\text{ cm. Solve for } x\\text{.}`,
+                    answer: String(base),
+                    options: makeOptions(base, () => randInt(3, 18)),
+                    forceOption: 0,
+                };
+            }
+
+            // Prism melted into cube
+            const a = randInt(6, 12), b = randInt(a + 4, 18), ht = randInt(4, 8), len = randInt(8, 15);
+            const vol = parseFloat((0.5 * (a + b) * ht * len).toFixed(1));
+            const side = parseFloat(Math.pow(vol, 1/3).toFixed(2));
+            return {
+                latex: `\\text{A solid prism with trapezium cross-section (parallel sides } ${a} \\text{ cm and } ${b} \\text{ cm, height } ${ht} \\text{ cm) and length } ${len} \\text{ cm is melted and recast into a cube. Find the side length of the cube to 2 d.p.}`,
+                answer: String(side),
+                options: makeOptions(side, () => randFloat(4, 12, 2)),
+                forceOption: 0,
+            };
+        }
+
+        // ──────────────── LEVEL 4: 🔴 Very Hard ────────────────
+        if (difficulty === 4) {
+            const qType = randInt(0, 2);
+
+            if (qType === 0) {
+                // Semicircle prism volume (in terms of π)
+                const r = randInt(5, 12);
+                const l = randInt(15, 30);
+                const volPi = parseFloat((0.5 * Math.PI * r * r * l).toFixed(1));
+                return {
+                    latex: `\\text{A prism has a uniform semicircular cross-section with radius } ${r} \\text{ cm. The length of the prism is } ${l} \\text{ cm. Find the volume, giving your answer in terms of } \\pi\\text{.}`,
+                    answer: String(volPi) + " \\pi",
+                    options: makeOptions(String(volPi) + " \\pi", () => `${randFloat(80, 600).toFixed(1)} \\pi`),
+                    forceOption: 0,
+                };
+            }
+
+            if (qType === 1) {
+                // Displacement verification
+                const crossArea = randInt(35, 55);
+                const cuboidVol = 60; // 5×4×3
+                const calculatedRise = parseFloat((cuboidVol / crossArea).toFixed(2));
+                const givenRise = randFloat(1.0, 2.5, 1);
+                const isCorrect = Math.abs(calculatedRise - givenRise) < 0.15;
+                return {
+                    latex: `\\text{A prism-shaped container has a constant cross-sectional area of } ${crossArea} \\text{ cm}^2\\text{. When a } 5 \\times 4 \\times 3 \\text{ cm cuboid is fully submerged, the water level rises by } ${givenRise} \\text{ cm. Is this correct?}`,
+                    answer: isCorrect ? "Yes" : "No",
+                    options: ["Yes", "No", "Cannot be determined", "Approximately yes"],
+                    forceOption: 0,
+                };
+            }
+
+            // ───── House-shaped prism (Randomly volume OR surface area) ─────
+            const w = randInt(8, 14);
+            const rectH = randInt(5, 9);
+            const triH = randInt(3, 7);
+            const len = randInt(12, 25);
+
+            const crossArea = w * rectH + 0.5 * w * triH;
+            const volume = parseFloat((crossArea * len).toFixed(1));
+
+            // Approximate total surface area (lateral faces + 2 ends)
+            const sa = 2 * crossArea + (2 * w + 2 * rectH + 2 * triH) * len; // simplified
+
+            const askVolume = randInt(0, 1) === 0;
+
+            if (askVolume) {
+                return {
+                    latex: `\\text{A prism has a "house" cross-section: a rectangle (width ${w} cm, height ${rectH} cm) topped with a triangle (base ${w} cm, height ${triH} cm). The length of the prism is ${len} cm. Find the volume of the prism.}`,
+                    answer: String(volume),
+                    options: makeOptions(volume, () => parseFloat((randInt(300, 1800) * 0.7).toFixed(1))),
+                    forceOption: 0,
+                };
+            } else {
+                const roundedSA = Math.round(sa);
+                return {
+                    latex: `\\text{A prism has a "house" cross-section: a rectangle (width ${w} cm, height ${rectH} cm) topped with a triangle (base ${w} cm, height ${triH} cm). The length of the prism is ${len} cm. Find the total surface area of the prism (to the nearest whole number).}`,
+                    answer: String(roundedSA),
+                    options: makeOptions(roundedSA, () => randInt(800, 3000)),
+                    forceOption: 0,
+                };
+            }
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
+    }, [1, 2, 3, 4]),
     "cylinders": createGenerator(({ difficulty }) => {
+        const randInt = (min: number, max: number) =>
+            Math.floor(Math.random() * (max - min + 1)) + min;
+        const randFloat = (min: number, max: number, dp = 1) =>
+            parseFloat((Math.random() * (max - min) + min).toFixed(dp));
+
+        const makeOptions = (correct: number | string, gen: () => number, count = 4): string[] => {
+            const s = new Set([String(correct)]);
+            let tries = 0;
+            while (s.size < count && tries++ < 200) {
+                const v = gen();
+                if (v > 0) s.add(String(v));
+            }
+            return [...s].sort(() => Math.random() - 0.5);
+        };
+
+        // ──────────────── LEVEL 1 ────────────────
+        // Combined basic cylinder questions:
+        // Volume, Curved Surface Area, Total Surface Area
+        // Mostly whole numbers, some simple decimals, introduces π
+        if (difficulty === 1) {
+            const qType = randInt(0, 2); // 0 = Volume, 1 = Curved SA, 2 = Total SA
+
+            if (qType === 0) {
+                // Volume
+                const r = randInt(2, 9);
+                const h = randInt(4, 14);
+                const volume = parseFloat((Math.PI * r * r * h).toFixed(1));
+                return {
+                    latex: `\\text{Find the volume of a cylinder with radius } ${r} \\text{ cm and height } ${h} \\text{ cm. Give your answer to 1 d.p.}`,
+                    answer: String(volume),
+                    options: makeOptions(volume, () => parseFloat((randInt(30, 900) * 0.35).toFixed(1))),
+                    forceOption: 0,
+                };
+            }
+
+            if (qType === 1) {
+                // Curved Surface Area
+                const r = randInt(2, 8);
+                const h = randInt(5, 15);
+                const csa = parseFloat((2 * Math.PI * r * h).toFixed(1));
+                return {
+                    latex: `\\text{Find the curved surface area of a cylinder with radius } ${r} \\text{ cm and height } ${h} \\text{ cm. Give your answer to 1 d.p.}`,
+                    answer: String(csa),
+                    options: makeOptions(csa, () => parseFloat((randInt(40, 500) * 0.3).toFixed(1))),
+                    forceOption: 0,
+                };
+            }
+
+            // Total Surface Area
+            const r = randInt(3, 9);
+            const h = randInt(4, 12);
+            const tsa = parseFloat((2 * Math.PI * r * h + 2 * Math.PI * r * r).toFixed(1));
+            return {
+                latex: `\\text{Find the total surface area of a cylinder with radius } ${r} \\text{ cm and height } ${h} \\text{ cm. Give your answer to 1 d.p.}`,
+                answer: String(tsa),
+                options: makeOptions(tsa, () => parseFloat((randInt(60, 750) * 0.45).toFixed(1))),
+                forceOption: 0,
+            };
+        }
+
+        // ──────────────── LEVEL 2 ────────────────
+        // Reverse problems + decimal radius
+        if (difficulty === 2) {
+            const qChoice = randInt(0, 1);
+
+            if (qChoice === 0) {
+                // Find height given volume and radius
+                const r = randInt(3, 8);
+                const h = randInt(5, 16);
+                const volume = parseFloat((Math.PI * r * r * h).toFixed(1));
+                return {
+                    latex: `\\text{A cylinder has a volume of } ${volume} \\text{ cm}^3 \\text{ and a radius of } ${r} \\text{ cm. Find its height.}`,
+                    answer: String(h),
+                    options: makeOptions(h, () => randInt(4, 25)),
+                    forceOption: 0,
+                };
+            }
+
+
+            // Find radius given volume and height (integer radius)
+            const h = randInt(6, 15);
+            const r = randInt(2, 7);
+            const volume = parseFloat((Math.PI * r * r * h).toFixed(1));
+            return {
+                latex: `\\text{A cylinder has a volume of } ${volume} \\text{ cm}^3 \\text{ and height } ${h} \\text{ cm. Find its radius.}`,
+                answer: String(r),
+                options: makeOptions(r, () => randInt(1, 12)),
+                forceOption: 0,
+            };
+            
+        }
+
+        // ──────────────── LEVEL 3 ────────────────
+        // More challenging reverse + total surface area reverse
+        if (difficulty === 3) {
+            const qChoice = randInt(0, 1);
+
+            if (qChoice === 0) {
+                // Find height given total surface area and radius
+                const r = randInt(3, 9);
+                const h = randInt(5, 14);
+                const tsa = parseFloat((2 * Math.PI * r * h + 2 * Math.PI * r * r).toFixed(1));
+                return {
+                    latex: `\\text{A cylinder has total surface area } ${tsa} \\text{ cm}^2 \\text{ and radius } ${r} \\text{ cm. Find the height.}`,
+                    answer: String(h),
+                    options: makeOptions(h, () => randInt(3, 22)),
+                    forceOption: 0,
+                };
+            }
+
+            // Find radius given total surface area and height (harder)
+            const h = randInt(6, 16);
+            const r = randInt(3, 8);
+            const tsa = parseFloat((2 * Math.PI * r * h + 2 * Math.PI * r * r).toFixed(1));
+            return {
+                latex: `\\text{A cylinder has total surface area } ${tsa} \\text{ cm}^2 \\text{ and height } ${h} \\text{ cm. Find the radius.}`,
+                answer: String(r),
+                options: makeOptions(r, () => randInt(2, 13)),
+                forceOption: 0,
+            };
+        }
+
+        // ──────────────── LEVEL 4 ────────────────
+        // Real-world applications: cost, capacity, scale factor
+        if (difficulty === 4) {
+            const qChoice = randInt(0, 2);
+
+            if (qChoice === 0) {
+                // Painting cost (curved surface)
+                const r = randInt(15, 40);
+                const h = randInt(25, 60);
+                const costPer = randInt(5, 15);
+                const areaM2 = parseFloat(((2 * Math.PI * r * h) / 10000).toFixed(3));
+                const totalCost = parseFloat((areaM2 * costPer).toFixed(2));
+                return {
+                    latex: `\\text{The curved surface of a cylindrical tank (radius ${r} cm, height ${h} cm) is painted. Paint costs £${costPer} per m}^2\\text{. Calculate the total cost to 2 d.p.}`,
+                    answer: String(totalCost),
+                    options: makeOptions(totalCost, () => randFloat(12, 180, 2)),
+                    forceOption: 0,
+                };
+            }
+
+            if (qChoice === 1) {
+                // Capacity in litres
+                const r = randInt(8, 20);
+                const h = randInt(15, 40);
+                const volCM3 = parseFloat((Math.PI * r * r * h).toFixed(1));
+                const litres = parseFloat((volCM3 / 1000).toFixed(1));
+                return {
+                    latex: `\\text{A cylindrical water tank has radius } ${r} \\text{ cm and height } ${h} \\text{ cm. How many litres can it hold? (1 litre = 1000 cm}^3\\text{) Answer to 1 d.p.}`,
+                    answer: String(litres),
+                    options: makeOptions(litres, () => parseFloat((randInt(5, 45) * 1.1).toFixed(1))),
+                    forceOption: 0,
+                };
+            }
+
+            // Scale factor on volume
+            const origR = randInt(4, 9);
+            const origH = randInt(6, 14);
+            const scale = randInt(2, 4);
+            const origVol = parseFloat((Math.PI * origR * origR * origH).toFixed(1));
+            const newVol = parseFloat((origVol * Math.pow(scale, 3)).toFixed(1));
+            return {
+                latex: `\\text{A cylinder has radius } ${origR} \\text{ cm and height } ${origH} \\text{ cm (volume = } ${origVol} \\text{ cm}^3\\text{). If all lengths are multiplied by } ${scale}\\text{, what is the new volume to 1 d.p.?}`,
+                answer: String(newVol),
+                options: makeOptions(newVol, () => parseFloat((randInt(200, 4000) * 0.25).toFixed(1))),
+                forceOption: 0,
+            };
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
+    }, [1, 2, 3, 4]),
     "spheres": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
     }, []),
     "unit-conversions": createGenerator(({ difficulty }) => {
+        const randInt = (min: number, max: number) =>
+            Math.floor(Math.random() * (max - min + 1)) + min;
+        const randFloat = (min: number, max: number, dp = 1) =>
+            parseFloat((Math.random() * (max - min) + min).toFixed(dp));
+        const pick = <T>(arr: T[]): T => arr[randInt(0, arr.length - 1)];
+
+        const makeOptions = (correct: number | string, gen: () => number, count = 4): string[] => {
+            const fmt = (n: number | string) =>
+                typeof n === "string" ? n : String(parseFloat(Number(n).toFixed(4)));
+            const s = new Set([fmt(correct)]);
+            let tries = 0;
+            while (s.size < count && tries++ < 300) {
+                const v = gen();
+                if (v > 0) s.add(fmt(v));
+            }
+            return [...s].sort(() => Math.random() - 0.5);
+        };
+
+        // ──────────────── LEVEL 1 ────────────────
+        // Single-step metric conversions (length & mass, whole numbers or simple decimals)
+        if (difficulty === 1) {
+            const groups = [
+                {
+                    cat: "Length",
+                    qs: [
+                        () => { const v = randInt(1, 20); return { q: `Convert ${v} km to metres.`, a: v * 1000, gen: () => randInt(100, 25000) }; },
+                        () => { const v = randInt(100, 9900); return { q: `Convert ${v} m to kilometres.`, a: v / 1000, gen: () => randFloat(0.1, 10, 2) }; },
+                        () => { const v = randInt(1, 500); return { q: `Convert ${v} cm to millimetres.`, a: v * 10, gen: () => randInt(10, 5000) }; },
+                        () => { const v = randInt(10, 5000); return { q: `Convert ${v} mm to centimetres.`, a: v / 10, gen: () => randFloat(1, 500, 1) }; },
+                        () => { const v = randInt(1, 200); return { q: `Convert ${v} cm to metres.`, a: parseFloat((v / 100).toFixed(2)), gen: () => randFloat(0.01, 2, 2) }; },
+                        () => { const v = randFloat(0.5, 5, 1); return { q: `Convert ${v} m to centimetres.`, a: v * 100, gen: () => randInt(10, 600) }; },
+                    ],
+                },
+                {
+                    cat: "Mass",
+                    qs: [
+                        () => { const v = randInt(1, 20); return { q: `Convert ${v} kg to grams.`, a: v * 1000, gen: () => randInt(100, 25000) }; },
+                        () => { const v = randInt(500, 9500); return { q: `Convert ${v} g to kilograms.`, a: parseFloat((v / 1000).toFixed(2)), gen: () => randFloat(0.1, 10, 2) }; },
+                        () => { const v = randInt(1, 10); return { q: `Convert ${v} tonnes to kilograms.`, a: v * 1000, gen: () => randInt(100, 12000) }; },
+                        () => { const v = randInt(1, 500); return { q: `Convert ${v} mg to grams.`, a: parseFloat((v / 1000).toFixed(3)), gen: () => randFloat(0.001, 0.5, 3) }; },
+                    ],
+                },
+            ];
+
+            const grp = pick(groups);
+            const { q, a, gen } = pick(grp.qs)();
+            return {
+                latex: `\\text{${q}}`,
+                answer: String(parseFloat(Number(a).toFixed(4))),
+                options: makeOptions(a, gen),
+                forceOption: 0,
+            };
+        }
+
+        // ──────────────── LEVEL 2 ────────────────
+        // Imperial ↔ metric conversions + time
+        if (difficulty === 2) {
+            const pools = [
+                {
+                    cat: "Length (imperial ↔ metric)",
+                    qs: [
+                        () => { const v = randInt(1, 20); return { q: `Convert ${v} miles to kilometres. (1 mile = 1.6 km)`, a: parseFloat((v * 1.6).toFixed(1)), gen: () => randFloat(1, 35, 1) }; },
+                        () => { const v = randInt(2, 30); return { q: `Convert ${v} km to miles. (1 mile = 1.6 km)`, a: parseFloat((v / 1.6).toFixed(1)), gen: () => randFloat(1, 20, 1) }; },
+                        () => { const v = randInt(1, 10); return { q: `Convert ${v} inches to centimetres. (1 inch = 2.54 cm)`, a: parseFloat((v * 2.54).toFixed(2)), gen: () => randFloat(1, 30, 2) }; },
+                        () => { const v = randInt(1, 6); return { q: `Convert ${v} feet to metres. (1 foot = 30.48 cm)`, a: parseFloat((v * 0.3048).toFixed(2)), gen: () => randFloat(0.2, 2, 2) }; },
+                    ],
+                },
+                {
+                    cat: "Mass (imperial ↔ metric)",
+                    qs: [
+                        () => { const v = randInt(1, 15); return { q: `Convert ${v} pounds to kilograms. (1 kg ≈ 2.2 lb)`, a: parseFloat((v / 2.2).toFixed(2)), gen: () => randFloat(0.3, 7, 2) }; },
+                        () => { const v = randInt(1, 10); return { q: `Convert ${v} kg to pounds. (1 kg ≈ 2.2 lb)`, a: parseFloat((v * 2.2).toFixed(1)), gen: () => randFloat(1, 25, 1) }; },
+                        () => { const v = randInt(1, 8); return { q: `Convert ${v} stones to kilograms. (1 stone = 6.35 kg)`, a: parseFloat((v * 6.35).toFixed(1)), gen: () => randFloat(3, 55, 1) }; },
+                    ],
+                },
+                {
+                    cat: "Time",
+                    qs: [
+                        () => { const v = randInt(2, 8); return { q: `Convert ${v} hours to minutes.`, a: v * 60, gen: () => randInt(60, 600) }; },
+                        () => { const v = randInt(2, 5); return { q: `Convert ${v} days to hours.`, a: v * 24, gen: () => randInt(24, 130) }; },
+                        () => { const v = randInt(2, 10); return { q: `Convert ${v} weeks to days.`, a: v * 7, gen: () => randInt(7, 75) }; },
+                        () => { const v = randInt(60, 300); return { q: `Convert ${v} seconds to minutes. Give your answer as a decimal.`, a: parseFloat((v / 60).toFixed(2)), gen: () => randFloat(0.5, 6, 2) }; },
+                    ],
+                },
+            ];
+
+            const pool = pick(pools);
+            const { q, a, gen } = pick(pool.qs)();
+            return {
+                latex: `\\text{${q}}`,
+                answer: String(parseFloat(Number(a).toFixed(4))),
+                options: makeOptions(a, gen),
+                forceOption: 0,
+            };
+        }
+
+        // ──────────────── LEVEL 3 ────────────────
+        // Area, volume, and speed conversions — introduces squared/cubed scaling
+        if (difficulty === 3) {
+            const pools = [
+                {
+                    cat: "Area",
+                    qs: [
+                        () => { const v = randInt(1, 10); return { q: `Convert ${v} m² to cm².`, a: v * 10000, gen: () => randInt(1000, 120000) }; },
+                        () => { const v = randInt(10000, 90000); return { q: `Convert ${v} cm² to m².`, a: parseFloat((v / 10000).toFixed(2)), gen: () => randFloat(0.1, 10, 2) }; },
+                        () => { const v = randInt(1, 8); return { q: `Convert ${v} km² to m².`, a: v * 1000000, gen: () => randInt(100000, 9000000) }; },
+                        () => { const v = randInt(1, 5); return { q: `Convert ${v} hectares to m². (1 hectare = 10,000 m²)`, a: v * 10000, gen: () => randInt(5000, 60000) }; },
+                        () => { const v = randInt(1, 6); return { q: `Convert ${v} m² to mm².`, a: v * 1000000, gen: () => randInt(200000, 8000000) }; },
+                    ],
+                },
+                {
+                    cat: "Volume",
+                    qs: [
+                        () => { const v = randInt(1, 10); return { q: `Convert ${v} litres to millilitres.`, a: v * 1000, gen: () => randInt(200, 12000) }; },
+                        () => { const v = randInt(500, 4500); return { q: `Convert ${v} ml to litres.`, a: parseFloat((v / 1000).toFixed(2)), gen: () => randFloat(0.1, 5, 2) }; },
+                        () => { const v = randInt(1, 5); return { q: `Convert ${v} m³ to cm³.`, a: v * 1000000, gen: () => randInt(100000, 6000000) }; },
+                        () => { const v = randInt(1, 8); return { q: `Convert ${v} litres to cm³. (1 litre = 1000 cm³)`, a: v * 1000, gen: () => randInt(500, 10000) }; },
+                        () => { const v = randInt(1, 6); return { q: `Convert ${v} cm³ to mm³.`, a: v * 1000, gen: () => randInt(200, 8000) }; },
+                    ],
+                },
+                {
+                    cat: "Speed",
+                    qs: [
+                        () => { const v = randInt(10, 120); return { q: `Convert ${v} km/h to m/s. Give your answer to 2 d.p.`, a: parseFloat((v / 3.6).toFixed(2)), gen: () => randFloat(1, 35, 2) }; },
+                        () => { const v = randInt(2, 30); return { q: `Convert ${v} m/s to km/h.`, a: parseFloat((v * 3.6).toFixed(1)), gen: () => randFloat(5, 110, 1) }; },
+                        () => { const v = randInt(20, 80); return { q: `Convert ${v} mph to km/h. (1 mile = 1.6 km)`, a: parseFloat((v * 1.6).toFixed(1)), gen: () => randFloat(20, 140, 1) }; },
+                        () => { const v = randInt(30, 110); return { q: `A car travels at ${v} km/h. How far does it travel in 1 second? Give your answer in metres to 2 d.p.`, a: parseFloat((v * 1000 / 3600).toFixed(2)), gen: () => randFloat(1, 40, 2) }; },
+                    ],
+                },
+            ];
+
+            const pool = pick(pools);
+            const { q, a, gen } = pick(pool.qs)();
+            return {
+                latex: `\\text{${q}}`,
+                answer: String(parseFloat(Number(a).toFixed(4))),
+                options: makeOptions(a, gen),
+                forceOption: 0,
+            };
+        }
+
+        // ──────────────── LEVEL 4 ────────────────
+        // Multi-step chains and real-world word problems
+        if (difficulty === 4) {
+            const pools = [
+                {
+                    cat: "Multi-step",
+                    qs: [
+                        () => {
+                            const km = randInt(2, 15), hrs = randInt(1, 3), mins = pick([15, 20, 30, 45]);
+                            const totalHrs = hrs + mins / 60;
+                            const speed = parseFloat((km / totalHrs).toFixed(2));
+                            return { q: `A cyclist travels ${km} km in ${hrs} hour${hrs > 1 ? "s" : ""} ${mins} minutes. What is their average speed in km/h? Give your answer to 2 d.p.`, a: speed, gen: () => randFloat(2, 20, 2) };
+                        },
+                        () => {
+                            const ms = randInt(5, 25);
+                            const kmh = parseFloat((ms * 3.6).toFixed(1));
+                            const mph = parseFloat((kmh / 1.6).toFixed(1));
+                            return { q: `A train travels at ${ms} m/s. Convert this speed to mph. (1 mile = 1.6 km)`, a: mph, gen: () => randFloat(5, 60, 1) };
+                        },
+                        () => {
+                            const ha = randInt(2, 20);
+                            const km2 = parseFloat((ha * 10000 / 1000000).toFixed(4));
+                            return { q: `Convert ${ha} hectares to km². (1 ha = 10,000 m², 1 km² = 1,000,000 m²)`, a: km2, gen: () => randFloat(0.01, 0.25, 4) };
+                        },
+                    ],
+                },
+                {
+                    cat: "Real-world problems",
+                    qs: [
+                        () => {
+                            const lPerKm = randFloat(5, 12, 1), miles = randInt(20, 200);
+                            const km = parseFloat((miles * 1.6).toFixed(1));
+                            const litres = parseFloat((lPerKm * km / 100).toFixed(1));
+                            return { q: `A car uses ${lPerKm} litres per 100 km. How many litres are needed for a ${miles}-mile journey? (1 mile = 1.6 km) Give your answer to 1 d.p.`, a: litres, gen: () => randFloat(1, 30, 1) };
+                        },
+                        () => {
+                            const st = randInt(8, 15), lb = pick([0, 4, 7, 10]);
+                            const totalLb = st * 14 + lb;
+                            const kg = parseFloat((totalLb / 2.2).toFixed(1));
+                            return { q: `A person weighs ${st} stone ${lb} lb. Convert this to kilograms. (14 lb = 1 stone, 1 kg ≈ 2.2 lb) Give to 1 d.p.`, a: kg, gen: () => randFloat(40, 100, 1) };
+                        },
+                        () => {
+                            const speedMph = pick([20, 30, 40, 50, 60, 70]);
+                            const ms = parseFloat((speedMph * 1.6 * 1000 / 3600).toFixed(2));
+                            return { q: `A speed limit is ${speedMph} mph. Convert this to m/s. (1 mile = 1.6 km) Give your answer to 2 d.p.`, a: ms, gen: () => randFloat(1, 40, 2) };
+                        },
+                        () => {
+                            const poolL = randInt(200, 2000) * 10;
+                            const m3 = parseFloat((poolL / 1000).toFixed(1));
+                            return { q: `A swimming pool holds ${poolL.toLocaleString()} litres of water. What is this volume in m³? (1 m³ = 1000 litres)`, a: m3, gen: () => randFloat(1, 25, 1) };
+                        },
+                    ],
+                },
+            ];
+
+            const pool = pick(pools);
+            const { q, a, gen } = pick(pool.qs)();
+            return {
+                latex: `\\text{${q}}`,
+                answer: String(parseFloat(Number(a).toFixed(4))),
+                options: makeOptions(a, gen),
+                forceOption: 0,
+            };
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
+    }, [1, 2, 3, 4]),
     "compound-measures": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
     }, []),

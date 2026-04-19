@@ -266,9 +266,9 @@
         "place-value": "Comprende decenas, centenas y cómo la posición cambia el valor.",
         "comparing-and-ordering-numbers": "Usa símbolos y listas para comparar y ordenar números enteros.",
         "rounding-numbers": "Redondea a la decena o centena más cercana para estimar.",
-        "addition-and-subtraction": "Description for Addition And Subtraction.",
-        "multiplication-and-division": "Description for Multiplication And Division.",
-        "rounding-and-estimation": "Description for Rounding And Estimation."
+        "addition-and-subtraction": "Usa la suma y la resta para juntar cantidades o encontrar diferencias en situaciones cotidianas.",
+        "multiplication-and-division": "Comprende la multiplicaci�n como suma repetida y la divisi�n como reparto o agrupaci�n en partes iguales.",
+        "rounding-and-estimation": "Redondea n�meros a valores cercanos y estima resultados para comprobar si los c�lculos son razonables."
       },
       "addition-subtraction": {
         "mental-strategies": "Usa dobles, casi dobles y descomposición mental.",
@@ -288,9 +288,9 @@
         "decimals": "Comprende décimas y centésimas y la notación decimal.",
         "percentages": "Relaciona porcentajes con centésimas y fracciones sencillas.",
         "fractions": "Description for Fractions.",
-        "simple-addition-subtraction-of-fractions": "Description for Simple Addition Subtraction Of Fractions.",
-        "link-between-fractions-and-decimals": "Description for Link Between Fractions And Decimals.",
-        "basic-percentages": "Description for Basic Percentages."
+        "simple-addition-subtraction-of-fractions": "Suma y resta fracciones sencillas, especialmente cuando tienen el mismo denominador.",
+        "link-between-fractions-and-decimals": "Relaciona fracciones y decimales expresando el mismo valor en formas diferentes.",
+        "basic-percentages": "Comprende los porcentajes como partes de 100 y calcula porcentajes sencillos de cantidades."
       },
       "measurement": {
         "units": "Elige y convierte unidades adecuadas para medidas cotidianas.",
@@ -353,9 +353,9 @@
       "graphs": "Representa e interpreta gráficas lineales, cuadráticas y otras ligadas a ecuaciones.",
       "trigonometry": "Pitágoras, triángulos rectángulos y razones trigonométricas básicas.",
       "problem-solving": "Razonamiento en varios pasos, modelización y problemas tipo examen.",
-      "measurement": "Description for Measurement.",
-      "statistics": "Description for Statistics.",
-      "reasoning-problem-solving": "Description for Reasoning Problem Solving."
+      "measurement": "Trabaja con per�metro, �rea, volumen y unidades de medida.",
+      "statistics": "Representa datos, estima probabilidad y usa promedios y dispersi�n.",
+      "reasoning-problem-solving": "Resoluci�n de problemas multi-paso, modelado y matem�ticas tipo examen."
     },
     "secondarySub": {
       "number": {
@@ -376,18 +376,18 @@
         "expanding-factorising": "Desarrolla productos y factoriza con un paréntesis.",
         "indices-algebra": "Aplica leyes de índices a términos algebraicos.",
         "substitution": "Evalúa expresiones y fórmulas con valores dados.",
-        "algebraic-notation": "Description for Algebraic Notation.",
-        "simplifying-expressions": "Description for Simplifying Expressions.",
-        "expanding-and-factorising": "Description for Expanding And Factorising.",
-        "linear-equations": "Description for Linear Equations.",
-        "simultaneous-equations": "Description for Simultaneous Equations.",
-        "quadratic-equations": "Description for Quadratic Equations.",
-        "inequalities": "Description for Inequalities.",
-        "arithmetic-sequences": "Description for Arithmetic Sequences.",
-        "geometric-sequences": "Description for Geometric Sequences.",
-        "functions-basic-understanding": "Description for Functions Basic Understanding.",
-        "linear-graphs": "Description for Linear Graphs.",
-        "quadratic-graphs": "Description for Quadratic Graphs."
+        "algebraic-notation": "Usa notaci�n algebraica para expresar ideas matem�ticas.",
+        "simplifying-expressions": "Simplifica expresiones recolectando t�rminos y multiplicando.",
+        "expanding-and-factorising": "Expande productos y factoriza en corchetes simples.",
+        "linear-equations": "Resuelve ecuaciones lineales incluyendo corchetes y fracciones.",
+        "simultaneous-equations": "Resuelve pares de ecuaciones lineales algebraicamente y gr�ficamente.",
+        "quadratic-equations": "Factoriza cuadr�ticas simples y usa gr�ficas.",
+        "inequalities": "Resuelve y representa desigualdades lineales en una l�nea num�rica.",
+        "arithmetic-sequences": "Encuentra el t�rmino general y suma de secuencias aritm�ticas.",
+        "geometric-sequences": "Encuentra el t�rmino general y suma de secuencias geom�tricas.",
+        "functions-basic-understanding": "Comprende funciones como mapeos de entrada a salida.",
+        "linear-graphs": "Traza e interpreta gr�ficas lineales conectadas a ecuaciones.",
+        "quadratic-graphs": "Traza e interpreta gr�ficas cuadr�ticas conectadas a ecuaciones."
       },
       "equations": {
         "linear-equations": "Resuelve ecuaciones lineales con paréntesis y fracciones.",
@@ -407,14 +407,14 @@
         "circles": "Perímetro, área, arcos y sectores a nivel básico.",
         "area-volume": "Figuras compuestas, prismas y unidades de área y volumen.",
         "transformations": "Traslaciones, simetrías, giros y homotecias.",
-        "angles-rules-parallel-lines": "Description for Angles Rules Parallel Lines.",
-        "properties-of-polygons": "Description for Properties Of Polygons.",
-        "congruence-and-similarity": "Description for Congruence And Similarity.",
-        "translation": "Description for Translation.",
-        "rotation": "Description for Rotation.",
-        "reflection": "Description for Reflection.",
-        "enlargement": "Description for Enlargement.",
-        "pythagoras-theorem": "Description for Pythagoras Theorem."
+        "angles-rules-parallel-lines": "Usa reglas de �ngulos y l�neas paralelas.",
+        "properties-of-polygons": "Estudia propiedades de pol�gonos y teoremas relacionados.",
+        "congruence-and-similarity": "Comprende congruencia y similitud en formas.",
+        "translation": "Desplaza formas en el plano.",
+        "rotation": "Rota formas alrededor de un punto.",
+        "reflection": "Refleja formas sobre una l�nea.",
+        "enlargement": "Ampl�a o reduce formas desde un punto.",
+        "pythagoras-theorem": "Usa el teorema de Pit�goras en tri�ngulos rect�ngulos."
       },
       "probability-statistics": {
         "probability": "Espacio muestral, esperanza y diagramas en árbol.",
@@ -433,10 +433,10 @@
         "sohcahtoa": "Usa seno, coseno y tangente para ángulos y lados.",
         "bearings": "Mide e interpreta rumbos de tres cifras.",
         "sine-cosine-rule": "Amplía a triángulos no rectángulos cuando haga falta.",
-        "sine-cosine-tangent": "Description for Sine Cosine Tangent.",
-        "right-angled-triangles": "Description for Right Angled Triangles.",
-        "circumference-and-area": "Description for Circumference And Area.",
-        "arcs-and-sectors": "Description for Arcs And Sectors."
+        "sine-cosine-tangent": "Usa seno, coseno y tangente en tri�ngulos rect�ngulos.",
+        "right-angled-triangles": "Resuelve tri�ngulos rect�ngulos usando trigonometr�a.",
+        "circumference-and-area": "Calcula circunferencia y �rea de c�rculos.",
+        "arcs-and-sectors": "Trabaja con arcos y sectores de c�rculos."
       },
       "problem-solving": {
         "multi-step": "Desglosa preguntas complejas en etapas ordenadas.",
@@ -444,28 +444,28 @@
         "exam-style": "Práctica cronometrada con temas mixtos y criterios."
       },
       "measurement": {
-        "area-and-perimeter": "Description for Area And Perimeter.",
-        "prisms": "Description for Prisms.",
-        "cylinders": "Description for Cylinders.",
-        "spheres": "Description for Spheres.",
-        "unit-conversions": "Description for Unit Conversions.",
-        "compound-measures": "Description for Compound Measures."
+        "area-and-perimeter": "Calcula �rea y per�metro de formas.",
+        "prisms": "Encuentra volumen y superficie de prismas.",
+        "cylinders": "Calcula volumen y superficie de cilindros.",
+        "spheres": "Trabaja con volumen y superficie de esferas.",
+        "unit-conversions": "Convierte entre unidades relacionadas.",
+        "compound-measures": "Usa medidas compuestas como velocidad y densidad."
       },
       "statistics": {
-        "data-collection-methods": "Description for Data Collection Methods.",
-        "mean-median-mode": "Description for Mean Median Mode.",
-        "range": "Description for Range.",
-        "bar-charts": "Description for Bar Charts.",
-        "histograms": "Description for Histograms.",
-        "pie-charts": "Description for Pie Charts.",
-        "basic-probability-rules": "Description for Basic Probability Rules.",
-        "tree-diagrams": "Description for Tree Diagrams.",
-        "venn-diagrams": "Description for Venn Diagrams."
+        "data-collection-methods": "Usa m�todos para recolectar datos de poblaciones.",
+        "mean-median-mode": "Calcula media, mediana y moda.",
+        "range": "Encuentra el rango de un conjunto de datos.",
+        "bar-charts": "Crea e interpreta diagramas de barras.",
+        "histograms": "Usa histogramas para datos agrupados.",
+        "pie-charts": "Representa datos en diagramas circulares.",
+        "basic-probability-rules": "Aplica reglas b�sicas de probabilidad.",
+        "tree-diagrams": "Usa diagramas de �rbol para probabilidad.",
+        "venn-diagrams": "Usa diagramas de Venn para conjuntos."
       },
       "reasoning-problem-solving": {
-        "multi-step-problems": "Description for Multi Step Problems.",
-        "mathematical-proofs": "Description for Mathematical Proofs.",
-        "logical-deduction": "Description for Logical Deduction."
+        "multi-step-problems": "Resuelve problemas que requieren m�ltiples pasos.",
+        "mathematical-proofs": "Usa deducci�n para probar afirmaciones matem�ticas.",
+        "logical-deduction": "Aplica l�gica para deducir conclusiones."
       }
     },
     "sixthForm": {
@@ -508,7 +508,7 @@
         "identities": "Demuestra y aplica identidades pitagóricas y de adición.",
         "equations": "Resuelve ecuaciones trigonométricas en un intervalo dado.",
         "sine-cosine-rule": "Resuelve triángulos y modela problemas en 2D.",
-        "trigonometric-graphs": "Description for Trigonometric Graphs."
+        "trigonometric-graphs": "Traza e interpreta gr�ficas trigonom�tricas."
       },
       "sequences-series": {
         "arithmetic-geometric": "Término general, sumas y notación sigma.",
@@ -524,10 +524,10 @@
         "basics": "Módulo, dirección, suma y producto por escalar.",
         "scalar-product": "Producto escalar, ángulo entre vectores y perpendicularidad.",
         "lines": "Ecuaciones vectoriales de rectas y distancia mínima.",
-        "vector-notation": "Description for Vector Notation.",
-        "addition-and-scalar-multiplication": "Description for Addition And Scalar Multiplication.",
-        "dot-product": "Description for Dot Product.",
-        "equations-of-lines": "Description for Equations Of Lines."
+        "vector-notation": "Usa notaci�n vectorial para representar cantidad y direcci�n.",
+        "addition-and-scalar-multiplication": "Suma vectores y multiplica por escalares.",
+        "dot-product": "Calcula el producto escalar y �ngulos entre vectores.",
+        "equations-of-lines": "Escribe ecuaciones vectoriales de l�neas."
       },
       "probability-statistics": {
         "distributions": "Distribuciones binomial, normal y discretas.",
@@ -540,51 +540,51 @@
         "numerical-methods": "Raíces por métodos numéricos e integración numérica."
       },
       "algebra": {
-        "polynomial-functions": "Description for Polynomial Functions.",
-        "rational-expressions": "Description for Rational Expressions.",
-        "inequalities": "Description for Inequalities.",
-        "laws-of-logs": "Description for Laws Of Logs.",
-        "exponential-equations": "Description for Exponential Equations.",
-        "arithmetic-series": "Description for Arithmetic Series.",
-        "geometric-series": "Description for Geometric Series.",
-        "sigma-notation": "Description for Sigma Notation.",
-        "binomial-expansion": "Description for Binomial Expansion."
+        "polynomial-functions": "Trabaja con funciones polinomiales y sus propiedades.",
+        "rational-expressions": "Simplifica expresiones racionales.",
+        "inequalities": "Resuelve y representa desigualdades lineales en una l�nea num�rica.",
+        "laws-of-logs": "Aplica leyes de logaritmos para simplificar.",
+        "exponential-equations": "Resuelve ecuaciones exponenciales.",
+        "arithmetic-series": "Encuentra sumas de series aritm�ticas.",
+        "geometric-series": "Encuentra sumas de series geom�tricas.",
+        "sigma-notation": "Expande y eval�a sumas escritas con sigma.",
+        "binomial-expansion": "Expande binomios para enteros positivos n."
       },
       "functions": {
-        "function-notation": "Description for Function Notation.",
-        "domain-and-range": "Description for Domain And Range.",
-        "composite-functions": "Description for Composite Functions.",
-        "inverse-functions": "Description for Inverse Functions.",
-        "transformations-of-graphs": "Description for Transformations Of Graphs.",
-        "exponential-and-logarithmic-functions": "Description for Exponential And Logarithmic Functions."
+        "function-notation": "Usa notaci�n de funci�n para representar mapeos.",
+        "domain-and-range": "Determina dominio y rango de funciones.",
+        "composite-functions": "Combina funciones para formar nuevas.",
+        "inverse-functions": "Encuentra funciones inversas.",
+        "transformations-of-graphs": "Transforma gr�ficas de funciones.",
+        "exponential-and-logarithmic-functions": "Trabaja con funciones exponenciales y logar�tmicas."
       },
       "calculus": {
-        "limits": "Description for Limits.",
-        "rules-product-quotient-chain": "Description for Rules Product Quotient Chain.",
-        "tangents-and-normals": "Description for Tangents And Normals.",
-        "optimisation-problems": "Description for Optimisation Problems.",
-        "indefinite-and-definite-integrals": "Description for Indefinite And Definite Integrals.",
-        "area-under-curves": "Description for Area Under Curves.",
-        "differential-equations": "Description for Differential Equations."
+        "limits": "Comprende l�mites y su rol en c�lculo.",
+        "rules-product-quotient-chain": "Aplica reglas de producto, cociente y cadena.",
+        "tangents-and-normals": "Encuentra tangentes y normales a curvas.",
+        "optimisation-problems": "Resuelve problemas de optimizaci�n usando derivadas.",
+        "indefinite-and-definite-integrals": "Eval�a integrales indefinidas y definidas.",
+        "area-under-curves": "Calcula �reas bajo curvas usando integraci�n.",
+        "differential-equations": "Resuelve ecuaciones diferenciales."
       },
       "statistics": {
-        "binomial-distribution": "Description for Binomial Distribution.",
-        "normal-distribution": "Description for Normal Distribution.",
-        "statistical-sampling": "Description for Statistical Sampling.",
-        "hypothesis-testing": "Description for Hypothesis Testing.",
-        "correlation-and-regression": "Description for Correlation And Regression."
+        "binomial-distribution": "Usa distribuci�n binomial para eventos discretos.",
+        "normal-distribution": "Trabaja con distribuci�n normal y sus propiedades.",
+        "statistical-sampling": "Comprende m�todos de muestreo estad�stico.",
+        "hypothesis-testing": "Realiza pruebas de hip�tesis con niveles de significancia.",
+        "correlation-and-regression": "Estudia correlaci�n y regresi�n lineal."
       },
       "mechanics": {
-        "kinematics": "Description for Kinematics.",
-        "forces": "Description for Forces.",
-        "moments": "Description for Moments.",
-        "projectiles": "Description for Projectiles."
+        "kinematics": "Estudia movimiento: desplazamiento, velocidad, aceleraci�n.",
+        "forces": "Analiza fuerzas y sus efectos en el movimiento.",
+        "moments": "Calcula momentos y equilibrio.",
+        "projectiles": "Resuelve problemas de proyectiles."
       },
       "discrete": {
-        "matrices": "Description for Matrices.",
-        "complex-numbers": "Description for Complex Numbers.",
-        "graph-theory": "Description for Graph Theory.",
-        "linear-programming": "Description for Linear Programming."
+        "matrices": "Usa matrices para representar y manipular datos.",
+        "complex-numbers": "Trabaja con n�meros complejos en el plano.",
+        "graph-theory": "Estudia grafos y sus aplicaciones.",
+        "linear-programming": "Optimiza funciones lineales sujetas a restricciones."
       }
     }
   },
