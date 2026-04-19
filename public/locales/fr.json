@@ -110,6 +110,7 @@
     "generate-question": "Générer une Question",
     "show-solution": "Afficher la Solution",
     "no-question-generated": "Aucune question générée pour le moment, cliquez sur le bouton ci-dessous pour en générer une !",
+    "no-questions-made": "Aucune question n’a encore été créée, veuillez vérifier à la prochaine mise à jour.",
     "correct": "Correct !",
     "wrong": "Mauvaise réponse. La bonne réponse est {{answer}}.",
     "show-keyboard": "Afficher le clavier",

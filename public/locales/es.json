@@ -111,6 +111,7 @@
     "generate-question": "Generar Pregunta",
     "show-solution": "Mostrar Solución",
     "no-question-generated": "¡No se ha generado ninguna pregunta todavía, haz clic en el botón de abajo para generar una!",
+    "no-questions-made": "Todavía no se han creado preguntas, por favor vuelve a comprobarlo en la próxima actualización.",
     "correct": "¡Correcto!",
     "wrong": "Respuesta incorrecta. La respuesta correcta es {{answer}}.",
     "show-keyboard": "Mostrar teclado",

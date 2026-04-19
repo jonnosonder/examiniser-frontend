@@ -27,10 +27,8 @@ export default function Navbar({ lng, pageOn } : {lng: Locale, pageOn:"/"|"/crea
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
-      console.log(isBurgerActive);
       if (window.innerWidth > 768 && isBurgerActive) {
         setIsBurgerActive(false);
-        console.log("removed the burger expanded");
       }
     };
     handleResize();

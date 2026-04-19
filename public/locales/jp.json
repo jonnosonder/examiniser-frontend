@@ -111,6 +111,7 @@
     "generate-question": "質問を生成",
     "show-solution": "解決策を表示",
     "no-question-generated": "まだ質問が生成されていません。下のボタンをクリックして生成してください！",
+    "no-questions-made": "まだ問題は作成されていません。次回のアップデートでご確認ください。",
     "correct": "正解！",
     "wrong": "不正解です。正しい答えは {{answer}} です。",
     "show-keyboard": "キーボードを表示",

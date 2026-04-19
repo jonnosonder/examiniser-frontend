@@ -164,7 +164,7 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
             const n = randInt(10, 60);
             const factors = getFactors(n);
 
-            latex = `\\text{What are the factors of }${n}\\text{?} \\\\ \\text{List them in accending order, separated by commas.}`;
+            latex = `\\text{What are the factors of }${n}\\text{? } \\\\ \\text{List them in accending order, separated by commas.}`;
             answer = factors.join(", ");
 
             options = [
@@ -185,7 +185,7 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
 
             const multiples = numbers.filter(n => n % x === 0);
 
-            latex = `\\text{Which numbers are multiples of } ${x}\\text{? } \\\\\\  ${numbers.join(", ")}  \\\\ \\text{List them in accending order, separated by commas.}`;
+            latex = `\\text{Which numbers are multiples of } ${x}\\text{? } \\\\\\  ${numbers.join(", ")} \\text{. }  \\\\ \\text{List them in accending order, separated by commas.}`;
 
             answer = multiples.join(", ");
 
@@ -210,7 +210,7 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
                 if (isPrime(i)) primes.push(i);
             }
 
-            latex = `\\text{List all prime numbers between } ${start} \\text{ and } ${end} \\\\ \\text{List them in accending order, separated by commas.}`;
+            latex = `\\text{List all prime numbers between } ${start} \\text{ and } ${end} \\text{. } \\\\ \\text{List them in accending order, separated by commas.}`;
 
             answer = primes.join(", ");
 
@@ -232,7 +232,7 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
             const factors = getFactors(a);
             const primes = factors.filter(isPrime);
 
-            latex = `\\text{Find the prime factors of } ${a} \\\\ \\text{List them in accending order, separated by commas.}`;
+            latex = `\\text{Find the prime factors of } ${a} \\text{. } \\\\ \\text{List them in accending order, separated by commas.}`;
 
             answer = primes.join(", ");
 
@@ -2395,7 +2395,7 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
             options.sort(() => Math.random() - 0.5);
 
             return {
-                latex: `\\text{Solve, } \\\\ ${eq1} \\\\ ${eq2} \\\\ \\text{Give your answer in the form } x=?,\\ y=?`,
+                latex: `\\text{Solve, } \\\\ ${eq1} \\\\ ${eq2} \\\\ \\text{. Give your answer in the form } x=?,\\ y=?`,
                 answer,
                 options,
                 forceOption: 0,
@@ -2464,7 +2464,7 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
             options.sort(() => Math.random() - 0.5);
 
             return {
-                latex: `\\text{Solve, } \\\\ ${eq1} \\\\ ${eq2} \\\\ \\text{Give your answer in the form } x=?,\\ y=?`,
+                latex: `\\text{Solve, } \\\\ ${eq1} \\\\ ${eq2} \\\\ \\text{. Give your answer in the form } x=?,\\ y=?`,
                 answer,
                 options,
                 forceOption: 0,
@@ -2488,9 +2488,9 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
                 // -------------------------------------------------
                 (p1: number, p2: number, a: number, b: number, c: number, d: number) => ({
                     latex:
-            `\\text{A shop sells item A for £${p1} and item B for £${p2}.} \\\\
-            \\text{Customer 1 buys ${a} of A and ${b} of B costing £${p1 * (a * xVal + b * yVal)}.} \\\\
-            \\text{Customer 2 buys ${c} of A and ${d} of B costing £${p1 * (c * xVal + d * yVal)}.} \\\\
+            `\\text{A shop sells item A for £${p1} and item B for £${p2}. } \\\\
+            \\text{Customer 1 buys ${a} of A and ${b} of B costing £${p1 * (a * xVal + b * yVal)}. } \\\\
+            \\text{Customer 2 buys ${c} of A and ${d} of B costing £${p1 * (c * xVal + d * yVal)}. } \\\\
             \\text{Find } x \\text{ and } y.`,
                 }),
 
@@ -2499,9 +2499,9 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
                 // -------------------------------------------------
                 (p1: number, p2: number, a: number, b: number, c: number, d: number) => ({
                     latex:
-            `\\text{Pens cost £${p1} and pencils cost £${p2}.} \\\\
-            \\text{A student buys ${a} pens and ${b} pencils costing £${p1 * (a * xVal + b * yVal)}.} \\\\
-            \\text{Another student buys ${c} pens and ${d} pencils costing £${p1 * (c * xVal + d * yVal)}.} \\\\
+            `\\text{Pens cost £${p1} and pencils cost £${p2}. } \\\\
+            \\text{A student buys ${a} pens and ${b} pencils costing £${p1 * (a * xVal + b * yVal)}. } \\\\
+            \\text{Another student buys ${c} pens and ${d} pencils costing £${p1 * (c * xVal + d * yVal)}. } \\\\
             \\text{Find } x \\text{ and } y.`,
                 }),
 
@@ -2510,9 +2510,9 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
                 // -------------------------------------------------
                 (p1: number, p2: number, a: number, b: number, c: number, d: number) => ({
                     latex:
-            `\\text{Chocolates cost £${p1}, sweets cost £${p2}.} \\\\
-            \\text{Order 1: ${a} chocolates and ${b} sweets cost £${p1 * (a * xVal + b * yVal)}.} \\\\
-            \\text{Order 2: ${c} chocolates and ${d} sweets cost £${p1 * (c * xVal + d * yVal)}.} \\\\
+            `\\text{Chocolates cost £${p1}, sweets cost £${p2}. } \\\\
+            \\text{Order 1: ${a} chocolates and ${b} sweets cost £${p1 * (a * xVal + b * yVal)}. } \\\\
+            \\text{Order 2: ${c} chocolates and ${d} sweets cost £${p1 * (c * xVal + d * yVal)}. } \\\\
             \\text{Find } x \\text{ and } y.`,
                 }),
 
@@ -2521,9 +2521,9 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
                 // -------------------------------------------------
                 (p1: number, p2: number, a: number, b: number, c: number, d: number) => ({
                     latex:
-            `\\text{Coffee costs £${p1}, tea costs £${p2}.} \\\\
-            \\text{Order 1: ${a} coffees and ${b} teas cost £${p1 * (a * xVal + b * yVal)}.} \\\\
-            \\text{Order 2: ${c} coffees and ${d} teas cost £${p1 * (c * xVal + d * yVal)}.} \\\\
+            `\\text{Coffee costs £${p1}, tea costs £${p2}. } \\\\
+            \\text{Order 1: ${a} coffees and ${b} teas cost £${p1 * (a * xVal + b * yVal)}. } \\\\
+            \\text{Order 2: ${c} coffees and ${d} teas cost £${p1 * (c * xVal + d * yVal)}. } \\\\
             \\text{Find } x \\text{ and } y.`,
                 }),
 
@@ -2532,9 +2532,9 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
                 // -------------------------------------------------
                 (p1: number, p2: number, a: number, b: number, c: number, d: number) => ({
                     latex:
-            `\\text{Popcorn costs £${p1}, drinks cost £${p2}.} \\\\
-            \\text{Order 1: ${a} popcorn and ${b} drinks cost £${p1 * (a * xVal + b * yVal)}.} \\\\
-            \\text{Order 2: ${c} popcorn and ${d} drinks cost £${p1 * (c * xVal + d * yVal)}.} \\\\
+            `\\text{Popcorn costs £${p1}, drinks cost £${p2}. } \\\\
+            \\text{Order 1: ${a} popcorn and ${b} drinks cost £${p1 * (a * xVal + b * yVal)}. } \\\\
+            \\text{Order 2: ${c} popcorn and ${d} drinks cost £${p1 * (c * xVal + d * yVal)}. } \\\\
             \\text{Find } x \\text{ and } y.`,
                 }),
 
@@ -2543,9 +2543,9 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
                 // -------------------------------------------------
                 (p1: number, p2: number, a: number, b: number, c: number, d: number) => ({
                     latex:
-            `\\text{Footballs cost £${p1}, basketballs cost £${p2}.} \\\\
-            \\text{Order 1: ${a} footballs and ${b} basketballs cost £${p1 * (a * xVal + b * yVal)}.} \\\\
-            \\text{Order 2: ${c} footballs and ${d} basketballs cost £${p1 * (c * xVal + d * yVal)}.} \\\\
+            `\\text{Footballs cost £${p1}, basketballs cost £${p2}. } \\\\
+            \\text{Order 1: ${a} footballs and ${b} basketballs cost £${p1 * (a * xVal + b * yVal)}. } \\\\
+            \\text{Order 2: ${c} footballs and ${d} basketballs cost £${p1 * (c * xVal + d * yVal)}. } \\\\
             \\text{Find } x \\text{ and } y.`,
                 }),
 
@@ -2554,9 +2554,9 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
                 // -------------------------------------------------
                 (p1: number, p2: number, a: number, b: number, c: number, d: number) => ({
                     latex:
-            `\\text{Novels cost £${p1}, comics cost £${p2}.} \\\\
-            \\text{Order 1: ${a} novels and ${b} comics cost £${p1 * (a * xVal + b * yVal)}.} \\\\
-            \\text{Order 2: ${c} novels and ${d} comics cost £${p1 * (c * xVal + d * yVal)}.} \\\\
+            `\\text{Novels cost £${p1}, comics cost £${p2}. } \\\\
+            \\text{Order 1: ${a} novels and ${b} comics cost £${p1 * (a * xVal + b * yVal)}. } \\\\
+            \\text{Order 2: ${c} novels and ${d} comics cost £${p1 * (c * xVal + d * yVal)}. } \\\\
             \\text{Find } x \\text{ and } y.`,
                 }),
 
@@ -2565,9 +2565,9 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
                 // -------------------------------------------------
                 (p1: number, p2: number, a: number, b: number, c: number, d: number) => ({
                     latex:
-            `\\text{Notebooks cost £${p1}, folders cost £${p2}.} \\\\
-            \\text{Order 1: ${a} notebooks and ${b} folders cost £${p1 * (a * xVal + b * yVal)}.} \\\\
-            \\text{Order 2: ${c} notebooks and ${d} folders cost £${p1 * (c * xVal + d * yVal)}.} \\\\
+            `\\text{Notebooks cost £${p1}, folders cost £${p2}. } \\\\
+            \\text{Order 1: ${a} notebooks and ${b} folders cost £${p1 * (a * xVal + b * yVal)}. } \\\\
+            \\text{Order 2: ${c} notebooks and ${d} folders cost £${p1 * (c * xVal + d * yVal)}. } \\\\
             \\text{Find } x \\text{ and } y.`,
                 })
 
@@ -4228,11 +4228,413 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
         throw new Error(`Unhandled difficulty: ${difficulty}`);
     }, []),
     "translation": createGenerator(({ difficulty }) => {
+        const randInt = (min: number, max: number) =>
+            Math.floor(Math.random() * (max - min + 1)) + min;
+
+        const buildGrid = (points: {x: number, y: number}[]) => {
+            const cellSize = 25;
+            const offset = 70; // Increased offset for more space
+            const gridSize = 10; // -5 to 5
+
+            let svg = `<svg width="350" height="350" viewBox="0 0 350 350">`; // Increased size
+
+            // grid lines
+            for (let i = -5; i <= 5; i++) {
+                const pos = offset + (i + 5) * cellSize;
+                // vertical lines
+                svg += `<line x1="${pos}" y1="${offset}" x2="${pos}" y2="${offset + 10 * cellSize}" stroke="#ddd"/>`;
+                // horizontal lines
+                svg += `<line x1="${offset}" y1="${pos}" x2="${offset + 10 * cellSize}" y2="${pos}" stroke="#ddd"/>`;
+            }
+
+            // axes
+            svg += `<line x1="${offset}" y1="${offset + 5 * cellSize}" x2="${offset + 10 * cellSize}" y2="${offset + 5 * cellSize}" stroke="black" stroke-width="2"/>`;
+            svg += `<line x1="${offset + 5 * cellSize}" y1="${offset}" x2="${offset + 5 * cellSize}" y2="${offset + 10 * cellSize}" stroke="black" stroke-width="2"/>`;
+
+            // axis labels
+            for (let i = -5; i <= 5; i++) {
+                if (i === 0) continue;
+                const pos = offset + (i + 5) * cellSize;
+                // x-axis labels
+                svg += `<text x="${pos}" y="${offset + 5 * cellSize + 15}" font-size="10" text-anchor="middle">${i}</text>`;
+                // y-axis labels
+                svg += `<text x="${offset + 5 * cellSize - 15}" y="${pos + 3}" font-size="10" text-anchor="middle">${-i}</text>`;
+            }
+
+            // points
+            points.forEach((point, index) => {
+                const px = offset + (point.x + 5) * cellSize;
+                const py = offset + (-point.y + 5) * cellSize; // y is inverted in SVG
+                svg += `<circle cx="${px}" cy="${py}" r="4" fill="red"/>`;
+                // label points A, B, C, etc. - positioned outside the grid
+                const label = String.fromCharCode(65 + index); // A, B, C...
+                const labelOffset = 12;
+                let labelX = px;
+                let labelY = py;
+
+                // Position labels outside the point based on position relative to center
+                if (point.x >= 0) {
+                    labelX += labelOffset; // right
+                } else {
+                    labelX -= labelOffset; // left
+                }
+                if (point.y >= 0) {
+                    labelY -= labelOffset; // up
+                } else {
+                    labelY += labelOffset; // down
+                }
+
+                svg += `<text x="${labelX}" y="${labelY}" font-size="12" fill="red" text-anchor="middle">${label}</text>`;
+            });
+
+            // connect points if more than 2
+            if (points.length > 2) {
+                const pathData = points.map((point, index) => {
+                    const px = offset + (point.x + 5) * cellSize;
+                    const py = offset + (-point.y + 5) * cellSize;
+                    return `${index === 0 ? 'M' : 'L'} ${px} ${py}`;
+                }).join(' ') + ' Z';
+                svg += `<path d="${pathData}" fill="none" stroke="red" stroke-width="2"/>`;
+            }
+
+            svg += `</svg>`;
+            return svg;
+        };
+
+        // ---------------- LEVEL 1 ----------------
+        // simple translation
+        if (difficulty === 1) {
+            const startX = randInt(-4, 4);
+            const startY = randInt(-4, 4);
+
+            const minTransX = -5 - startX;
+            const maxTransX = 5 - startX;
+            const minTransY = -5 - startY;
+            const maxTransY = 5 - startY;
+
+            let transX: number, transY: number;
+
+            do {
+                transX = randInt(Math.max(-3, minTransX), Math.min(3, maxTransX));
+                transY = randInt(Math.max(-3, minTransY), Math.min(3, maxTransY));
+            } while (transX === 0 && transY === 0);
+
+            const endX = startX + transX;
+            const endY = startY + transY;
+
+            const svg = buildGrid([{x: startX, y: startY}]);
+            const correct = `\\left(${endX}, ${endY}\\right)`;
+
+            const optionsSet = new Set<string>();
+            optionsSet.add(correct);
+
+            while (optionsSet.size < 4) {
+                const ox = randInt(-5, 5);
+                const oy = randInt(-5, 5);
+                optionsSet.add(`(${ox}, ${oy})`);
+            }
+
+            const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+            return {
+                svg,
+                latex: `\\text{Translate the red point by } \\begin{pmatrix} ${transX} \\\\ ${transY} \\end{pmatrix}. \\text{ What are the new coordinates?}`,
+                answer: correct,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // ---------------- LEVEL 2 ----------------
+        // translation of shapes
+        if (difficulty === 2) {
+            // Generate a random shape
+            const shapeType = randInt(0, 2); // 0: triangle, 1: square, 2: rectangle
+            let originalPoints: {x: number, y: number}[] = [];
+
+            if (shapeType === 0) {
+                // Triangle
+                const baseX = randInt(-3, 3);
+                const baseY = randInt(-3, 3);
+                originalPoints = [
+                    {x: baseX, y: baseY},
+                    {x: baseX + randInt(1, 3), y: baseY},
+                    {x: baseX + randInt(0, 2), y: baseY + randInt(1, 3)}
+                ];
+            } else if (shapeType === 1) {
+                // Square
+                const baseX = randInt(-3, 2);
+                const baseY = randInt(-3, 2);
+                const size = randInt(1, 3);
+                originalPoints = [
+                    {x: baseX, y: baseY},
+                    {x: baseX + size, y: baseY},
+                    {x: baseX + size, y: baseY + size},
+                    {x: baseX, y: baseY + size}
+                ];
+            } else {
+                // Rectangle
+                const baseX = randInt(-3, 2);
+                const baseY = randInt(-3, 2);
+                const width = randInt(1, 3);
+                const height = randInt(1, 3);
+                originalPoints = [
+                    {x: baseX, y: baseY},
+                    {x: baseX + width, y: baseY},
+                    {x: baseX + width, y: baseY + height},
+                    {x: baseX, y: baseY + height}
+                ];
+            }
+
+            // Generate translation vector
+            const transX = randInt(-3, 3);
+            const transY = randInt(-3, 3);
+
+            // Ensure translation doesn't push points out of bounds
+            const translatedPoints = originalPoints.map(point => ({
+                x: Math.max(-5, Math.min(5, point.x + transX)),
+                y: Math.max(-5, Math.min(5, point.y + transY))
+            }));
+
+            // Choose one random vertex to ask about
+            const vertexIndex = randInt(0, originalPoints.length - 1);
+            const vertexLabel = String.fromCharCode(65 + vertexIndex); // A, B, C, etc.
+
+            const svg = buildGrid(originalPoints);
+            const correct = `\\left(${translatedPoints[vertexIndex].x}, ${translatedPoints[vertexIndex].y}\\right)`;
+
+            // Generate wrong options
+            const optionsSet = new Set<string>();
+            optionsSet.add(correct);
+
+            while (optionsSet.size < 4) {
+                const ox = Math.max(-5, Math.min(5, translatedPoints[vertexIndex].x + randInt(-2, 2)));
+                const oy = Math.max(-5, Math.min(5, translatedPoints[vertexIndex].y + randInt(-2, 2)));
+                optionsSet.add(`(${ox}, ${oy})`);
+            }
+
+            const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+            return {
+                svg,
+                latex: `\\text{Translate the shape by the vector } \\begin{pmatrix} ${transX} \\\\ ${transY} \\end{pmatrix}.\\\\\\text{ What are the coordinates of vertex } ${vertexLabel}\\text{ after translation?}`,
+                answer: correct,
+                options,
+                forceOption: 0,
+            };
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
+    }, [1, 2]),
     "rotation": createGenerator(({ difficulty }) => {
+        const randInt = (min: number, max: number) =>
+            Math.floor(Math.random() * (max - min + 1)) + min;
+
+        const buildGrid = (points: {x: number, y: number}[]) => {
+            const cellSize = 25;
+            const offset = 70; // Increased offset for more space
+            const gridSize = 10; // -5 to 5
+
+            let svg = `<svg width="350" height="350" viewBox="0 0 350 350">`; // Increased size
+
+            // grid lines
+            for (let i = -5; i <= 5; i++) {
+                const pos = offset + (i + 5) * cellSize;
+                // vertical lines
+                svg += `<line x1="${pos}" y1="${offset}" x2="${pos}" y2="${offset + 10 * cellSize}" stroke="#ddd"/>`;
+                // horizontal lines
+                svg += `<line x1="${offset}" y1="${pos}" x2="${offset + 10 * cellSize}" y2="${pos}" stroke="#ddd"/>`;
+            }
+
+            // axes
+            svg += `<line x1="${offset}" y1="${offset + 5 * cellSize}" x2="${offset + 10 * cellSize}" y2="${offset + 5 * cellSize}" stroke="black" stroke-width="2"/>`;
+            svg += `<line x1="${offset + 5 * cellSize}" y1="${offset}" x2="${offset + 5 * cellSize}" y2="${offset + 10 * cellSize}" stroke="black" stroke-width="2"/>`;
+
+            // axis labels
+            for (let i = -5; i <= 5; i++) {
+                if (i === 0) continue;
+                const pos = offset + (i + 5) * cellSize;
+                // x-axis labels
+                svg += `<text x="${pos}" y="${offset + 5 * cellSize + 15}" font-size="10" text-anchor="middle">${i}</text>`;
+                // y-axis labels
+                svg += `<text x="${offset + 5 * cellSize - 15}" y="${pos + 3}" font-size="10" text-anchor="middle">${-i}</text>`;
+            }
+
+            // points
+            points.forEach((point, index) => {
+                const px = offset + (point.x + 5) * cellSize;
+                const py = offset + (-point.y + 5) * cellSize; // y is inverted in SVG
+                svg += `<circle cx="${px}" cy="${py}" r="4" fill="blue"/>`;
+                // label points A, B, C, etc. - positioned outside the grid
+                const label = String.fromCharCode(65 + index); // A, B, C...
+                const labelOffset = 12;
+                let labelX = px;
+                let labelY = py;
+
+                // Position labels outside the point based on position relative to center
+                if (point.x >= 0) {
+                    labelX += labelOffset; // right
+                } else {
+                    labelX -= labelOffset; // left
+                }
+                if (point.y >= 0) {
+                    labelY -= labelOffset; // up
+                } else {
+                    labelY += labelOffset; // down
+                }
+
+                svg += `<text x="${labelX}" y="${labelY}" font-size="12" fill="blue" text-anchor="middle">${label}</text>`;
+            });
+
+            // connect points if more than 2
+            if (points.length > 2) {
+                const pathData = points.map((point, index) => {
+                    const px = offset + (point.x + 5) * cellSize;
+                    const py = offset + (-point.y + 5) * cellSize;
+                    return `${index === 0 ? 'M' : 'L'} ${px} ${py}`;
+                }).join(' ') + ' Z';
+                svg += `<path d="${pathData}" fill="none" stroke="blue" stroke-width="2"/>`;
+            }
+
+            svg += `</svg>`;
+            return svg;
+        };
+
+        // Helper function to rotate a point around origin
+        const rotatePoint = (x: number, y: number, degrees: number): {x: number, y: number} => {
+            const radians = (degrees * Math.PI) / 180;
+            const cos = Math.cos(radians);
+            const sin = Math.sin(radians);
+
+            const newX = Math.round(x * cos - y * sin);
+            const newY = Math.round(x * sin + y * cos);
+
+            return { x: newX, y: newY };
+        };
+
+        // ---------------- LEVEL 1 ----------------
+        // simple rotation of a point
+        if (difficulty === 1) {
+            const startX = randInt(-4, 4);
+            const startY = randInt(-4, 4);
+
+            // Choose rotation angle: 90, 180, or 270 degrees
+            const angles = [90, 180, 270];
+            const angle = angles[randInt(0, 2)];
+
+            const endPoint = rotatePoint(startX, startY, angle);
+
+            // Ensure rotated point stays within bounds
+            const finalX = Math.max(-5, Math.min(5, endPoint.x));
+            const finalY = Math.max(-5, Math.min(5, endPoint.y));
+
+            const svg = buildGrid([{x: startX, y: startY}]);
+            const correct = `\\left(${finalX}, ${finalY}\\right)`;
+
+            const optionsSet = new Set<string>();
+            optionsSet.add(correct);
+
+            while (optionsSet.size < 4) {
+                const ox = Math.max(-5, Math.min(5, finalX + randInt(-2, 2)));
+                const oy = Math.max(-5, Math.min(5, finalY + randInt(-2, 2)));
+                optionsSet.add(`(${ox}, ${oy})`);
+            }
+
+            const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+            return {
+                svg,
+                latex: `\\text{Rotate the blue point } ${angle}^\\circ \\text{ clockwise around the origin. What are the new coordinates?}`,
+                answer: correct,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // ---------------- LEVEL 2 ----------------
+        // rotation of shapes
+        if (difficulty === 2) {
+            // Generate a random shape
+            const shapeType = randInt(0, 2); // 0: triangle, 1: square, 2: rectangle
+            let originalPoints: {x: number, y: number}[] = [];
+
+            if (shapeType === 0) {
+                // Triangle
+                const baseX = randInt(-3, 3);
+                const baseY = randInt(-3, 3);
+                originalPoints = [
+                    {x: baseX, y: baseY},
+                    {x: baseX + randInt(1, 3), y: baseY},
+                    {x: baseX + randInt(0, 2), y: baseY + randInt(1, 3)}
+                ];
+            } else if (shapeType === 1) {
+                // Square
+                const baseX = randInt(-3, 2);
+                const baseY = randInt(-3, 2);
+                const size = randInt(1, 3);
+                originalPoints = [
+                    {x: baseX, y: baseY},
+                    {x: baseX + size, y: baseY},
+                    {x: baseX + size, y: baseY + size},
+                    {x: baseX, y: baseY + size}
+                ];
+            } else {
+                // Rectangle
+                const baseX = randInt(-3, 2);
+                const baseY = randInt(-3, 2);
+                const width = randInt(1, 3);
+                const height = randInt(1, 3);
+                originalPoints = [
+                    {x: baseX, y: baseY},
+                    {x: baseX + width, y: baseY},
+                    {x: baseX + width, y: baseY + height},
+                    {x: baseX, y: baseY + height}
+                ];
+            }
+
+            // Choose rotation angle: 90 or 180 degrees (270 is same as -90)
+            const angles = [90, 180];
+            const angle = angles[randInt(0, 1)];
+
+            // Rotate all points
+            const rotatedPoints = originalPoints.map(point => {
+                const rotated = rotatePoint(point.x, point.y, angle);
+                return {
+                    x: Math.max(-5, Math.min(5, rotated.x)),
+                    y: Math.max(-5, Math.min(5, rotated.y))
+                };
+            });
+
+            // Choose one random vertex to ask about
+            const vertexIndex = randInt(0, originalPoints.length - 1);
+            const vertexLabel = String.fromCharCode(65 + vertexIndex); // A, B, C, etc.
+
+            const svg = buildGrid(originalPoints);
+            const correct = `\\left(${rotatedPoints[vertexIndex].x}, ${rotatedPoints[vertexIndex].y}\\right)`;
+
+            // Generate wrong options
+            const optionsSet = new Set<string>();
+            optionsSet.add(correct);
+
+            while (optionsSet.size < 4) {
+                const ox = Math.max(-5, Math.min(5, rotatedPoints[vertexIndex].x + randInt(-2, 2)));
+                const oy = Math.max(-5, Math.min(5, rotatedPoints[vertexIndex].y + randInt(-2, 2)));
+                optionsSet.add(`(${ox}, ${oy})`);
+            }
+
+            const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+            return {
+                svg,
+                latex: `\\text{Rotate the shape } ${angle}^\\circ \\text{ clockwise around the origin.} \\\\ \\text{ What are the coordinates of vertex } ${vertexLabel}\\text{ after rotation?}`,
+                answer: correct,
+                options,
+                forceOption: 0,
+            };
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
+    }, [1, 2]),
     "reflection": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
     }, []),
@@ -4240,8 +4642,308 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
         throw new Error(`Unhandled difficulty: ${difficulty}`);
     }, []),
     "pythagoras-theorem": createGenerator(({ difficulty }) => {
+        const randInt = (min: number, max: number) =>
+            Math.floor(Math.random() * (max - min + 1)) + min;
+
+        // Helper function to check if three numbers form a Pythagorean triple
+        const isPythagoreanTriple = (a: number, b: number, c: number): boolean => {
+            const sides = [a, b, c].sort((x, y) => x - y);
+            return Math.abs(sides[0] ** 2 + sides[1] ** 2 - sides[2] ** 2) < 0.01;
+        };
+
+        // ---------------- LEVEL 1 ----------------
+        // Identify sides in a right-angled triangle
+        if (difficulty === 1) {
+            // Create an SVG of a 30-60-90 triangle with all sides labeled
+            // Using approximate coordinates for a 30-60-90 triangle
+            const svg = `<svg width="250" height="200" viewBox="0 0 250 200">
+                <!-- Triangle (30-60-90) -->
+                <polygon points="50,150 50,50 173.2,150" fill="none" stroke="black" stroke-width="2"/>
+                <!-- Right angle marker at (50,150) -->
+                <polygon points="50,140 60,140 60,150" fill="none" stroke="black" stroke-width="1"/>
+                <!-- Angle labels -->
+                <text x="125" y="140" font-size="12" text-anchor="middle">30°</text>
+
+                <!-- Side labels -->
+                <text x="25" y="105" font-size="14" text-anchor="middle">A</text>
+                <text x="111.6" y="175" font-size="14" text-anchor="middle">B</text>
+                <text x="125" y="95" font-size="14" text-anchor="middle">C</text>
+            </svg>`;
+
+            // Randomly choose question type
+            const questionTypes = [
+                { question: "what is the name of edge A", answer: "opposite" },
+                { question: "what is the name of edge B", answer: "adjacent" },
+                { question: "what is the name of edge C", answer: "hypotenuse" },
+                { question: "which edge is the hypotenuse", answer: "C" },
+                { question: "which edge is the opposite", answer: "A" },
+                { question: "which edge is the adjacent", answer: "B" }
+            ];
+
+            const selectedQuestion = questionTypes[randInt(0, questionTypes.length - 1)];
+
+            let latex: string;
+            let answer: string;
+            let options: string[];
+
+            if (selectedQuestion.question.includes("what is the name")) {
+                latex = `\\text{${selectedQuestion.question} (relative to the 30° angle)?}`;
+                if (selectedQuestion.answer === "hypotenuse") {
+                    options = ["Hypotenuse", "Opposite", "Adjacent"];
+                } else {
+                    options = ["Hypotenuse", "Opposite", "Adjacent"];
+                }
+            } else {
+                latex = `\\text{${selectedQuestion.question} (relative to the 30° angle)?}`;
+                options = ["A", "B", "C"];
+            }
+
+            answer = selectedQuestion.answer;
+            options = options.sort(() => Math.random() - 0.5);
+
+            return {
+                svg,
+                latex,
+                answer,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // ---------------- LEVEL 2 ----------------
+        // Find shorter side or use decimals
+        if (difficulty === 2) {
+            const questionType = randInt(0, 1); // 0: find shorter side, 1: decimals
+
+            if (questionType === 0) {
+                // Find shorter side
+                const c = randInt(10, 20); // hypotenuse
+                const a = randInt(3, c - 3); // one side
+                const b = Math.sqrt(c * c - a * a);
+                const bRounded = Math.abs(b - Math.round(b)) < 0.01 ? Math.round(b) : Math.round(b * 10) / 10;
+
+                const latex = `\\text{In a right-angled triangle, the hypotenuse is } ${c}\\text{ cm and one side is } ${a}\\text{ cm.} \\\\ \\text{ What is the length of the other side?}`;
+                const answer = bRounded.toString();
+
+                const optionsSet = new Set<string>();
+                optionsSet.add(answer);
+
+                while (optionsSet.size < 4) {
+                    const offset = randInt(-3, 3);
+                    const wrongAnswer = (bRounded + offset).toString();
+                    if (parseFloat(wrongAnswer) > 0) {
+                        optionsSet.add(wrongAnswer);
+                    }
+                }
+
+                const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+                return {
+                    latex,
+                    answer,
+                    options,
+                    forceOption: 0,
+                };
+            } else {
+                // Use decimals
+                const a = randInt(20, 50) / 10; // 2.0 to 5.0
+                const b = randInt(30, 60) / 10; // 3.0 to 6.0
+                const c = Math.sqrt(a * a + b * b);
+                const cRounded = Math.round(c * 100) / 100; // Round to 2 decimal places
+
+                const latex = `\\text{Calculate the length of the hypotenuse when the two shorter sides are } ${a}\\text{ cm and } ${b}\\text{ cm.}`;
+                const answer = cRounded.toString();
+
+                const optionsSet = new Set<string>();
+                optionsSet.add(answer);
+
+                while (optionsSet.size < 4) {
+                    const offset = (randInt(-20, 20)) / 100;
+                    const wrongAnswer = (cRounded + offset).toFixed(2);
+                    if (parseFloat(wrongAnswer) > 0) {
+                        optionsSet.add(wrongAnswer);
+                    }
+                }
+
+                const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+                return {
+                    latex,
+                    answer,
+                    options,
+                    forceOption: 0,
+                };
+            }
+        }
+
+        // ---------------- LEVEL 3 ----------------
+        // Word problems
+        if (difficulty === 3) {
+            const scenarioType = randInt(0, 2);
+
+            let setup = "";
+            let question = "";
+            let a: number, b: number;
+
+            if (scenarioType === 0) {
+                // Ladder (find height)
+                const base = randInt(2, 10);
+                const height = randInt(base + 1, 15);
+                const ladder = Math.sqrt(base * base + height * height);
+
+                setup = `A ladder leans against a wall. The base of the ladder is ${base}m from the wall and the ladder is ${ladder.toFixed(2)}m long.`;
+                question = "How high up the wall does the ladder reach? Give your answer to 1 decimal place.";
+
+                a = base;
+                b = ladder;
+
+            } else if (scenarioType === 1) {
+                // Pole + wire (find base)
+                const height = randInt(5, 15);
+                const base = randInt(3, 12);
+                const wire = Math.sqrt(height * height + base * base);
+
+                setup = `A guy wire is attached to the top of a ${height}m pole. The wire is ${wire.toFixed(2)}m long.`;
+                question = "How far from the base of the pole is the wire attached to the ground? Give your answer to 1 decimal place.";
+
+                a = height;
+                b = wire;
+
+            } else {
+                // Rectangle (find length)
+                const width = randInt(3, 10);
+                const length = randInt(width + 1, 15);
+                const diagonal = Math.sqrt(width * width + length * length);
+
+                setup = `A rectangle has diagonal ${diagonal.toFixed(2)}cm and width ${width}cm.`;
+                question = "What is the length of the rectangle? Give your answer to 1 decimal place.";
+
+                a = width;
+                b = diagonal;
+            }
+
+            // Calculate answer
+            const answer = Math.sqrt(b * b - a * a);
+
+            // Always round to 1 decimal place
+            const answerRounded = Math.round(answer * 10) / 10;
+            const answerStr = answerRounded.toFixed(1);
+
+            const latex = `\\text{${setup}} \\\\ \\text{${question}}`;
+
+            const optionsSet = new Set<string>();
+            optionsSet.add(answerStr);
+
+            while (optionsSet.size < 4) {
+                const offset = (randInt(-20, 20)) / 10; // decimal offsets
+                const wrongAnswer = (answerRounded + offset).toFixed(1);
+
+                if (parseFloat(wrongAnswer) > 0) {
+                    optionsSet.add(wrongAnswer);
+                }
+            }
+
+            const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+            return {
+                latex,
+                answer: answerStr,
+                options,
+                forceOption: 0,
+            };
+        }
+
+        // ---------------- LEVEL 4 ----------------
+        // Rearrangement and verification
+        if (difficulty === 4) {
+            const questionType = randInt(0, 1); // 0: verify triple, 1: rearrange formula
+
+            if (questionType === 0) {
+                // --- VERIFY PYTHAGOREAN TRIPLE ---
+                const triples = [
+                    [3, 4, 5],
+                    [5, 12, 13],
+                    [6, 8, 10],
+                    [7, 24, 25],
+                    [8, 15, 17],
+                    [9, 12, 15],
+                    [10, 24, 26]
+                ];
+
+                const correctTriple = triples[randInt(0, triples.length - 1)];
+
+                const isCorrect = Math.random() < 0.5; // balanced now (50/50)
+
+                let sides: number[];
+
+                if (isCorrect) {
+                    sides = [...correctTriple];
+                } else {
+                    // generate guaranteed non-Pythagorean triple
+                    do {
+                        sides = [
+                            randInt(2, 20),
+                            randInt(2, 20),
+                            randInt(2, 20)
+                        ];
+                    } while (
+                        isPythagoreanTriple(sides[0], sides[1], sides[2])
+                    );
+                }
+
+                // shuffle
+                sides.sort(() => Math.random() - 0.5);
+
+                const latex = `\\text{Do the sides } ${sides[0]}, ${sides[1]}, ${sides[2]} \\text{ form a right-angled triangle?}`;
+
+                const answer = isCorrect ? "Yes" : "No";
+                const options = ["Yes", "No"].sort(() => Math.random() - 0.5);
+
+                return {
+                    latex,
+                    answer,
+                    options,
+                    forceOption: 0,
+                };
+            } else {
+                // --- REARRANGE FORMULA (clean integer triangles) ---
+                const b = randInt(3, 20);
+                const a = randInt(3, 20);
+
+                const c = Math.sqrt(a * a + b * b);
+
+                // ensure c is clean-ish (1 decimal max)
+                const cRounded = Math.round(c * 10) / 10;
+
+                const latex = `\\text{Rearrange } c^2 = a^2 + b^2 \\text{ to find } c \\text{ when } a = ${a}, b = ${b}.`;
+
+                const answer = cRounded.toFixed(1);
+
+                const optionsSet = new Set<string>();
+                optionsSet.add(answer);
+
+                while (optionsSet.size < 4) {
+                    const offset = randInt(-30, 30) / 10;
+                    const wrong = (cRounded + offset).toFixed(1);
+
+                    if (parseFloat(wrong) > 0) {
+                        optionsSet.add(wrong);
+                    }
+                }
+
+                const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+
+                return {
+                    latex,
+                    answer,
+                    options,
+                    forceOption: 0,
+                };
+            }
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
+    }, [1, 2, 3, 4]),
     "sine-cosine-tangent": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
     }, []),

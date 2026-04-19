@@ -110,6 +110,7 @@
     "generate-question": "生成问题",
     "show-solution": "显示解决方案",
     "no-question-generated": "还没有生成问题，点击下面的按钮来生成一个！",
+    "no-questions-made": "目前还没有生成题目，请在下次更新时再查看。",
     "correct": "正确！",
     "wrong": "错误。正确答案是 {{answer}}。",
     "show-keyboard": "显示键盘",

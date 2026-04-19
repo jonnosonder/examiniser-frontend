@@ -5,7 +5,7 @@
 
 import { useTranslation } from "react-i18next";
 import * as React from "react";
-import { BlockMath } from "react-katex";
+import { BlockMath, InlineMath } from "react-katex";
 import "katex/dist/katex.min.css";
 import { Locale } from "@/lib/locales";
 import SidePanel from "@/components/questions/sidePanel";
@@ -16,6 +16,7 @@ import { buildQuestionNavButtons } from "@/lib/questionTopicNav";
 import { generateQuestionWithTimeout, getQuestionGeneratorLevels } from "@/lib/questionGenerators";
 import { getSubtopicOrNull, getTopicOrNull, levelRoutePrefix, type QuestionLevel } from "@/lib/questionTopicCatalog";
 import { weakLatexEquivalent } from "./weakLatexEquivalent";
+import { WrappedMath } from "./wrapLatex";
 
 type IconMap = Record<string, React.ReactNode>  
 
@@ -244,6 +245,8 @@ export function QuestionSubtopicLeaf({
     const [checkWeakLatexEquivalent, setcheckWeakLatexEquivalent] = React.useState<boolean>(false);
     const [feedback, setFeedback] = React.useState("");
     const [isGenerating, setIsGenerating] = React.useState(false);
+    const [maxLineWidth, setMaxLineWidth] = React.useState<number>(90);
+    const questionDivRef = React.useRef<HTMLDivElement>(null);
 
     const canType = questionForceOption !== 2;
     const canChoose = questionOptions.length > 0 && questionForceOption !== 1;
@@ -260,6 +263,21 @@ export function QuestionSubtopicLeaf({
         setAnswerCorrect(null);
         setFeedback("");
     }, [selectedDifficulty]);
+
+    React.useEffect(() => {
+        const updateMaxLineWidth = () => {
+            if (questionDivRef.current) {
+                const rect = questionDivRef.current.getBoundingClientRect();
+                const innerWidth = rect.width - 4; // Subtract padding
+                const charWidth = 10; // Approximate character width in pixels
+                setMaxLineWidth(Math.max(20, Math.floor(innerWidth / charWidth)));
+            }
+        };
+
+        updateMaxLineWidth();
+        window.addEventListener('resize', updateMaxLineWidth);
+        return () => window.removeEventListener('resize', updateMaxLineWidth);
+    }, []);
 
     const levels = availableLevels;
 
@@ -452,12 +470,19 @@ export function QuestionSubtopicLeaf({
                                 </div>
                             </div>
 
-                            <div className="rounded-[1.75rem] border border-primary/10 bg-[var(--background)] p-6 min-h-[12rem]">
+                            <div className="rounded-[1.75rem] border border-primary/10 bg-[var(--background)] p-6 min-h-[12rem]" ref={questionDivRef}>
                                 {questionLatex ? (
-                                    <BlockMath math={questionLatex} />
-                                ) : (
+                                    <WrappedMath
+                                        latex={questionLatex}
+                                        maxLineWidth={maxLineWidth}
+                                    />
+                                ) : levels.length !== 0 ? (
                                     <p className="text-center text-sm text-muted-foreground">
                                         {t("questions.no-question-generated")}
+                                    </p>
+                                ) : (
+                                    <p className="text-center text-sm text-muted-foreground">
+                                        {t("questions.no-questions-made")}
                                     </p>
                                 )}
                                 {questionSvg ? (

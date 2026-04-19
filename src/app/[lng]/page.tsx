@@ -19,6 +19,7 @@ import { generateQuestionWithTimeout } from '@/lib/questionGenerators';
 import { primaryGenerators } from '@/lib/primaryGenerators';
 import { secondaryGenerators } from '@/lib/secondaryGenerators';
 import { sixthFormGenerators } from '@/lib/sixthFormGenerators';
+import { WrappedMath } from '@/components/questions/wrapLatex';
 
 type ButtonId = "primary" | "secondary" | "sixthForm" | "exam_paper" | null;
 
@@ -38,6 +39,9 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
   });
   const [buttonsReady, setButtonsReady] = useState(false);
   const [infinityVisible, setInfinityVisible] = useState(false);
+
+  const [maxLineWidth, setMaxLineWidth] = React.useState<number>(90);
+  const questionDivRef = React.useRef<HTMLDivElement>(null);
 
   type GeneratorLevel = "primary" | "secondary" | "sixthForm";
   const generatorCollections = {
@@ -299,6 +303,21 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
     }
   ];
 
+  React.useEffect(() => {
+    const updateMaxLineWidth = () => {
+      if (questionDivRef.current) {
+        const rect = questionDivRef.current.getBoundingClientRect();
+        const innerWidth = rect.width - 52; // Subtract padding
+        const charWidth = 14; // Approximate character width in pixels
+        setMaxLineWidth(Math.max(20, Math.floor(innerWidth / charWidth)));
+      }
+    };
+
+    updateMaxLineWidth();
+    window.addEventListener('resize', updateMaxLineWidth);
+    return () => window.removeEventListener('resize', updateMaxLineWidth);
+  }, []);
+
   return (
     <>
       <style>{`
@@ -516,8 +535,11 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
                             {t(generatorLabelKeys[previewPath.level])} &gt; {t(previewPath.topicTitleKey)} &gt; {t(previewPath.subtopicTitleKey)}
                           </button>
                         )}
-                        <div className='rounded-xl p-4 text-base leading-relaxed text-slate-900 mt-0 overflow-auto h-[18rem]'>
-                          <BlockMath math={questionPreview.latex} />
+                        <div className='rounded-xl p-4 text-base leading-relaxed text-slate-900 mt-0 overflow-auto h-[18rem]' ref={questionDivRef}>
+                          <WrappedMath
+                            latex={questionPreview.latex}
+                            maxLineWidth={maxLineWidth}
+                          />
                           {questionPreview.svg ? (
                             <div className="flex items-center justify-center">
                               <div
