@@ -94,7 +94,9 @@
     "about": "Acerca de",
     "description": "Este sitio web fue creado por un desarrollador en solitario con el objetivo de ayudar a estudiantes y profesores a crear problemas matemáticos de forma gratuita. Permitiendo a los estudiantes generar preguntas infinitas con soluciones y explicaciones, y permitiendo a los profesores crear exámenes con facilidad y eficiencia. Este sitio web se encuentra actualmente en las primeras etapas beta, así que espera algunos errores y características o traducciones faltantes.",
     "contact": "Contacto",
-    "contactInfo": "No dudes en enviar un correo con sugerencias, problemas o traducciones."
+    "contactInfo": "No dudes en enviar un correo con sugerencias, problemas o traducciones.",
+    "how-to-show-support": "Cómo Mostrar Apoyo",
+    "how-to-show-support-info": "Si te gusta el sitio web y quieres mostrar tu apoyo, la mejor manera es compartir el sitio web con tus amigos y profesores. Si deseas hacer más, no dudes en hacer clic en el enlace a continuación para visitar el GitHub de este sitio web y darle una estrella."
   },
   "updates": {
     "updates": "Actualizaciones",

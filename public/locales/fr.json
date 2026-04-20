@@ -93,7 +93,9 @@
     "about": "À propos",
     "description": "Ce site web a été créé par un développeur solo dans le but d'aider les étudiants et les enseignants à créer des problèmes mathématiques gratuitement. Permettant aux étudiants de n'avoir besoin que d'un seul site web pour générer des questions infinies avec des solutions et des explications, et permettant aux enseignants de créer des sujets d'examen avec facilité et efficacité. Ce site web est actuellement en phase bêta précoce, alors attendez-vous à quelques erreurs et fonctionnalités ou traductions manquantes.",
     "contact": "Contact",
-    "contactInfo": "N'hésitez pas à envoyer un e-mail pour toute suggestion, problème ou traduction."
+    "contactInfo": "N'hésitez pas à envoyer un e-mail pour toute suggestion, problème ou traduction.",
+    "how-to-show-support": "Comment Montrer Son Soutien",
+    "how-to-show-support-info": "Si vous aimez le site web et souhaitez montrer votre soutien, la meilleure façon est de partager le site web avec vos amis et enseignants. Si vous souhaitez en faire plus, n'hésitez pas à cliquer sur le lien ci-dessous pour visiter le GitHub de ce site web et lui donner une étoile."
   },
   "updates": {
     "updates": "Mises à jour",

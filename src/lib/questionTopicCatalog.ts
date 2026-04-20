@@ -182,7 +182,7 @@ export const QUESTION_CATALOG: Record<QuestionLevel, MainTopicDef[]> = {
             titleKey: "secondary-topics.statistics",
             descriptionKey: "descriptions.secondary.statistics",
             subtopics: [
-                { slug: "data-collection-methods", titleKey: "secondary-subtopics.data-collection-methods", descriptionKey: "descriptions.secondarySub.statistics.data-collection-methods" },
+                //{ slug: "data-collection-methods", titleKey: "secondary-subtopics.data-collection-methods", descriptionKey: "descriptions.secondarySub.statistics.data-collection-methods" },
                 { slug: "mean-median-mode", titleKey: "secondary-subtopics.mean-median-mode", descriptionKey: "descriptions.secondarySub.statistics.mean-median-mode" },
                 { slug: "range", titleKey: "secondary-subtopics.range", descriptionKey: "descriptions.secondarySub.statistics.range" },
                 { slug: "bar-charts", titleKey: "secondary-subtopics.bar-charts", descriptionKey: "descriptions.secondarySub.statistics.bar-charts" },

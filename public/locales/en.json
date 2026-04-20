@@ -93,7 +93,9 @@
     "about": "About",
     "description": "This website is made by a solo developer with the aim of helping students and teachers to create maths problems for free. Allowing students only needing one website to generate infinite questions with solutions and explanations, and allowing teachers to create exam papers with ease and efficiency. This website is currently in early beta stages, so expect some errors and missing features or translations.",
     "contact": "Contact",
-    "contactInfo": "Feel free to email about any suggestions, problems or translations."
+    "contactInfo": "Feel free to email about any suggestions, problems or translations.",
+    "how-to-show-support": "How to Show Support",
+    "how-to-show-support-info": "If you like the website and want to show support, the best way is to share the website with your friends and teachers. If you wish to do more, feel free to click the link below to visit the GitHub for this website and give it a star."
   },
   "updates": {
     "updates": "Updates",

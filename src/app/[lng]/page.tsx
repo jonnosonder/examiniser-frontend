@@ -524,9 +524,11 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
                           <button
                             type='button'
                             onClick={() =>
-                              router.push(
+                              {
+                                console.log(levelRoutePrefix(previewPath.level));
+                                router.push(
                                 `/${lng}/${levelRoutePrefix(previewPath.level)}/${previewPath.topicId}/${previewPath.subtopicSlug}`
-                              )
+                              )}
                             }
                             className='block text-sm font-medium text-primary underline transition-colors hover:text-[var(--contrast)]'
                           >
@@ -547,11 +549,6 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
                             </div>
                           ) : null}
                         </div>
-                        {questionPreview.explanation && (
-                          <p className='text-sm text-slate-500'>
-                            {questionPreview.explanation}
-                          </p>
-                        )}
                       </div>
                     ) : (
                       <p className='text-center text-lg text-slate-500'>

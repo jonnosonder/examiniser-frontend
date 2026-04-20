@@ -6114,7 +6114,7 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
                 svg,
                 latex: useArc
                     ? `\\text{Given the arc circumference is ${fmt2(givenVal)} cm and radius ${r} cm, find angle } x\\text{ in degrees.}`
-                    : `\\text{Given the sector area is ${fmt2(givenVal)} cm² and radius ${r} cm, find angle } x\\text{ in degrees.}`,
+                    : `\\text{Given the sector area is ${fmt2(givenVal)} } cm^{2} \\ \\text{ and radius ${r} cm, find angle } x\\text{ in degrees.}`,
                 answer: String(theta),
                 options: makeAngleOptions(theta),
                 forceOption: 0,
@@ -6848,8 +6848,8 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
                 {
                     cat: "Mass (imperial ↔ metric)",
                     qs: [
-                        () => { const v = randInt(1, 15); return { q: `Convert ${v} pounds to kilograms. (1 kg ≈ 2.2 lb)`, a: parseFloat((v / 2.2).toFixed(2)), gen: () => randFloat(0.3, 7, 2) }; },
-                        () => { const v = randInt(1, 10); return { q: `Convert ${v} kg to pounds. (1 kg ≈ 2.2 lb)`, a: parseFloat((v * 2.2).toFixed(1)), gen: () => randFloat(1, 25, 1) }; },
+                        () => { const v = randInt(1, 15); return { q: `\\text{Convert } ${v} \\text{ pounds to kilograms. (1 kg }\\approx\\text{ 2.2 lb)}`, a: parseFloat((v / 2.2).toFixed(2)), gen: () => randFloat(0.3, 7, 2) }; },
+                        () => { const v = randInt(1, 10); return { q: `\\text{Convert } ${v} \\text{ kg to pounds. (1 kg }\\approx\\text{ 2.2 lb)}`, a: parseFloat((v * 2.2).toFixed(1)), gen: () => randFloat(1, 25, 1) }; },
                         () => { const v = randInt(1, 8); return { q: `Convert ${v} stones to kilograms. (1 stone = 6.35 kg)`, a: parseFloat((v * 6.35).toFixed(1)), gen: () => randFloat(3, 55, 1) }; },
                     ],
                 },
@@ -6867,7 +6867,7 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
             const pool = pick(pools);
             const { q, a, gen } = pick(pool.qs)();
             return {
-                latex: `\\text{${q}}`,
+                latex: q.includes("\\approx") || q.includes("^{") ? q : `\\text{${q}}`,
                 answer: String(parseFloat(Number(a).toFixed(4))),
                 options: makeOptions(a, gen),
                 forceOption: 0,
@@ -6941,7 +6941,7 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
                         () => {
                             const ha = randInt(2, 20);
                             const km2 = parseFloat((ha * 10000 / 1000000).toFixed(4));
-                            return { q: `Convert ${ha} hectares to km². (1 ha = 10,000 m², 1 km² = 1,000,000 m²)`, a: km2, gen: () => randFloat(0.01, 0.25, 4) };
+                            return { q: `\\text{Convert } ${ha} \\text{ hectares to km}^{2}\\text{. (1 ha = 10,000 m}^{2}\\text{, 1 km}^{2}\\text{ = 1,000,000 m}^{2}\\text{)}`, a: km2, gen: () => randFloat(0.01, 0.25, 4) };
                         },
                     ],
                 },
@@ -6958,7 +6958,7 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
                             const st = randInt(8, 15), lb = pick([0, 4, 7, 10]);
                             const totalLb = st * 14 + lb;
                             const kg = parseFloat((totalLb / 2.2).toFixed(1));
-                            return { q: `A person weighs ${st} stone ${lb} lb. Convert this to kilograms. (14 lb = 1 stone, 1 kg ≈ 2.2 lb) Give to 1 d.p.`, a: kg, gen: () => randFloat(40, 100, 1) };
+                            return { q: `\\text{A person weighs } ${st} \\text{ stone } ${lb} \\text{ lb. Convert this to kilograms. (14 lb = 1 stone, 1 kg }\\approx\\text{ 2.2 lb) Give to 1 d.p.}`, a: kg, gen: () => randFloat(40, 100, 1) };
                         },
                         () => {
                             const speedMph = pick([20, 30, 40, 50, 60, 70]);
@@ -6968,7 +6968,7 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
                         () => {
                             const poolL = randInt(200, 2000) * 10;
                             const m3 = parseFloat((poolL / 1000).toFixed(1));
-                            return { q: `A swimming pool holds ${poolL.toLocaleString()} litres of water. What is this volume in m³? (1 m³ = 1000 litres)`, a: m3, gen: () => randFloat(1, 25, 1) };
+                            return { q: `\\text{A swimming pool holds } ${poolL.toLocaleString()} \\text{ litres of water. What is this volume in m}^{3}\\text{? (1 m}^{3}\\text{ = 1000 litres)}`, a: m3, gen: () => randFloat(1, 25, 1) };
                         },
                     ],
                 },
@@ -6977,7 +6977,7 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
             const pool = pick(pools);
             const { q, a, gen } = pick(pool.qs)();
             return {
-                latex: `\\text{${q}}`,
+                latex: q.includes("^{") || q.includes("\\approx") ? q : `\\text{${q}}`,
                 answer: String(parseFloat(Number(a).toFixed(4))),
                 options: makeOptions(a, gen),
                 forceOption: 0,
@@ -7191,11 +7191,220 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
         throw new Error(`Unhandled difficulty: ${difficulty}`);
     }, []),
     "mean-median-mode": createGenerator(({ difficulty }) => {
+        const randInt = (min: number, max: number) =>
+            Math.floor(Math.random() * (max - min + 1)) + min;
+
+        const pick = <T>(arr: readonly T[]): T => arr[randInt(0, arr.length - 1)];
+
+        const meanOf = (arr: number[]) => arr.reduce((a, b) => a + b, 0) / arr.length;
+
+        const medianOf = (arr: number[]) => {
+            const s = [...arr].sort((a, b) => a - b);
+            const n = s.length;
+            if (n % 2 === 1) return s[(n - 1) / 2];
+            return (s[n / 2 - 1] + s[n / 2]) / 2;
+        };
+
+        const modeOf = (arr: number[]) => {
+            const freq = new Map<number, number>();
+            for (const n of arr) freq.set(n, (freq.get(n) ?? 0) + 1);
+            let best = arr[0];
+            let bestCount = 0;
+            for (const [k, v] of freq) {
+                if (v > bestCount) {
+                    best = k;
+                    bestCount = v;
+                }
+            }
+            return best;
+        };
+
+        const makeOptions = (correct: string, gen: () => string): string[] => {
+            const set = new Set<string>([correct]);
+            let tries = 0;
+            while (set.size < 4 && tries++ < 250) {
+                const w = gen();
+                if (w !== correct) set.add(w);
+            }
+            return [...set].sort(() => Math.random() - 0.5);
+        };
+
+        // ---------------- LEVEL 1 ----------------
+        // Meaning of mean / median / mode
+        if (difficulty === 1) {
+            const items = [
+                {
+                    key: "mean",
+                    answer: "The total of all values divided by the number of values",
+                    wrong: [
+                        "The middle value when the data is ordered",
+                        "The value that appears most often",
+                        "The difference between highest and lowest values",
+                    ],
+                },
+                {
+                    key: "median",
+                    answer: "The middle value when the data is ordered",
+                    wrong: [
+                        "The total of all values divided by the number of values",
+                        "The value that appears most often",
+                        "The difference between highest and lowest values",
+                    ],
+                },
+                {
+                    key: "mode",
+                    answer: "The value that appears most often",
+                    wrong: [
+                        "The total of all values divided by the number of values",
+                        "The middle value when the data is ordered",
+                        "The difference between highest and lowest values",
+                    ],
+                },
+            ] as const;
+
+            const q = pick(items);
+            return {
+                latex: `\\text{Which statement best describes the } ${q.key}\\text{?}`,
+                answer: q.answer,
+                options: [q.answer, ...q.wrong].sort(() => Math.random() - 0.5),
+                forceOption: 2,
+            };
+        }
+
+        // ---------------- LEVEL 2 ----------------
+        // Find mean / median / mode from a list
+        if (difficulty === 2) {
+            const kind = pick(["mean", "median", "mode"] as const);
+
+            let data: number[] = [];
+            if (kind === "mean") {
+                const n = randInt(5, 8);
+                data = Array.from({ length: n }, () => randInt(3, 30));
+                const answerVal = meanOf(data);
+                const answer = String(parseFloat(answerVal.toFixed(2)));
+                return {
+                    latex: `\\text{Find the mean of: } ${data.join(", ")}`,
+                    answer,
+                    options: makeOptions(answer, () => String(parseFloat((answerVal + randInt(-6, 6)).toFixed(2)))),
+                    forceOption: 0,
+                };
+            }
+
+            if (kind === "median") {
+                const n = randInt(5, 8);
+                data = Array.from({ length: n }, () => randInt(1, 40));
+                const answerVal = medianOf(data);
+                const answer = String(parseFloat(answerVal.toFixed(2)));
+                return {
+                    latex: `\\text{Find the median of: } ${data.join(", ")}`,
+                    answer,
+                    options: makeOptions(answer, () => String(parseFloat((Number(answer) + randInt(-6, 6)).toFixed(2)))),
+                    forceOption: 0,
+                };
+            }
+
+            const base = randInt(3, 12);
+            const modeCount = randInt(3, 4);
+            data = Array.from({ length: modeCount }, () => base);
+            while (data.length < 7) {
+                const n = randInt(1, 20);
+                if (n !== base && !data.includes(n)) data.push(n);
+            }
+            data = data.sort(() => Math.random() - 0.5);
+            const answer = String(modeOf(data));
+
+            return {
+                latex: `\\text{Find the mode of: } ${data.join(", ")}`,
+                answer,
+                options: makeOptions(answer, () => String(randInt(1, 20))),
+                forceOption: 0,
+            };
+        }
+
+        // ---------------- LEVEL 3 ----------------
+        // Reverse: given mean / median / mode, find missing number
+        if (difficulty === 3) {
+            const kind = pick(["mean", "median", "mode"] as const);
+
+            if (kind === "mean") {
+                const n = randInt(5, 8);
+                const known = Array.from({ length: n - 1 }, () => randInt(3, 25));
+                const x = randInt(2, 30);
+                const targetMean = meanOf([...known, x]);
+                const answer = String(x);
+
+                return {
+                    latex: `\\text{The mean of the numbers } ${known.join(", ")}, x \\text{ is } ${parseFloat(targetMean.toFixed(2))}\\text{. Find } x\\text{.}`,
+                    answer,
+                    options: makeOptions(answer, () => String(x + randInt(-6, 6))),
+                    forceOption: 0,
+                };
+            }
+
+            if (kind === "median") {
+                const a = randInt(2, 10);
+                const xVal = a + randInt(2, 8);
+                const c = xVal + randInt(1, 6);
+                const d = c + randInt(1, 6);
+
+                // For an even-sized ordered list of 4 values, median = average of 2nd and 3rd terms.
+                const m = (xVal + c) / 2;
+                const answer = String(xVal);
+
+                return {
+                    latex: `\\text{The median of the ordered list } ${a}, x, ${c}, ${d} \\text{ is } ${parseFloat(m.toFixed(2))}\\text{. Find } x\\text{.}`,
+                    answer,
+                    options: makeOptions(answer, () => String(xVal + randInt(-6, 6))),
+                    forceOption: 0,
+                };
+            }
+
+            const mode = randInt(4, 15);
+            const other1 = mode + randInt(2, 6);
+            const other2 = mode - randInt(2, 3);
+            const answer = String(mode);
+
+            return {
+                latex: `\\text{The mode of the list } ${mode}, ${other1}, ${other2}, x, ${mode} \\text{ is } ${mode}\\text{. Find } x\\text{.}`,
+                answer,
+                options: makeOptions(answer, () => String(mode + randInt(-4, 4))),
+                forceOption: 0,
+            };
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
+    }, [1, 2, 3]),
     "range": createGenerator(({ difficulty }) => {
+        const randInt = (min: number, max: number) =>
+            Math.floor(Math.random() * (max - min + 1)) + min;
+
+        if (difficulty === 1) {
+            const len = randInt(6, 9);
+            const numbers = Array.from({ length: len }, () => randInt(3, 50));
+
+            const max = Math.max(...numbers);
+            const min = Math.min(...numbers);
+            const range = max - min;
+
+            // Shuffle to ensure list is not presented in sorted order.
+            const shuffled = [...numbers].sort(() => Math.random() - 0.5);
+
+            const optionsSet = new Set<string>([String(range)]);
+            while (optionsSet.size < 4) {
+                const wrong = range + randInt(-10, 10);
+                if (wrong >= 0) optionsSet.add(String(wrong));
+            }
+
+            return {
+                latex: `\\text{Find the range of the numbers: } ${shuffled.join(", ")}`,
+                answer: String(range),
+                options: Array.from(optionsSet).sort(() => Math.random() - 0.5),
+                forceOption: 0,
+            };
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
+    }, [1]),
     "bar-charts": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
     }, []),
@@ -7206,8 +7415,233 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
         throw new Error(`Unhandled difficulty: ${difficulty}`);
     }, []),
     "basic-probability-rules": createGenerator(({ difficulty }) => {
+        const randInt = (min: number, max: number) =>
+            Math.floor(Math.random() * (max - min + 1)) + min;
+
+        const pick = <T>(arr: readonly T[]): T => arr[randInt(0, arr.length - 1)];
+
+        const gcd = (a: number, b: number): number => (b === 0 ? Math.abs(a) : gcd(b, a % b));
+
+        const frac = (n: number, d: number): string => {
+            if (d === 0) return "0";
+            const g = gcd(n, d);
+            const sn = n / g;
+            const sd = d / g;
+            if (sd === 1) return String(sn);
+            return `\\frac{${sn}}{${sd}}`;
+        };
+
+        const dec = (n: number, dp = 2): string => String(parseFloat(n.toFixed(dp)));
+
+        const makeOptions = (correct: string, gen: () => string): string[] => {
+            const set = new Set<string>([correct]);
+            let tries = 0;
+            while (set.size < 4 && tries++ < 250) {
+                const w = gen();
+                if (w !== correct) set.add(w);
+            }
+            return [...set].sort(() => Math.random() - 0.5);
+        };
+
+        // ---------------- LEVEL 1 (Easy) ----------------
+        if (difficulty === 1) {
+            const qType = randInt(0, 3);
+
+            if (qType === 0) {
+                const answer = frac(1, 2);
+                return {
+                    latex: `\\text{A fair coin is flipped. What is the probability of getting heads?}`,
+                    answer,
+                    options: [answer, frac(1, 3), frac(2, 3), frac(1, 4)].sort(() => Math.random() - 0.5),
+                    forceOption: 0,
+                };
+            }
+
+            if (qType === 1) {
+                const red = randInt(3, 10);
+                const blue = randInt(3, 10);
+                const answer = frac(red, red + blue);
+                return {
+                    latex: `\\text{A bag contains } ${red} \\text{ red and } ${blue} \\text{ blue balls. One is picked at random. Find } P(\\text{red}).`,
+                    answer,
+                    options: makeOptions(answer, () => frac(randInt(1, red + blue), red + blue)),
+                    forceOption: 0,
+                };
+            }
+
+            if (qType === 2) {
+                const rain = pick([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]);
+                const answer = dec(1 - rain, 1);
+                return {
+                    latex: `\\text{The probability it rains tomorrow is } ${rain}\\text{. Find the probability it does not rain.}`,
+                    answer,
+                    options: makeOptions(answer, () => dec(pick([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]), 1)),
+                    forceOption: 0,
+                };
+            }
+
+            const threshold = randInt(2, 5);
+            const favourable = Math.max(0, 6 - threshold);
+            const answer = frac(favourable, 6);
+            return {
+                latex: `\\text{A fair die is rolled. What is the probability of getting a number greater than } ${threshold}\\text{?}`,
+                answer,
+                options: makeOptions(answer, () => frac(randInt(0, 6), 6)),
+                forceOption: 0,
+            };
+        }
+
+        // ---------------- LEVEL 2 (Medium) ----------------
+        if (difficulty === 2) {
+            const qType = randInt(0, 3);
+
+            if (qType === 0) {
+                const g = randInt(2, 6);
+                const y = randInt(2, 6);
+                const b = randInt(3, 8);
+                const answer = frac(y, g + y + b);
+                return {
+                    latex: `\\text{A bag has } ${g} \\text{ green, } ${y} \\text{ yellow, and } ${b} \\ \\text{ blue balls. Find the probability of picking a yellow ball.}`,
+                    answer,
+                    options: makeOptions(answer, () => frac(randInt(1, g + y + b), g + y + b)),
+                    forceOption: 0,
+                };
+            }
+
+            if (qType === 1) {
+                const sections = randInt(3, 6);
+                const letters = ["A", "B", "C", "D", "E", "F"].slice(0, sections);
+                const target = pick(letters);
+                const answer = frac(1, sections * sections);
+                return {
+                    latex: `\\text{A spinner has } ${sections} \\text{ equal sections: } ${letters.join(", ")}\\text{. It is spun twice. Find the probability of getting } ${target} \\text{ both times.}`,
+                    answer,
+                    options: makeOptions(answer, () => frac(1, randInt(4, 40))),
+                    forceOption: 0,
+                };
+            }
+
+            if (qType === 2) {
+                const pass = pick([0.4, 0.5, 0.6, 0.7, 0.8, 0.9]);
+                const answer = dec(1 - pass, 1);
+                return {
+                    latex: `\\text{The probability a student passes Maths is } ${pass}\\text{. Find the probability they fail.}`,
+                    answer,
+                    options: makeOptions(answer, () => dec(pick([0.1, 0.2, 0.3, 0.4, 0.5, 0.6]), 1)),
+                    forceOption: 0,
+                };
+            }
+
+            const pA = pick([0.2, 0.3, 0.4, 0.5, 0.6]);
+            const pB = pick([0.2, 0.3, 0.4, 0.5, 0.6]);
+            const answer = dec(pA * pB, 2);
+            return {
+                latex: `\\text{Two independent events } A \\text{ and } B\\text{ have } P(A)=${pA}\\text{ and } P(B)=${pB}\\text{. Find } P(A \\cap B).`,
+                answer,
+                options: makeOptions(answer, () => dec(randInt(1, 60) / 100, 2)),
+                forceOption: 0,
+            };
+        }
+
+        // ---------------- LEVEL 3 (Hard) ----------------
+        if (difficulty === 3) {
+            const qType = randInt(0, 3);
+
+            if (qType === 0) {
+                const red = randInt(3, 7);
+                const blue = randInt(2, 6);
+                const total = red + blue;
+                const answer = frac(red * (red - 1), total * (total - 1));
+                return {
+                    latex: `\\text{A bag contains } ${red} \\text{ red and } ${blue} \\ \\text{ blue balls. Two balls are picked without replacement. Find the probability both are red.}`,
+                    answer,
+                    options: makeOptions(answer, () => frac(randInt(1, total * total), total * total)),
+                    forceOption: 0,
+                };
+            }
+
+            if (qType === 1) {
+                let pA = 0.6;
+                let pB = 0.5;
+                let pInt = 0.2;
+                for (let i = 0; i < 100; i++) {
+                    pA = pick([0.4, 0.5, 0.6, 0.7, 0.8]);
+                    pB = pick([0.3, 0.4, 0.5, 0.6, 0.7]);
+                    pInt = pick([0.1, 0.2, 0.3, 0.4]);
+                    if (pInt <= Math.min(pA, pB) && pA + pB - pInt <= 1) break;
+                }
+                const answer = dec(pA + pB - pInt, 2);
+                return {
+                    latex: `\\text{Given } P(A)=${pA}, P(B)=${pB}, P(A \\cap B)=${pInt}\\text{, find } P(A \\cup B).`,
+                    answer,
+                    options: makeOptions(answer, () => dec(randInt(5, 95) / 100, 2)),
+                    forceOption: 0,
+                };
+            }
+
+            if (qType === 2) {
+                const boys = pick([50, 55, 60, 65, 70, 75, 80]);
+                const boysFootball = pick([15, 20, 25, 30, 35, 40, 45]);
+                const joint = Math.min(boysFootball, boys);
+                const answer = frac(joint, boys);
+                return {
+                    latex: `\\text{In a class, } ${boys}\\% \\text{ are boys and } ${joint}\\% \\ \\text{ are boys who play football. Find the probability that a randomly chosen boy plays football.}`,
+                    answer,
+                    options: makeOptions(answer, () => frac(randInt(1, boys), boys)),
+                    forceOption: 0,
+                };
+            }
+
+            const pairs = [
+                { a: 1, b: 4 },
+                { a: 1, b: 3 },
+                { a: 2, b: 5 },
+                { a: 3, b: 8 },
+            ] as const;
+            const p = pick(pairs);
+            const step = p.b - p.a;
+            const blueMultiplier = randInt(2, 6);
+            const blue = step * blueMultiplier;
+            const red = (p.a * blue) / step;
+            const answer = String(red);
+            return {
+                latex: `\\text{A bag contains red and blue balls. The probability of picking red is } ${dec(p.a / p.b, 2)}\\text{. There are } ${blue} \\text{ blue balls. How many red balls are there?}`,
+                answer,
+                options: makeOptions(answer, () => String(red + randInt(-6, 6))),
+                forceOption: 0,
+            };
+        }
+
+        // ---------------- LEVEL 4 (Challenge) ----------------
+        if (difficulty === 4) {
+            const qType = randInt(0, 1);
+
+            if (qType === 0) {
+                const pH = pick([0.6, 0.7, 0.8, 0.9]);
+                const answer = dec(Math.pow(pH, 3), 3);
+                return {
+                    latex: `\\text{A biased coin has } P(\\text{heads})=${pH}\\text{. It is flipped 3 times. Find the probability of all heads.}`,
+                    answer,
+                    options: makeOptions(answer, () => dec(randInt(1, 999) / 1000, 3)),
+                    forceOption: 0,
+                };
+            }
+
+            const red = randInt(3, 6);
+            const blue = randInt(2, 5);
+            const green = randInt(2, 5);
+            const total = red + blue + green;
+            const answer = frac(red * green, total * total);
+            return {
+                latex: `\\text{A bag contains } ${red} \\text{ red, } ${blue} \\text{ blue and } ${green} \\ \\text{ green balls. Two balls are picked with replacement. Find the probability the first is red and the second is green.}`,
+                answer,
+                options: makeOptions(answer, () => frac(randInt(1, total * total), total * total)),
+                forceOption: 0,
+            };
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
+    }, [1, 2, 3, 4]),
     "tree-diagrams": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
     }, []),
