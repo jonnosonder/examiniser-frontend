@@ -7406,14 +7406,431 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
         throw new Error(`Unhandled difficulty: ${difficulty}`);
     }, [1]),
     "bar-charts": createGenerator(({ difficulty }) => {
+        const randInt = (min: number, max: number) =>
+            Math.floor(Math.random() * (max - min + 1)) + min;
+
+        const shuffle = <T>(arr: T[]): T[] => arr.sort(() => Math.random() - 0.5);
+
+        const makeNumberOptions = (answer: number) => {
+            const options = new Set<string>([String(answer)]);
+            let tries = 0;
+            while (options.size < 4 && tries++ < 250) {
+                const wrong = answer + randInt(-12, 12);
+                if (wrong >= 0 && wrong !== answer) options.add(String(wrong));
+            }
+            return shuffle(Array.from(options));
+        };
+
+        const buildBarChartSvg = (args: {
+            labels: string[];
+            values: number[];
+            xAxisLabel: string;
+            yAxisLabel: string;
+        }) => {
+            const { labels, values, xAxisLabel, yAxisLabel } = args;
+
+            const width = 420;
+            const height = 280;
+            const left = 58;
+            const right = 18;
+            const top = 24;
+            const bottom = 56;
+
+            const chartW = width - left - right;
+            const chartH = height - top - bottom;
+
+            const maxValRaw = Math.max(...values);
+            const yStep = maxValRaw <= 12 ? 2 : 5;
+            const yMax = Math.ceil((maxValRaw + 1) / yStep) * yStep;
+
+            const slotW = chartW / labels.length;
+            const barW = slotW * 0.58;
+
+            const bars = values
+                .map((v, i) => {
+                    const h = (v / yMax) * chartH;
+                    const x = left + i * slotW + (slotW - barW) / 2;
+                    const y = top + chartH - h;
+                    const labelX = left + i * slotW + slotW / 2;
+                    const valueY = y - 5;
+
+                    return `
+                        <rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${h.toFixed(1)}" fill="#6aaed6" stroke="#245b7a" stroke-width="1.2"/>
+                        <text x="${labelX.toFixed(1)}" y="${(top + chartH + 18).toFixed(1)}" text-anchor="middle" font-size="13">${labels[i]}</text>
+                        <text x="${labelX.toFixed(1)}" y="${valueY.toFixed(1)}" text-anchor="middle" font-size="11" fill="#245b7a">${v}</text>
+                    `;
+                })
+                .join("");
+
+            const yTicks: string[] = [];
+            for (let t = 0; t <= yMax; t += yStep) {
+                const y = top + chartH - (t / yMax) * chartH;
+                yTicks.push(`
+                    <line x1="${left - 5}" y1="${y.toFixed(1)}" x2="${left}" y2="${y.toFixed(1)}" stroke="black" stroke-width="1"/>
+                    <line x1="${left}" y1="${y.toFixed(1)}" x2="${(left + chartW).toFixed(1)}" y2="${y.toFixed(1)}" stroke="#e3eef5" stroke-width="1"/>
+                    <text x="${left - 10}" y="${(y + 4).toFixed(1)}" text-anchor="end" font-size="11">${t}</text>
+                `);
+            }
+
+            return `
+                <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
+
+                    ${yTicks.join("")}
+
+                    <line x1="${left}" y1="${top}" x2="${left}" y2="${top + chartH}" stroke="black" stroke-width="2"/>
+                    <line x1="${left}" y1="${top + chartH}" x2="${left + chartW}" y2="${top + chartH}" stroke="black" stroke-width="2"/>
+
+                    ${bars}
+
+                    <text x="${left + chartW / 2}" y="${height - 12}" text-anchor="middle" font-size="13" font-weight="bold">${xAxisLabel}</text>
+                    <text x="18" y="${top + chartH / 2}" text-anchor="middle" font-size="13" font-weight="bold" transform="rotate(-90 18 ${top + chartH / 2})">${yAxisLabel}</text>
+                </svg>
+            `;
+        };
+
+        const contexts = [
+            {
+                title: "favourite fruit",
+                xAxisLabel: "Fruit",
+                yAxisLabel: "Number of Students",
+                labels: ["Apple", "Banana", "Orange", "Grapes", "Pear"],
+            },
+            {
+                title: "books read",
+                xAxisLabel: "Student",
+                yAxisLabel: "Books Read",
+                labels: ["A", "B", "C", "D", "E"],
+            },
+            {
+                title: "pets owned",
+                xAxisLabel: "Type of Pet",
+                yAxisLabel: "Frequency",
+                labels: ["Dog", "Cat", "Fish", "Bird", "Rabbit"],
+            },
+        ] as const;
+
+        if (difficulty === 1) {
+            const context = contexts[randInt(0, contexts.length - 1)];
+            const values = context.labels.map(() => randInt(2, 18));
+            const idx = randInt(0, context.labels.length - 1);
+
+            return {
+                svg: buildBarChartSvg({
+                    labels: [...context.labels],
+                    values,
+                    xAxisLabel: context.xAxisLabel,
+                    yAxisLabel: context.yAxisLabel,
+                }),
+                latex: `\\text{The bar chart shows ${context.title}. What is the value for ${context.labels[idx]}?}`,
+                answer: String(values[idx]),
+                options: makeNumberOptions(values[idx]),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 2) {
+            const context = contexts[randInt(0, contexts.length - 1)];
+            const values = context.labels.map(() => randInt(2, 18));
+
+            const countToSum = randInt(2, 3);
+            const chosenIdx = new Set<number>();
+            while (chosenIdx.size < countToSum) {
+                chosenIdx.add(randInt(0, context.labels.length - 1));
+            }
+            const idxList = Array.from(chosenIdx);
+            const total = idxList.reduce((acc, i) => acc + values[i], 0);
+
+            const names = idxList.map(i => context.labels[i]);
+            const labelText = names.length === 2
+                ? `${names[0]} and ${names[1]}`
+                : `${names[0]}, ${names[1]} and ${names[2]}`;
+
+            return {
+                svg: buildBarChartSvg({
+                    labels: [...context.labels],
+                    values,
+                    xAxisLabel: context.xAxisLabel,
+                    yAxisLabel: context.yAxisLabel,
+                }),
+                latex: `\\text{The bar chart shows ${context.title}. Find the total for ${labelText}.}`,
+                answer: String(total),
+                options: makeNumberOptions(total),
+                forceOption: 0,
+            };
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
+    }, [1, 2]),
     "histograms": createGenerator(({ difficulty }) => {
+        const randInt = (min: number, max: number) =>
+            Math.floor(Math.random() * (max - min + 1)) + min;
+
+        const shuffle = <T>(arr: T[]): T[] => arr.sort(() => Math.random() - 0.5);
+
+        const makeNumberOptions = (answer: number) => {
+            const set = new Set<string>([String(answer)]);
+            let tries = 0;
+            while (set.size < 4 && tries++ < 250) {
+                const wrong = answer + randInt(-25, 25);
+                if (wrong >= 0 && wrong !== answer) set.add(String(wrong));
+            }
+            return shuffle(Array.from(set));
+        };
+
+        const buildHistogramSvg = (args: {
+            edges: number[];
+            densities: number[];
+            xAxisLabel: string;
+            yAxisLabel: string;
+        }) => {
+            const { edges, densities, xAxisLabel, yAxisLabel } = args;
+
+            const width = 440;
+            const height = 290;
+            const left = 60;
+            const right = 24;
+            const top = 24;
+            const bottom = 58;
+
+            const chartW = width - left - right;
+            const chartH = height - top - bottom;
+
+            const minX = edges[0];
+            const maxX = edges[edges.length - 1];
+            const xSpan = maxX - minX;
+
+            const maxDensityRaw = Math.max(...densities);
+            const yStep = maxDensityRaw <= 8 ? 1 : 2;
+            const yMax = Math.ceil((maxDensityRaw + 1) / yStep) * yStep;
+
+            const xToPx = (x: number) => left + ((x - minX) / xSpan) * chartW;
+            const yToPx = (y: number) => top + chartH - (y / yMax) * chartH;
+
+            const yTicks: string[] = [];
+            for (let t = 0; t <= yMax; t += yStep) {
+                const y = yToPx(t);
+                yTicks.push(`
+                    <line x1="${left - 5}" y1="${y.toFixed(1)}" x2="${left}" y2="${y.toFixed(1)}" stroke="black" stroke-width="1"/>
+                    <line x1="${left}" y1="${y.toFixed(1)}" x2="${(left + chartW).toFixed(1)}" y2="${y.toFixed(1)}" stroke="#e6edf2" stroke-width="1"/>
+                    <text x="${left - 10}" y="${(y + 4).toFixed(1)}" text-anchor="end" font-size="11">${t}</text>
+                `);
+            }
+
+            const xTicks = edges
+                .map((e) => {
+                    const x = xToPx(e);
+                    return `
+                        <line x1="${x.toFixed(1)}" y1="${top + chartH}" x2="${x.toFixed(1)}" y2="${top + chartH + 5}" stroke="black" stroke-width="1"/>
+                        <text x="${x.toFixed(1)}" y="${top + chartH + 20}" text-anchor="middle" font-size="11">${e}</text>
+                    `;
+                })
+                .join("");
+
+            const bars = densities
+                .map((density, i) => {
+                    const x1 = xToPx(edges[i]);
+                    const x2 = xToPx(edges[i + 1]);
+                    const y = yToPx(density);
+                    const w = x2 - x1;
+                    const h = yToPx(0) - y;
+                    return `<rect x="${x1.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" fill="#7bb6d9" stroke="#1f4c7a" stroke-width="1.2"/>`;
+                })
+                .join("");
+
+            return `
+                <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
+                    ${yTicks.join("")}
+                    ${bars}
+                    <line x1="${left}" y1="${top}" x2="${left}" y2="${top + chartH}" stroke="black" stroke-width="2"/>
+                    <line x1="${left}" y1="${top + chartH}" x2="${left + chartW}" y2="${top + chartH}" stroke="black" stroke-width="2"/>
+                    ${xTicks}
+                    <text x="${left + chartW / 2}" y="${height - 13}" text-anchor="middle" font-size="13" font-weight="bold">${xAxisLabel}</text>
+                    <text x="18" y="${top + chartH / 2}" text-anchor="middle" font-size="13" font-weight="bold" transform="rotate(-90 18 ${top + chartH / 2})">${yAxisLabel}</text>
+                </svg>
+            `;
+        };
+
+        const edges = [0, 10, 20, 35, 50];
+        const widths = [10, 10, 15, 15];
+        const densities = widths.map(() => randInt(2, 9));
+        const frequencies = densities.map((d, i) => d * widths[i]);
+
+        if (difficulty === 1) {
+            const idx = randInt(0, widths.length - 1);
+            const answer = frequencies[idx];
+
+            return {
+                svg: buildHistogramSvg({
+                    edges,
+                    densities,
+                    xAxisLabel: "Time (minutes)",
+                    yAxisLabel: "Frequency Density",
+                }),
+                latex: `\\text{The histogram shows journey times. Find the frequency in the class ${edges[idx]}-${edges[idx + 1]}.}`,
+                answer: String(answer),
+                options: makeNumberOptions(answer),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 2) {
+            const startIdx = randInt(0, widths.length - 2);
+            const useThree = Math.random() < 0.5 && startIdx === 0;
+            const classCount = useThree ? 3 : 2;
+            const endIdx = startIdx + classCount - 1;
+
+            let total = 0;
+            for (let i = startIdx; i <= endIdx; i++) {
+                total += frequencies[i];
+            }
+
+            return {
+                svg: buildHistogramSvg({
+                    edges,
+                    densities,
+                    xAxisLabel: "Time (minutes)",
+                    yAxisLabel: "Frequency Density",
+                }),
+                latex: `\\text{Using the histogram, find the total frequency from ${edges[startIdx]} to ${edges[endIdx + 1]} minutes.}`,
+                answer: String(total),
+                options: makeNumberOptions(total),
+                forceOption: 0,
+            };
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
+    }, [1, 2]),
     "pie-charts": createGenerator(({ difficulty }) => {
+        const randInt = (min: number, max: number) =>
+            Math.floor(Math.random() * (max - min + 1)) + min;
+
+        const shuffle = <T>(arr: T[]): T[] => arr.sort(() => Math.random() - 0.5);
+
+        const makeNumberOptions = (answer: number) => {
+            const set = new Set<string>([String(answer)]);
+            let tries = 0;
+            while (set.size < 4 && tries++ < 250) {
+                const wrong = answer + randInt(-20, 20);
+                if (wrong >= 0 && wrong !== answer) set.add(String(wrong));
+            }
+            return shuffle(Array.from(set));
+        };
+
+        const buildAngles = (): number[] => {
+            const pool = [30, 40, 50, 60, 70, 80, 90, 100, 110, 120];
+            for (let tries = 0; tries < 300; tries++) {
+                const a = pool[randInt(0, pool.length - 1)];
+                const b = pool[randInt(0, pool.length - 1)];
+                const c = pool[randInt(0, pool.length - 1)];
+                const d = 360 - (a + b + c);
+                if (d >= 30 && d <= 140 && d % 10 === 0) {
+                    return [a, b, c, d];
+                }
+            }
+            return [90, 80, 100, 90];
+        };
+
+        const buildPieSvg = (labels: string[], angles: number[]) => {
+            const cx = 145;
+            const cy = 130;
+            const r = 90;
+            const colors = ["#7bb6d9", "#f2b880", "#9bcf9b", "#c3a2d9", "#f2d479", "#9ed9d3"];
+
+            let current = -90;
+            const sectors: string[] = [];
+
+            for (let i = 0; i < angles.length; i++) {
+                const start = (current * Math.PI) / 180;
+                const endDeg = current + angles[i];
+                const end = (endDeg * Math.PI) / 180;
+
+                const x1 = cx + r * Math.cos(start);
+                const y1 = cy + r * Math.sin(start);
+                const x2 = cx + r * Math.cos(end);
+                const y2 = cy + r * Math.sin(end);
+                const largeArc = angles[i] > 180 ? 1 : 0;
+
+                sectors.push(
+                    `<path d="M ${cx} ${cy} L ${x1.toFixed(1)} ${y1.toFixed(1)} A ${r} ${r} 0 ${largeArc} 1 ${x2.toFixed(1)} ${y2.toFixed(1)} Z" fill="${colors[i % colors.length]}" stroke="white" stroke-width="1.5"/>`
+                );
+
+                const midDeg = current + angles[i] / 2;
+                const mid = (midDeg * Math.PI) / 180;
+                const tx = cx + (r * 0.58) * Math.cos(mid);
+                const ty = cy + (r * 0.58) * Math.sin(mid);
+                sectors.push(`<text x="${tx.toFixed(1)}" y="${ty.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="bold" fill="#1b2a34">${angles[i]}°</text>`);
+
+                current = endDeg;
+            }
+
+            const legend = labels
+                .map((label, i) => {
+                    const y = 46 + i * 24;
+                    return `
+                        <rect x="285" y="${y - 11}" width="12" height="12" fill="${colors[i % colors.length]}" stroke="#444" stroke-width="0.6"/>
+                        <text x="304" y="${y}" font-size="12" dominant-baseline="middle">${label}</text>
+                    `;
+                })
+                .join("");
+
+            return `
+                <svg width="430" height="270" viewBox="0 0 430 270" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="0" y="0" width="430" height="270" fill="white"/>
+                    ${sectors.join("")}
+                    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#333" stroke-width="1.2"/>
+                    ${legend}
+                </svg>
+            `;
+        };
+
+        const contexts = [
+            { title: "favourite sports", labels: ["Football", "Tennis", "Swimming", "Rugby"] },
+            { title: "travel to school", labels: ["Walk", "Bus", "Car", "Bike"] },
+            { title: "favourite snacks", labels: ["Crisps", "Fruit", "Biscuits", "Nuts"] },
+        ] as const;
+
+        if (difficulty === 1) {
+            const context = contexts[randInt(0, contexts.length - 1)];
+            const angles = buildAngles();
+            const total = [72, 108, 144][randInt(0, 2)];
+            const idx = randInt(0, context.labels.length - 1);
+
+            const answer = (angles[idx] * total) / 360;
+
+            return {
+                svg: buildPieSvg([...context.labels], angles),
+                latex: `\\text{The pie chart shows ${context.title} for ${total} students. How many chose ${context.labels[idx]}?}`,
+                answer: String(answer),
+                options: makeNumberOptions(answer),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 2) {
+            const context = contexts[randInt(0, contexts.length - 1)];
+            const angles = buildAngles();
+
+            const knownIdx = randInt(0, context.labels.length - 1);
+            const scale = randInt(1, 4);
+            const knownCount = angles[knownIdx] * scale;
+
+            const targets = [0, 1, 2, 3].filter(i => i !== knownIdx);
+            const firstTarget = targets[randInt(0, targets.length - 1)];
+            const remaining = targets.filter(i => i !== firstTarget);
+            const secondTarget = remaining[randInt(0, remaining.length - 1)];
+            const answer = (angles[firstTarget] + angles[secondTarget]) * scale;
+
+            return {
+                svg: buildPieSvg([...context.labels], angles),
+                latex: `\\text{The pie chart shows ${context.title}. If ${knownCount} people are in ${context.labels[knownIdx]}, how many are in ${context.labels[firstTarget]} and ${context.labels[secondTarget]} combined?}`,
+                answer: String(answer),
+                options: makeNumberOptions(answer),
+                forceOption: 0,
+            };
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
+    }, [1, 2]),
     "basic-probability-rules": createGenerator(({ difficulty }) => {
         const randInt = (min: number, max: number) =>
             Math.floor(Math.random() * (max - min + 1)) + min;
@@ -7643,19 +8060,596 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
         throw new Error(`Unhandled difficulty: ${difficulty}`);
     }, [1, 2, 3, 4]),
     "tree-diagrams": createGenerator(({ difficulty }) => {
-        throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
-    "venn-diagrams": createGenerator(({ difficulty }) => {
-        throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
-    "multi-step-problems": createGenerator(({ difficulty }) => {
-        throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
-    "mathematical-proofs": createGenerator(({ difficulty }) => {
-        throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
-    "logical-deduction": createGenerator(({ difficulty }) => {
-        throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
-};
+        const randInt = (min: number, max: number) =>
+            Math.floor(Math.random() * (max - min + 1)) + min;
 
+        const gcd = (a: number, b: number): number => (b === 0 ? Math.abs(a) : gcd(b, a % b));
+
+        const frac = (n: number, d: number): string => {
+            if (d === 0) return "0";
+            const g = gcd(n, d);
+            const sn = n / g;
+            const sd = d / g;
+            if (sd === 1) return String(sn);
+            return `\\frac{${sn}}{${sd}}`;
+        };
+
+        const shuffle = <T>(arr: T[]): T[] => arr.sort(() => Math.random() - 0.5);
+
+        const makeFracOptions = (answer: string, maxDen = 20) => {
+            const set = new Set<string>([answer]);
+            let tries = 0;
+            while (set.size < 4 && tries++ < 250) {
+                const d = randInt(2, maxDen);
+                const n = randInt(1, d - 1);
+                const w = frac(n, d);
+                if (w !== answer) set.add(w);
+            }
+            return shuffle(Array.from(set));
+        };
+
+        const makeNumberOptions = (answer: number) => {
+            const set = new Set<string>([String(answer)]);
+            let tries = 0;
+            while (set.size < 4 && tries++ < 250) {
+                const w = answer + randInt(-5, 5);
+                if (w >= 0 && w !== answer) set.add(String(w));
+            }
+            return shuffle(Array.from(set));
+        };
+
+        const parseLatexFrac = (value: string): { n: string; d: string } | null => {
+            const m = value.match(/^\\frac\{(-?\d+)\}\{(-?\d+)\}$/);
+            if (!m) return null;
+            return { n: m[1], d: m[2] };
+        };
+
+        const svgProbLabel = (
+            x: number,
+            y: number,
+            value: string,
+            fontSize: number,
+            color = "#000000"
+        ): string => {
+            const fracParts = parseLatexFrac(value);
+            if (!fracParts) {
+                return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle" font-size="${fontSize}" fill="${color}">${value}</text>`;
+            }
+
+            const barWidth = Math.max(16, Math.max(fracParts.n.length, fracParts.d.length) * (fontSize * 0.65));
+            const numY = y - (fontSize * 0.3);
+            const denY = y + (fontSize * 1.2);
+            const barY = y + 1;
+
+            return `
+                <g fill="${color}" stroke="${color}">
+                    <text x="${x}" y="${numY}" text-anchor="middle" font-size="${fontSize}">${fracParts.n}</text>
+                    <line x1="${x - barWidth / 2}" y1="${barY}" x2="${x + barWidth / 2}" y2="${barY}" stroke-width="1.4"/>
+                    <text x="${x}" y="${denY}" text-anchor="middle" font-size="${fontSize}">${fracParts.d}</text>
+                </g>
+            `;
+        };
+
+        const buildSingleStageTreeSvg = (args: {
+            topLabel: string;
+            bottomLabel: string;
+            pTop: string;
+            pBottom: string;
+        }) => {
+            const { topLabel, bottomLabel, pTop, pBottom } = args;
+            return `
+                <svg width="340" height="220" viewBox="0 0 340 220" xmlns="http://www.w3.org/2000/svg">
+                    <line x1="30" y1="110" x2="145" y2="65" stroke="black" stroke-width="2"/>
+                    <line x1="30" y1="110" x2="145" y2="155" stroke="black" stroke-width="2"/>
+
+                    <circle cx="30" cy="110" r="2.5" fill="black"/>
+
+                    ${svgProbLabel(86, 60, pTop, 14)}
+                    ${svgProbLabel(86, 155, pBottom, 14)}
+
+                    <text x="155" y="68" font-size="14" fill="black">${topLabel}</text>
+                    <text x="155" y="160" font-size="14" fill="black">${bottomLabel}</text>
+                </svg>
+            `;
+        };
+
+        const buildTwoStageTreeSvg = (args: {
+            topLabel: string;
+            bottomLabel: string;
+            pTop: string;
+            pBottom: string;
+            topTopLabel: string;
+            topBottomLabel: string;
+            bottomTopLabel: string;
+            bottomBottomLabel: string;
+            pTopTop: string;
+            pTopBottom: string;
+            pBottomTop: string;
+            pBottomBottom: string;
+        }) => {
+            const {
+                topLabel,
+                bottomLabel,
+                pTop,
+                pBottom,
+                topTopLabel,
+                topBottomLabel,
+                bottomTopLabel,
+                bottomBottomLabel,
+                pTopTop,
+                pTopBottom,
+                pBottomTop,
+                pBottomBottom,
+            } = args;
+
+            return `
+                <svg width="420" height="230" viewBox="0 0 420 230" xmlns="http://www.w3.org/2000/svg">
+                    <line x1="30" y1="115" x2="135" y2="70" stroke="black" stroke-width="2"/>
+                    <line x1="30" y1="115" x2="135" y2="160" stroke="black" stroke-width="2"/>
+
+                    <line x1="135" y1="70" x2="275" y2="35" stroke="black" stroke-width="2"/>
+                    <line x1="135" y1="70" x2="275" y2="95" stroke="black" stroke-width="2"/>
+                    <line x1="135" y1="160" x2="275" y2="130" stroke="black" stroke-width="2"/>
+                    <line x1="135" y1="160" x2="275" y2="195" stroke="black" stroke-width="2"/>
+
+                    <circle cx="30" cy="115" r="2.5" fill="black"/>
+                    <circle cx="135" cy="70" r="2" fill="black"/>
+                    <circle cx="135" cy="160" r="2" fill="black"/>
+
+                    ${svgProbLabel(78, 70, pTop, 13)}
+                    ${svgProbLabel(78, 155, pBottom, 13)}
+
+                    ${svgProbLabel(180, 40, pTopTop, 12)}
+                    ${svgProbLabel(183, 95, pTopBottom, 12)}
+                    ${svgProbLabel(180, 130, pBottomTop, 12)}
+                    ${svgProbLabel(183, 192, pBottomBottom, 12)}
+
+                    <text x="135" y="60" font-size="13">${topLabel}</text>
+                    <text x="135" y="180" font-size="13">${bottomLabel}</text>
+
+                    <text x="283" y="39" font-size="13">${topTopLabel}</text>
+                    <text x="283" y="98" font-size="13">${topBottomLabel}</text>
+                    <text x="283" y="134" font-size="13">${bottomTopLabel}</text>
+                    <text x="283" y="199" font-size="13">${bottomBottomLabel}</text>
+                </svg>
+            `;
+        };
+
+        if (difficulty === 1) {
+            const contexts = [
+                { topLabel: "Rain", bottomLabel: "No Rain" },
+                { topLabel: "Win", bottomLabel: "Lose" },
+                { topLabel: "Bus", bottomLabel: "Walk" },
+                { topLabel: "Red", bottomLabel: "Blue" },
+            ] as const;
+
+            const c = contexts[randInt(0, contexts.length - 1)];
+            const den = randInt(3, 10);
+            const num = randInt(1, den - 1);
+            const pTop = frac(num, den);
+            const pBottom = frac(den - num, den);
+            const askTop = Math.random() < 0.5;
+            const targetLabel = askTop ? c.topLabel : c.bottomLabel;
+            const answer = askTop ? pTop : pBottom;
+            const optionsSet = new Set<string>([pTop, pBottom]);
+            while (optionsSet.size < 4) {
+                const d = randInt(2, 12);
+                const n = randInt(1, d - 1);
+                optionsSet.add(frac(n, d));
+            }
+
+            return {
+                svg: buildSingleStageTreeSvg({
+                    topLabel: c.topLabel,
+                    bottomLabel: c.bottomLabel,
+                    pTop,
+                    pBottom,
+                }),
+                latex: `\\text{Using the tree diagram, find the probability of ${targetLabel.toLowerCase()}.}`,
+                answer,
+                options: shuffle(Array.from(optionsSet)),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 2) {
+            const d1 = randInt(2, 6);
+            const n1 = randInt(1, d1 - 1);
+            const d2 = randInt(2, 6);
+            const n2 = randInt(1, d2 - 1);
+
+            const pA = frac(n1, d1);
+            const pNotA = frac(d1 - n1, d1);
+            const pB = frac(n2, d2);
+            const pNotB = frac(d2 - n2, d2);
+
+            const answer = frac(n1 * n2, d1 * d2);
+
+            return {
+                svg: buildTwoStageTreeSvg({
+                    topLabel: "A",
+                    bottomLabel: "A'",
+                    pTop: pA,
+                    pBottom: pNotA,
+                    topTopLabel: "B",
+                    topBottomLabel: "B'",
+                    bottomTopLabel: "B",
+                    bottomBottomLabel: "B'",
+                    pTopTop: pB,
+                    pTopBottom: pNotB,
+                    pBottomTop: pB,
+                    pBottomBottom: pNotB,
+                }),
+                latex: `\\text{The events are independent. Using the tree, find } P(A \\cap B)\text{.}`,
+                answer,
+                options: makeFracOptions(answer, 24),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 3) {
+            const red = randInt(3, 7);
+            const blue = randInt(3, 7);
+            const total = red + blue;
+
+            const pR1 = frac(red, total);
+            const pB1 = frac(blue, total);
+            const pR2GivenR = frac(red - 1, total - 1);
+            const pB2GivenR = frac(blue, total - 1);
+            const pR2GivenB = frac(red, total - 1);
+            const pB2GivenB = frac(blue - 1, total - 1);
+
+            const sameNumer = red * (red - 1) + blue * (blue - 1);
+            const sameDenom = total * (total - 1);
+            const answer = frac(sameNumer, sameDenom);
+
+            return {
+                svg: buildTwoStageTreeSvg({
+                    topLabel: "R",
+                    bottomLabel: "B",
+                    pTop: pR1,
+                    pBottom: pB1,
+                    topTopLabel: "R",
+                    topBottomLabel: "B",
+                    bottomTopLabel: "R",
+                    bottomBottomLabel: "B",
+                    pTopTop: pR2GivenR,
+                    pTopBottom: pB2GivenR,
+                    pBottomTop: pR2GivenB,
+                    pBottomBottom: pB2GivenB,
+                }),
+                latex: `\\text{A bag has } ${red} \\text{ red and } ${blue} \\text{ blue counters. Two are chosen without replacement.}\\\\\\text{Using the tree, find the probability of getting two counters of the same colour.}`,
+                answer,
+                options: makeFracOptions(answer, 42),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 4) {
+            const den = randInt(4, 10);
+            const num = randInt(1, den - 1);
+
+            const qPairs = [
+                { n: 1, d: 2 },
+                { n: 1, d: 3 },
+                { n: 2, d: 3 },
+                { n: 1, d: 4 },
+                { n: 3, d: 4 },
+                { n: 2, d: 5 },
+                { n: 3, d: 5 },
+            ] as const;
+            const q = qPairs[randInt(0, qPairs.length - 1)];
+
+            const pA = frac(num, den);
+            const pNotA = frac(den - num, den);
+            const pGivenA = frac(q.n, q.d);
+            const pNotGivenA = frac(q.d - q.n, q.d);
+
+            const otherDen = randInt(3, 7);
+            const otherNum = randInt(1, otherDen - 1);
+            const pGivenNotA = frac(otherNum, otherDen);
+            const pNotGivenNotA = frac(otherDen - otherNum, otherDen);
+
+            const unknownCases = [
+                {
+                    key: "pTopTop" as const,
+                    pathLatex: "P(A \\cap B)",
+                    pathProb: frac(num * q.n, den * q.d),
+                    answer: pGivenA,
+                },
+                {
+                    key: "pTopBottom" as const,
+                    pathLatex: "P(A \\cap B')",
+                    pathProb: frac(num * (q.d - q.n), den * q.d),
+                    answer: pNotGivenA,
+                },
+                {
+                    key: "pBottomTop" as const,
+                    pathLatex: "P(A' \\cap B)",
+                    pathProb: frac((den - num) * otherNum, den * otherDen),
+                    answer: pGivenNotA,
+                },
+                {
+                    key: "pBottomBottom" as const,
+                    pathLatex: "P(A' \\cap B')",
+                    pathProb: frac((den - num) * (otherDen - otherNum), den * otherDen),
+                    answer: pNotGivenNotA,
+                },
+            ];
+
+            const chosenUnknown = unknownCases[randInt(0, unknownCases.length - 1)];
+
+            const secondStage = {
+                pTopTop: pGivenA,
+                pTopBottom: pNotGivenA,
+                pBottomTop: pGivenNotA,
+                pBottomBottom: pNotGivenNotA,
+            };
+
+            secondStage[chosenUnknown.key] = "?";
+
+            return {
+                svg: buildTwoStageTreeSvg({
+                    topLabel: "A",
+                    bottomLabel: "A'",
+                    pTop: pA,
+                    pBottom: pNotA,
+                    topTopLabel: "B",
+                    topBottomLabel: "B'",
+                    bottomTopLabel: "B",
+                    bottomBottomLabel: "B'",
+                    pTopTop: secondStage.pTopTop,
+                    pTopBottom: secondStage.pTopBottom,
+                    pBottomTop: secondStage.pBottomTop,
+                    pBottomBottom: secondStage.pBottomBottom,
+                }),
+                latex: `\\text{In a survey, event } A \\text{ is "owns a pet" and } B \\text{ is "owns a bicycle". }\\\\\\text{Given } ${chosenUnknown.pathLatex}=${chosenUnknown.pathProb} \\text{, find the missing probability on the tree.}`,
+                answer: chosenUnknown.answer,
+                options: makeFracOptions(chosenUnknown.answer, 20),
+                forceOption: 0,
+            };
+        }
+
+        throw new Error(`Unhandled difficulty: ${difficulty}`);
+    }, [1, 2, 3, 4]),
+    "venn-diagrams": createGenerator(({ difficulty }) => {
+        const randInt = (min: number, max: number) =>
+            Math.floor(Math.random() * (max - min + 1)) + min;
+
+        const shuffle = <T>(arr: T[]): T[] => arr.sort(() => Math.random() - 0.5);
+
+        const makeNumberOptions = (answer: number) => {
+            const options = new Set<string>([String(answer)]);
+            let tries = 0;
+
+            while (options.size < 4 && tries++ < 250) {
+                const wrong = answer + randInt(-8, 8);
+                if (wrong >= 0 && wrong !== answer) {
+                    options.add(String(wrong));
+                }
+            }
+
+            return shuffle(Array.from(options));
+        };
+
+        type ShadedPart =
+            | "none"
+            | "aOnly"
+            | "intersection"
+            | "bOnly"
+            | "aUnionB"
+            | "a"
+            | "b";
+
+        const buildVennSvg = (args?: {
+            aOnly?: string;
+            intersection?: string;
+            bOnly?: string;
+            outside?: string;
+            labels?: { aOnly?: string; intersection?: string; bOnly?: string; outside?: string };
+            shaded?: ShadedPart;
+        }) => {
+            const aOnly = args?.aOnly ?? "";
+            const intersection = args?.intersection ?? "";
+            const bOnly = args?.bOnly ?? "";
+            const outside = args?.outside ?? "";
+            const labels = args?.labels;
+            const shaded = args?.shaded ?? "none";
+
+            let shading = "";
+            if (shaded === "a") {
+                shading = `<circle cx="130" cy="110" r="60" fill="#9fd4ff" opacity="0.7" />`;
+            } else if (shaded === "b") {
+                shading = `<circle cx="190" cy="110" r="60" fill="#9fd4ff" opacity="0.7" />`;
+            } else if (shaded === "aUnionB") {
+                shading = `
+                    <circle cx="130" cy="110" r="60" fill="#9fd4ff" opacity="0.7" />
+                    <circle cx="190" cy="110" r="60" fill="#9fd4ff" opacity="0.7" />
+                `;
+            } else if (shaded === "intersection") {
+                shading = `<circle cx="190" cy="110" r="60" fill="#9fd4ff" opacity="0.7" clip-path="url(#clipLeft)" />`;
+            } else if (shaded === "aOnly") {
+                shading = `
+                    <circle cx="130" cy="110" r="60" fill="#9fd4ff" opacity="0.7" />
+                    <circle cx="190" cy="110" r="60" fill="white" clip-path="url(#clipLeft)" />
+                `;
+            } else if (shaded === "bOnly") {
+                shading = `
+                    <circle cx="190" cy="110" r="60" fill="#9fd4ff" opacity="0.7" />
+                    <circle cx="130" cy="110" r="60" fill="white" clip-path="url(#clipRight)" />
+                `;
+            }
+
+            return `
+                <svg width="340" height="230" viewBox="0 0 340 230" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <clipPath id="clipLeft">
+                            <circle cx="130" cy="110" r="60"/>
+                        </clipPath>
+                        <clipPath id="clipRight">
+                            <circle cx="190" cy="110" r="60"/>
+                        </clipPath>
+                    </defs>
+                    <rect x="20" y="15" width="300" height="190" fill="white" stroke="black" stroke-width="2"/>
+                    ${shading}
+                    <circle cx="130" cy="110" r="60" fill="none" stroke="black" stroke-width="2"/>
+                    <circle cx="190" cy="110" r="60" fill="none" stroke="black" stroke-width="2"/>
+
+                    <text x="95" y="48" font-size="16" font-weight="bold">A</text>
+                    <text x="223" y="48" font-size="16" font-weight="bold">B</text>
+                    <text x="292" y="35" font-size="16" font-weight="bold">ξ</text>
+
+                    <text x="103" y="113" text-anchor="middle" dominant-baseline="middle" font-size="16">${aOnly}</text>
+                    <text x="160" y="113" text-anchor="middle" dominant-baseline="middle" font-size="16">${intersection}</text>
+                    <text x="217" y="113" text-anchor="middle" dominant-baseline="middle" font-size="16">${bOnly}</text>
+                    <text x="278" y="175" text-anchor="middle" dominant-baseline="middle" font-size="16">${outside}</text>
+
+                    ${labels?.aOnly ? `<text x="103" y="110" text-anchor="middle" font-size="14" fill="#1f4c7a">${labels.aOnly}</text>` : ""}
+                    ${labels?.intersection ? `<text x="160" y="110" text-anchor="middle" font-size="14" fill="#1f4c7a">${labels.intersection}</text>` : ""}
+                    ${labels?.bOnly ? `<text x="217" y="110" text-anchor="middle" font-size="14" fill="#1f4c7a">${labels.bOnly}</text>` : ""}
+                    ${labels?.outside ? `<text x="278" y="180" text-anchor="middle" font-size="14" fill="#1f4c7a">${labels.outside}</text>` : ""}
+                </svg>
+            `;
+        };
+
+        if (difficulty === 1) {
+            const notationBank = [
+                {
+                    latexExpr: "A'",
+                    answer: "Not in A",
+                    distractors: ["In both A and B", "In A or B (or both)", "The universal set"],
+                },
+                {
+                    latexExpr: "A \\cap B",
+                    answer: "In both A and B",
+                    distractors: ["Not in A", "In A or B (or both)", "Only in A"],
+                },
+                {
+                    latexExpr: "A \\cup B",
+                    answer: "In A or B (or both)",
+                    distractors: ["In both A and B", "Not in A", "Only outside both sets"],
+                },
+                {
+                    latexExpr: "A \\setminus B",
+                    answer: "Only in A",
+                    distractors: ["In both A and B", "Only in B", "Not in A"],
+                },
+                {
+                    latexExpr: "\\xi",
+                    answer: "The universal set",
+                    distractors: ["The empty set", "In both A and B", "Only in A"],
+                },
+            ] as const;
+
+            const chosen = notationBank[randInt(0, notationBank.length - 1)];
+
+            return {
+                svg: buildVennSvg(),
+                latex: `\\text{What does } ${chosen.latexExpr} \\text{ mean in a Venn diagram?}`,
+                answer: chosen.answer,
+                options: shuffle([chosen.answer, ...chosen.distractors]),
+                forceOption: 2,
+            };
+        }
+
+        if (difficulty === 2) {
+            const regionLabels = {
+                aOnly: "p",
+                intersection: "q",
+                bOnly: "r",
+                outside: "s",
+            };
+
+            const askBank = [
+                { latexExpr: "A \\cap B", answer: regionLabels.intersection },
+                { latexExpr: "A \\setminus B", answer: regionLabels.aOnly },
+                { latexExpr: "B \\setminus A", answer: regionLabels.bOnly },
+                { latexExpr: "(A \\cup B)'", answer: regionLabels.outside },
+            ] as const;
+
+            const chosen = askBank[randInt(0, askBank.length - 1)];
+
+            return {
+                svg: buildVennSvg({ labels: regionLabels }),
+                latex: `\\text{Write down the labelled section for } ${chosen.latexExpr}\\text{.}`,
+                answer: chosen.answer,
+                options: shuffle([regionLabels.aOnly, regionLabels.intersection, regionLabels.bOnly, regionLabels.outside]),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 3) {
+            const shadingBank = [
+                { shaded: "intersection" as ShadedPart, answer: "A \\cap B" },
+                { shaded: "aUnionB" as ShadedPart, answer: "A \\cup B" },
+                { shaded: "aOnly" as ShadedPart, answer: "A \\setminus B" },
+                { shaded: "bOnly" as ShadedPart, answer: "B \\setminus A" },
+                { shaded: "a" as ShadedPart, answer: "A" },
+                { shaded: "b" as ShadedPart, answer: "B" },
+            ];
+
+            const chosen = shadingBank[randInt(0, shadingBank.length - 1)];
+
+            const optionsSet = new Set<string>([chosen.answer]);
+            while (optionsSet.size < 4) {
+                const candidate = shadingBank[randInt(0, shadingBank.length - 1)].answer;
+                optionsSet.add(candidate);
+            }
+
+            return {
+                svg: buildVennSvg({ shaded: chosen.shaded }),
+                latex: `\\text{The shaded region is shown. Which section is it?}`,
+                answer: chosen.answer,
+                options: shuffle(Array.from(optionsSet)),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 4) {
+            const contexts = [
+                { aName: "play football", bName: "play basketball", group: "students" },
+                { aName: "study French", bName: "study Spanish", group: "students" },
+                { aName: "like tea", bName: "like coffee", group: "people" },
+                { aName: "take the bus", bName: "cycle to school", group: "students" },
+            ] as const;
+
+            const context = contexts[randInt(0, contexts.length - 1)];
+
+            const aOnly = randInt(4, 15);
+            const intersection = randInt(2, 10);
+            const bOnly = randInt(4, 15);
+            const outside = randInt(2, 10);
+            const total = aOnly + intersection + bOnly + outside;
+
+            const regionKeys = ["aOnly", "intersection", "bOnly", "outside"] as const;
+            const missingKey = regionKeys[randInt(0, regionKeys.length - 1)];
+
+            const values = {
+                aOnly: String(aOnly),
+                intersection: String(intersection),
+                bOnly: String(bOnly),
+                outside: String(outside),
+            };
+
+            const answer = values[missingKey];
+            values[missingKey] = "?";
+
+            const regionText = {
+                aOnly: `only ${context.aName}`,
+                intersection: `both ${context.aName} and ${context.bName}`,
+                bOnly: `only ${context.bName}`,
+                outside: `neither ${context.aName} nor ${context.bName}`,
+            };
+
+            return {
+                svg: buildVennSvg(values),
+                latex: `\\text{In a group of } ${total} \\text{ ${context.group}, set } A \\text{ means ${context.aName} and set } B \\text{ means ${context.bName}. }\\\\\\text{Find the missing value for those who are ${regionText[missingKey]}.}`,
+                answer,
+                options: makeNumberOptions(Number(answer)),
+                forceOption: 0,
+            };
+        }
+
+        throw new Error(`Unhandled difficulty: ${difficulty}`);
+    }, [1, 2, 3, 4]),
+};

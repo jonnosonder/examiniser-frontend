@@ -65,7 +65,7 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                                         - Editor has been temporarily disabled<br/>
                                         - Questions are only in english<br/>
                                         - No explanations for questions yet<br/>
-                                        - Primary and Secondary questions added
+                                        - Primary and Secondary questions added (Sixth-form questions will be added incrementally)<br/>
                                     </p>
                                     
                                 </div>

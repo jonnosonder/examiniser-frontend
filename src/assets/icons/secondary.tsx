@@ -68,7 +68,7 @@ export const SecondaryGraphsIcon = () => (
 export const SecondaryTrigonometryIcon = () => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" xmlns="http://www.w3.org/2000/svg">
         <polygon points="4,20 4,6 20,20" />
-        <path d="M4 20 A 10 10 0 0 1 4 10" fill="none" />
+        <path d="M12 20 A 10 8 0 0 1 14 15" fill="none" />
         <text x="7" y="17" fontSize="6" fontFamily="serif" fill="currentColor" stroke="none">θ</text>
     </svg>
 );
