@@ -6739,14 +6739,50 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
         throw new Error(`Unhandled difficulty: ${difficulty}`);
     }, [1, 2, 3, 4]),
     "spheres": createGenerator(({ difficulty }) => {
+        const randInt = (min: number, max: number) =>
+            Math.floor(Math.random() * (max - min + 1)) + min;
+
+        const fmt2 = (n: number) => Number(n.toFixed(2)).toFixed(2);
+
+        if (difficulty === 1) {
+            const radius = randInt(2, 12);
+            const volume = (4 / 3) * Math.PI * Math.pow(radius, 3);
+
+            const askVolume = Math.random() < 0.5;
+
+            const answer = askVolume ? fmt2(volume) : String(radius);
+
+            const optionsSet = new Set<string>([answer]);
+            while (optionsSet.size < 4) {
+                if (askVolume) {
+                    const wrong = fmt2(volume + randInt(-80, 80));
+                    if (Number(wrong) > 0 && wrong !== answer) optionsSet.add(wrong);
+                } else {
+                    const wrong = String(radius + randInt(-4, 4));
+                    if (Number(wrong) > 0 && wrong !== answer) optionsSet.add(wrong);
+                }
+            }
+
+            const question = askVolume
+                ? `\\text{If the radius is } ${radius} \\text{ cm, what is the volume of the sphere? Give your answer to 2 d.p. }`
+                : `\\text{If the volume is } ${fmt2(volume)} \\text{ cm}^3\\text{, what is the radius of the sphere? }`;
+
+            return {
+                latex: `${question} \\\\ \\text{Formula: } V = \\frac{4}{3}\\pi r^3`,
+                answer,
+                options: Array.from(optionsSet).sort(() => Math.random() - 0.5),
+                forceOption: 0,
+            };
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
+    }, [1]),
     "unit-conversions": createGenerator(({ difficulty }) => {
         const randInt = (min: number, max: number) =>
             Math.floor(Math.random() * (max - min + 1)) + min;
         const randFloat = (min: number, max: number, dp = 1) =>
             parseFloat((Math.random() * (max - min) + min).toFixed(dp));
-        const pick = <T>(arr: T[]): T => arr[randInt(0, arr.length - 1)];
+        const pick = <T>(arr: readonly T[]): T => arr[randInt(0, arr.length - 1)];
 
         const makeOptions = (correct: number | string, gen: () => number, count = 4): string[] => {
             const fmt = (n: number | string) =>
@@ -6951,8 +6987,206 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
         throw new Error(`Unhandled difficulty: ${difficulty}`);
     }, [1, 2, 3, 4]),
     "compound-measures": createGenerator(({ difficulty }) => {
+        const randInt = (min: number, max: number) =>
+            Math.floor(Math.random() * (max - min + 1)) + min;
+
+        const randFloat = (min: number, max: number, dp = 1) =>
+            parseFloat((Math.random() * (max - min) + min).toFixed(dp));
+
+        const pick = <T>(arr: readonly T[]): T => arr[randInt(0, arr.length - 1)];
+
+        const makeNumericOptions = (correct: number, gen: () => number, dp = 2): string[] => {
+            const fmt = (n: number) => String(parseFloat(n.toFixed(dp)));
+            const set = new Set<string>([fmt(correct)]);
+            let tries = 0;
+            while (set.size < 4 && tries++ < 250) {
+                const v = gen();
+                if (v > 0) set.add(fmt(v));
+            }
+            return [...set].sort(() => Math.random() - 0.5);
+        };
+
+        // ---------------- LEVEL 1 ----------------
+        // Identify the correct formula for speed, density, or pressure
+        if (difficulty === 1) {
+            const topics = [
+                {
+                    name: "speed",
+                    answer: "v = \\frac{d}{t}",
+                    wrong: [
+                        "v = d \\times t",
+                        "v = \\frac{t}{d}",
+                        "v = d - t",
+                    ],
+                },
+                {
+                    name: "density",
+                    answer: "\\rho = \\frac{m}{V}",
+                    wrong: [
+                        "\\rho = m \\times V",
+                        "\\rho = \\frac{V}{m}",
+                        "\\rho = m - V",
+                    ],
+                },
+                {
+                    name: "pressure",
+                    answer: "P = \\frac{F}{A}",
+                    wrong: [
+                        "P = F \\times A",
+                        "P = \\frac{A}{F}",
+                        "P = F - A",
+                    ],
+                },
+            ] as const;
+
+            const q = pick(topics);
+            const options = [q.answer, ...q.wrong].sort(() => Math.random() - 0.5);
+
+            return {
+                latex: `\\text{Which is the correct formula for } ${q.name}\\text{?}`,
+                answer: q.answer,
+                options,
+                forceOption: 2,
+            };
+        }
+
+        // ---------------- LEVEL 2 ----------------
+        // Use/rearrange formula to solve direct GCSE-style questions
+        if (difficulty === 2) {
+            const questionType = randInt(0, 5);
+
+            if (questionType === 0) {
+                const d = randInt(60, 300);
+                const t = randInt(2, 8);
+                const v = d / t;
+                return {
+                    latex: `\\text{A car travels } ${d} \\text{ km in } ${t} \\text{ hours. Find the speed in km/h.}`,
+                    answer: String(v),
+                    options: makeNumericOptions(v, () => randFloat(10, 140, 1), 1),
+                    forceOption: 0,
+                };
+            }
+
+            if (questionType === 1) {
+                const v = randInt(40, 110);
+                const t = randFloat(1.5, 5, 1);
+                const d = v * t;
+                return {
+                    latex: `\\text{A cyclist travels at } ${v} \\text{ km/h for } ${t} \\text{ hours. Find the distance in km.}`,
+                    answer: String(parseFloat(d.toFixed(1))),
+                    options: makeNumericOptions(d, () => randFloat(40, 600, 1), 1),
+                    forceOption: 0,
+                };
+            }
+
+            if (questionType === 2) {
+                const m = randFloat(120, 900, 1);
+                const v = randFloat(2, 12, 1);
+                const density = m / v;
+                return {
+                    latex: `\\text{An object has mass } ${m} \\text{ kg and volume } ${v} \\text{ m}^3\\text{. Find its density in kg/m}^3\\text{.}`,
+                    answer: String(parseFloat(density.toFixed(2))),
+                    options: makeNumericOptions(density, () => randFloat(20, 400, 2), 2),
+                    forceOption: 0,
+                };
+            }
+
+            if (questionType === 3) {
+                const density = randFloat(40, 250, 1);
+                const v = randFloat(2, 15, 1);
+                const m = density * v;
+                return {
+                    latex: `\\text{A substance has density } ${density} \\text{ kg/m}^3\\text{ and volume } ${v} \\text{ m}^3\\text{. Find its mass in kg.}`,
+                    answer: String(parseFloat(m.toFixed(1))),
+                    options: makeNumericOptions(m, () => randFloat(20, 3000, 1), 1),
+                    forceOption: 0,
+                };
+            }
+
+            if (questionType === 4) {
+                const force = randFloat(100, 1200, 1);
+                const area = randFloat(0.4, 5, 2);
+                const pressure = force / area;
+                return {
+                    latex: `\\text{A force of } ${force} \\text{ N acts on an area of } ${area} \\text{ m}^2\\text{. Find the pressure in N/m}^2\\text{.}`,
+                    answer: String(parseFloat(pressure.toFixed(2))),
+                    options: makeNumericOptions(pressure, () => randFloat(20, 3000, 2), 2),
+                    forceOption: 0,
+                };
+            }
+
+            const pressure = randFloat(80, 1200, 1);
+            const force = randFloat(100, 1800, 1);
+            const area = force / pressure;
+            return {
+                latex: `\\text{Pressure is } ${pressure} \\text{ N/m}^2\\text{ and force is } ${force} \\text{ N. Find the area in m}^2\\text{.}`,
+                answer: String(parseFloat(area.toFixed(3))),
+                options: makeNumericOptions(area, () => randFloat(0.1, 20, 3), 3),
+                forceOption: 0,
+            };
+        }
+
+        // ---------------- LEVEL 3 ----------------
+        // Worded problems with random values
+        if (difficulty === 3) {
+            const cases = [
+                () => {
+                    const dist = randInt(90, 420);
+                    const time = randFloat(1.5, 6, 1);
+                    const speed = dist / time;
+                    return {
+                        latex: `\\text{A coach drives } ${dist} \\text{ km to a match in } ${time} \\text{ hours.}\\\\\\text{Find the average speed in km/h.}`,
+                        answer: speed,
+                        dp: 1,
+                        gen: () => randFloat(20, 160, 1),
+                    };
+                },
+                () => {
+                    const density = randFloat(2.4, 11.3, 1);
+                    const volume = randFloat(0.6, 6, 2);
+                    const mass = density * volume;
+                    return {
+                        latex: `\\text{A metal block has density } ${density} \\text{ g/cm}^3\\text{ and volume } ${volume} \\text{ cm}^3\\text{.}\\\\\\text{Find the mass in g.}`,
+                        answer: mass,
+                        dp: 2,
+                        gen: () => randFloat(1, 100, 2),
+                    };
+                },
+                () => {
+                    const force = randFloat(400, 2400, 1);
+                    const area = randFloat(0.8, 4.8, 2);
+                    const pressure = force / area;
+                    return {
+                        latex: `\\text{A hydraulic press applies } ${force} \\text{ N over } ${area} \\text{ m}^2\\text{.}\\\\\\text{Calculate the pressure in N/m}^2\\text{.}`,
+                        answer: pressure,
+                        dp: 2,
+                        gen: () => randFloat(50, 5000, 2),
+                    };
+                },
+                () => {
+                    const speed = randInt(45, 110);
+                    const distance = randInt(120, 560);
+                    const time = distance / speed;
+                    return {
+                        latex: `\\text{A van travels at } ${speed} \\text{ km/h and covers } ${distance} \\text{ km.}\\\\\\text{How long does the journey take in hours?}`,
+                        answer: time,
+                        dp: 2,
+                        gen: () => randFloat(1, 12, 2),
+                    };
+                },
+            ] as const;
+
+            const q = pick(cases)();
+            return {
+                latex: q.latex,
+                answer: String(parseFloat(q.answer.toFixed(q.dp))),
+                options: makeNumericOptions(q.answer, q.gen, q.dp),
+                forceOption: 0,
+            };
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
+    }, [1, 2, 3]),
     "data-collection-methods": createGenerator(({ difficulty }) => {
         throw new Error(`Unhandled difficulty: ${difficulty}`);
     }, []),

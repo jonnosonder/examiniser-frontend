@@ -1,2 +1,5 @@
 More difficulties:
-- http://localhost:3000/en/secondary/geometry/reflection add reflection on a line e.g. y=xx
+- http://localhost:3000/en/secondary/geometry/reflection add reflection on a line e.g. y=x
+
+Wording:
+- http://localhost:3000/en/secondary/measurement/compound-measures add more sentence templates to D3

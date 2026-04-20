@@ -252,7 +252,6 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
         "secondary-topics.trigonometry",
         "secondary-topics.measurement",
         "secondary-topics.statistics",
-        "secondary-topics.reasoning-problem-solving",
         "general.see-all",
       ],
       links: [
@@ -262,7 +261,6 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
         "/secondary/trigonometry",
         "/secondary/measurement",
         "/secondary/statistics",
-        "/secondary/reasoning-problem-solving",
         "/secondary",
       ],
       delay: "120ms" 
