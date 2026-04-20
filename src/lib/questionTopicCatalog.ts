@@ -193,16 +193,16 @@ export const QUESTION_CATALOG: Record<QuestionLevel, MainTopicDef[]> = {
                 { slug: "venn-diagrams", titleKey: "secondary-subtopics.venn-diagrams", descriptionKey: "descriptions.secondarySub.statistics.venn-diagrams" },
             ],
         },
-        {
-            id: "reasoning-problem-solving",
-            titleKey: "secondary-topics.reasoning-problem-solving",
-            descriptionKey: "descriptions.secondary.reasoning-problem-solving",
-            subtopics: [
-                { slug: "multi-step-problems", titleKey: "secondary-subtopics.multi-step-problems", descriptionKey: "descriptions.secondarySub.reasoning-problem-solving.multi-step-problems" },
-                { slug: "mathematical-proofs", titleKey: "secondary-subtopics.mathematical-proofs", descriptionKey: "descriptions.secondarySub.reasoning-problem-solving.mathematical-proofs" },
-                { slug: "logical-deduction", titleKey: "secondary-subtopics.logical-deduction", descriptionKey: "descriptions.secondarySub.reasoning-problem-solving.logical-deduction" },
-            ],
-        },
+        //{
+        //    id: "reasoning-problem-solving",
+        //    titleKey: "secondary-topics.reasoning-problem-solving",
+        //    descriptionKey: "descriptions.secondary.reasoning-problem-solving",
+        //    subtopics: [
+        //        { slug: "multi-step-problems", titleKey: "secondary-subtopics.multi-step-problems", descriptionKey: "descriptions.secondarySub.reasoning-problem-solving.multi-step-problems" },
+        //        { slug: "mathematical-proofs", titleKey: "secondary-subtopics.mathematical-proofs", descriptionKey: "descriptions.secondarySub.reasoning-problem-solving.mathematical-proofs" },
+        //        { slug: "logical-deduction", titleKey: "secondary-subtopics.logical-deduction", descriptionKey: "descriptions.secondarySub.reasoning-problem-solving.logical-deduction" },
+        //    ],
+        //},
     ],
     sixthForm: [
         {

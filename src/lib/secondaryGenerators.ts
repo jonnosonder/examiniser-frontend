@@ -5469,17 +5469,660 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
         throw new Error(`Unhandled difficulty: ${difficulty}`);
     }, [1, 2, 3, 4]),
     "sine-cosine-tangent": createGenerator(({ difficulty }) => {
+        const randInt = (min: number, max: number) =>
+            Math.floor(Math.random() * (max - min + 1)) + min;
+
+        if (difficulty === 1) {
+            const funcs = ["\\sin", "\\cos", "\\tan"] as const;
+            const func = funcs[randInt(0, funcs.length - 1)];
+
+            // Keep angles away from undefined tan values and very steep extremes.
+            const anglePool = [10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80];
+            const angle = anglePool[randInt(0, anglePool.length - 1)];
+
+            const radians = (angle * Math.PI) / 180;
+            const value =
+                func === "\\sin" ? Math.sin(radians)
+                : func === "\\cos" ? Math.cos(radians)
+                : Math.tan(radians);
+
+            const rounded = Number(value.toFixed(3));
+            const answer = rounded.toFixed(3);
+
+            const optionsSet = new Set<string>([answer]);
+            while (optionsSet.size < 4) {
+                const delta = randInt(-4, 4) / 10;
+                const wrong = (rounded + delta).toFixed(3);
+                if (wrong !== answer && Number(wrong) >= 0) {
+                    optionsSet.add(wrong);
+                }
+            }
+
+            return {
+                latex: `\\text{Use your calculator to work out } ${func}(${angle}^\\circ)\\text{. Give your answer to 3 decimal place.}`,
+                answer,
+                options: Array.from(optionsSet).sort(() => Math.random() - 0.5),
+                forceOption: 0,
+            };
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
+    }, [1]),
     "right-angled-triangles": createGenerator(({ difficulty }) => {
+        const randInt = (min: number, max: number) =>
+            Math.floor(Math.random() * (max - min + 1)) + min;
+
+        const A = { x: 70, y: 120 };   // right-angle vertex
+        const B = { x: 70, y: 20 };
+        const C = { x: 243.2, y: 120 };
+
+        const midpoint = (p: { x: number; y: number }, q: { x: number; y: number }) => ({
+            x: (p.x + q.x) / 2,
+            y: (p.y + q.y) / 2,
+        });
+
+        const fmt = (n: number, dp = 2) => Number(n.toFixed(dp)).toFixed(dp);
+
+        const makeNumericOptions = (answer: number, dp = 2) => {
+            const set = new Set<string>([fmt(answer, dp)]);
+            let tries = 0;
+            while (set.size < 4 && tries++ < 200) {
+                const delta = (randInt(-25, 25) / 10) * (dp === 2 ? 0.1 : 1);
+                const wrong = answer + delta;
+                if (wrong > 0) set.add(fmt(wrong, dp));
+            }
+            return Array.from(set).sort(() => Math.random() - 0.5);
+        };
+
+        const drawTriangleSvg = (args: {
+            sideAB?: string;
+            sideAC?: string;
+            sideBC?: string;
+            angleB?: string;
+            angleC?: string;
+        }) => {
+            const mAB = midpoint(A, B);
+            const mAC = midpoint(A, C);
+            const mBC = midpoint(B, C);
+
+            return `
+                <svg width="340" height="180" viewBox="0 0 340 180" xmlns="http://www.w3.org/2000/svg">
+                    <polygon points="${A.x},${A.y} ${B.x},${B.y} ${C.x},${C.y}" fill="none" stroke="black" stroke-width="2.5"/>
+                    <polyline points="${A.x},${A.y - 12} ${A.x + 12},${A.y - 12} ${A.x + 12},${A.y}" fill="none" stroke="black" stroke-width="2"/>
+
+                    ${args.sideAB ? `<text x="${mAB.x - 20}" y="${mAB.y}" text-anchor="end" font-size="12" fill="#000000">${args.sideAB}</text>` : ""}
+                    ${args.sideAC ? `<text x="${mAC.x}" y="${mAC.y + 18}" text-anchor="middle" font-size="12" fill="#000000">${args.sideAC}</text>` : ""}
+                    ${args.sideBC ? `<text x="${mBC.x + 12}" y="${mBC.y - 8}" text-anchor="start" font-size="12" fill="#000000">${args.sideBC}</text>` : ""}
+
+                    ${args.angleB ? `<path d="M ${B.x} ${B.y + 24} A 24 24 0 0 0 ${B.x + 20.8} ${B.y + 12}" fill="none" stroke="#000000" stroke-width="2"/>` : ""}
+                    ${args.angleB ? `<text x="${B.x + 8}" y="${B.y + 36}" text-anchor="start" font-size="13" fill="#000000">${args.angleB}</text>` : ""}
+                    ${args.angleC ? `<path d="M ${C.x - 34.64} ${C.y - 20} A 34 34 0 0 0 ${C.x - 34.64} ${C.y}" fill="none" stroke="#000000" stroke-width="2"/>` : ""}
+                    ${args.angleC ? `<text x="${C.x - 42}" y="${C.y - 8}" text-anchor="end" font-size="13" fill="#000000">${args.angleC}</text>` : ""}
+                </svg>
+            `;
+        };
+
+        const relationForCorner = (corner: "B" | "C") => {
+            if (corner === "C") {
+                return { opposite: "AB", adjacent: "AC", hypotenuse: "BC" } as const;
+            }
+            return { opposite: "AC", adjacent: "AB", hypotenuse: "BC" } as const;
+        };
+
+        const sideNameByEdge = {
+            AB: "A",
+            AC: "B",
+            BC: "C",
+        } as const;
+
+        const withSideLabels = (labels: Partial<Record<"AB" | "AC" | "BC", string>>, angleB?: string, angleC?: string) =>
+            drawTriangleSvg({
+                sideAB: labels.AB,
+                sideAC: labels.AC,
+                sideBC: labels.BC,
+                angleB,
+                angleC,
+            });
+
+        // ---------------- LEVEL 1 ----------------
+        // Identify whether sin/cos/tan is needed to find angle x.
+        if (difficulty === 1) {
+            const fn = ["sin", "cos", "tan"][randInt(0, 2)] as "sin" | "cos" | "tan";
+            const corner: "B" | "C" = "C";
+            const rel = relationForCorner(corner);
+
+            const labels: Partial<Record<"AB" | "AC" | "BC", string>> = {
+                AB: sideNameByEdge.AB,
+                AC: sideNameByEdge.AC,
+                BC: sideNameByEdge.BC,
+            };
+
+            let sideOne = "";
+            let sideTwo = "";
+            if (fn === "sin") {
+                sideOne = sideNameByEdge[rel.opposite];
+                sideTwo = sideNameByEdge[rel.hypotenuse];
+            } else if (fn === "cos") {
+                sideOne = sideNameByEdge[rel.adjacent];
+                sideTwo = sideNameByEdge[rel.hypotenuse];
+            } else {
+                sideOne = sideNameByEdge[rel.opposite];
+                sideTwo = sideNameByEdge[rel.adjacent];
+            }
+
+            const svg = withSideLabels(labels, undefined, "x");
+
+            return {
+                svg,
+                latex: `\\text{Which trigonometric function should you use first to find angle } x \\text{ using sides } ${sideOne} \\ \\text{ and } ${sideTwo}\\text{?}`,
+                answer: fn,
+                options: ["sin", "cos", "tan"].sort(() => Math.random() - 0.5),
+                forceOption: 0,
+            };
+        }
+
+        // ---------------- LEVEL 2 ----------------
+        // Given an angle and one side, identify sin/cos/tan to find another side.
+        if (difficulty === 2) {
+            const fn = ["sin", "cos", "tan"][randInt(0, 2)] as "sin" | "cos" | "tan";
+            const corner: "B" | "C" = "C";
+            const rel = relationForCorner(corner);
+
+            const labels: Partial<Record<"AB" | "AC" | "BC", string>> = {
+                AB: sideNameByEdge.AB,
+                AC: sideNameByEdge.AC,
+                BC: sideNameByEdge.BC,
+            };
+
+            let question = "";
+            if (fn === "sin") {
+                const given = sideNameByEdge[rel.hypotenuse];
+                const target = sideNameByEdge[rel.opposite];
+                question = `\\text{Given angle } x \\text{ and side } ${given}\\text{, which trigonometric function should you use to find side } ${target}\\text{?}`;
+            } else if (fn === "cos") {
+                const given = sideNameByEdge[rel.hypotenuse];
+                const target = sideNameByEdge[rel.adjacent];
+                question = `\\text{Given angle } x \\text{ and side } ${given}\\text{, which trigonometric function should you use to find side } ${target}\\text{?}`;
+            } else {
+                const given = sideNameByEdge[rel.adjacent];
+                const target = sideNameByEdge[rel.opposite];
+                question = `\\text{Given angle } x \\text{ and side } ${given}\\text{, which trigonometric function should you use to find side } ${target}\\text{?}`;
+            }
+
+            const svg = withSideLabels(
+                labels,
+                undefined,
+                "x"
+            );
+
+            return {
+                svg,
+                latex: question,
+                answer: fn,
+                options: ["sin", "cos", "tan"].sort(() => Math.random() - 0.5),
+                forceOption: 0,
+            };
+        }
+
+        // ---------------- LEVEL 3 ----------------
+        // Calculate angles/sides using trig, answers to 2 d.p.
+        if (difficulty === 3) {
+            const mode = randInt(0, 1); // 0 -> find angle (inverse trig), 1 -> find side
+
+            if (mode === 0) {
+                const fn = ["sin", "cos", "tan"][randInt(0, 2)] as "sin" | "cos" | "tan";
+                const trueAngle = randInt(20, 70);
+                const rad = (trueAngle * Math.PI) / 180;
+                const hyp = randInt(8, 22);
+                const opp = hyp * Math.sin(rad);
+                const adj = hyp * Math.cos(rad);
+
+                const labels: Partial<Record<"AB" | "AC" | "BC", string>> = {};
+                if (fn === "sin") {
+                    labels.AB = `${fmt(opp, 2)} cm`;
+                    labels.BC = `${fmt(hyp, 2)} cm`;
+                } else if (fn === "cos") {
+                    labels.AC = `${fmt(adj, 2)} cm`;
+                    labels.BC = `${fmt(hyp, 2)} cm`;
+                } else {
+                    labels.AB = `${fmt(opp, 2)} cm`;
+                    labels.AC = `${fmt(adj, 2)} cm`;
+                }
+
+                const svg = withSideLabels(labels, undefined, "x");
+                const answer = Number(trueAngle.toFixed(2));
+
+                return {
+                    svg,
+                    latex: `\\text{Work out angle } x\\text{ to 2 decimal places.}`,
+                    answer: fmt(answer, 2),
+                    options: makeNumericOptions(answer, 2),
+                    forceOption: 0,
+                };
+            }
+
+            const fn = ["sin", "cos", "tan"][randInt(0, 2)] as "sin" | "cos" | "tan";
+            const angle = randInt(20, 70);
+            const rad = (angle * Math.PI) / 180;
+            const base = randInt(8, 20);
+
+            const labels: Partial<Record<"AB" | "AC" | "BC", string>> = {};
+            let answer = 0;
+            let prompt = "";
+
+            if (fn === "sin") {
+                labels.BC = `${base} cm`;
+                labels.AB = "?";
+                answer = base * Math.sin(rad);
+                prompt = `\\text{Work out the side marked } ?\\text{ to 2 decimal places.}`;
+            } else if (fn === "cos") {
+                labels.BC = `${base} cm`;
+                labels.AC = "?";
+                answer = base * Math.cos(rad);
+                prompt = `\\text{Work out the side marked } ?\\text{ to 2 decimal places.}`;
+            } else {
+                labels.AC = `${base} cm`;
+                labels.AB = "?";
+                answer = base * Math.tan(rad);
+                prompt = `\\text{Work out the side marked } ?\\text{ to 2 decimal places.}`;
+            }
+
+            const svg = withSideLabels(labels, undefined, `${angle}°`);
+
+            return {
+                svg,
+                latex: prompt,
+                answer: fmt(answer, 2),
+                options: makeNumericOptions(answer, 2),
+                forceOption: 0,
+            };
+        }
+
+        // ---------------- LEVEL 4 ----------------
+        // 30-60-90 triangle, angle location varies between 30 and 60 corners.
+        if (difficulty === 4) {
+            const corner: "B" | "C" = Math.random() < 0.5 ? "B" : "C";
+            const angleAtCorner = corner === "B" ? 60 : 30;
+            const rel = relationForCorner(corner);
+
+            const k = randInt(4, 12);
+            const lengths = {
+                AB: k,
+                AC: k * Math.sqrt(3),
+                BC: 2 * k,
+            };
+
+            const mode = randInt(0, 1); // 0 angle, 1 side
+
+            if (mode === 0) {
+                const fn = ["sin", "cos", "tan"][randInt(0, 2)] as "sin" | "cos" | "tan";
+                const labels: Partial<Record<"AB" | "AC" | "BC", string>> = {};
+
+                if (fn === "sin") {
+                    labels[rel.opposite] = `${fmt(lengths[rel.opposite], 2)} cm`;
+                    labels[rel.hypotenuse] = `${fmt(lengths[rel.hypotenuse], 2)} cm`;
+                } else if (fn === "cos") {
+                    labels[rel.adjacent] = `${fmt(lengths[rel.adjacent], 2)} cm`;
+                    labels[rel.hypotenuse] = `${fmt(lengths[rel.hypotenuse], 2)} cm`;
+                } else {
+                    labels[rel.opposite] = `${fmt(lengths[rel.opposite], 2)} cm`;
+                    labels[rel.adjacent] = `${fmt(lengths[rel.adjacent], 2)} cm`;
+                }
+
+                const svg = withSideLabels(labels, corner === "B" ? "x" : undefined, corner === "C" ? "x" : undefined);
+
+                return {
+                    svg,
+                    latex: `\\text{Find angle } x\\text{ to 2 decimal places.}`,
+                    answer: fmt(angleAtCorner, 2),
+                    options: makeNumericOptions(angleAtCorner, 2),
+                    forceOption: 0,
+                };
+            }
+
+            const fn = ["sin", "cos", "tan"][randInt(0, 2)] as "sin" | "cos" | "tan";
+            const labels: Partial<Record<"AB" | "AC" | "BC", string>> = {};
+            let answer = 0;
+
+            if (fn === "sin") {
+                labels[rel.hypotenuse] = `${fmt(lengths[rel.hypotenuse], 2)} cm`;
+                labels[rel.opposite] = "?";
+                answer = lengths[rel.hypotenuse] * Math.sin((angleAtCorner * Math.PI) / 180);
+            } else if (fn === "cos") {
+                labels[rel.hypotenuse] = `${fmt(lengths[rel.hypotenuse], 2)} cm`;
+                labels[rel.adjacent] = "?";
+                answer = lengths[rel.hypotenuse] * Math.cos((angleAtCorner * Math.PI) / 180);
+            } else {
+                labels[rel.adjacent] = `${fmt(lengths[rel.adjacent], 2)} cm`;
+                labels[rel.opposite] = "?";
+                answer = lengths[rel.adjacent] * Math.tan((angleAtCorner * Math.PI) / 180);
+            }
+
+            const svg = withSideLabels(
+                labels,
+                corner === "B" ? `${angleAtCorner}°` : undefined,
+                corner === "C" ? `${angleAtCorner}°` : undefined
+            );
+
+            return {
+                svg,
+                latex: `\\text{Find the side marked } ?\\text{ to 2 decimal places.}`,
+                answer: fmt(answer, 2),
+                options: makeNumericOptions(answer, 2),
+                forceOption: 0,
+            };
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
+    }, [1, 2, 3, 4]),
     "circumference-and-area": createGenerator(({ difficulty }) => {
+        const randInt = (min: number, max: number) =>
+            Math.floor(Math.random() * (max - min + 1)) + min;
+
+        const fmt2 = (n: number) => Number(n.toFixed(2)).toFixed(2);
+        const piTerm = (coeff: number) => (coeff === 1 ? `π` : `${coeff}π`);
+
+        if (difficulty === 1) {
+            const r = randInt(3, 14);
+            const d = 2 * r;
+            const c = 2 * Math.PI * r;
+            const cStr = fmt2(c);
+
+            const targets = ["radius", "diameter", "circumference"] as const;
+            const target = targets[randInt(0, targets.length - 1)];
+            const radiusLabel = `${r} cm`;
+            const circumferenceLabel = `${cStr} cm`;
+
+            const answer =
+                target === "radius" ? String(r)
+                : target === "diameter" ? String(d)
+                : cStr;
+
+            const optionsSet = new Set<string>([answer]);
+            while (optionsSet.size < 4) {
+                if (target === "circumference") {
+                    const wrong = fmt2(c + randInt(-25, 25) / 10);
+                    if (Number(wrong) > 0) optionsSet.add(wrong);
+                } else {
+                    const base = target === "radius" ? r : d;
+                    const wrong = String(base + randInt(-4, 4));
+                    if (Number(wrong) > 0) optionsSet.add(wrong);
+                }
+            }
+
+            const cx = 150;
+            const cy = 115;
+            const radPx = 70;
+
+            const svg = `
+                <svg width="320" height="230" viewBox="0 0 320 230" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="${cx}" cy="${cy}" r="${radPx}" fill="none" stroke="black" stroke-width="2"/>
+                    <circle cx="${cx}" cy="${cy}" r="2.5" fill="black"/>
+
+                    <line x1="${cx}" y1="${cy}" x2="${cx + radPx}" y2="${cy}" stroke="#000000" stroke-width="2"/>
+
+                    <text x="${cx + 8}" y="${cy - 8}" font-size="12" fill="#000000">r = ${radiusLabel}</text>
+                    <text x="${cx + 72}" y="${cy - 26}" font-size="12" fill="#000000">C = ${circumferenceLabel}</text>
+                </svg>
+            `;
+
+            const prompt =
+                target === "radius" ? `\\text{find the radius.}`
+                : target === "diameter" ? `\\text{find the diameter.}`
+                : `\\text{find the circumference. }`;
+
+            return {
+                svg,
+                latex: `\\text{Use the labelled circle to }\\\\${prompt}`,
+                answer,
+                options: Array.from(optionsSet).sort(() => Math.random() - 0.5),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 2) {
+            const r = randInt(3, 14);
+            const d = 2 * r;
+            const cCoeff = 2 * r;
+
+            const targets = ["radius", "diameter", "circumference"] as const;
+            const target = targets[randInt(0, targets.length - 1)];
+            const radiusFocus = Math.random() < 0.5;
+
+            let radiusLabel = "?";
+            let diameterLabel = "?";
+            let circumferenceLabel = "?";
+            let answer = "";
+            let prompt = "";
+            let showRadius = false;
+            let showDiameter = false;
+
+            if (target === "radius") {
+                showRadius = true;
+                radiusLabel = "?";
+                circumferenceLabel = `${piTerm(cCoeff)} cm`;
+                answer = String(r);
+                prompt = `\\text{find the radius.}`;
+            } else if (target === "diameter") {
+                showDiameter = true;
+                diameterLabel = "?";
+                circumferenceLabel = `${piTerm(cCoeff)} cm`;
+                answer = String(d);
+                prompt = `\\text{find the diameter.}`;
+            } else {
+                showRadius = radiusFocus;
+                showDiameter = !radiusFocus;
+                radiusLabel = radiusFocus ? `${r} cm` : "?";
+                diameterLabel = radiusFocus ? "?" : `${d} cm`;
+                circumferenceLabel = "?";
+                answer = piTerm(cCoeff);
+                prompt = `\\text{find the circumference in terms of } \\pi\\text{.}`;
+            }
+
+            const optionsSet = new Set<string>([answer]);
+            while (optionsSet.size < 4) {
+                if (target === "circumference") {
+                    const wrongCoeff = cCoeff + randInt(-8, 8);
+                    if (wrongCoeff > 0) optionsSet.add(piTerm(wrongCoeff));
+                } else {
+                    const base = target === "radius" ? r : d;
+                    const wrong = String(base + randInt(-4, 4));
+                    if (Number(wrong) > 0) optionsSet.add(wrong);
+                }
+            }
+
+            const cx = 150;
+            const cy = 115;
+            const radPx = 70;
+
+            const svg = `
+                <svg width="320" height="230" viewBox="0 0 320 230" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="${cx}" cy="${cy}" r="${radPx}" fill="none" stroke="black" stroke-width="2"/>
+                    <circle cx="${cx}" cy="${cy}" r="2.5" fill="black"/>
+
+                    ${showRadius ? `<line x1="${cx}" y1="${cy}" x2="${cx + radPx}" y2="${cy}" stroke="#000000" stroke-width="2"/>` : ""}
+                    ${showDiameter ? `<line x1="${cx - radPx}" y1="${cy}" x2="${cx + radPx}" y2="${cy}" stroke="#000000" stroke-width="1.8"/>` : ""}
+
+                    ${showRadius ? `<text x="${cx + 8}" y="${cy - 8}" font-size="12" fill="#000000">r = ${radiusLabel}</text>` : ""}
+                    ${showDiameter ? `<text x="${cx - 36}" y="${cy + 16}" font-size="12" fill="#000000">d = ${diameterLabel}</text>` : ""}
+                    <text x="${cx + 72}" y="${cy - 26}" font-size="12" fill="#000000">C = ${circumferenceLabel}</text>
+                </svg>
+            `;
+
+            return {
+                svg,
+                latex: `\\text{Use the labelled circle to } ${prompt}`,
+                answer,
+                options: Array.from(optionsSet).sort(() => Math.random() - 0.5),
+                forceOption: 0,
+            };
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
+    }, [1, 2]),
     "arcs-and-sectors": createGenerator(({ difficulty }) => {
+        const randInt = (min: number, max: number) =>
+            Math.floor(Math.random() * (max - min + 1)) + min;
+
+        const fmt2 = (n: number) => Number(n.toFixed(2)).toFixed(2);
+
+        const arcLength = (r: number, theta: number) => (theta / 360) * 2 * Math.PI * r;
+        const sectorArea = (r: number, theta: number) => (theta / 360) * Math.PI * r * r;
+        const sectorPerimeter = (r: number, theta: number) => arcLength(r, theta) + 2 * r;
+
+        const makeDecimalOptions = (answer: number) => {
+            const set = new Set<string>([fmt2(answer)]);
+            let tries = 0;
+            while (set.size < 4 && tries++ < 300) {
+                const wrong = answer + randInt(-30, 30) / 10;
+                if (wrong > 0 && Math.abs(wrong - answer) > 0.05) {
+                    set.add(fmt2(wrong));
+                }
+            }
+            return Array.from(set).sort(() => Math.random() - 0.5);
+        };
+
+        const makeAngleOptions = (answer: number) => {
+            const set = new Set<string>([String(answer)]);
+            while (set.size < 4) {
+                const wrong = answer + randInt(-40, 40);
+                if (wrong > 0 && wrong < 360) {
+                    set.add(String(wrong));
+                }
+            }
+            return Array.from(set).sort(() => Math.random() - 0.5);
+        };
+
+        const drawSectorSvg = (args: {
+            radius: number;
+            theta: number;
+            angleLabel?: string;
+            radiusLabel?: string;
+            interiorLabel?: string;
+            exteriorLabel?: string;
+            radiusLabelSide?: "top" | "bottom";
+        }) => {
+            const { radius, theta, angleLabel, radiusLabel, interiorLabel, exteriorLabel, radiusLabelSide } = args;
+            const cx = 165;
+            const cy = 140;
+            const rPx = 80;
+
+            const startX = cx + rPx;
+            const startY = cy;
+            const endRad = (-theta * Math.PI) / 180;
+            const endX = cx + rPx * Math.cos(endRad);
+            const endY = cy + rPx * Math.sin(endRad);
+            const largeArc = theta > 180 ? 1 : 0;
+
+            const angleMid = (-theta / 2) * (Math.PI / 180);
+            const angleTx = cx + 28 * Math.cos(angleMid);
+            const angleTy = cy + 28 * Math.sin(angleMid);
+
+            return `
+                <svg width="340" height="250" viewBox="0 0 340 250" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M ${cx} ${cy} L ${startX} ${startY} A ${rPx} ${rPx} 0 ${largeArc} 0 ${endX} ${endY} Z" fill="none" stroke="black" stroke-width="2"/>
+                    <line x1="${cx}" y1="${cy}" x2="${startX}" y2="${startY}" stroke="#000000" stroke-width="2"/>
+                    <line x1="${cx}" y1="${cy}" x2="${endX}" y2="${endY}" stroke="#000000" stroke-width="2"/>
+                    <circle cx="${cx}" cy="${cy}" r="2.5" fill="black"/>
+
+                    ${angleLabel ? `<text x="${angleTx}" y="${angleTy}" font-size="13" text-anchor="middle" fill="#000000">${angleLabel}</text>` : ""}
+                    ${interiorLabel ? `<text x="${cx - 34}" y="${cy + 18}" font-size="12" fill="#000000">${interiorLabel}</text>` : ""}
+                    ${exteriorLabel ? `<text x="${cx+14}" y="${cy + 20}" font-size="12" fill="#000000">${exteriorLabel}</text>` : ""}
+                    ${radiusLabel ? `<text x="${cx + 18}" y="${cy + (radiusLabelSide === "top" ? -8 : 14)}" font-size="12" fill="#000000">r = ${radiusLabel}</text>` : ""}
+                </svg>
+            `;
+        };
+
+        // ---------------- LEVEL 1 ----------------
+        // Given radius and central angle, find area or perimeter.
+        if (difficulty === 1) {
+            const anglePool = [60, 72, 100, 120, 135, 150, 180, 210, 240, 270];
+            const theta = anglePool[randInt(0, anglePool.length - 1)];
+            const r = randInt(4, 14);
+            const askArea = Math.random() < 0.5;
+
+            const answerNum = askArea ? sectorArea(r, theta) : sectorPerimeter(r, theta);
+
+            const svg = drawSectorSvg({
+                radius: r,
+                theta,
+                angleLabel: `${theta}°`,
+                radiusLabel: `${r} cm`,
+                radiusLabelSide: "bottom",
+            });
+
+            return {
+                svg,
+                latex: askArea
+                    ? `\\text{Given the sector shown, calculate the area. Give your answer to 2 decimal places.}`
+                    : `\\text{Given the sector shown, calculate the perimeter. Give your answer to 2 decimal places.}`,
+                answer: fmt2(answerNum),
+                options: makeDecimalOptions(answerNum),
+                forceOption: 0,
+            };
+        }
+
+        // ---------------- LEVEL 2 ----------------
+        // Given exterior angle, find perimeter or area.
+        if (difficulty === 2) {
+            const exteriorPool = [60, 72, 90, 120, 135, 150, 180, 210, 240, 270];
+            const exterior = exteriorPool[randInt(0, exteriorPool.length - 1)];
+            const theta = 360 - exterior;
+            const r = randInt(4, 12);
+            const askArea = Math.random() < 0.5;
+
+            const answerNum = askArea ? sectorArea(r, theta) : sectorPerimeter(r, theta);
+
+            const svg = drawSectorSvg({
+                radius: r,
+                theta,
+                radiusLabel: `${r} cm`,
+                radiusLabelSide: "top",
+                exteriorLabel: `${exterior}°`,
+            });
+
+            return {
+                svg,
+                latex: askArea
+                    ? `\\text{Use the exterior angle to find the area of the sector. Give your answer to 2 decimal places.}`
+                    : `\\text{Use the exterior angle to find the perimeter of the sector. Give your answer to 2 decimal places.}`,
+                answer: fmt2(answerNum),
+                options: makeDecimalOptions(answerNum),
+                forceOption: 0,
+            };
+        }
+
+        // ---------------- LEVEL 3 ----------------
+        // Given circumference (arc length) or area and radius, find angle.
+        if (difficulty === 3) {
+            const anglePool = [45, 60, 72, 90, 120, 135, 150, 180, 210, 240, 270, 300];
+            const theta = anglePool[randInt(0, anglePool.length - 1)];
+            const r = randInt(4, 12);
+            const useArc = Math.random() < 0.5;
+
+            const givenVal = useArc ? arcLength(r, theta) : sectorArea(r, theta);
+
+            const svg = drawSectorSvg({
+                radius: r,
+                theta,
+                angleLabel: "x",
+                radiusLabel: `${r} cm`,
+                radiusLabelSide: "bottom",
+            });
+
+            return {
+                svg,
+                latex: useArc
+                    ? `\\text{Given the arc circumference is ${fmt2(givenVal)} cm and radius ${r} cm, find angle } x\\text{ in degrees.}`
+                    : `\\text{Given the sector area is ${fmt2(givenVal)} cm² and radius ${r} cm, find angle } x\\text{ in degrees.}`,
+                answer: String(theta),
+                options: makeAngleOptions(theta),
+                forceOption: 0,
+            };
+        }
+
         throw new Error(`Unhandled difficulty: ${difficulty}`);
-    }, []),
+    }, [1, 2, 3]),
     "area-and-perimeter": createGenerator(({ difficulty }) => {
         const randInt = (min: number, max: number) =>
             Math.floor(Math.random() * (max - min + 1)) + min;
