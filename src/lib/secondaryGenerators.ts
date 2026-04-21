@@ -842,15 +842,9 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
             let answers: string[] = [];
 
             if (sd === 1) {
-                answers = [`${sn}`, `\\frac{${resultNumer}}{${denom}}`];
-            } else if (g > 1) {
-                answers = [`\\frac{${sn}}{${sd}}`, `\\frac{${resultNumer}}{${denom}}`];
-            } else {
+                answers = [`${sn}`];
+            } else{
                 answers = [`\\frac{${sn}}{${sd}}`];
-            }
-
-            if (resultNumer === denom) {
-                answers = [`\\frac{${resultNumer}}{${denom}}`, "1"];
             }
 
             const optionsSet = new Set<string>(answers);
@@ -866,6 +860,7 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
             return {
                 latex: `\\frac{${numer1}}{${denom}} ${isAddition ? "+" : "-"} \\frac{${numer2}}{${denom}} = ?`,
                 answer: answers,
+                equalValue: true,
                 options,
                 forceOption: 0,
             };
@@ -942,8 +937,8 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
             const sd = lcm / g;
 
             const answers = sd === 1
-                ? [`${sn}`, `\\frac{${sum}}{${lcm}}`]
-                : [`\\frac{${sn}}{${sd}}`, `\\frac{${sum}}{${lcm}}`];
+                ? [`${sn}`]
+                : [`\\frac{${sn}}{${sd}}`];
 
             const optionsSet = new Set<string>(answers);
 
@@ -956,6 +951,7 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
             return {
                 latex: `\\frac{${n1}}{${d1}} + \\frac{${n2}}{${d2}} = ?`,
                 answer: answers,
+                equalValue: true,
                 options: Array.from(optionsSet).sort(() => Math.random() - 0.5),
                 forceOption: 0,
             };
@@ -1015,6 +1011,7 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
             return {
                 latex,
                 answer,
+                equalValue: true,
                 options: Array.from(optionsSet).sort(() => Math.random() - 0.5),
                 forceOption: 0,
             };
@@ -1090,6 +1087,7 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
             return {
                 latex: `\\text{${reduced} is ${percent}\\% of what number?}`,
                 answer: `${original}`,
+                equalValue: true,
                 options,
                 forceOption: 0,
             };

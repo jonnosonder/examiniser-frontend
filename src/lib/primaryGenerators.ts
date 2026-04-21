@@ -602,14 +602,10 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
 
             const toLatexFraction = (n: number, d: number) => `\\frac{${n}}{${d}}`;
 
-            const answers: string[] = [toLatexFraction(numer, denom)];
+            let answers: string = `${toLatexFraction(numer, denom)}`;
 
             if (numer === denom) {
-                if (numer === 4) {
-                    answers.push(`\\frac{2}{2}`);
-                }
-                answers.push(`1`);
-                answers.push(`1`);
+                answers = `1`;
             }
 
             const optionsSet = new Set<string>();
@@ -618,9 +614,7 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             optionsSet.add(toLatexFraction(numer, denom));
 
             // derived answers
-            for (const a of answers) {
-                optionsSet.add(a);
-            }
+            optionsSet.add(answers);
 
             // distractors
             while (optionsSet.size < 4) {
@@ -632,8 +626,9 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
 
             return {
-                latex: `\\text{A shape is split into } ${denom} \\text{ equal parts. } ${numer} \\text{ part(s) are shaded. What fraction is shaded?}`,
+                latex: `\\text{A shape is split into } ${denom} \\text{ equal parts. } ${numer} \\ \\text{ part(s) are shaded. What fraction is shaded?}`,
                 answer: toLatexFraction(numer, denom),
+                equalValue: true,
                 options,
                 forceOption: 0,
             };
@@ -913,7 +908,7 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             const gcd = (x: number, y: number): number =>
                 y === 0 ? x : gcd(y, x % x);
 
-            let answers: string[] = [];
+            let answers: string = '';
 
             const g = gcd(sumNumer, denom);
             const sn = sumNumer / g;
@@ -923,25 +918,19 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             // CASE 1: simplifies to whole number
             // -----------------------------
             if (sn === sd) {
-                answers = [
-                    "1",
-                    toLatexFraction(sumNumer, denom) // e.g. 2/2, 3/3
-                ];
+                answers = "1";
             }
 
             // -----------------------------
             // CASE 2: general fraction
             // -----------------------------
             else if (sd === 1) {
-                answers = [`${sn}`];
+                answers = `${sn}`;
             } else {
-                answers = [
-                    toLatexFraction(sn, sd),
-                    toLatexFraction(sumNumer, denom)
-                ];
+                answers = toLatexFraction(sn, sd);
             }
 
-            const optionsSet = new Set<string>(answers);
+            const optionsSet = new Set<string>([answers]);
 
             while (optionsSet.size < 4) {
                 const d = denominators[Math.floor(Math.random() * denominators.length)];
@@ -961,6 +950,7 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             return {
                 latex: `\\frac{${a}}{${denom}} + \\frac{${b}}{${denom}} = ?`,
                 answer: answers,
+                equalValue: true,
                 options,
                 forceOption: 0,
             };
@@ -987,13 +977,10 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
 
             let answers =
                 sd === 1
-                    ? [`${sn}`]
-                    : [
-                        toLatexFraction(sn, sd),
-                        toLatexFraction(diffNumer, denom)
-                    ];
+                    ? `${sn}`
+                    : toLatexFraction(sn, sd);
 
-            const optionsSet = new Set<string>(answers);
+            const optionsSet = new Set<string>([answers]);
 
             while (optionsSet.size < 4) {
                 const d = denominators[Math.floor(Math.random() * denominators.length)];
@@ -1017,6 +1004,7 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             return {
                 latex: `\\frac{${a}}{${denom}} - \\frac{${b}}{${denom}} = ?`,
                 answer: answers,
+                equalValue: true,
                 options,
                 forceOption: 0,
             };
@@ -1048,13 +1036,10 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
 
             let answers =
                 ansDenom === 1
-                    ? [`${ansNumer}`]
-                    : [
-                        toLatexFraction(ansNumer, ansDenom),
-                        toLatexFraction(sumNumer, commonDenom)
-                    ];
+                    ? `${ansNumer}`
+                    : toLatexFraction(ansNumer, ansDenom);
 
-            const optionsSet = new Set<string>(answers);
+            const optionsSet = new Set<string>([answers]);
 
             while (optionsSet.size < 4) {
                 const n = Math.floor(Math.random() * 10) + 1;
@@ -1067,6 +1052,7 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             return {
                 latex: `\\frac{${numer1}}{${base}} + \\frac{${numer2}}{${denom2}} = ?`,
                 answer: answers,
+                equalValue: true,
                 options,
                 forceOption: 0,
             };
@@ -1100,13 +1086,10 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
 
         let answers =
             ansDenom === 1
-                ? [`${ansNumer}`]
-                : [
-                    toLatexFraction(ansNumer, ansDenom),
-                    toLatexFraction(resultNumer, lcm)
-                ];
+                ? `${ansNumer}`
+                : toLatexFraction(ansNumer, ansDenom);
 
-        const optionsSet = new Set<string>(answers);
+        const optionsSet = new Set<string>([answers]);
 
         while (optionsSet.size < 4) {
             const d1 = [2, 3, 4, 5][Math.floor(Math.random() * 4)];
@@ -1135,6 +1118,7 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
         return {
             latex: `\\frac{${n1}}{${d1}} ${isAddition ? "+" : "-"} \\frac{${n2}}{${d2}} = ?`,
             answer: answers,
+            equalValue: true,
             options,
             forceOption: 0,
         };
@@ -1350,7 +1334,7 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
             }
 
             return {
-                latex: `\\text{Sort in ${isAscending ? "ascending" : "descending"} order: } ${display}\\\\\\text{(answer as decimals separated by commas)}`,
+                latex: `\\text{Sort in ${isAscending ? "ascending" : "descending"} order: } ${display} \\ \\\\\\text{(answer as decimals separated by commas)}`,
                 answer: correct,
                 options: Array.from(optionsSet).sort(() => Math.random() - 0.5),
                 forceOption: 0,

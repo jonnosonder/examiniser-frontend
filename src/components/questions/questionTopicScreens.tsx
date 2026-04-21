@@ -243,6 +243,8 @@ export function QuestionSubtopicLeaf({
     const [userAnswerLatex, setUserAnswerLatex] = React.useState("");
     const [answerCorrect, setAnswerCorrect] = React.useState<boolean | null>(null);
     const [checkWeakLatexEquivalent, setcheckWeakLatexEquivalent] = React.useState<boolean>(false);
+    const [checkEqualValue, setCheckEqualValue] = React.useState<boolean>(false);
+    const [answerRevealed, setAnswerRevealed] = React.useState(false);
     const [feedback, setFeedback] = React.useState("");
     const [isGenerating, setIsGenerating] = React.useState(false);
     const [maxLineWidth, setMaxLineWidth] = React.useState<number>(90);
@@ -261,6 +263,8 @@ export function QuestionSubtopicLeaf({
         setAnswerMode("typed");
         setUserAnswerLatex("");
         setAnswerCorrect(null);
+        setCheckEqualValue(false);
+        setAnswerRevealed(false);
         setFeedback("");
     }, [selectedDifficulty]);
 
@@ -302,6 +306,7 @@ export function QuestionSubtopicLeaf({
         setIsGenerating(true);
         setFeedback("");
         setAnswerCorrect(null);
+        setAnswerRevealed(false);
         setUserAnswerLatex("");
 
         const result = await generateQuestionWithTimeout(
@@ -317,6 +322,7 @@ export function QuestionSubtopicLeaf({
             setQuestionOptions([]);
             setQuestionForceOption(0);
             setAnswerMode("typed");
+            setCheckEqualValue(false);
             setFeedback("Question generation timed out after 3 seconds. Please try again.");
             return;
         }
@@ -330,6 +336,7 @@ export function QuestionSubtopicLeaf({
         setQuestionAnswers(Array.isArray(result.answer) ? result.answer : [result.answer]);
         setQuestionOptions(options);
         setcheckWeakLatexEquivalent(result.checkWeakLatexEquivalent ?? false)
+        setCheckEqualValue(result.equalValue ?? false);
         setQuestionForceOption(result.forceOption ?? 0);
         setAnswerMode(
             result.forceOption === 2 || (answerMode === "multipleChoice" && result.forceOption !== 1)
@@ -338,6 +345,7 @@ export function QuestionSubtopicLeaf({
         );
         setUserAnswerLatex(previousOption ?? "");
         setAnswerCorrect(null);
+        setAnswerRevealed(false);
     };
 
     const normalizeAnswer = (answer: string) => {
@@ -354,9 +362,43 @@ export function QuestionSubtopicLeaf({
         );
     }
 
+    const toNumericValue = (rawInput: string): number | null => {
+        let expression = addFractionFences(rawInput.trim().replace(/\s+/g, ""));
+
+        // Convert common LaTeX operators to plain math symbols.
+        expression = expression
+            .replace(/\\left/g, "")
+            .replace(/\\right/g, "")
+            .replace(/\\times/g, "*")
+            .replace(/\\div/g, "/")
+            .replace(/\\cdot/g, "*");
+
+        // Flatten simple LaTeX fractions into evaluable arithmetic.
+        for (let i = 0; i < 8; i++) {
+            const next = expression.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g, "($1)/($2)");
+            if (next === expression) break;
+            expression = next;
+        }
+
+        expression = expression.replace(/\^/g, "**");
+
+        // Only allow arithmetic characters before evaluating.
+        if (!/^[0-9+\-*/().]*$/.test(expression) || expression.includes("\\")) {
+            return null;
+        }
+
+        try {
+            const value = Function(`"use strict"; return (${expression});`)();
+            return typeof value === "number" && Number.isFinite(value) ? value : null;
+        } catch {
+            return null;
+        }
+    };
+
     const handleCheckAnswer = () => {
         const answerToCheck = userAnswerLatex;
         const normalized = normalizeAnswer(answerToCheck);
+        setAnswerRevealed(false);
 
         if (!questionAnswers.length) {
             setFeedback("Generate a question first before checking your answer.");
@@ -386,11 +428,21 @@ export function QuestionSubtopicLeaf({
             
         }
 
+        if (!correct && checkEqualValue) {
+            const userValue = toNumericValue(answerToCheck);
+            if (userValue !== null) {
+                correct = questionAnswers.some((answer) => {
+                    const expectedValue = toNumericValue(answer.toString());
+                    return expectedValue !== null && Math.abs(expectedValue - userValue) < 1e-9;
+                });
+            }
+        }
+
         setAnswerCorrect(correct);
         setFeedback(
             correct
-                ? t("questions.correct")
-                : t("questions.wrong", { answer: questionAnswers.join(" or ") })
+                ? t("questions.feedback-correct")
+                : t("questions.feedback-wrong")
         );
 
     };
@@ -398,6 +450,7 @@ export function QuestionSubtopicLeaf({
     const handleClearAnswer = () => {
         setUserAnswerLatex("");
         setAnswerCorrect(null);
+        setAnswerRevealed(false);
         setFeedback("");
     };
 
@@ -578,7 +631,7 @@ export function QuestionSubtopicLeaf({
                                                 <MathShorthandEditor
                                                     value={userAnswerLatex}
                                                     onChange={(_, latex) => {
-                                                        if (latex === userAnswerLatex) {
+                                                        if (latex === userAnswerLatex && latex !== "") {
                                                             return;
                                                         }
                                                         setUserAnswerLatex(latex);
@@ -616,6 +669,47 @@ export function QuestionSubtopicLeaf({
                                 <p className={`text-sm ${answerCorrect ? "text-emerald-600" : "text-rose-600"}`}>
                                     {feedback}
                                 </p>
+                            ) : null}
+
+                            {answerCorrect === false && questionAnswers.length > 0 ? (
+                                <div className="mt-1">
+                                    {!answerRevealed ? (
+                                        <button
+                                            type="button"
+                                            onClick={() => setAnswerRevealed(true)}
+                                            className="text-sm underline text-primary"
+                                        >
+                                            {t("questions.reveal-answer")}
+                                        </button>
+                                    ) : (
+                                        <div className="rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3 text-primary">
+                                            <div className="mb flex items-center justify-between gap-2">
+                                                <p className="text-sm font-medium">
+                                                    {t("questions.answer")}
+                                                </p>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setAnswerRevealed(false)}
+                                                    className="text-sm underline text-primary"
+                                                >
+                                                    {t("questions.hide-answer")}
+                                                </button>
+                                            </div>
+                                            <div className="flex flex-wrap items-center gap-2">
+                                                {questionAnswers.map((answer, index) => (
+                                                    <React.Fragment key={`${answer}-${index}`}>
+                                                        {index > 0 ? (
+                                                            <span className="text-sm lowercase">or</span>
+                                                        ) : null}
+                                                        <div className="overflow-x-auto">
+                                                            <BlockMath math={answer} />
+                                                        </div>
+                                                    </React.Fragment>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                             ) : null}
                         </div>
                     </div>

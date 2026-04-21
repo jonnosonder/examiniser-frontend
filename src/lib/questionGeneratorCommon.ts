@@ -15,6 +15,7 @@ export type QuestionResult = {
     answer: string | string[];
     options?: string[];
     forceOption: 0 | 1 | 2;
+    equalValue?: boolean;
     checkWeakLatexEquivalent?: boolean;
     explanation?: string;
     svg?: string;
