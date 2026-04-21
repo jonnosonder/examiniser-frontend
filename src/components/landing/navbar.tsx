@@ -13,7 +13,7 @@ import "@/styles/navbar.css"
 
 const navLinks = [
   { title: 'questions', href: '/' },
-  { title: 'editor', href: '/create-exam-paper' },
+  //{ title: 'editor', href: '/create-exam-paper' },
   { title: 'about', href: '/about' },
   { title: 'updates', href: '/updates' }
 ];
@@ -90,6 +90,7 @@ export default function Navbar({ lng, pageOn } : {lng: Locale, pageOn:"/"|"/crea
                         {t('navBar.questions')}
                     </ReloadLink>
                   </button>
+                  {/*
                   <button 
                     className="burgerBtn"
                     onClick={() => {setIsBurgerActive(false)}}
@@ -98,6 +99,7 @@ export default function Navbar({ lng, pageOn } : {lng: Locale, pageOn:"/"|"/crea
                         {t('navBar.editor')}
                     </ReloadLink>
                   </button>
+                  */}
                   <button 
                     className="burgerBtn"
                     onClick={() => {setIsBurgerActive(false)}}

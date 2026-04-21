@@ -423,7 +423,7 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
 
           {/* Buttons */}
           <div className='flex space-x-8' onClick={handleClose}>
-            {buttons.slice(0, -1).map(({ id, label, items, links, delay }) => (
+            {buttons.slice(0, -2).map(({ id, label, items, links, delay }) => (
               <div
                 key={id}
                 className="flex items-center justify-center"
@@ -498,8 +498,8 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
             <div className='flex flex-col w-3/4 bg-white rounded-[2rem] p-6 shadow-xl' onClick={(e) => e.stopPropagation()}>
               <p className='text-2xl font-bold font-nunito text-primary mb-4'>{t('home.try-it-now')}</p>
                 <div className='flex flex-col w-full gap-2'>
-                  <div className='grid w-full grid-cols-3 gap-3'>
-                    {(["primary", "secondary", "sixthForm"] as GeneratorLevel[]).map((level) => (
+                  <div className='grid w-full grid-cols-2 gap-3'>
+                    {(["primary", "secondary"] as GeneratorLevel[]).map((level) => (
                       <button
                         key={level}
                         type='button'

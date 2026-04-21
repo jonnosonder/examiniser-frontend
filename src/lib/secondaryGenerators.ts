@@ -7775,7 +7775,6 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
 
             return `
                 <svg width="430" height="270" viewBox="0 0 430 270" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="0" y="0" width="430" height="270" fill="white"/>
                     ${sectors.join("")}
                     <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#333" stroke-width="1.2"/>
                     ${legend}
