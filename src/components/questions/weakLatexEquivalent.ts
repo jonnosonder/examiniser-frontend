@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { ComputeEngine } from "@cortex-js/compute-engine";
 
 const ce = new ComputeEngine();

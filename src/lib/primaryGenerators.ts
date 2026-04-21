@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Copyright © 2025 Jonathan Kwok
 
+/* eslint-disable prefer-const, @typescript-eslint/no-unused-vars */
+
 import { createGenerator } from './questionGeneratorCommon';
 import type { QuestionGeneratorWithLevels, QuestionResult } from './questionGeneratorCommon';
 

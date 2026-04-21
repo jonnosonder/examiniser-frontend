@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Copyright © 2025 Jonathan Kwok
 
+/* eslint-disable prefer-const, @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any */
+
 import { createGenerator } from './questionGeneratorCommon';
 import type { QuestionGeneratorWithLevels } from './questionGeneratorCommon';
 
@@ -1076,7 +1078,7 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
             const percent = [50, 25, 20][Math.floor(Math.random() * 3)];
             const original = Math.floor(Math.random() * 100) + 50;
 
-            const reduced = (percent / 100) * original;
+            const reduced = parseFloat(((percent / 100) * original).toFixed(2));
 
             const options = [
                 `${original}`,
@@ -1187,7 +1189,7 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
             }
 
             return {
-                latex: `\\text{The ratio of red to blue balls is } ${redRatio}:${blueRatio}.\\\\\\text{If there are } ${red} \\text{ red balls, how many blue balls are there?}`,
+                latex: `\\text{The ratio of red to blue balls is } ${redRatio}:${blueRatio}. \\ \\\\\\text{If there are } ${red} \\ \\text{ red balls, how many blue balls are there?}`,
                 answer,
                 options: Array.from(optionsSet).sort(() => Math.random() - 0.5),
                 forceOption: 0,
@@ -1256,9 +1258,9 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
 
             if (type === 0) {
                 // percentage profit
-                const cost = Math.floor(Math.random() * 200) + 50;
+                const cost = (Math.floor(Math.random() * 200) + 50);
                 const profitPercent = [10, 15, 20, 25, 30][Math.floor(Math.random() * 5)];
-                const sell = cost * (1 + profitPercent / 100);
+                const sell = parseFloat((cost * (1 + profitPercent / 100)).toFixed(2));
 
                 latex = `\\text{An item costs £${cost} and is sold for £${sell}. Find the percentage profit.}`;
 
@@ -1274,25 +1276,25 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
                 // markup → selling price
                 const cost = Math.floor(Math.random() * 100) + 20;
                 const markup = [10, 20, 25, 50][Math.floor(Math.random() * 4)];
-                const sell = Math.round(cost * (1 + markup / 100));
+                const sell = cost * (1 + markup / 100);
 
-                latex = `\\text{A shop buys an item for £${cost} and sells it at a } ${markup}\\% \\text{ markup. Find the selling price.}`;
+                latex = `\\text{A shop buys an item for £${cost} and sells it at a } ${markup}\\% \\ \\text{markup. Find the selling price.}`;
 
-                answer = `£${sell}`;
+                answer = `£${sell.toFixed(2)}`;
 
                 optionsSet.add(answer);
-                optionsSet.add(`£${sell + 10}`);
-                optionsSet.add(`£${Math.max(1, sell - 10)}`);
-                optionsSet.add(`£${sell + 20}`);
+                optionsSet.add(`£${(sell + 10).toFixed(2)}`);
+                optionsSet.add(`£${Math.max(1, sell - 10).toFixed(2)}`);
+                optionsSet.add(`£${(sell + 20).toFixed(2)}`);
             }
 
             else {
                 // loss → original price
                 const original = Math.floor(Math.random() * 400) + 200;
                 const loss = [10, 20, 25, 30][Math.floor(Math.random() * 4)];
-                const sell = Math.round(original * (1 - loss / 100));
+                const sell = parseFloat((original * (1 - loss / 100)).toFixed(2));
 
-                latex = `\\text{An item is sold for £${sell} at a } ${loss}\\% \\text{ loss. Find the original price.}`;
+                latex = `\\text{An item is sold for £${sell} at a } ${loss}\\% \\ \\text{loss. Find the original price.}`;
 
                 answer = `£${original}`;
 
@@ -1343,7 +1345,7 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
                 const dollars = Math.floor(Math.random() * 1000) + 100;
                 const pounds = Math.round(dollars / rate);
 
-                latex = `\\text{A cost is $${dollars}. If £1 = $${rate.toFixed(2)}, find the cost in pounds.}`;
+                latex = `\\text{A cost is } \\$${dollars}. \\ \\text{If } £1 = \\$${rate.toFixed(2)}, \\text{find the cost in pounds.}`;
                 answer = `£${pounds}`;
             }
 
@@ -1383,7 +1385,7 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
                 const interest = P * r * t / 100;
                 const total = P + interest;
 
-                latex = `\\text{£${P} is invested at } ${r}\\% \\text{ per year for } ${t} \\text{ years. Find the total amount.}`;
+                latex = `\\text{£${P} is invested at } ${r}\\% \\text{ per year for } ${t} \\ \\text{years. Find the total amount.}`;
                 answer = `£${total}`;
             }
 
@@ -1394,7 +1396,7 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
 
                 const interest = P * r * t / 100;
 
-                latex = `\\text{A loan of £${P} is taken at } ${r}\\% \\text{ simple interest for } ${t} \\text{ years. How much interest is paid?}`;
+                latex = `\\text{A loan of £${P} is taken at } ${r}\\% \\text{ simple interest for } ${t} \\ \\text{years. How much interest is paid?}`;
                 answer = `£${interest}`;
             }
 
@@ -1405,7 +1407,7 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
 
                 const t = interest / (P * r / 100);
 
-                latex = `\\text{How long will it take £${P} to earn £${interest} interest at } ${r}\\% \\text{ per year?}`;
+                latex = `\\text{How long will it take £${P} to earn £${interest} interest at } ${r}\\% \\ \\text{per year?}`;
                 answer = `${t} \\text{ years}`;
             }
 
@@ -1447,7 +1449,7 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
 
                 const A = Math.round(P * Math.pow(1 + r / 100, t));
 
-                latex = `\\text{£${P} is invested at } ${r}\\% \\text{ compound interest for } ${t} \\text{ years. Find the final amount.}`;
+                latex = `\\text{£${P} is invested at } ${r}\\% \\ \\text{compound interest for } ${t} \\ \\text{years. Find the final amount.}`;
                 answer = `£${A}`;
             }
 
@@ -1458,7 +1460,7 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
 
                 const A = Math.round(P * Math.pow(1 + r / 100, t));
 
-                latex = `\\text{A savings account offers } ${r}\\% \\text{ compound interest annually.} \\\\\\text{How much will £${P} become after } ${t} \\text{ years?}`;
+                latex = `\\text{A savings account offers } ${r}\\% \\ \\text{compound interest annually.} \\\\\\text{How much will £${P} become after } ${t} \\ \\text{years?}`;
                 answer = `£${A}`;
             }
 
@@ -1469,7 +1471,7 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
 
                 const A = Math.round(P * Math.pow(1 + r / 100, t));
 
-                latex = `\\text{A population starts at } ${P}. \\text{ It grows by } ${r}\\% \\text{ per year. Find the population after } ${t} \\text{ years.}`;
+                latex = `\\text{A population starts at } ${P}. \\ \\text{It grows by } ${r}\\% \\ \\text{ per year. Find the population after } ${t} \\ \\text{years.}`;
                 answer = `${A}`;
             }
 

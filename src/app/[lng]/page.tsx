@@ -10,7 +10,6 @@ import * as React from "react";
 import { Locale } from '@/lib/locales';
 import { useState } from 'react';
 import { useRouter } from "next/navigation";
-import { BlockMath } from "react-katex";
 import "katex/dist/katex.min.css";
 import type { QuestionLevel } from '@/lib/questionTopicCatalog';
 import type { QuestionResult } from '@/lib/questionGeneratorCommon';

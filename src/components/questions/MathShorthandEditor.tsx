@@ -4,9 +4,33 @@
 "use client";
 
 import * as React from "react";
-import { MathfieldElement } from "mathlive";
-import { t } from "i18next";
-MathfieldElement.fontsDirectory = "/fonts/mathlive";
+import "mathlive";
+
+type MathfieldElementInstance = HTMLElement & {
+    setValue: (value: string, options?: { format?: string; selectionMode?: "after" | "before" | "placeholder" }) => void;
+    getValue: (format?: "ascii-math" | "latex") => string;
+    smartFence: boolean;
+    smartSuperscript: boolean;
+    placeholder: string;
+    readOnly: boolean;
+};
+
+type MathfieldElementCtor = {
+    new(): MathfieldElementInstance;
+    fontsDirectory?: string;
+};
+
+const getMathfieldCtor = (): MathfieldElementCtor | null => {
+    if (typeof window === "undefined") {
+        return null;
+    }
+
+    const ctor = customElements.get("math-field") as MathfieldElementCtor | undefined;
+    if (ctor && !ctor.fontsDirectory) {
+        ctor.fontsDirectory = "/fonts/mathlive";
+    }
+    return ctor ?? null;
+};
 
 export type MathShorthandEditorProps = {
     value: string;
@@ -20,21 +44,31 @@ export function shorthandToLatex(value: string): string {
         return "";
     }
 
-    const mathfield = new MathfieldElement();
+    const MathfieldCtor = getMathfieldCtor();
+    if (!MathfieldCtor) {
+        return "";
+    }
+
+    const mathfield = new MathfieldCtor();
     mathfield.setValue(value, { format: "ascii-math" });
     return mathfield.getValue("latex");
 }
 
 export default function MathShorthandEditor({ value, onChange, placeholder, disabled }: MathShorthandEditorProps) {
     const containerRef = React.useRef<HTMLDivElement | null>(null);
-    const mathfieldRef = React.useRef<MathfieldElement | null>(null);
+    const mathfieldRef = React.useRef<MathfieldElementInstance | null>(null);
 
     React.useEffect(() => {
         if (!containerRef.current) {
             return;
         }
 
-        const mathfield = new MathfieldElement();
+        const MathfieldCtor = getMathfieldCtor();
+        if (!MathfieldCtor) {
+            return;
+        }
+
+        const mathfield = new MathfieldCtor();
         mathfield.smartFence = true;
         mathfield.smartSuperscript = true;
         mathfield.style.width = "100%";

@@ -5,11 +5,11 @@
 
 import { useTranslation } from "react-i18next";
 import * as React from "react";
-import { BlockMath, InlineMath } from "react-katex";
+import { BlockMath } from "react-katex";
 import "katex/dist/katex.min.css";
 import { Locale } from "@/lib/locales";
 import SidePanel from "@/components/questions/sidePanel";
-import MathShorthandEditor, { shorthandToLatex } from "@/components/questions/MathShorthandEditor";
+import MathShorthandEditor from "@/components/questions/MathShorthandEditor";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { buildQuestionNavButtons } from "@/lib/questionTopicNav";
