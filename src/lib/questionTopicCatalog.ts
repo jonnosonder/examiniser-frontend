@@ -84,15 +84,6 @@ export const QUESTION_CATALOG: Record<QuestionLevel, MainTopicDef[]> = {
             ],
         },
         {
-            id: "problem-solving-reasoning",
-            titleKey: "primary-topics.problem-solving-reasoning",
-            descriptionKey: "descriptions.primary.problem-solving-reasoning",
-            subtopics: [
-                { slug: "word-problems", titleKey: "primary-subtopics.word-problems", descriptionKey: "descriptions.primarySub.problem-solving-reasoning.word-problems" },
-                { slug: "patterns-and-sequences", titleKey: "primary-subtopics.patterns-and-sequences", descriptionKey: "descriptions.primarySub.problem-solving-reasoning.patterns-and-sequences" },
-            ],
-        },
-        {
             id: "algebra",
             titleKey: "primary-topics.algebra",
             descriptionKey: "descriptions.primary.algebra",
@@ -191,6 +182,15 @@ export const QUESTION_CATALOG: Record<QuestionLevel, MainTopicDef[]> = {
                 { slug: "basic-probability-rules", titleKey: "secondary-subtopics.basic-probability-rules", descriptionKey: "descriptions.secondarySub.statistics.basic-probability-rules" },
                 { slug: "tree-diagrams", titleKey: "secondary-subtopics.tree-diagrams", descriptionKey: "descriptions.secondarySub.statistics.tree-diagrams" },
                 { slug: "venn-diagrams", titleKey: "secondary-subtopics.venn-diagrams", descriptionKey: "descriptions.secondarySub.statistics.venn-diagrams" },
+            ],
+        },
+        {
+            id: "problem-solving-reasoning",
+            titleKey: "primary-topics.problem-solving-reasoning",
+            descriptionKey: "descriptions.primary.problem-solving-reasoning",
+            subtopics: [
+                { slug: "word-problems", titleKey: "primary-subtopics.word-problems", descriptionKey: "descriptions.primarySub.problem-solving-reasoning.word-problems" },
+                { slug: "patterns-and-sequences", titleKey: "primary-subtopics.patterns-and-sequences", descriptionKey: "descriptions.primarySub.problem-solving-reasoning.patterns-and-sequences" },
             ],
         },
         //{

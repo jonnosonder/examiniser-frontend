@@ -6,10 +6,16 @@
 import { createGenerator } from './questionGeneratorCommon';
 import type { QuestionGeneratorWithLevels, QuestionResult } from './questionGeneratorCommon';
 
-// When your site is built, this env var should point at the CloudFront URL
-// serving MathSample.json. If it is not set, the placeholder is used so the
-// project still compiles in development.
+// You can override this via NEXT_PUBLIC_WORD_PROBLEM_JSON_URL.
+// For static export deployments, /MathSample.json avoids cross-origin CORS issues.
 const WORD_PROBLEM_JSON_URL = 'https://d2lpkm1h3gh3rw.cloudfront.net/bf708822519a6c22ccfa2aa8bed72e7b86587d0a587fe7e6bbc0d86068e2c57c.json';
+const ENV_WORD_PROBLEM_JSON_URL = process.env.NEXT_PUBLIC_WORD_PROBLEM_JSON_URL?.trim();
+
+const WORD_PROBLEM_SOURCE_URLS = [
+    '/MathSample.json',
+    ENV_WORD_PROBLEM_JSON_URL,
+    WORD_PROBLEM_JSON_URL,
+].filter((url): url is string => Boolean(url && url.length > 0));
 
 type WordProblemRecord = {
     category?: string;
@@ -19,26 +25,108 @@ type WordProblemRecord = {
 };
 
 let wordProblemCache: WordProblemRecord[] | null = null;
+let wordProblemBatch: WordProblemRecord[] = [];
+let wordProblemBatchIndex = 0;
+
+const WORD_PROBLEM_BATCH_SIZE = 100;
+
+function shuffleInPlace<T>(arr: T[]): T[] {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
+
+function buildRandomWordProblemBatch(records: WordProblemRecord[], batchSize: number): WordProblemRecord[] {
+    if (records.length === 0) {
+        return [];
+    }
+
+    // If there are enough records, sample without replacement.
+    if (records.length >= batchSize) {
+        const shuffled = shuffleInPlace([...records]);
+        return shuffled.slice(0, batchSize);
+    }
+
+    // If there are fewer than requested, cycle through shuffled copies until full.
+    const result: WordProblemRecord[] = [];
+    while (result.length < batchSize) {
+        const shuffled = shuffleInPlace([...records]);
+        for (const item of shuffled) {
+            result.push(item);
+            if (result.length >= batchSize) {
+                break;
+            }
+        }
+    }
+
+    return result;
+}
+
+function normalizeWordProblemRecords(data: unknown): WordProblemRecord[] {
+    if (!Array.isArray(data)) {
+        return [];
+    }
+
+    return data
+        .filter((item): item is WordProblemRecord => {
+            if (!item || typeof item !== 'object') return false;
+            const candidate = item as Partial<WordProblemRecord>;
+            return typeof candidate.question === 'string';
+        })
+        .map((item) => ({
+            category: item.category,
+            question: item.question,
+            answer: item.answer ?? '',
+            explanation: item.explanation,
+        }));
+}
+
+async function loadWordProblems(): Promise<WordProblemRecord[]> {
+    const failures: string[] = [];
+
+    for (const url of WORD_PROBLEM_SOURCE_URLS) {
+        try {
+            const res = await fetch(url, { method: 'GET' });
+
+            if (!res.ok) {
+                failures.push(`${url}: ${res.status} ${res.statusText}`);
+                continue;
+            }
+
+            const data = await res.json();
+            const normalized = normalizeWordProblemRecords(data);
+
+            if (!normalized.length) {
+                failures.push(`${url}: payload was empty or invalid`);
+                continue;
+            }
+
+            return normalized;
+        } catch (error) {
+            failures.push(`${url}: ${String(error instanceof Error ? error.message : error)}`);
+        }
+    }
+
+    throw new Error(`Failed to load word problems from all sources. ${failures.join(' | ')}`);
+}
 
 async function fetchRandomWordProblem(): Promise<QuestionResult> {
     try {
-        if (!wordProblemCache) {
-            const res = await fetch(WORD_PROBLEM_JSON_URL, { method: 'GET', mode: 'cors' });
-            if (!res.ok) {
-                throw new Error(`Failed to fetch word problems: ${res.status} ${res.statusText}`);
-            }
-            const data = await res.json();
-            if (!Array.isArray(data)) {
-                throw new Error('Word problems JSON is not an array');
-            }
-            wordProblemCache = data;
+        if (wordProblemBatchIndex >= wordProblemBatch.length) {
+            // Refresh source and build a new local batch of 100 random questions.
+            wordProblemCache = await loadWordProblems();
+            wordProblemBatch = buildRandomWordProblemBatch(wordProblemCache, WORD_PROBLEM_BATCH_SIZE);
+            wordProblemBatchIndex = 0;
         }
 
-        if (!wordProblemCache.length) {
-            throw new Error('Word problems list is empty');
+        if (!wordProblemBatch.length) {
+            throw new Error('Word problems batch is empty');
         }
 
-        const item = wordProblemCache[Math.floor(Math.random() * wordProblemCache.length)];
+        const item = wordProblemBatch[wordProblemBatchIndex];
+        wordProblemBatchIndex += 1;
         const answerText = item.answer === null || item.answer === undefined ? '' : String(item.answer);
 
         return {

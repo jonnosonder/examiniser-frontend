@@ -53,6 +53,7 @@ export const secondaryTopicIconMap: Record<string, React.ReactNode> = {
     trigonometry: <SecondaryTrigonometryIcon />,
     measurement: <SecondaryMeasurementIcon />,
     statistics: <SecondaryProbabilityStatisticsIcon />,
+    "problem-solving-reasoning": <SecondaryProblemSolvingIcon />,
     "reasoning-problem-solving": <SecondaryProblemSolvingIcon />,
     equations: <SecondaryEquationsIcon />,
     "ratio-proportion": <SecondaryRatioProportionIcon />,

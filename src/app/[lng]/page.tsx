@@ -12,7 +12,7 @@ import { useState } from 'react';
 import { useRouter } from "next/navigation";
 import "katex/dist/katex.min.css";
 import type { QuestionLevel } from '@/lib/questionTopicCatalog';
-import type { QuestionResult } from '@/lib/questionGeneratorCommon';
+import type { QuestionGeneratorWithLevels, QuestionResult } from '@/lib/questionGeneratorCommon';
 import { QUESTION_CATALOG, levelRoutePrefix } from '@/lib/questionTopicCatalog';
 import { generateQuestionWithTimeout } from '@/lib/questionGenerators';
 import { primaryGenerators } from '@/lib/primaryGenerators';
@@ -65,10 +65,97 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
     subtopicTitleKey: string;
   } | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [gridBoxesVisible, setGridBoxesVisible] = React.useState(false);
+  const [gridLayout, setGridLayout] = React.useState({ columns: 1, cellSize: 40, gap: 8 });
 
   const heroTitleRef = React.useRef<HTMLHeadingElement | null>(null);
   const templateTitleRef = React.useRef<HTMLHeadingElement | null>(null);
   const templateDescriptionRef = React.useRef<HTMLParagraphElement | null>(null);
+  const gridSectionRef = React.useRef<HTMLDivElement>(null);
+
+  const allSubtopics = React.useMemo(() => {
+    const levels: QuestionLevel[] = ["primary", "secondary", "sixthForm"];
+    return levels.flatMap((level) =>
+      QUESTION_CATALOG[level].flatMap((topic) =>
+        topic.subtopics.map((sub) => ({ level, topicId: topic.id, slug: sub.slug }))
+      )
+    );
+  }, []);
+
+  const generatorLevelBoxes = React.useMemo(() => {
+    const boxes: Array<{ schoolLevel: GeneratorLevel; subtopicSlug: string; difficulty: number }> = [];
+    const levelGeneratorEntries: Array<[GeneratorLevel, Record<string, QuestionGeneratorWithLevels>]> = [
+      ["primary", primaryGenerators],
+      ["secondary", secondaryGenerators],
+      ["sixthForm", sixthFormGenerators],
+    ];
+
+    levelGeneratorEntries.forEach(([schoolLevel, generators]) => {
+      Object.entries(generators).forEach(([subtopicSlug, generator]) => {
+        const difficulties = generator.availableDifficulties?.length ? generator.availableDifficulties : [1];
+        difficulties.forEach((difficulty) => {
+          boxes.push({ schoolLevel, subtopicSlug, difficulty });
+        });
+      });
+    });
+
+    return boxes;
+  }, []);
+
+  const levelBoxCountsBySchool = React.useMemo(
+    () => ({
+      primary: generatorLevelBoxes.filter((box) => box.schoolLevel === "primary").length,
+      secondary: generatorLevelBoxes.filter((box) => box.schoolLevel === "secondary").length,
+      sixthForm: generatorLevelBoxes.filter((box) => box.schoolLevel === "sixthForm").length,
+    }),
+    [generatorLevelBoxes]
+  );
+
+  React.useEffect(() => {
+    const gridEl = gridSectionRef.current;
+    if (!gridEl) return;
+
+    const totalBoxes = Math.max(1, generatorLevelBoxes.length);
+    const gapPx = 8;
+
+    const updateGridLayout = () => {
+      const availableWidth = gridEl.clientWidth;
+      const availableHeight = gridEl.clientHeight;
+
+      if (!availableWidth || !availableHeight) {
+        return;
+      }
+
+      let bestColumns = 1;
+      let bestCellSize = 12;
+
+      for (let columns = 1; columns <= totalBoxes; columns += 1) {
+        const rows = Math.ceil(totalBoxes / columns);
+        const maxCellWidth = (availableWidth - gapPx * (columns - 1)) / columns;
+        const maxCellHeight = (availableHeight - gapPx * (rows - 1)) / rows;
+        const cellSize = Math.floor(Math.min(maxCellWidth, maxCellHeight));
+
+        if (cellSize > bestCellSize) {
+          bestCellSize = cellSize;
+          bestColumns = columns;
+        }
+      }
+
+      setGridLayout({
+        columns: bestColumns,
+        cellSize: Math.max(10, bestCellSize),
+        gap: gapPx,
+      });
+    };
+
+    updateGridLayout();
+    const resizeObserver = new ResizeObserver(updateGridLayout);
+    resizeObserver.observe(gridEl);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [generatorLevelBoxes.length]);
 
   React.useEffect(() => {
     const titleEl = heroTitleRef.current;
@@ -129,6 +216,24 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
     };
   }, []);
 
+  React.useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setGridBoxesVisible(true);
+            observer.disconnect();
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+    if (gridSectionRef.current) observer.observe(gridSectionRef.current);
+    return () => {
+      if (gridSectionRef.current) observer.unobserve(gridSectionRef.current);
+    };
+  }, []);
+
   const handleOpen = (id: ButtonId) => {
     if (activeButton && activeButton !== id) {
       setGridVisible(prev => ({ ...prev, [activeButton]: false }));
@@ -162,6 +267,7 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
         });
       }, 200);
     }, 150);
+
   };
 
   const getRandomItem = <T,>(items: T[]): T => items[Math.floor(Math.random() * items.length)];
@@ -225,7 +331,6 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
         "primary-topics.measurements",
         "primary-topics.geometry",
         "primary-topics.data-handling",
-        "primary-topics.problem-solving-reasoning",
         "primary-topics.algebra",
         "general.see-all",
       ],
@@ -235,7 +340,6 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
         "/primary/measurements",
         "/primary/geometry",
         "/primary/data-handling",
-        "/primary/problem-solving-reasoning",
         "/primary/algebra",
         "/primary",
       ],
@@ -251,6 +355,7 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
         "secondary-topics.trigonometry",
         "secondary-topics.measurement",
         "secondary-topics.statistics",
+        "primary-topics.problem-solving-reasoning",
         "general.see-all",
       ],
       links: [
@@ -260,9 +365,26 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
         "/secondary/trigonometry",
         "/secondary/measurement",
         "/secondary/statistics",
+        "/secondary/problem-solving-reasoning",
         "/secondary",
       ],
       delay: "120ms" 
+    },
+    { 
+      id: "exam_paper", 
+      label: t("education.exam-papers"),       
+      items: ["AQA", "Edexcel", "OCR", "Baccalauréat", "Selectividad", "大学入学共通テスト", "高考", "general.see-all"],  
+      links: [
+        "/exam-papers?source=aqa",
+        "/exam-papers?source=edexcel",
+        "/exam-papers?source=ocr",
+        "/exam-papers?source=baccalaureat",
+        "/exam-papers?source=selectividad",
+        "/exam-papers?source=japanese-university-entrance-exam",
+        "/exam-papers?source=chinese-gaokao",
+        "/exam-papers",
+      ],
+      delay: "360ms" 
     },
     { 
       id: "sixthForm", 
@@ -291,13 +413,6 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
       ],
       delay: "240ms" 
     },
-    { 
-      id: "exam_paper", 
-      label: t("education.exam-papers"),       
-      items: ["AQA", "Edexcel", "OCR", "Baccalauréat", "Selectividad", "大学入学共通テスト", "高考", "general.see-all"],  
-      links: ["/exam-board/aqa", "/exam-board/edexcel", "/exam-board/ocr", "/exam-board/baccalaureat", "/exam-board/selectividad", "/exam-board/japanese-university-entrance-exam", "/exam-board/chinese-gaokao", "/exam-board"],
-      delay: "360ms" 
-    }
   ];
 
   React.useEffect(() => {
@@ -423,7 +538,7 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
 
           {/* Buttons */}
           <div className='flex space-x-8' onClick={handleClose}>
-            {buttons.slice(0, -2).map(({ id, label, items, links, delay }) => (
+            {buttons.slice(0, -1).map(({ id, label, items, links, delay }) => (
               <div
                 key={id}
                 className="flex items-center justify-center"
@@ -479,6 +594,7 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
               </div>
             ))}
           </div>
+
         </div>
       </section>
       
@@ -565,6 +681,118 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
                     {isGenerating ? t('home.generating') : t('home.generate-random-question')}
                   </button>
                 </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* "Every question in one place" section */}
+      <section className="relative h-[100dvh] w-full bg-background snap-start overflow-hidden">
+        <div
+          className="absolute inset-0 z-0 [background-image:linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] [background-size:20px_20px]"
+          aria-hidden
+        />
+        <div
+          className="absolute left-[-8rem] top-[-6rem] h-64 w-64 rounded-full bg-[var(--accent)]/30 blur-3xl"
+          aria-hidden
+        />
+        <div
+          className="absolute bottom-[-10rem] right-[-5rem] h-80 w-80 rounded-full bg-[var(--contrast)]/15 blur-3xl"
+          aria-hidden
+        />
+
+        <div className="relative z-[1] h-full w-full px-6 sm:px-10 lg:px-16 py-10 sm:py-14" onClick={handleClose}>
+          <div className="mt-6 sm:mt-8 h-[calc(100%-1.5rem)] sm:h-[calc(100%-2rem)] rounded-[2rem] border-2 border-primary/20 bg-white/70 shadow-xl backdrop-blur-sm p-5 sm:p-8 lg:p-10">
+            <div className="grid h-full grid-cols-1 gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+              <div className="flex flex-col justify-between">
+                <div>
+                  <p className="inline-flex items-center rounded-full border border-primary/30 bg-primary/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+                    Topic Atlas
+                  </p>
+                  <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-inter font-semibold text-primary text-left leading-tight">
+                    {t("home.every-question-in-one-place-1")} {" "}
+                    <span className="text-[var(--contrast)]">{t("home.every-question-in-one-place-2")}</span> {" "}
+                    {t("home.every-question-in-one-place-3")}
+                  </h2>
+                  <p className="mt-4 text-base sm:text-lg text-primary/80 max-w-2xl">
+                    {t("home.every-question-in-one-place-description")}
+                  </p>
+                </div>
+
+                <div className="mt-6 rounded-2xl border border-primary/20 bg-white p-4 sm:p-5">
+                  <p className="text-sm uppercase tracking-[0.18em] text-primary/60">Library status</p>
+                  <p className="mt-2 text-2xl font-nunito text-primary">{levelBoxCountsBySchool.primary + levelBoxCountsBySchool.secondary + levelBoxCountsBySchool.sixthForm} total levels, {allSubtopics.length} mapped subtopics</p>
+                  <p className="mt-1 text-sm text-primary/70">Each box in the question map represents one generator level that can produce questions. Counts below show the total number of generator levels available in each section.</p>
+                  <div className="mt-4 flex flex-col gap-2 text-sm sm:text-base">
+                    <p className="flex items-baseline text-primary/85">
+                      <span className="inline-block font-medium">{t('education.primary-school')}</span>
+                      <span className="mx-2 text-primary/40">-</span>
+                      <span className="font-bold tabular-nums text-[#198f8f]">{levelBoxCountsBySchool.primary}</span>
+                    </p>
+                    <p className="flex items-baseline text-primary/85">
+                      <span className="inline-block font-medium">{t('education.secondary-school')}</span>
+                      <span className="mx-2 text-primary/40">-</span>
+                      <span className="font-bold tabular-nums text-[var(--contrast)]">{levelBoxCountsBySchool.secondary}</span>
+                    </p>
+                    <p className="flex items-baseline text-primary/85">
+                      <span className="inline-block font-medium">{t('education.sixth-form')}</span>
+                      <span className="mx-2 text-primary/40">-</span>
+                      <span className="font-bold tabular-nums text-primary">{levelBoxCountsBySchool.sixthForm}</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border-2 border-primary bg-white shadow-[0_10px_30px_rgba(3,46,46,0.12)] p-4 sm:p-5 overflow-hidden flex flex-col min-h-0">
+                <div className="mb-4 flex items-center justify-between">
+                  <p className="text-sm uppercase tracking-[0.18em] text-primary/60">Question map</p>
+                  <div className="inline-flex gap-1">
+                    <span className="h-2.5 w-2.5 rounded-full bg-[var(--contrast)]" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-[var(--accent)]" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-primary/30" />
+                  </div>
+                </div>
+
+                <div
+                  ref={gridSectionRef}
+                  className="w-full flex-1 min-h-0"
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: `repeat(${gridLayout.columns}, ${gridLayout.cellSize}px)`,
+                    gridAutoRows: `${gridLayout.cellSize}px`,
+                    gap: `${gridLayout.gap}px`,
+                    alignContent: 'start',
+                  }}
+                >
+                  {generatorLevelBoxes.map(({ schoolLevel, subtopicSlug, difficulty }, index) => {
+                    const rowIndex = Math.floor(index / gridLayout.columns);
+                    const rowDelayMs = rowIndex * 80;
+                    const label = schoolLevel === "primary" ? "P" : schoolLevel === "secondary" ? "S" : "F";
+
+                    return (
+                      <div
+                        key={`${schoolLevel}-${subtopicSlug}-${difficulty}`}
+                        title={`${schoolLevel} / ${subtopicSlug} / level ${difficulty}`}
+                        className={`rounded-md border text-[10px] font-semibold flex items-center justify-center ${
+                          schoolLevel === "primary"
+                            ? 'border-[#198f8f] bg-[#198f8f]/15 text-[#156e6e]'
+                            : schoolLevel === "secondary"
+                            ? 'border-[var(--contrast)] bg-[#f59e0b]/10 text-[var(--contrast)]'
+                            : 'border-primary bg-primary/15 text-primary'
+                        }`}
+                        style={{
+                          width: `${gridLayout.cellSize}px`,
+                          height: `${gridLayout.cellSize}px`,
+                          opacity: gridBoxesVisible ? 1 : 0,
+                          transition: `opacity 0.3s ease ${rowDelayMs}ms`,
+                        }}
+                      >
+                        {label}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </div>
         </div>

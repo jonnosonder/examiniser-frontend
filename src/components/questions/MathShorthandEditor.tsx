@@ -26,7 +26,7 @@ const getMathfieldCtor = (): MathfieldElementCtor | null => {
     }
 
     const ctor = customElements.get("math-field") as MathfieldElementCtor | undefined;
-    if (ctor && !ctor.fontsDirectory) {
+    if (ctor) {
         ctor.fontsDirectory = "/fonts/mathlive";
     }
     return ctor ?? null;

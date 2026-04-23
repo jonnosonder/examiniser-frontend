@@ -5,6 +5,7 @@
 
 import { createGenerator } from './questionGeneratorCommon';
 import type { QuestionGeneratorWithLevels } from './questionGeneratorCommon';
+import { primaryGenerators } from './primaryGenerators';
 
 
 export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
@@ -8651,4 +8652,16 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
 
         throw new Error(`Unhandled difficulty: ${difficulty}`);
     }, [1, 2, 3, 4]),
+    "word-problems": createGenerator(async ({ difficulty, level, topicId, subtopicSlug }) => {
+        if (difficulty === 1) {
+            return await primaryGenerators["word-problems"]({ difficulty, level, topicId, subtopicSlug });
+        }
+        throw new Error(`Unhandled difficulty: ${difficulty}`);
+    }, [1]),
+    "patterns-and-sequences": createGenerator(async ({ difficulty, level, topicId, subtopicSlug }) => {
+        if (difficulty === 1) {
+            return await primaryGenerators["patterns-and-sequences"]({ difficulty, level, topicId, subtopicSlug });
+        }
+        throw new Error(`Unhandled difficulty: ${difficulty}`);
+    }, [1]),
 };

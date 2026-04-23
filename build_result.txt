@@ -1,0 +1,186 @@
+﻿
+> examiniser@0.1.00 build
+> next build
+
+   Γû▓ Next.js 15.5.15
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully in 2.8s
+   Linting and checking validity of types ...
+
+./src/app/[lng]/create-exam-paper/page.tsx
+52:45  Warning: The ref value 'templateTitleRef.current' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy 'templateTitleRef.current' to a variable inside the effect, and use that variable in the cleanup function.  react-hooks/exhaustive-deps
+
+./src/app/[lng]/page.tsx
+165:73  Warning: The ref value 'templateTitleRef.current' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy 'templateTitleRef.current' to a variable inside the effect, and use that variable in the cleanup function.  react-hooks/exhaustive-deps
+183:69  Warning: The ref value 'gridSectionRef.current' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy 'gridSectionRef.current' to a variable inside the effect, and use that variable in the cleanup function.  react-hooks/exhaustive-deps
+
+./src/components/editor/allStages.tsx
+156:6  Warning: React Hook useEffect has a missing dependency: 'calculatePagesInsight'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/editor/colorSelectorSection.tsx
+43:6  Warning: React Hook useEffect has missing dependencies: 'passColorValue' and 'startingColor'. Either include them or remove the dependency array. If 'passColorValue' changes too often, find the parent component that defines it and wrap that definition in useCallback.  react-hooks/exhaustive-deps
+
+./src/components/editor/editorSidePanel.tsx
+137:8  Warning: React Hook useEffect has missing dependencies: 'cancelCrop' and 'selectIndex'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+193:8  Warning: React Hook useEffect has missing dependencies: 'groupInformation' and 'selectIndex'. Either include them or remove the dependency array. You can also do a functional update 'setGroupInformation(g => ...)' if you only need 'groupInformation' in the 'setGroupInformation' call.  react-hooks/exhaustive-deps
+219:8  Warning: React Hook useEffect has missing dependencies: 'groupInformation' and 'selectIndex'. Either include them or remove the dependency array. You can also do a functional update 'setGroupInformation(g => ...)' if you only need 'groupInformation' in the 'setGroupInformation' call.  react-hooks/exhaustive-deps
+243:8  Warning: React Hook useEffect has missing dependencies: 'groupInformation' and 'selectIndex'. Either include them or remove the dependency array. You can also do a functional update 'setGroupInformation(g => ...)' if you only need 'groupInformation' in the 'setGroupInformation' call.  react-hooks/exhaustive-deps
+259:8  Warning: React Hook useEffect has missing dependencies: 'estimatedPage' and 'stageInformation'. Either include them or remove the dependency array. You can also do a functional update 'setStageInformation(s => ...)' if you only need 'stageInformation' in the 'setStageInformation' call.  react-hooks/exhaustive-deps
+
+./src/components/editor/konvaPage.tsx
+48:8  Warning: React Hook useEffect has missing dependencies: 'pageIndex', 'selectIndex', and 'stage.transformerRef'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+79:8  Warning: React Hook useEffect has missing dependencies: 'pageIndex', 'selectIndex', and 'stage.transformerRef'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+110:8  Warning: React Hook useCallback has a missing dependency: 'pageIndex'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+119:8  Warning: React Hook useCallback has a missing dependency: 'pageIndex'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/editor/questionCreator.tsx
+79:8  Warning: React Hook useEffect has a missing dependency: 'shapes'. Either include it or remove the dependency array. If 'setInitalShapes' needs the current value of 'shapes', you can also switch to useReducer instead of useState and read 'shapes' in the reducer.  react-hooks/exhaustive-deps
+103:8  Warning: React Hook useEffect has missing dependencies: 'newQuestionCreating' and 'shapes'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+115:8  Warning: React Hook useEffect has missing dependencies: 'selectedId' and 'setShapes'. Either include them or remove the dependency array. If 'setShapes' changes too often, find the parent component that defines it and wrap that definition in useCallback.  react-hooks/exhaustive-deps
+127:8  Warning: React Hook useEffect has missing dependencies: 'selectedId' and 'setShapes'. Either include them or remove the dependency array. If 'setShapes' changes too often, find the parent component that defines it and wrap that definition in useCallback.  react-hooks/exhaustive-deps
+194:8  Warning: React Hook useEffect has missing dependencies: 'contextClipBoard', 'selectedId', 'setShapes', and 'shapes'. Either include them or remove the dependency array. If 'setShapes' changes too often, find the parent component that defines it and wrap that definition in useCallback.  react-hooks/exhaustive-deps
+224:8  Warning: React Hook useEffect has a missing dependency: 'setShapes'. Either include it or remove the dependency array. If 'setShapes' changes too often, find the parent component that defines it and wrap that definition in useCallback.  react-hooks/exhaustive-deps
+288:8  Warning: React Hook useEffect has missing dependencies: 'setShapes' and 'shapes'. Either include them or remove the dependency array. If 'setShapes' changes too often, find the parent component that defines it and wrap that definition in useCallback.  react-hooks/exhaustive-deps
+
+./src/components/questions/MathShorthandEditor.tsx
+121:8  Warning: React Hook React.useEffect has missing dependencies: 'disabled', 'onChange', 'placeholder', and 'value'. Either include them or remove the dependency array. If 'onChange' changes too often, find the parent component that defines it and wrap that definition in useCallback.  react-hooks/exhaustive-deps
+
+./src/components/questions/sidePanel.tsx
+51:71  Warning: The ref value 'panelRef.current' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy 'panelRef.current' to a variable inside the effect, and use that variable in the cleanup function.  react-hooks/exhaustive-deps
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
+   Collecting page data ...
+   Generating static pages (0/754) ...
+   Generating static pages (188/754) 
+   Generating static pages (376/754) 
+   Generating static pages (565/754) 
+ Γ£ô Generating static pages (754/754)
+   Finalizing page optimization ...
+   Collecting build traces ...
+   Exporting (0/2) ...
+ Γ£ô Exporting (2/2)
+
+Route (app)                                                  Size  First Load JS
+Γöî Γùï /                                                       695 B         159 kB
+Γö£ Γùï /_not-found                                             123 B         102 kB
+Γö£ ΓùÅ /[lng]                                                5.68 kB         296 kB
+Γö£   Γö£ /en
+Γö£   Γö£ /es
+Γö£   Γö£ /fr
+Γö£   Γöö [+2 more paths]
+Γö£ ΓùÅ /[lng]/about                                          3.75 kB         164 kB
+Γö£   Γö£ /en/about
+Γö£   Γö£ /es/about
+Γö£   Γö£ /fr/about
+Γö£   Γöö [+2 more paths]
+Γö£ ΓùÅ /[lng]/create-exam-paper                              3.74 kB         164 kB
+Γö£   Γö£ /en/create-exam-paper
+Γö£   Γö£ /es/create-exam-paper
+Γö£   Γö£ /fr/create-exam-paper
+Γö£   Γöö [+2 more paths]
+Γö£ ΓùÅ /[lng]/editor                                         1.38 kB         104 kB
+Γö£   Γö£ /en/editor
+Γö£   Γö£ /es/editor
+Γö£   Γö£ /fr/editor
+Γö£   Γöö [+2 more paths]
+Γö£ ΓùÅ /[lng]/exam-papers                                    2.51 kB         107 kB
+Γö£   Γö£ /en/exam-papers
+Γö£   Γö£ /es/exam-papers
+Γö£   Γö£ /fr/exam-papers
+Γö£   Γöö [+2 more paths]
+Γö£ ΓùÅ /[lng]/exam-papers/viewer                             2.45 kB         105 kB
+Γö£   Γö£ /en/exam-papers/viewer
+Γö£   Γö£ /es/exam-papers/viewer
+Γö£   Γö£ /fr/exam-papers/viewer
+Γö£   Γöö [+2 more paths]
+Γö£ ΓùÅ /[lng]/primary                                          377 B         796 kB
+Γö£   Γö£ /en/primary
+Γö£   Γö£ /es/primary
+Γö£   Γö£ /fr/primary
+Γö£   Γöö [+2 more paths]
+Γö£ ΓùÅ /[lng]/primary/[topic]                                  358 B         796 kB
+Γö£   Γö£ /en/primary/numbers
+Γö£   Γö£ /en/primary/fractions-decimals-percentages
+Γö£   Γö£ /en/primary/measurements
+Γö£   Γöö [+27 more paths]
+Γö£ ΓùÅ /[lng]/primary/[topic]/[subtopic]                       395 B         797 kB
+Γö£   Γö£ /en/primary/numbers/counting
+Γö£   Γö£ /en/primary/numbers/place-value
+Γö£   Γö£ /en/primary/numbers/comparing-and-ordering-numbers
+Γö£   Γöö [+132 more paths]
+Γö£ ΓùÅ /[lng]/secondary                                        382 B         797 kB
+Γö£   Γö£ /en/secondary
+Γö£   Γö£ /es/secondary
+Γö£   Γö£ /fr/secondary
+Γö£   Γöö [+2 more paths]
+Γö£ ΓùÅ /[lng]/secondary/[topic]                                359 B         796 kB
+Γö£   Γö£ /en/secondary/number
+Γö£   Γö£ /en/secondary/algebra
+Γö£   Γö£ /en/secondary/geometry
+Γö£   Γöö [+32 more paths]
+Γö£ ΓùÅ /[lng]/secondary/[topic]/[subtopic]                     392 B         797 kB
+Γö£   Γö£ /en/secondary/number/negative-integers
+Γö£   Γö£ /en/secondary/number/factors-multiples-primes
+Γö£   Γö£ /en/secondary/number/lcm-hcf
+Γö£   Γöö [+237 more paths]
+Γö£ ΓùÅ /[lng]/sixth-form                                       376 B         796 kB
+Γö£   Γö£ /en/sixth-form
+Γö£   Γö£ /es/sixth-form
+Γö£   Γö£ /fr/sixth-form
+Γö£   Γöö [+2 more paths]
+Γö£ ΓùÅ /[lng]/sixth-form/[topic]                               356 B         796 kB
+Γö£   Γö£ /en/sixth-form/algebra
+Γö£   Γö£ /en/sixth-form/functions
+Γö£   Γö£ /en/sixth-form/calculus
+Γö£   Γöö [+37 more paths]
+Γö£ ΓùÅ /[lng]/sixth-form/[topic]/[subtopic]                    391 B         797 kB
+Γö£   Γö£ /en/sixth-form/algebra/polynomial-functions
+Γö£   Γö£ /en/sixth-form/algebra/rational-expressions
+Γö£   Γö£ /en/sixth-form/algebra/inequalities
+Γö£   Γöö [+212 more paths]
+Γö£ ΓùÅ /[lng]/start                                            304 B         103 kB
+Γö£   Γö£ /en/start
+Γö£   Γö£ /es/start
+Γö£   Γö£ /fr/start
+Γö£   Γöö [+2 more paths]
+Γöö ΓùÅ /[lng]/updates                                        5.06 kB         166 kB
+    Γö£ /en/updates
+    Γö£ /es/updates
+    Γö£ /fr/updates
+    Γöö [+2 more paths]
++ First Load JS shared by all                              102 kB
+  Γö£ chunks/255-6b79f309a27fb98b.js                        46.1 kB
+  Γö£ chunks/4bd1b696-c023c6e3521b1417.js                   54.2 kB
+  Γöö other shared chunks (total)                           2.07 kB
+
+
+Γùï  (Static)  prerendered as static content
+ΓùÅ  (SSG)     prerendered as static HTML (uses generateStaticParams)
+
+
+> examiniser@0.1.00 postbuild
+> next-sitemap
+
+Γ£¿ [next-sitemap] Loading next-sitemap config: file:///C:/examiniser/examiniser-frontend/next-sitemap.config.js
+Γ£à [next-sitemap] Generation completed
+ΓöîΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö¼ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÉ
+Γöé (index)       Γöé Values Γöé
+Γö£ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö╝ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöñ
+Γöé indexSitemaps Γöé 1      Γöé
+Γöé sitemaps      Γöé 1      Γöé
+ΓööΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö┤ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÿ
+-----------------------------------------------------
+ SITEMAP INDICES 
+-----------------------------------------------------
+
+   Γùï https://examiniser.com/sitemap.xml
+
+
+-----------------------------------------------------
+ SITEMAPS 
+-----------------------------------------------------
+
+   Γùï https://examiniser.com/sitemap-0.xml
+
+
