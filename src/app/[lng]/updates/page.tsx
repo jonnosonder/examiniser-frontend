@@ -41,7 +41,7 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                                     onClick={() => toggleEditPanelSection(12)}
                                 >   
                                     <div>
-                                        0.1.01 <span className='text-grey ml-1 text-sm'>—&nbsp; xx/xx/2026</span>
+                                        0.1.01 <span className='text-grey ml-1 text-sm'>—&nbsp; 23/04/2026</span>
                                     </div>
                                     {editPanelIndex === 12 ? (
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -62,6 +62,7 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                                     <p className="text-sm">
                                         - Landing page updated<br/>
                                         - Exam papers preview and download added<br/>
+                                        - Exam papers AQA and Edexcel 2024 added<br/>
                                         - Maths font download fix<br/>
                                         - Problem Solving and Reasoning questions moved from primary to secondary<br/>
                                         - Word Problems questions fixed<br/>

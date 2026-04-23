@@ -12,7 +12,7 @@ const WORD_PROBLEM_JSON_URL = 'https://d2lpkm1h3gh3rw.cloudfront.net/bf708822519
 const ENV_WORD_PROBLEM_JSON_URL = process.env.NEXT_PUBLIC_WORD_PROBLEM_JSON_URL?.trim();
 
 const WORD_PROBLEM_SOURCE_URLS = [
-    '/MathSample.json',
+    '/bf708822519a6c22ccfa2aa8bed72e7b86587d0a587fe7e6bbc0d86068e2c57c.json',
     ENV_WORD_PROBLEM_JSON_URL,
     WORD_PROBLEM_JSON_URL,
 ].filter((url): url is string => Boolean(url && url.length > 0));

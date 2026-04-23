@@ -5,6 +5,6 @@
 import type { QuestionGeneratorWithLevels } from './questionGeneratorCommon';
 
 export const sixthFormGenerators: Record<string, QuestionGeneratorWithLevels> = {
-    
+
 };
 

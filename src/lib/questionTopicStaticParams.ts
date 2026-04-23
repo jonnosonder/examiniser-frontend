@@ -44,9 +44,17 @@ export function generateSecondarySubtopicStaticParams() {
 }
 
 export function generateSixthFormTopicStaticParams() {
-    return generateLevelTopicStaticParams("sixthForm");
+    const params = generateLevelTopicStaticParams("sixthForm");
+    if (params.length > 0) {
+        return params;
+    }
+    return LocaleValues.map((lng) => ({ lng, topic: "coming-soon" }));
 }
 
 export function generateSixthFormSubtopicStaticParams() {
-    return generateLevelSubtopicStaticParams("sixthForm");
+    const params = generateLevelSubtopicStaticParams("sixthForm");
+    if (params.length > 0) {
+        return params;
+    }
+    return LocaleValues.map((lng) => ({ lng, topic: "coming-soon", subtopic: "coming-soon" }));
 }

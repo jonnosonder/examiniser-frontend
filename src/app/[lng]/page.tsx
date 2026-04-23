@@ -66,12 +66,16 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
   } | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [gridBoxesVisible, setGridBoxesVisible] = React.useState(false);
+  const [butHowVisible, setButHowVisible] = React.useState(false);
+  const [everySectionVisible, setEverySectionVisible] = React.useState(false);
   const [gridLayout, setGridLayout] = React.useState({ columns: 1, cellSize: 40, gap: 8 });
 
   const heroTitleRef = React.useRef<HTMLHeadingElement | null>(null);
   const templateTitleRef = React.useRef<HTMLHeadingElement | null>(null);
   const templateDescriptionRef = React.useRef<HTMLParagraphElement | null>(null);
   const gridSectionRef = React.useRef<HTMLDivElement>(null);
+  const butHowSectionRef = React.useRef<HTMLElement | null>(null);
+  const everySectionRef = React.useRef<HTMLElement | null>(null);
 
   const allSubtopics = React.useMemo(() => {
     const levels: QuestionLevel[] = ["primary", "secondary", "sixthForm"];
@@ -221,18 +225,46 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            setGridBoxesVisible(true);
+            setButHowVisible(true);
             observer.disconnect();
           }
         });
       },
-      { threshold: 0.1 }
+      { threshold: 0.2 }
     );
-    if (gridSectionRef.current) observer.observe(gridSectionRef.current);
+    if (butHowSectionRef.current) observer.observe(butHowSectionRef.current);
     return () => {
-      if (gridSectionRef.current) observer.unobserve(gridSectionRef.current);
+      if (butHowSectionRef.current) observer.unobserve(butHowSectionRef.current);
     };
   }, []);
+
+  React.useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setEverySectionVisible(true);
+            observer.disconnect();
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+    if (everySectionRef.current) observer.observe(everySectionRef.current);
+    return () => {
+      if (everySectionRef.current) observer.unobserve(everySectionRef.current);
+    };
+  }, []);
+
+  React.useEffect(() => {
+    if (!everySectionVisible) return;
+
+    const timer = window.setTimeout(() => {
+      setGridBoxesVisible(true);
+    }, 900);
+
+    return () => window.clearTimeout(timer);
+  }, [everySectionVisible]);
 
   const handleOpen = (id: ButtonId) => {
     if (activeButton && activeButton !== id) {
@@ -600,19 +632,42 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
       </section>
       
       {/* "But How?" section */}
-      <section className="relative h-[100dvh] w-full bg-background snap-start">
+      <section ref={butHowSectionRef} className="relative h-[100dvh] w-full bg-background snap-start">
         <div
           className="absolute inset-0 z-0 [background-image:linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] [background-size:20px_20px]"
           aria-hidden
         />
         <div className="relative z-[1] h-full w-full px-8 sm:px-12 lg:px-16 pt-12 sm:pt-[5rem]" onClick={handleClose}>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-inter font-semibold text-primary text-left">
+          <h2
+            className="text-3xl sm:text-4xl lg:text-5xl font-inter font-semibold text-primary text-left transition-all duration-500"
+            style={{
+              opacity: butHowVisible ? 1 : 0,
+              transform: butHowVisible ? 'translateY(0)' : 'translateY(22px)',
+            }}
+          >
             {t("home.but-how-1")}{" "}
             <span className="text-[var(--contrast)]">{t("home.but-how-2")}</span>
           </h2>
-          <p className='ml-10 mt-2 text-xl '>{t("home.but-how-description")}</p>
+          <p
+            className='ml-10 mt-2 text-xl transition-all duration-500'
+            style={{
+              opacity: butHowVisible ? 1 : 0,
+              transform: butHowVisible ? 'translateY(0)' : 'translateY(22px)',
+              transitionDelay: butHowVisible ? '120ms' : '0ms',
+            }}
+          >
+            {t("home.but-how-description")}
+          </p>
           <div className='flex flex-col items-center justify-center mt-4'>
-            <div className='flex flex-col w-3/4 bg-white rounded-[2rem] p-6 shadow-xl' onClick={(e) => e.stopPropagation()}>
+            <div
+              className='flex flex-col w-3/4 bg-white rounded-[2rem] p-6 shadow-xl transition-all duration-500'
+              style={{
+                opacity: butHowVisible ? 1 : 0,
+                transform: butHowVisible ? 'translateY(0)' : 'translateY(22px)',
+                transitionDelay: butHowVisible ? '220ms' : '0ms',
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
               <p className='text-2xl font-bold font-nunito text-primary mb-4'>{t('home.try-it-now')}</p>
                 <div className='flex flex-col w-full gap-2'>
                   <div className='grid w-full grid-cols-2 gap-3'>
@@ -688,7 +743,7 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
       </section>
 
       {/* "Every question in one place" section */}
-      <section className="relative h-[100dvh] w-full bg-background snap-start overflow-hidden">
+      <section ref={everySectionRef} className="relative h-[100dvh] w-full bg-background snap-start overflow-hidden">
         <div
           className="absolute inset-0 z-0 [background-image:linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] [background-size:20px_20px]"
           aria-hidden
@@ -703,10 +758,18 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
         />
 
         <div className="relative z-[1] h-full w-full px-6 sm:px-10 lg:px-16 py-10 sm:py-14" onClick={handleClose}>
-          <div className="mt-6 sm:mt-8 h-[calc(100%-1.5rem)] sm:h-[calc(100%-2rem)] rounded-[2rem] border-2 border-primary/20 bg-white/70 shadow-xl backdrop-blur-sm p-5 sm:p-8 lg:p-10">
+          <div
+            className="mt-6 sm:mt-8 h-[calc(100%-1.5rem)] sm:h-[calc(100%-2rem)] rounded-[2rem] border-2 border-primary/20 bg-white/70 shadow-xl backdrop-blur-sm p-5 sm:p-8 lg:p-10"
+          >
             <div className="grid h-full grid-cols-1 gap-6 lg:grid-cols-[0.95fr_1.05fr]">
               <div className="flex flex-col justify-between">
-                <div>
+                <div
+                  className="transition-all duration-500"
+                  style={{
+                    opacity: everySectionVisible ? 1 : 0,
+                    transform: everySectionVisible ? 'translateY(0)' : 'translateY(20px)',
+                  }}
+                >
                   <p className="inline-flex items-center rounded-full border border-primary/30 bg-primary/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
                     Topic Atlas
                   </p>
@@ -720,7 +783,14 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
                   </p>
                 </div>
 
-                <div className="mt-6 rounded-2xl border border-primary/20 bg-white p-4 sm:p-5">
+                <div
+                  className="mt-6 rounded-2xl border border-primary/20 bg-white p-4 sm:p-5 transition-all duration-500"
+                  style={{
+                    opacity: everySectionVisible ? 1 : 0,
+                    transform: everySectionVisible ? 'translateY(0)' : 'translateY(20px)',
+                    transitionDelay: everySectionVisible ? '140ms' : '0ms',
+                  }}
+                >
                   <p className="text-sm uppercase tracking-[0.18em] text-primary/60">Library status</p>
                   <p className="mt-2 text-2xl font-nunito text-primary">{levelBoxCountsBySchool.primary + levelBoxCountsBySchool.secondary + levelBoxCountsBySchool.sixthForm} total levels, {allSubtopics.length} mapped subtopics</p>
                   <p className="mt-1 text-sm text-primary/70">Each box in the question map represents one generator level that can produce questions. Counts below show the total number of generator levels available in each section.</p>
@@ -744,7 +814,14 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
                 </div>
               </div>
 
-              <div className="rounded-2xl border-2 border-primary bg-white shadow-[0_10px_30px_rgba(3,46,46,0.12)] p-4 sm:p-5 overflow-hidden flex flex-col min-h-0">
+              <div
+                className="rounded-2xl border-2 border-primary bg-white shadow-[0_10px_30px_rgba(3,46,46,0.12)] p-4 sm:p-5 overflow-hidden flex flex-col min-h-0 transition-all duration-500"
+                style={{
+                  opacity: everySectionVisible ? 1 : 0,
+                  transform: everySectionVisible ? 'translateY(0)' : 'translateY(20px)',
+                  transitionDelay: everySectionVisible ? '280ms' : '0ms',
+                }}
+              >
                 <div className="mb-4 flex items-center justify-between">
                   <p className="text-sm uppercase tracking-[0.18em] text-primary/60">Question map</p>
                   <div className="inline-flex gap-1">
