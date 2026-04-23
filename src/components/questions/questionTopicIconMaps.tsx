@@ -17,6 +17,7 @@ import {
 } from "@/assets/icons/secondary";
 import {
     SixthFormAlgebraIcon,
+    SixthFormPureIcon,
     SixthFormFunctionsGraphsIcon,
     SixthFormCalculusIcon,
     SixthFormDifferentiationIcon,
@@ -63,6 +64,7 @@ export const secondaryTopicIconMap: Record<string, React.ReactNode> = {
 };
 
 export const sixthFormTopicIconMap: Record<string, React.ReactNode> = {
+    pure: <SixthFormPureIcon />,
     algebra: <SixthFormAlgebraIcon />,
     functions: <SixthFormFunctionsGraphsIcon />,
     calculus: <SixthFormCalculusIcon />,

@@ -373,16 +373,16 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
     { 
       id: "exam_paper", 
       label: t("education.exam-papers"),       
-      items: ["AQA", "Edexcel", "OCR", "Baccalauréat", "Selectividad", "大学入学共通テスト", "高考", "general.see-all"],  
+      items: ["AQA", "general.see-all"],  // "Edexcel", "OCR", "Baccalauréat", "Selectividad", "大学入学共通テスト", "高考", 
       links: [
         "/exam-papers?source=aqa",
-        "/exam-papers?source=edexcel",
-        "/exam-papers?source=ocr",
-        "/exam-papers?source=baccalaureat",
-        "/exam-papers?source=selectividad",
-        "/exam-papers?source=japanese-university-entrance-exam",
-        "/exam-papers?source=chinese-gaokao",
         "/exam-papers",
+        //"/exam-papers?source=edexcel",
+        //"/exam-papers?source=ocr",
+        //"/exam-papers?source=baccalaureat",
+        //"/exam-papers?source=selectividad",
+        //"/exam-papers?source=japanese-university-entrance-exam",
+        //"/exam-papers?source=chinese-gaokao",
       ],
       delay: "360ms" 
     },
@@ -767,7 +767,7 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
                   {generatorLevelBoxes.map(({ schoolLevel, subtopicSlug, difficulty }, index) => {
                     const rowIndex = Math.floor(index / gridLayout.columns);
                     const rowDelayMs = rowIndex * 80;
-                    const label = schoolLevel === "primary" ? "P" : schoolLevel === "secondary" ? "S" : "F";
+                    const label = schoolLevel === "primary" ? "P" : schoolLevel === "secondary" ? "S" : "C";
 
                     return (
                       <div

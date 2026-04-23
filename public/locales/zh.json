@@ -67,7 +67,8 @@
     "calculus": "Calculus",
     "statistics": "Statistics",
     "mechanics": "Mechanics",
-    "discrete": "Discrete"
+    "discrete": "Discrete",
+    "pure": "????"
   },
   "primary-topics": {
     "numbers": "数字",
@@ -493,7 +494,8 @@
       "calculus": "探索微分、积分、极限和运动学，理解变化率与曲线下的面积。",
       "statistics": "分析概率、分布、假设检验和回归，进行统计建模。",
       "mechanics": "将力、运动、力矩和抛体运动应用于物理数学问题。",
-      "discrete": "研究矩阵、复数、图论和线性规划的离散数学主题。"
+      "discrete": "研究矩阵、复数、图论和线性规划的离散数学主题。",
+      "pure": "??????,?????????????"
     },
     "sixthFormSub": {
       "functions-graphs": {
@@ -595,6 +597,25 @@
         "complex-numbers": "学习Complex Numbers的关键概念。",
         "graph-theory": "学习Graph Theory的关键概念。",
         "linear-programming": "学习Linear Programming的关键概念。"
+      },
+      "pure": {
+        "algebra-and-functions": "?????",
+        "quadratics": "????",
+        "inequalities": "???",
+        "polynomials": "???",
+        "coordinate-geometry": "????",
+        "sequences-and-series": "?????",
+        "binomial-expansion": "?????",
+        "trigonometry": "???",
+        "trigonometric-identities": "?????",
+        "trigonometric-equations": "????",
+        "exponentials-and-logarithms": "?????",
+        "differentiation": "??",
+        "integration": "??",
+        "numerical-methods": "????",
+        "vectors": "??",
+        "proof": "??",
+        "parametric-equations": "????"
       }
     }
   },
@@ -808,6 +829,17 @@
     "matrices": "Matrices",
     "complex-numbers": "Complex Numbers",
     "graph-theory": "Graph Theory",
-    "linear-programming": "Linear Programming"
+    "linear-programming": "Linear Programming",
+    "algebra-functions": "?????",
+    "quadratics": "????",
+    "polynomials": "???",
+    "coordinate-geometry": "????",
+    "sequences-series": "?????",
+    "trigonometry": "???",
+    "exp-logs": "?????",
+    "differentiation": "??",
+    "integration": "??",
+    "vectors": "??",
+    "parametric-equations": "????"
   }
 }

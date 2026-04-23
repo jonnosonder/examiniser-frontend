@@ -10,22 +10,27 @@ import {
   buildExamPaperPdfUrl,
   EXAM_PAPERS_CLOUDFRONT_BASE,
   type ExamPaperLevel,
+  getExamPaperDate,
   getExamPaperName,
   getExamPaperPath,
   getExamPaperSource,
+  type ExamPaperTier,
   type ExamPaperType,
 } from "@/lib/examPapers";
 
 export default function ExamPaperViewerPage({ params }: { params: Promise<{ lng: Locale }> }) {
   const router = useRouter();
   const { lng } = React.use(params);
+  const [isDownloading, setIsDownloading] = React.useState(false);
 
   const [viewerState, setViewerState] = React.useState<{
     sourceId: string | null;
     sourceName: string;
     level: ExamPaperLevel;
     year: string;
+    date: string;
     paperName: string;
+    paperTier: ExamPaperTier | null;
     paperType: ExamPaperType;
     pdfUrl: string;
   } | null>(null);
@@ -36,15 +41,20 @@ export default function ExamPaperViewerPage({ params }: { params: Promise<{ lng:
     const requestedLevel = searchParams.get("level");
     const year = searchParams.get("year");
     const paperId = searchParams.get("paper");
+    const requestedTier = searchParams.get("tier");
+    const requestedDate = searchParams.get("date");
     const requestedType = searchParams.get("type");
     const level: ExamPaperLevel = requestedLevel === "sixth-form" ? "sixth-form" : "secondary";
+    const paperTier: ExamPaperTier | null = requestedTier === "foundation" || requestedTier === "higher" ? requestedTier : null;
     const paperType: ExamPaperType = requestedType === "answer" ? "answer" : "question";
     const source = getExamPaperSource(sourceId);
-    const paperPath = getExamPaperPath(sourceId, level, year, paperId, paperType);
-    const paperName = getExamPaperName(sourceId, level, year, paperId);
+    const paperPath = getExamPaperPath(sourceId, level, year, paperId, paperType, paperTier);
+    const paperName = getExamPaperName(sourceId, level, year, paperId, paperTier);
+    const derivedDate = getExamPaperDate(sourceId, level, year, paperId, paperTier);
+    const date = requestedDate ?? derivedDate;
     const pdfUrl = paperPath ? buildExamPaperPdfUrl(paperPath) : "";
 
-    if (!source || !year || !paperName || !paperPath) {
+    if (!source || !year || !date || !paperName || !paperPath) {
       setViewerState(null);
       return;
     }
@@ -54,7 +64,9 @@ export default function ExamPaperViewerPage({ params }: { params: Promise<{ lng:
       sourceName: source.name,
       level,
       year,
+      date,
       paperName,
+      paperTier,
       paperType,
       pdfUrl,
     });
@@ -63,6 +75,48 @@ export default function ExamPaperViewerPage({ params }: { params: Promise<{ lng:
   const backHref = viewerState?.sourceId
     ? `/${lng}/exam-papers?source=${viewerState.sourceId}&level=${viewerState.level}`
     : `/${lng}/exam-papers`;
+
+  const handleDownloadPdf = React.useCallback(async () => {
+    if (!viewerState?.pdfUrl || isDownloading) return;
+
+    try {
+      setIsDownloading(true);
+
+      const response = await fetch(viewerState.pdfUrl);
+      if (!response.ok) {
+        throw new Error(`Failed to download PDF: ${response.status}`);
+      }
+
+      const pdfBlob = await response.blob();
+      const objectUrl = window.URL.createObjectURL(pdfBlob);
+      const downloadLink = document.createElement("a");
+      const fileName = [
+        viewerState.sourceName,
+        viewerState.level,
+        viewerState.year,
+        viewerState.date,
+        viewerState.paperName,
+        viewerState.paperType,
+      ]
+        .join("-")
+        .replace(/[^a-z0-9-]+/gi, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "")
+        .concat(".pdf");
+
+      downloadLink.href = objectUrl;
+      downloadLink.download = fileName;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      downloadLink.remove();
+      window.URL.revokeObjectURL(objectUrl);
+    } catch (error) {
+      console.error(error);
+      window.open(viewerState.pdfUrl, "_blank", "noopener,noreferrer");
+    } finally {
+      setIsDownloading(false);
+    }
+  }, [isDownloading, viewerState]);
 
   return (
     <div className="relative w-full h-screen flex flex-col bg-background text-primary overflow-hidden">
@@ -84,7 +138,7 @@ export default function ExamPaperViewerPage({ params }: { params: Promise<{ lng:
           </button>
           {viewerState && (
             <h1 className="font-nunito text-lg sm:text-xl text-primary truncate">
-              {viewerState.sourceName} - {viewerState.level === "secondary" ? "Secondary" : "Sixth Form"} - {viewerState.year} - {viewerState.paperName} -{" "}
+              {viewerState.sourceName} - {viewerState.level === "secondary" ? "Secondary" : "Sixth Form"} - {viewerState.year} - {viewerState.date} - {viewerState.paperName} -{" "}
               <span className="font-normal text-base">
                 {viewerState.paperType === "answer" ? "Answer Paper" : "Question Paper"}
               </span>
@@ -92,21 +146,21 @@ export default function ExamPaperViewerPage({ params }: { params: Promise<{ lng:
           )}
         </div>
         {viewerState?.pdfUrl && (
-          <a
-            href={viewerState.pdfUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="shrink-0 border border-primary rounded-lg px-3 py-1.5 text-sm text-primary transition-shadow duration-200 hover:shadow-[0_0_0_0.3rem_var(--accent)]"
+          <button
+            type="button"
+            onClick={handleDownloadPdf}
+            disabled={isDownloading}
+            className="shrink-0 border border-primary rounded-lg px-3 py-1.5 text-sm text-primary transition-shadow duration-200 hover:shadow-[0_0_0_0.3rem_var(--accent)] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Open PDF
-          </a>
+            {isDownloading ? "Downloading..." : "Download PDF"}
+          </button>
         )}
       </div>
 
       {/* Main content: PDF viewer + spacing slot */}
-      <div className="relative z-[1] flex flex-1 min-h-0 gap-4 p-4 animate-fadeInY [animation-delay:160ms] opacity-0">
+      <div className="relative z-[1] flex flex-1 min-h-0 gap-4 p-1 animate-fadeInY [animation-delay:160ms] opacity-0">
         {/* PDF iframe */}
-        <div className="flex-[2] min-w-0 border border-primary rounded-xl overflow-hidden bg-white">
+        <div className="flex-[2] min-w-0 border border-primary overflow-hidden bg-white">
           {viewerState?.pdfUrl ? (
             <iframe
               title={`${viewerState.sourceName}-${viewerState.year}-${viewerState.paperType}`}
@@ -124,7 +178,7 @@ export default function ExamPaperViewerPage({ params }: { params: Promise<{ lng:
 
         {/* Spacing slot */}
         <div className="hidden lg:flex flex-[1] min-w-[16rem] max-w-xs flex-col border border-dashed border-slate-300 rounded-xl bg-white items-center justify-center text-slate-400 text-sm">
-          Spacing
+          {/* Spacing */}
         </div>
       </div>
     </div>

@@ -15,6 +15,15 @@ export const SixthFormAlgebraIcon = () => (
     </svg>
 );
 
+export const SixthFormPureIcon = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" xmlns="http://www.w3.org/2000/svg">
+        <line x1="4" y1="20" x2="20" y2="20" />
+        <line x1="4" y1="20" x2="4" y2="4" />
+        <path d="M5 16 C 8 7, 13 5, 18 8" />
+        <path d="M8 15 L11 12 L14 13 L18 9" />
+    </svg>
+);
+
 export const SixthFormDifferentiationIcon = () => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" xmlns="http://www.w3.org/2000/svg">
         <path d="M4 18 Q 12 4 20 14" />

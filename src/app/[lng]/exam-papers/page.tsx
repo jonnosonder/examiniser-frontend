@@ -6,13 +6,21 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Locale } from "@/lib/locales";
-import { examPaperSources, type ExamPaperLevel } from "@/lib/examPapers";
+import { examPaperSources, type ExamPaperLevel, type ExamPaperTier } from "@/lib/examPapers";
 import { useRouter } from "next/navigation";
 
 export default function ExamPapersPage({ params }: { params: Promise<{ lng: Locale }> }) {
   const { t } = useTranslation();
   const router = useRouter();
   const { lng } = React.use(params);
+
+  type PaperTableRow = {
+    rowId: string;
+    rowName: string;
+    paperId: string;
+    paperTier?: ExamPaperTier;
+    date: string;
+  };
 
   const [expandedSourceId, setExpandedSourceId] = React.useState<string | null>(null);
   const [activeLevelBySourceId, setActiveLevelBySourceId] = React.useState<Record<string, ExamPaperLevel>>({});
@@ -58,9 +66,14 @@ export default function ExamPapersPage({ params }: { params: Promise<{ lng: Loca
     level: ExamPaperLevel,
     year: string,
     paperId: string,
-    paperType: "question" | "answer"
+    paperType: "question" | "answer",
+    date: string,
+    paperTier?: ExamPaperTier
   ) => {
-    const query = new URLSearchParams({ source: sourceId, level, year, paper: paperId, type: paperType });
+    const query = new URLSearchParams({ source: sourceId, level, year, paper: paperId, type: paperType, date });
+    if (paperTier) {
+      query.set("tier", paperTier);
+    }
     router.push(`/${lng}/exam-papers/viewer?${query.toString()}`);
   };
 
@@ -114,19 +127,19 @@ export default function ExamPapersPage({ params }: { params: Promise<{ lng: Loca
               return (
                 <div
                   key={source.id}
-                  className="border-2 border-primary rounded-xl bg-white animate-fadeInY opacity-0"
+                  className="border-2 border-primary rounded-xl bg-white animate-fadeInY opacity-0 transition-shadow duration-200 hover:shadow-[0_0_0_0.5rem_var(--accent)]"
                   style={{ animationDelay: `${160 + index * 50}ms` }}
                 >
                   <button
                     type="button"
                     onClick={() => toggleSourceExpansion(source.id)}
-                    className="w-full p-5 text-left transition-shadow duration-200 cursor-pointer hover:shadow-[0_0_0_0.5rem_var(--accent)]"
+                    className="w-full p-5 text-left cursor-pointer"
                   >
                     <div className="flex items-center justify-between gap-2">
                       <div>
                         <p className="text-xl font-nunito text-primary">{source.name}</p>
                         <p className="text-sm text-primary mt-1 opacity-60">
-                          {new Set(source.papers.map((entry) => `${entry.level}-${entry.year}`)).size} year sets / {source.papers.reduce((sum, entry) => sum + entry.papers.length, 0)} papers
+                          {new Set(source.papers.map((entry) => entry.year)).size} years of papers / {source.papers.reduce((sum, entry) => sum + entry.papers.length, 0)} papers
                         </p>
                       </div>
                       <p className="text-xl text-primary">{isExpanded ? "−" : "+"}</p>
@@ -165,18 +178,42 @@ export default function ExamPapersPage({ params }: { params: Promise<{ lng: Loca
                               <thead className="bg-slate-50">
                                 <tr>
                                   <th className="text-left px-4 py-3 font-semibold border-b border-slate-200">Paper Name</th>
+                                  <th className="text-left px-4 py-3 font-semibold border-b border-slate-200">Date</th>
                                   <th className="text-left px-4 py-3 font-semibold border-b border-slate-200">Question Paper</th>
                                   <th className="text-left px-4 py-3 font-semibold border-b border-slate-200">Answer Paper</th>
                                 </tr>
                               </thead>
                               <tbody>
-                                {yearEntry.papers.map((paper, rowIndex) => (
-                                  <tr key={`${source.id}-${activeLevel}-${yearEntry.year}-${paper.id}`} className={rowIndex % 2 === 0 ? "bg-white" : "bg-slate-50"}>
-                                    <td className="px-4 py-3 border-b border-slate-200">{paper.name}</td>
+                                {yearEntry.papers.flatMap<PaperTableRow>((paper) => {
+                                  const dateLabel = yearEntry.date ?? yearEntry.year;
+
+                                  if (paper.tierVariants?.length) {
+                                    return paper.tierVariants.map((tierVariant) => ({
+                                      rowId: `${source.id}-${activeLevel}-${yearEntry.year}-${paper.id}-${tierVariant.tier}`,
+                                      rowName: `${paper.name} (${tierVariant.name})`,
+                                      paperId: paper.id,
+                                      paperTier: tierVariant.tier,
+                                      date: tierVariant.date ?? dateLabel,
+                                    }));
+                                  }
+
+                                  return [
+                                    {
+                                      rowId: `${source.id}-${activeLevel}-${yearEntry.year}-${paper.id}`,
+                                      rowName: paper.name,
+                                      paperId: paper.id,
+                                      paperTier: undefined,
+                                      date: dateLabel,
+                                    },
+                                  ];
+                                }).map((row, rowIndex) => (
+                                  <tr key={row.rowId} className={rowIndex % 2 === 0 ? "bg-white" : "bg-slate-50"}>
+                                    <td className="px-4 py-3 border-b border-slate-200">{row.rowName}</td>
+                                    <td className="px-4 py-3 border-b border-slate-200">{row.date}</td>
                                     <td className="px-4 py-3 border-b border-slate-200">
                                       <button
                                         type="button"
-                                        onClick={() => openPaperViewer(source.id, activeLevel, yearEntry.year, paper.id, "question")}
+                                        onClick={() => openPaperViewer(source.id, activeLevel, yearEntry.year, row.paperId, "question", row.date, row.paperTier)}
                                         className="border border-primary rounded-lg px-3 py-1.5 text-sm text-primary transition-shadow duration-200 hover:shadow-[0_0_0_0.3rem_var(--accent)] cursor-pointer"
                                       >
                                         View PDF
@@ -185,7 +222,7 @@ export default function ExamPapersPage({ params }: { params: Promise<{ lng: Loca
                                     <td className="px-4 py-3 border-b border-slate-200">
                                       <button
                                         type="button"
-                                        onClick={() => openPaperViewer(source.id, activeLevel, yearEntry.year, paper.id, "answer")}
+                                        onClick={() => openPaperViewer(source.id, activeLevel, yearEntry.year, row.paperId, "answer", row.date, row.paperTier)}
                                         className="border border-primary rounded-lg px-3 py-1.5 text-sm text-primary transition-shadow duration-200 hover:shadow-[0_0_0_0.3rem_var(--accent)] cursor-pointer"
                                       >
                                         View PDF

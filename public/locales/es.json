@@ -68,7 +68,8 @@
     "calculus": "Calculus",
     "statistics": "Statistics",
     "mechanics": "Mechanics",
-    "discrete": "Discrete"
+    "discrete": "Discrete",
+    "pure": "Matem�ticas Puras"
   },
   "primary-topics": {
     "numbers": "Números",
@@ -494,7 +495,8 @@
       "calculus": "Explora derivadas, integrales, límites y cinemática para tasas de cambio y áreas bajo curvas.",
       "statistics": "Analiza probabilidad, distribuciones, contrastes de hipótesis y regresión para modelizar datos.",
       "mechanics": "Aplica fuerzas, movimiento, momentos y proyectiles a problemas de mecánica en contextos de física y matemáticas.",
-      "discrete": "Investiga matrices, números complejos, teoría de grafos y programación lineal para matemáticas discretas."
+      "discrete": "Investiga matrices, números complejos, teoría de grafos y programación lineal para matemáticas discretas.",
+      "pure": "Conceptos matem�ticos fundamentales que incluyen �lgebra, c�lculo y trigonometr�a."
     },
     "sixthFormSub": {
       "functions-graphs": {
@@ -596,6 +598,25 @@
         "complex-numbers": "Trabaja con n�meros complejos en el plano.",
         "graph-theory": "Estudia grafos y sus aplicaciones.",
         "linear-programming": "Optimiza funciones lineales sujetas a restricciones."
+      },
+      "pure": {
+        "algebra-and-functions": "�lgebra y funciones",
+        "quadratics": "Ecuaciones cuadr�ticas",
+        "inequalities": "Desigualdades",
+        "polynomials": "Polinomios",
+        "coordinate-geometry": "Geometr�a anal�tica",
+        "sequences-and-series": "Sucesiones y series",
+        "binomial-expansion": "Expansi�n binomial",
+        "trigonometry": "Trigonometr�a",
+        "trigonometric-identities": "Identidades trigonom�tricas",
+        "trigonometric-equations": "Ecuaciones trigonom�tricas",
+        "exponentials-and-logarithms": "Exponenciales y logaritmos",
+        "differentiation": "Diferenciaci�n",
+        "integration": "Integraci�n",
+        "numerical-methods": "M�todos num�ricos",
+        "vectors": "Vectores",
+        "proof": "Demostraci�n",
+        "parametric-equations": "Ecuaciones param�tricas"
       }
     }
   },
@@ -809,6 +830,17 @@
     "matrices": "Matrices",
     "complex-numbers": "Complex Numbers",
     "graph-theory": "Graph Theory",
-    "linear-programming": "Linear Programming"
+    "linear-programming": "Linear Programming",
+    "algebra-functions": "�lgebra y funciones",
+    "quadratics": "Ecuaciones cuadr�ticas",
+    "polynomials": "Polinomios",
+    "coordinate-geometry": "Geometr�a anal�tica",
+    "sequences-series": "Sucesiones y series",
+    "trigonometry": "Trigonometr�a",
+    "exp-logs": "Exponenciales y logaritmos",
+    "differentiation": "Diferenciaci�n",
+    "integration": "Integraci�n",
+    "vectors": "Vectores",
+    "parametric-equations": "Ecuaciones param�tricas"
   }
 }

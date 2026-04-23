@@ -67,7 +67,8 @@
     "calculus": "Calculus",
     "statistics": "Statistics",
     "mechanics": "Mechanics",
-    "discrete": "Discrete"
+    "discrete": "Discrete",
+    "pure": "Pure Mathematics"
   },
   "primary-topics": {
     "numbers": "Numbers",
@@ -493,7 +494,8 @@
       "calculus": "Explore differentiation, integration, limits and kinematics for rates of change and areas under curves.",
       "statistics": "Analyse probability, distributions, hypothesis testing and regression for statistical modelling.",
       "mechanics": "Apply forces, motion, moments and projectiles to solve mechanics problems in physics-maths contexts.",
-      "discrete": "Investigate matrices, complex numbers, graph theory and linear programming for discrete maths."
+      "discrete": "Investigate matrices, complex numbers, graph theory and linear programming for discrete maths.",
+      "pure": "Core mathematical concepts including algebra, calculus, and trigonometry."
     },
     "sixthFormSub": {
       "functions-graphs": {
@@ -595,6 +597,25 @@
         "complex-numbers": "Explore key concepts in Complex Numbers.",
         "graph-theory": "Explore key concepts in Graph Theory.",
         "linear-programming": "Explore key concepts in Linear Programming."
+      },
+      "pure": {
+        "algebra-and-functions": "Algebra and Functions",
+        "quadratics": "Quadratics",
+        "inequalities": "Inequalities",
+        "polynomials": "Polynomials",
+        "coordinate-geometry": "Coordinate Geometry",
+        "sequences-and-series": "Sequences and Series",
+        "binomial-expansion": "Binomial Expansion",
+        "trigonometry": "Trigonometry",
+        "trigonometric-identities": "Trigonometric Identities",
+        "trigonometric-equations": "Trigonometric Equations",
+        "exponentials-and-logarithms": "Exponentials and Logarithms",
+        "differentiation": "Differentiation",
+        "integration": "Integration",
+        "numerical-methods": "Numerical Methods",
+        "vectors": "Vectors",
+        "proof": "Proof",
+        "parametric-equations": "Parametric Equations"
       }
     }
   },
@@ -808,6 +829,17 @@
     "matrices": "Matrices",
     "complex-numbers": "Complex Numbers",
     "graph-theory": "Graph Theory",
-    "linear-programming": "Linear Programming"
+    "linear-programming": "Linear Programming",
+    "algebra-functions": "Algebra and Functions",
+    "quadratics": "Quadratics",
+    "polynomials": "Polynomials",
+    "coordinate-geometry": "Coordinate Geometry",
+    "sequences-series": "Sequences and Series",
+    "trigonometry": "Trigonometry",
+    "exp-logs": "Exponentials and Logarithms",
+    "differentiation": "Differentiation",
+    "integration": "Integration",
+    "vectors": "Vectors",
+    "parametric-equations": "Parametric Equations"
   }
 }

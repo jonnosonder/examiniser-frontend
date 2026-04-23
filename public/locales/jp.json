@@ -68,7 +68,8 @@
     "calculus": "Calculus",
     "statistics": "Statistics",
     "mechanics": "Mechanics",
-    "discrete": "Discrete"
+    "discrete": "Discrete",
+    "pure": "????"
   },
   "primary-topics": {
     "numbers": "数",
@@ -494,7 +495,8 @@
       "calculus": "微分、積分、極限、運動の解析を通じて変化率と曲線下面積を理解します。",
       "statistics": "確率、分布、仮説検定、回帰を学び、データの統計モデル化を行います。",
       "mechanics": "力、運動、モーメント、放物運動を物理・数学の文脈で解きます。",
-      "discrete": "行列、複素数、グラフ理論、線形計画法を離散数学として探究します。"
+      "discrete": "行列、複素数、グラフ理論、線形計画法を離散数学として探究します。",
+      "pure": "????????????????????????"
     },
     "sixthFormSub": {
       "functions-graphs": {
@@ -596,6 +598,25 @@
         "complex-numbers": "Complex Numbersの重要な概念を学びます。",
         "graph-theory": "Graph Theoryの重要な概念を学びます。",
         "linear-programming": "Linear Programmingの重要な概念を学びます。"
+      },
+      "pure": {
+        "algebra-and-functions": "?????",
+        "quadratics": "?????",
+        "inequalities": "???",
+        "polynomials": "???",
+        "coordinate-geometry": "?????",
+        "sequences-and-series": "?????",
+        "binomial-expansion": "????",
+        "trigonometry": "???",
+        "trigonometric-identities": "???????",
+        "trigonometric-equations": "?????",
+        "exponentials-and-logarithms": "?????????",
+        "differentiation": "??",
+        "integration": "??",
+        "numerical-methods": "????",
+        "vectors": "????",
+        "proof": "??",
+        "parametric-equations": "??????????"
       }
     }
   },
@@ -809,6 +830,17 @@
     "matrices": "Matrices",
     "complex-numbers": "Complex Numbers",
     "graph-theory": "Graph Theory",
-    "linear-programming": "Linear Programming"
+    "linear-programming": "Linear Programming",
+    "algebra-functions": "?????",
+    "quadratics": "?????",
+    "polynomials": "???",
+    "coordinate-geometry": "?????",
+    "sequences-series": "?????",
+    "trigonometry": "???",
+    "exp-logs": "?????????",
+    "differentiation": "??",
+    "integration": "??",
+    "vectors": "????",
+    "parametric-equations": "??????????"
   }
 }

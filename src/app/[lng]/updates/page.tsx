@@ -65,6 +65,7 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                                         - Maths font download fix<br/>
                                         - Problem Solving and Reasoning questions moved from primary to secondary<br/>
                                         - Word Problems questions fixed<br/>
+                                        - Metadata updated<br/>
                                     </p>
                                     
                                 </div>
