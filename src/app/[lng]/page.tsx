@@ -373,11 +373,12 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
     { 
       id: "exam_paper", 
       label: t("education.exam-papers"),       
-      items: ["AQA", "general.see-all"],  // "Edexcel", "OCR", "Baccalauréat", "Selectividad", "大学入学共通テスト", "高考", 
+      items: ["AQA", "Edexcel", "general.see-all"],  // "OCR", "Baccalauréat", "Selectividad", "大学入学共通テスト", "高考", 
       links: [
         "/exam-papers?source=aqa",
+        "/exam-papers?source=edexcel",
         "/exam-papers",
-        //"/exam-papers?source=edexcel",
+        
         //"/exam-papers?source=ocr",
         //"/exam-papers?source=baccalaureat",
         //"/exam-papers?source=selectividad",
