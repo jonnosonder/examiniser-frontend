@@ -139,7 +139,7 @@ export default function ExamPapersPage({ params }: { params: Promise<{ lng: Loca
                       <div>
                         <p className="text-xl font-nunito text-primary">{source.name}</p>
                         <p className="text-sm text-primary mt-1 opacity-60">
-                          {new Set(source.papers.map((entry) => entry.year)).size} years of papers / {source.papers.reduce((sum, entry) => sum + entry.papers.reduce((paperSum, paper) => paperSum + (paper.tierVariants?.length ?? 1), 0), 0)} papers
+                          {t("exam-papers.years-of-papers", { count: new Set(source.papers.map((entry) => entry.year)).size })} / {t("exam-papers.papers-count", { count: source.papers.reduce((sum, entry) => sum + entry.papers.reduce((paperSum, paper) => paperSum + (paper.tierVariants?.length ?? 1), 0), 0) })}
                         </p>
                       </div>
                       <p className="text-xl text-primary">{isExpanded ? "−" : "+"}</p>
@@ -161,7 +161,7 @@ export default function ExamPapersPage({ params }: { params: Promise<{ lng: Loca
                                   : "bg-white text-primary border-primary hover:shadow-[0_0_0_0.3rem_var(--accent)]"
                               }`}
                             >
-                              {level === "secondary" ? "Secondary" : "Sixth Form"}
+                              {level === "secondary" ? t("exam-papers.secondary") : t("exam-papers.sixth-form")}
                             </button>
                           ))}
                         </div>
@@ -177,10 +177,10 @@ export default function ExamPapersPage({ params }: { params: Promise<{ lng: Loca
                             <table className="w-full text-sm text-primary">
                               <thead className="bg-slate-50">
                                 <tr>
-                                  <th className="text-left px-4 py-3 font-semibold border-b border-slate-200">Paper Name</th>
-                                  <th className="text-left px-4 py-3 font-semibold border-b border-slate-200">Date</th>
-                                  <th className="text-left px-4 py-3 font-semibold border-b border-slate-200">Question Paper</th>
-                                  <th className="text-left px-4 py-3 font-semibold border-b border-slate-200">Answer Paper</th>
+                                  <th className="text-left px-4 py-3 font-semibold border-b border-slate-200">{t("exam-papers.paper-name")}</th>
+                                  <th className="text-left px-4 py-3 font-semibold border-b border-slate-200">{t("exam-papers.date")}</th>
+                                  <th className="text-left px-4 py-3 font-semibold border-b border-slate-200">{t("exam-papers.question-paper")}</th>
+                                  <th className="text-left px-4 py-3 font-semibold border-b border-slate-200">{t("exam-papers.answer-paper")}</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -216,7 +216,7 @@ export default function ExamPapersPage({ params }: { params: Promise<{ lng: Loca
                                         onClick={() => openPaperViewer(source.id, activeLevel, yearEntry.year, row.paperId, "question", row.date, row.paperTier)}
                                         className="border border-primary rounded-lg px-3 py-1.5 text-sm text-primary transition-shadow duration-200 hover:shadow-[0_0_0_0.3rem_var(--accent)] cursor-pointer"
                                       >
-                                        View PDF
+                                        {t("exam-papers.view-pdf")}
                                       </button>
                                     </td>
                                     <td className="px-4 py-3 border-b border-slate-200">
@@ -225,7 +225,7 @@ export default function ExamPapersPage({ params }: { params: Promise<{ lng: Loca
                                         onClick={() => openPaperViewer(source.id, activeLevel, yearEntry.year, row.paperId, "answer", row.date, row.paperTier)}
                                         className="border border-primary rounded-lg px-3 py-1.5 text-sm text-primary transition-shadow duration-200 hover:shadow-[0_0_0_0.3rem_var(--accent)] cursor-pointer"
                                       >
-                                        View PDF
+                                        {t("exam-papers.view-pdf")}
                                       </button>
                                     </td>
                                   </tr>

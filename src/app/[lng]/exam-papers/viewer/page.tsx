@@ -5,6 +5,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "react-i18next";
 import { Locale } from "@/lib/locales";
 import {
   buildExamPaperPdfUrl,
@@ -21,6 +22,7 @@ import {
 export default function ExamPaperViewerPage({ params }: { params: Promise<{ lng: Locale }> }) {
   const router = useRouter();
   const { lng } = React.use(params);
+  const { t } = useTranslation();
   const [isDownloading, setIsDownloading] = React.useState(false);
 
   const [viewerState, setViewerState] = React.useState<{
@@ -134,13 +136,13 @@ export default function ExamPaperViewerPage({ params }: { params: Promise<{ lng:
             onClick={() => router.push(backHref)}
             className="border border-primary rounded-lg px-3 py-1.5 text-sm text-primary transition-shadow duration-200 hover:shadow-[0_0_0_0.3rem_var(--accent)] cursor-pointer shrink-0"
           >
-            Back
+            {t("exam-papers.back")}
           </button>
           {viewerState && (
             <h1 className="font-nunito text-lg sm:text-xl text-primary truncate">
-              {viewerState.sourceName} - {viewerState.level === "secondary" ? "Secondary" : "Sixth Form"} - {viewerState.year} - {viewerState.date} - {viewerState.paperName} -{" "}
+              {viewerState.sourceName} - {viewerState.level === "secondary" ? t("exam-papers.secondary") : t("exam-papers.sixth-form")} - {viewerState.year} - {viewerState.date} - {viewerState.paperName} -{" "}
               <span className="font-normal text-base">
-                {viewerState.paperType === "answer" ? "Answer Paper" : "Question Paper"}
+                {viewerState.paperType === "answer" ? t("exam-papers.answer-paper") : t("exam-papers.question-paper")}
               </span>
             </h1>
           )}
@@ -152,7 +154,7 @@ export default function ExamPaperViewerPage({ params }: { params: Promise<{ lng:
             disabled={isDownloading}
             className="shrink-0 border border-primary rounded-lg px-3 py-1.5 text-sm text-primary transition-shadow duration-200 hover:shadow-[0_0_0_0.3rem_var(--accent)] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isDownloading ? "Downloading..." : "Download PDF"}
+            {isDownloading ? t("exam-papers.downloading") : t("exam-papers.download-pdf")}
           </button>
         )}
       </div>
@@ -170,8 +172,8 @@ export default function ExamPaperViewerPage({ params }: { params: Promise<{ lng:
           ) : (
             <div className="flex h-full items-center justify-center p-6 text-center text-sm text-primary opacity-50">
               {EXAM_PAPERS_CLOUDFRONT_BASE
-                ? "Paper not found for the selected entry."
-                : "Set NEXT_PUBLIC_EXAM_PAPERS_CLOUDFRONT_URL to enable PDF viewing."}
+                ? t("exam-papers.paper-not-found")
+                : t("exam-papers.set-cloudfront-url")}
             </div>
           )}
         </div>

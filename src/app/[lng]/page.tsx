@@ -307,7 +307,9 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
   const handleGenerateRandomQuestion = async () => {
     setIsGenerating(true);
     const generators = generatorCollections[activeGeneratorLevel];
-    const generatorKeys = Object.keys(generators);
+    const generatorKeys = Object.keys(generators).filter(
+      (slug) => !(activeGeneratorLevel === "secondary" && slug === "word-problems")
+    );
 
     if (generatorKeys.length === 0) {
       setQuestionPreview({
@@ -761,7 +763,7 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
                   }}
                 >
                   <p className="inline-flex items-center rounded-full border border-primary/30 bg-primary/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
-                    Topic Atlas
+                    {t("home.topic-atlas")}
                   </p>
                   <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-inter font-semibold text-primary text-left leading-tight">
                     {t("home.every-question-in-one-place-1")} {" "}
@@ -781,9 +783,14 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
                     transitionDelay: everySectionVisible ? '140ms' : '0ms',
                   }}
                 >
-                  <p className="text-sm uppercase tracking-[0.18em] text-primary/60">Library status</p>
-                  <p className="mt-2 text-2xl font-nunito text-primary">{levelBoxCountsBySchool.primary + levelBoxCountsBySchool.secondary + levelBoxCountsBySchool.sixthForm} total levels, {allSubtopics.length} mapped subtopics</p>
-                  <p className="mt-1 text-sm text-primary/70">Each box in the question map represents one generator level that can produce questions. Counts below show the total number of generator levels available in each section.</p>
+                  <p className="text-sm uppercase tracking-[0.18em] text-primary/60">{t("home.library-status")}</p>
+                  <p className="mt-2 text-2xl font-nunito text-primary">
+                    {t("home.library-status-count", {
+                      totalLevels: levelBoxCountsBySchool.primary + levelBoxCountsBySchool.secondary + levelBoxCountsBySchool.sixthForm,
+                      mappedSubtopics: allSubtopics.length,
+                    })}
+                  </p>
+                  <p className="mt-1 text-sm text-primary/70">{t("home.library-status-description")}</p>
                   <div className="mt-4 flex flex-col gap-2 text-sm sm:text-base">
                     <p className="flex items-baseline text-primary/85">
                       <span className="inline-block font-medium">{t('education.primary-school')}</span>
@@ -813,7 +820,7 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
                 }}
               >
                 <div className="mb-4 flex items-center justify-between">
-                  <p className="text-sm uppercase tracking-[0.18em] text-primary/60">Question map</p>
+                  <p className="text-sm uppercase tracking-[0.18em] text-primary/60">{t("home.question-map")}</p>
                   <div className="inline-flex gap-1">
                     <span className="h-2.5 w-2.5 rounded-full bg-[var(--contrast)]" />
                     <span className="h-2.5 w-2.5 rounded-full bg-[var(--accent)]" />
@@ -836,12 +843,13 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
                     const rowIndex = Math.floor(index / gridLayout.columns);
                     const rowDelayMs = rowIndex * 80;
                     const label = schoolLevel === "primary" ? "P" : schoolLevel === "secondary" ? "S" : "C";
+                    const schoolLevelLabel = t(generatorLabelKeys[schoolLevel]);
 
                     return (
                       <div
                         key={`${schoolLevel}-${subtopicSlug}-${difficulty}`}
-                        title={`${schoolLevel} / ${subtopicSlug} / level ${difficulty}`}
-                        className={`rounded-md border text-[10px] font-semibold flex items-center justify-center ${
+                        title={t("home.question-map-tooltip", { level: schoolLevelLabel, subtopic: subtopicSlug, difficulty })}
+                        className={`rounded-md border text-[10px] font-semibold flex items-center justify-center select-none ${
                           schoolLevel === "primary"
                             ? 'border-[#198f8f] bg-[#198f8f]/15 text-[#156e6e]'
                             : schoolLevel === "secondary"

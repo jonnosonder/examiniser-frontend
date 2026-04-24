@@ -18,6 +18,12 @@
     "every-question-in-one-place-2": "un solo",
     "every-question-in-one-place-3": "lugar",
     "every-question-in-one-place-description": "Aquí se visualizan todos los niveles totales de todas las preguntas.",
+    "topic-atlas": "Atlas de temas",
+    "library-status": "Estado de la biblioteca",
+    "library-status-count": "{{totalLevels}} niveles totales, {{mappedSubtopics}} subtemas mapeados",
+    "library-status-description": "Cada cuadro en el mapa de preguntas representa un nivel de generador que puede producir preguntas. Los recuentos de abajo muestran el número total de niveles de generador disponibles en cada sección.",
+    "question-map": "Mapa de preguntas",
+    "question-map-tooltip": "{{level}} / {{subtopic}} / nivel {{difficulty}}",
     "try-it-now": "¡Pruébalo ahora!",
     "random-question-preview": "Vista previa de pregunta aleatoria",
     "random-question-hint": "Selecciona una pestaña y presiona el botón de abajo para generar una pregunta aleatoria.",
@@ -38,6 +44,22 @@
     "sixth-form": "Bachillerato",
     "sixth-form-description": "Estilo Bachillerato / A-level: cálculo, trigonometría, sucesiones, vectores, probabilidad y demostración. Practica con soluciones completas cuando estés preparado.",
     "exam-papers": "Exámenes"
+  },
+  "exam-papers": {
+    "years-of-papers": "{{count}} años de exámenes",
+    "papers-count": "{{count}} exámenes",
+    "paper-name": "Nombre del examen",
+    "date": "Fecha",
+    "question-paper": "Hoja de preguntas",
+    "answer-paper": "Hoja de respuestas",
+    "view-pdf": "Ver PDF",
+    "secondary": "Secundaria",
+    "sixth-form": "Bachillerato",
+    "back": "Volver",
+    "download-pdf": "Descargar PDF",
+    "downloading": "Descargando...",
+    "paper-not-found": "No se encontró el examen para la entrada seleccionada.",
+    "set-cloudfront-url": "Establece NEXT_PUBLIC_EXAM_PAPERS_CLOUDFRONT_URL para habilitar la visualización de PDF."
   },
   "secondary-topics": {
     "number": "Números",
@@ -581,7 +603,7 @@
         "differential-equations": "Resuelve ecuaciones diferenciales."
       },
       "statistics": {
-        "binomial-distribution": "Usa distribuci�n binomial para eventos discretos.",
+        "binomial-distribution": "Modela ensayos independientes con B(n, p); calcula probabilidades exactas, acumuladas y condicionales.",
         "normal-distribution": "Trabaja con distribuci�n normal y sus propiedades.",
         "statistical-sampling": "Comprende m�todos de muestreo estad�stico.",
         "hypothesis-testing": "Realiza pruebas de hip�tesis con niveles de significancia.",
@@ -591,7 +613,8 @@
         "kinematics": "Estudia movimiento: desplazamiento, velocidad, aceleraci�n.",
         "forces": "Analiza fuerzas y sus efectos en el movimiento.",
         "moments": "Calcula momentos y equilibrio.",
-        "projectiles": "Resuelve problemas de proyectiles."
+        "projectiles": "Resuelve problemas de proyectiles.",
+        "vectors": "Posición, velocidad y ecuaciones vectoriales del movimiento; problemas de colisión y distancia mínima."
       },
       "discrete": {
         "matrices": "Usa matrices para representar y manipular datos.",
@@ -600,23 +623,23 @@
         "linear-programming": "Optimiza funciones lineales sujetas a restricciones."
       },
       "pure": {
-        "algebra-and-functions": "�lgebra y funciones",
-        "quadratics": "Ecuaciones cuadr�ticas",
-        "inequalities": "Desigualdades",
-        "polynomials": "Polinomios",
-        "coordinate-geometry": "Geometr�a anal�tica",
-        "sequences-and-series": "Sucesiones y series",
-        "binomial-expansion": "Expansi�n binomial",
-        "trigonometry": "Trigonometr�a",
-        "trigonometric-identities": "Identidades trigonom�tricas",
-        "trigonometric-equations": "Ecuaciones trigonom�tricas",
-        "exponentials-and-logarithms": "Exponenciales y logaritmos",
-        "differentiation": "Diferenciaci�n",
-        "integration": "Integraci�n",
-        "numerical-methods": "M�todos num�ricos",
-        "vectors": "Vectores",
-        "proof": "Demostraci�n",
-        "parametric-equations": "Ecuaciones param�tricas"
+        "algebra-and-functions": "Simplifica expresiones, resuelve ecuaciones, comprende funciones y aplica transformaciones.",
+        "quadratics": "Resuelve y esboza ecuaciones cuadráticas mediante factorización, forma canónica y la fórmula cuadrática.",
+        "inequalities": "Resuelve desigualdades lineales y cuadráticas e interprésalas gráficamente.",
+        "polynomials": "Divide, factoriza y aplica los teoremas del factor y del resto a expresiones polinómicas.",
+        "coordinate-geometry": "Trabaja con ecuaciones de rectas y circunferencias; halla pendientes, puntos medios e intersecciones.",
+        "sequences-and-series": "Explora sucesiones aritméticas y geométricas, notación sigma y fórmulas de suma.",
+        "binomial-expansion": "Expande expresiones de la forma (a + b)ⁿ usando el teorema binomial.",
+        "trigonometry": "Resuelve ecuaciones y modela problemas con seno, coseno, tangente y las reglas del seno y coseno.",
+        "trigonometric-identities": "Demuestra y aplica identidades estándar, incluidas las pitagóricas y de adición.",
+        "trigonometric-equations": "Resuelve ecuaciones trigonométricas en un intervalo dado, incluyendo ángulos múltiples.",
+        "exponentials-and-logarithms": "Simplifica usando leyes de logaritmos, resuelve ecuaciones exponenciales y modela crecimiento y decaimiento.",
+        "differentiation": "Diferencia polinomios y funciones estándar; halla gradientes, tangentes y puntos estacionarios.",
+        "integration": "Integra polinomios y funciones estándar; evalúa integrales definidas y calcula áreas.",
+        "numerical-methods": "Localiza raíces por cambio de signo, usa iteración de punto fijo y aplica Newton-Raphson.",
+        "vectors": "Suma y escala vectores; halla magnitudes, vectores unitarios y aplícalos a geometría.",
+        "proof": "Construye demostraciones por deducción, exhaustión y contradicción.",
+        "parametric-equations": "Interpreta y convierte entre formas paramétricas y cartesianas de curvas."
       }
     }
   },

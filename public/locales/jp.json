@@ -18,6 +18,12 @@
     "every-question-in-one-place-2": "一",
     "every-question-in-one-place-3": "か所に",
     "every-question-in-one-place-description": "ここでは、すべての質問のすべてのレベルが視覚化されています。",
+    "topic-atlas": "トピックアトラス",
+    "library-status": "ライブラリの状況",
+    "library-status-count": "合計レベル数 {{totalLevels}}、マッピング済みサブトピック {{mappedSubtopics}}",
+    "library-status-description": "問題マップ内の各ボックスは、問題を生成できる1つのジェネレーターレベルを表しています。下の数値は、各セクションで利用可能なジェネレーターレベルの合計数を示します。",
+    "question-map": "問題マップ",
+    "question-map-tooltip": "{{level}} / {{subtopic}} / レベル {{difficulty}}",
     "try-it-now": "今すぐ試す！",
     "random-question-preview": "ランダム問題プレビュー",
     "random-question-hint": "タブを選択し、下のボタンを押してランダムな問題を生成してください。",
@@ -38,6 +44,22 @@
     "sixth-form": "高等学校",
     "sixth-form-description": "高校・Aレベル相当：微分積分、三角関数、数列、ベクトル、確率と証明。必要に応じて詳しい解答で確認できます。",
     "exam-papers": "試験問題"
+  },
+  "exam-papers": {
+    "years-of-papers": "{{count}}年分の試験",
+    "papers-count": "{{count}}件の試験",
+    "paper-name": "試験名",
+    "date": "日付",
+    "question-paper": "問題用紙",
+    "answer-paper": "解答用紙",
+    "view-pdf": "PDFを見る",
+    "secondary": "中学校",
+    "sixth-form": "高等学校",
+    "back": "戻る",
+    "download-pdf": "PDFをダウンロード",
+    "downloading": "ダウンロード中...",
+    "paper-not-found": "選択した項目の試験が見つかりません。",
+    "set-cloudfront-url": "PDF表示を有効にするにはNEXT_PUBLIC_EXAM_PAPERS_CLOUDFRONT_URLを設定してください。"
   },
   "secondary-topics": {
     "number": "数と計算",
@@ -69,7 +91,7 @@
     "statistics": "Statistics",
     "mechanics": "Mechanics",
     "discrete": "Discrete",
-    "pure": "????"
+    "pure": "Pure"
   },
   "primary-topics": {
     "numbers": "数",
@@ -496,7 +518,7 @@
       "statistics": "確率、分布、仮説検定、回帰を学び、データの統計モデル化を行います。",
       "mechanics": "力、運動、モーメント、放物運動を物理・数学の文脈で解きます。",
       "discrete": "行列、複素数、グラフ理論、線形計画法を離散数学として探究します。",
-      "pure": "????????????????????????"
+      "pure": "Pure"
     },
     "sixthFormSub": {
       "functions-graphs": {
@@ -591,7 +613,8 @@
         "kinematics": "Kinematicsの重要な概念を学びます。",
         "forces": "Forcesの重要な概念を学びます。",
         "moments": "Momentsの重要な概念を学びます。",
-        "projectiles": "Projectilesの重要な概念を学びます。"
+        "projectiles": "Projectilesの重要な概念を学びます。",
+        "vectors": "位置・速度・運動のベクトル方程式、衝突と最近接問題。"
       },
       "discrete": {
         "matrices": "Matricesの重要な概念を学びます。",
@@ -600,23 +623,23 @@
         "linear-programming": "Linear Programmingの重要な概念を学びます。"
       },
       "pure": {
-        "algebra-and-functions": "?????",
-        "quadratics": "?????",
-        "inequalities": "???",
-        "polynomials": "???",
-        "coordinate-geometry": "?????",
-        "sequences-and-series": "?????",
-        "binomial-expansion": "????",
-        "trigonometry": "???",
-        "trigonometric-identities": "???????",
-        "trigonometric-equations": "?????",
-        "exponentials-and-logarithms": "?????????",
-        "differentiation": "??",
-        "integration": "??",
-        "numerical-methods": "????",
-        "vectors": "????",
-        "proof": "??",
-        "parametric-equations": "??????????"
+        "algebra-and-functions": "式の簡略化、方程式の解法、関数の理解と変換の適用。",
+        "quadratics": "因数分解・平方完成・解の公式を使って二次方程式を解きスケッチする。",
+        "inequalities": "一次・二次不等式を代数的に解き、グラフで解釈する。",
+        "polynomials": "多項式の割り算、因数分解、因数定理と剰余定理の適用。",
+        "coordinate-geometry": "直線と円の方程式を扱い、傾き・中点・交点を求める。",
+        "sequences-and-series": "等差数列・等比数列、シグマ記法、和の公式を学ぶ。",
+        "binomial-expansion": "二項定理を使って (a + b)ⁿ の形の式を展開する。",
+        "trigonometry": "正弦・余弦・正接と正弦余弦定理を使って問題を解く。",
+        "trigonometric-identities": "ピタゴラスの恒等式・加法定理などを証明し応用する。",
+        "trigonometric-equations": "与えられた区間で三角方程式を解く（多重角を含む）。",
+        "exponentials-and-logarithms": "対数の法則を使って式を整理し、指数方程式と増減モデルを扱う。",
+        "differentiation": "多項式・標準関数を微分し、勾配・接線・停留点を求める。",
+        "integration": "多項式・標準関数を積分し、定積分と面積を計算する。",
+        "numerical-methods": "符号変化による根の特定、不動点反復法、ニュートン・ラフソン法の適用。",
+        "vectors": "ベクトルの加法とスカラー倍、大きさ・単位ベクトルを幾何学に応用する。",
+        "proof": "演繹、場合分け、背理法による証明を構築する。",
+        "parametric-equations": "媒介変数表示とデカルト形式の間で変換・解釈する。"
       }
     }
   },
@@ -831,16 +854,16 @@
     "complex-numbers": "Complex Numbers",
     "graph-theory": "Graph Theory",
     "linear-programming": "Linear Programming",
-    "algebra-functions": "?????",
-    "quadratics": "?????",
-    "polynomials": "???",
-    "coordinate-geometry": "?????",
-    "sequences-series": "?????",
-    "trigonometry": "???",
-    "exp-logs": "?????????",
-    "differentiation": "??",
-    "integration": "??",
-    "vectors": "????",
-    "parametric-equations": "??????????"
+    "algebra-functions": "Algebra And Functions",
+    "quadratics": "Quadratics",
+    "polynomials": "Polynomials",
+    "coordinate-geometry": "Coordinate Geometry",
+    "sequences-series": "Sequences And Series",
+    "trigonometry": "Trigonometry",
+    "exp-logs": "Exponentials And Logarithms",
+    "differentiation": "Differentiation",
+    "integration": "Integration",
+    "vectors": "Vectors",
+    "parametric-equations": "Parametric Equations"
   }
 }

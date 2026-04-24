@@ -17,6 +17,12 @@
     "every-question-in-one-place-2": "一",
     "every-question-in-one-place-3": "个地方",
     "every-question-in-one-place-description": "这里显示了所有问题的所有难度级别。",
+    "topic-atlas": "主题图谱",
+    "library-status": "题库状态",
+    "library-status-count": "共 {{totalLevels}} 个难度级别，已映射 {{mappedSubtopics}} 个子主题",
+    "library-status-description": "问题地图中的每个方块代表一个可生成题目的生成器难度级别。下方统计显示各板块可用生成器难度级别总数。",
+    "question-map": "问题地图",
+    "question-map-tooltip": "{{level}} / {{subtopic}} / 难度 {{difficulty}}",
     "try-it-now": "现在试一试！",
     "random-question-preview": "随机问题预览",
     "random-question-hint": "选择一个选项卡并按下面的按钮生成一个随机问题。",
@@ -37,6 +43,22 @@
     "sixth-form": "高中",
     "sixth-form-description": "高中与 A-level 风格：微积分、三角、数列、向量、概率与证明；需要时可配合完整解答深入学习。",
     "exam-papers": "考试试卷"
+  },
+  "exam-papers": {
+    "years-of-papers": "{{count}} 年试卷",
+    "papers-count": "{{count}} 份试卷",
+    "paper-name": "试卷名称",
+    "date": "日期",
+    "question-paper": "题目试卷",
+    "answer-paper": "答案试卷",
+    "view-pdf": "查看 PDF",
+    "secondary": "初中",
+    "sixth-form": "高中",
+    "back": "返回",
+    "download-pdf": "下载 PDF",
+    "downloading": "下载中...",
+    "paper-not-found": "所选条目未找到试卷。",
+    "set-cloudfront-url": "请设置 NEXT_PUBLIC_EXAM_PAPERS_CLOUDFRONT_URL 以启用 PDF 查看。"
   },
   "secondary-topics": {
     "number": "数与运算",
@@ -68,7 +90,7 @@
     "statistics": "Statistics",
     "mechanics": "Mechanics",
     "discrete": "Discrete",
-    "pure": "????"
+    "pure": "Pure"
   },
   "primary-topics": {
     "numbers": "数字",
@@ -495,7 +517,7 @@
       "statistics": "分析概率、分布、假设检验和回归，进行统计建模。",
       "mechanics": "将力、运动、力矩和抛体运动应用于物理数学问题。",
       "discrete": "研究矩阵、复数、图论和线性规划的离散数学主题。",
-      "pure": "??????,?????????????"
+      "pure": "Pure"
     },
     "sixthFormSub": {
       "functions-graphs": {
@@ -590,7 +612,8 @@
         "kinematics": "学习Kinematics的关键概念。",
         "forces": "学习Forces的关键概念。",
         "moments": "学习Moments的关键概念。",
-        "projectiles": "学习Projectiles的关键概念。"
+        "projectiles": "学习Projectiles的关键概念。",
+        "vectors": "运动的位置、速度与向量方程；碰撞与最近距离问题。"
       },
       "discrete": {
         "matrices": "学习Matrices的关键概念。",
@@ -599,23 +622,23 @@
         "linear-programming": "学习Linear Programming的关键概念。"
       },
       "pure": {
-        "algebra-and-functions": "?????",
-        "quadratics": "????",
-        "inequalities": "???",
-        "polynomials": "???",
-        "coordinate-geometry": "????",
-        "sequences-and-series": "?????",
-        "binomial-expansion": "?????",
-        "trigonometry": "???",
-        "trigonometric-identities": "?????",
-        "trigonometric-equations": "????",
-        "exponentials-and-logarithms": "?????",
-        "differentiation": "??",
-        "integration": "??",
-        "numerical-methods": "????",
-        "vectors": "??",
-        "proof": "??",
-        "parametric-equations": "????"
+        "algebra-and-functions": "化简表达式，解方程，理解函数并应用变换。",
+        "quadratics": "通过因式分解、配方和求根公式求解并绘制二次方程。",
+        "inequalities": "代数求解一次和二次不等式，并用图形加以解释。",
+        "polynomials": "对多项式进行除法、因式分解，并应用因式定理与余式定理。",
+        "coordinate-geometry": "处理直线与圆的方程，求梯度、中点和交点。",
+        "sequences-and-series": "探究等差与等比数列、求和符号和求和公式。",
+        "binomial-expansion": "用二项式定理展开 (a + b)ⁿ 形式的表达式。",
+        "trigonometry": "用正弦、余弦、正切及正弦余弦定理求解问题。",
+        "trigonometric-identities": "证明和应用勾股恒等式及和差化积等标准恒等式。",
+        "trigonometric-equations": "在给定区间内求解三角方程（含多倍角）。",
+        "exponentials-and-logarithms": "用对数法则化简，求解指数方程，建立增长与衰减模型。",
+        "differentiation": "对多项式及标准函数求导，求梯度、切线与驻点。",
+        "integration": "对多项式及标准函数积分，计算定积分与面积。",
+        "numerical-methods": "通过符号变化定位根，使用定点迭代法，应用牛顿-拉夫森法。",
+        "vectors": "向量的加法与数乘，求模、单位向量，并应用于几何。",
+        "proof": "通过演绎、穷举和反证法构造数学证明。",
+        "parametric-equations": "在参数形式与笛卡尔形式之间转换并加以解释。"
       }
     }
   },
@@ -830,16 +853,16 @@
     "complex-numbers": "Complex Numbers",
     "graph-theory": "Graph Theory",
     "linear-programming": "Linear Programming",
-    "algebra-functions": "?????",
-    "quadratics": "????",
-    "polynomials": "???",
-    "coordinate-geometry": "????",
-    "sequences-series": "?????",
-    "trigonometry": "???",
-    "exp-logs": "?????",
-    "differentiation": "??",
-    "integration": "??",
-    "vectors": "??",
-    "parametric-equations": "????"
+    "algebra-functions": "Algebra And Functions",
+    "quadratics": "Quadratics",
+    "polynomials": "Polynomials",
+    "coordinate-geometry": "Coordinate Geometry",
+    "sequences-series": "Sequences And Series",
+    "trigonometry": "Trigonometry",
+    "exp-logs": "Exponentials And Logarithms",
+    "differentiation": "Differentiation",
+    "integration": "Integration",
+    "vectors": "Vectors",
+    "parametric-equations": "Parametric Equations"
   }
 }

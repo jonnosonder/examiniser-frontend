@@ -17,6 +17,12 @@
     "every-question-in-one-place-2": "one",
     "every-question-in-one-place-3": "place",
     "every-question-in-one-place-description": "Here is all the total levels across all questions visualized.",
+    "topic-atlas": "Topic Atlas",
+    "library-status": "Library status",
+    "library-status-count": "{{totalLevels}} total levels, {{mappedSubtopics}} mapped subtopics",
+    "library-status-description": "Each box in the question map represents one generator level that can produce questions. Counts below show the total number of generator levels available in each section.",
+    "question-map": "Question map",
+    "question-map-tooltip": "{{level}} / {{subtopic}} / level {{difficulty}}",
     "try-it-now": "Try it now!",
     "random-question-preview": "Random question preview",
     "random-question-hint": "Select a tab and press the button below to generate a random question.",
@@ -37,6 +43,22 @@
     "sixth-form": "Sixth Form",
     "sixth-form-description": "A-level style pure and applied strands: calculus, trigonometry, sequences, vectors, probability, and proof. Tackle harder questions with full solutions when you are ready.",
     "exam-papers": "Exam Papers"
+  },
+  "exam-papers": {
+    "years-of-papers": "{{count}} years of papers",
+    "papers-count": "{{count}} papers",
+    "paper-name": "Paper Name",
+    "date": "Date",
+    "question-paper": "Question Paper",
+    "answer-paper": "Answer Paper",
+    "view-pdf": "View PDF",
+    "secondary": "Secondary",
+    "sixth-form": "Sixth Form",
+    "back": "Back",
+    "download-pdf": "Download PDF",
+    "downloading": "Downloading...",
+    "paper-not-found": "Paper not found for the selected entry.",
+    "set-cloudfront-url": "Set NEXT_PUBLIC_EXAM_PAPERS_CLOUDFRONT_URL to enable PDF viewing."
   },
   "secondary-topics": {
     "number": "Number",
@@ -580,7 +602,7 @@
         "differential-equations": "Explore key concepts in Differential Equations."
       },
       "statistics": {
-        "binomial-distribution": "Explore key concepts in Binomial Distribution.",
+        "binomial-distribution": "Model repeated independent trials with B(n, p); calculate exact, cumulative, and conditional probabilities.",
         "normal-distribution": "Explore key concepts in Normal Distribution.",
         "statistical-sampling": "Explore key concepts in Statistical Sampling.",
         "hypothesis-testing": "Explore key concepts in Hypothesis Testing.",
@@ -590,7 +612,8 @@
         "kinematics": "Explore key concepts in Kinematics.",
         "forces": "Explore key concepts in Forces.",
         "moments": "Explore key concepts in Moments.",
-        "projectiles": "Explore key concepts in Projectiles."
+        "projectiles": "Explore key concepts in Projectiles.",
+        "vectors": "Position, velocity, and vector equations of motion; collision and closest-approach problems."
       },
       "discrete": {
         "matrices": "Explore key concepts in Matrices.",
@@ -599,23 +622,23 @@
         "linear-programming": "Explore key concepts in Linear Programming."
       },
       "pure": {
-        "algebra-and-functions": "Algebra and Functions",
-        "quadratics": "Quadratics",
-        "inequalities": "Inequalities",
-        "polynomials": "Polynomials",
-        "coordinate-geometry": "Coordinate Geometry",
-        "sequences-and-series": "Sequences and Series",
-        "binomial-expansion": "Binomial Expansion",
-        "trigonometry": "Trigonometry",
-        "trigonometric-identities": "Trigonometric Identities",
-        "trigonometric-equations": "Trigonometric Equations",
-        "exponentials-and-logarithms": "Exponentials and Logarithms",
-        "differentiation": "Differentiation",
-        "integration": "Integration",
-        "numerical-methods": "Numerical Methods",
-        "vectors": "Vectors",
-        "proof": "Proof",
-        "parametric-equations": "Parametric Equations"
+        "algebra-and-functions": "Simplify expressions, solve equations, understand functions, and apply transformations.",
+        "quadratics": "Solve and sketch quadratic equations using factorisation, completing the square, and the quadratic formula.",
+        "inequalities": "Solve linear and quadratic inequalities algebraically and interpret them graphically.",
+        "polynomials": "Divide, factorise, and apply the factor and remainder theorems to polynomial expressions.",
+        "coordinate-geometry": "Work with equations of lines and circles; find gradients, midpoints, and intersections.",
+        "sequences-and-series": "Explore arithmetic and geometric sequences, sigma notation, and sum formulas.",
+        "binomial-expansion": "Expand expressions of the form (a + b)ⁿ using the binomial theorem.",
+        "trigonometry": "Solve equations and model problems using sine, cosine, tangent, and the sine and cosine rules.",
+        "trigonometric-identities": "Prove and apply standard identities including Pythagorean and addition formulas.",
+        "trigonometric-equations": "Solve trigonometric equations over a given interval, including multiple angles.",
+        "exponentials-and-logarithms": "Simplify using log laws, solve exponential equations, and model growth and decay.",
+        "differentiation": "Differentiate polynomials and standard functions; find gradients, tangents, and stationary points.",
+        "integration": "Integrate polynomials and standard functions; evaluate definite integrals and find areas.",
+        "numerical-methods": "Locate roots by sign change, use fixed-point iteration, and apply Newton-Raphson.",
+        "vectors": "Add and scale vectors; find magnitudes, unit vectors, and apply to geometry.",
+        "proof": "Construct proofs by deduction, exhaustion, and contradiction.",
+        "parametric-equations": "Interpret and convert between parametric and Cartesian forms of curves."
       }
     }
   },

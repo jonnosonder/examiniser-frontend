@@ -212,6 +212,7 @@ export const QUESTION_CATALOG: Record<QuestionLevel, MainTopicDef[]> = {
             subtopics: [
                 { slug: "algebra-and-functions", titleKey: "sixth-subtopics.algebra-functions", descriptionKey: "descriptions.sixthFormSub.pure.algebra-and-functions" },
                 { slug: "differentiation", titleKey: "sixth-subtopics.differentiation", descriptionKey: "descriptions.sixthFormSub.pure.differentiation" },
+                { slug: "numerical-methods", titleKey: "sixth-subtopics.numerical-methods", descriptionKey: "descriptions.sixthFormSub.pure.numerical-methods" },
                 //{ slug: "quadratics", titleKey: "sixth-subtopics.quadratics", descriptionKey: "descriptions.sixthFormSub.pure.quadratics" },
                 //{ slug: "inequalities", titleKey: "sixth-subtopics.inequalities", descriptionKey: "descriptions.sixthFormSub.pure.inequalities" },
                 //{ slug: "polynomials", titleKey: "sixth-subtopics.polynomials", descriptionKey: "descriptions.sixthFormSub.pure.polynomials" },

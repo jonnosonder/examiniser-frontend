@@ -17,6 +17,12 @@
     "every-question-in-one-place-2": "un seul",
     "every-question-in-one-place-3": "endroit",
     "every-question-in-one-place-description": "Voici tous les niveaux totaux de toutes les questions visualisés.",
+    "topic-atlas": "Atlas des sujets",
+    "library-status": "Statut de la bibliothèque",
+    "library-status-count": "{{totalLevels}} niveaux au total, {{mappedSubtopics}} sous-thèmes cartographiés",
+    "library-status-description": "Chaque case de la carte des questions représente un niveau de générateur capable de produire des questions. Les compteurs ci-dessous indiquent le nombre total de niveaux de générateur disponibles dans chaque section.",
+    "question-map": "Carte des questions",
+    "question-map-tooltip": "{{level}} / {{subtopic}} / niveau {{difficulty}}",
     "try-it-now": "Essayez-le maintenant !",
     "random-question-preview": "Aperçu de question aléatoire",
     "random-question-hint": "Sélectionnez un onglet et appuyez sur le bouton ci-dessous pour générer une question aléatoire.",
@@ -37,6 +43,22 @@
     "sixth-form": "Lycée",
     "sixth-form-description": "Niveau première / terminale et A-level : analyse, trigonométrie, suites, vecteurs, probabilités et raisonnement déductif, avec corrigés détaillés.",
     "exam-papers": "Papiers d'Examen"
+  },
+  "exam-papers": {
+    "years-of-papers": "{{count}} années d'examens",
+    "papers-count": "{{count}} sujets",
+    "paper-name": "Nom du sujet",
+    "date": "Date",
+    "question-paper": "Sujet de questions",
+    "answer-paper": "Corrigé",
+    "view-pdf": "Voir le PDF",
+    "secondary": "Collège / Lycée",
+    "sixth-form": "Terminale",
+    "back": "Retour",
+    "download-pdf": "Télécharger le PDF",
+    "downloading": "Téléchargement...",
+    "paper-not-found": "Sujet introuvable pour l'entrée sélectionnée.",
+    "set-cloudfront-url": "Définissez NEXT_PUBLIC_EXAM_PAPERS_CLOUDFRONT_URL pour activer la visualisation PDF."
   },
   "secondary-topics": {
     "number": "Nombres",
@@ -580,7 +602,7 @@
         "differential-equations": "Explore les notions clés de Differential Equations."
       },
       "statistics": {
-        "binomial-distribution": "Explore les notions clés de Binomial Distribution.",
+        "binomial-distribution": "Modéliser des essais indépendants avec B(n, p) ; calculer des probabilités exactes, cumulées et conditionnelles.",
         "normal-distribution": "Explore les notions clés de Normal Distribution.",
         "statistical-sampling": "Explore les notions clés de Statistical Sampling.",
         "hypothesis-testing": "Explore les notions clés de Hypothesis Testing.",
@@ -590,7 +612,8 @@
         "kinematics": "Explore les notions clés de Kinematics.",
         "forces": "Explore les notions clés de Forces.",
         "moments": "Explore les notions clés de Moments.",
-        "projectiles": "Explore les notions clés de Projectiles."
+        "projectiles": "Explore les notions clés de Projectiles.",
+        "vectors": "Position, vitesse et équations vectorielles du mouvement ; problèmes de collision et de distance minimale."
       },
       "discrete": {
         "matrices": "Explore les notions clés de Matrices.",
@@ -599,23 +622,23 @@
         "linear-programming": "Explore les notions clés de Linear Programming."
       },
       "pure": {
-        "algebra-and-functions": "Alg�bre et fonctions",
-        "quadratics": "�quations quadratiques",
-        "inequalities": "In�galit�s",
-        "polynomials": "Polyn�mes",
-        "coordinate-geometry": "G�om�trie analytique",
-        "sequences-and-series": "Suites et s�ries",
-        "binomial-expansion": "Expansion binomiale",
-        "trigonometry": "Trigonom�trie",
-        "trigonometric-identities": "Identit�s trigonom�triques",
-        "trigonometric-equations": "�quations trigonom�triques",
-        "exponentials-and-logarithms": "Exponentielles et logarithmes",
-        "differentiation": "Diff�renciation",
-        "integration": "Int�gration",
-        "numerical-methods": "M�thodes num�riques",
-        "vectors": "Vecteurs",
-        "proof": "Preuve",
-        "parametric-equations": "�quations param�triques"
+        "algebra-and-functions": "Simplifier des expressions, résoudre des équations, comprendre les fonctions et appliquer des transformations.",
+        "quadratics": "Résoudre et représenter des équations du second degré par factorisation, forme canonique et discriminant.",
+        "inequalities": "Résoudre des inéquations linéaires et quadratiques et les interpréter graphiquement.",
+        "polynomials": "Diviser, factoriser et appliquer les théorèmes du facteur et du reste aux polynômes.",
+        "coordinate-geometry": "Travailler avec les équations de droites et de cercles ; trouver pentes, milieux et intersections.",
+        "sequences-and-series": "Explorer les suites arithmétiques et géométriques, la notation sigma et les formules de somme.",
+        "binomial-expansion": "Développer des expressions de la forme (a + b)ⁿ à l'aide du théorème binomial.",
+        "trigonometry": "Résoudre des équations et modéliser des problèmes avec sinus, cosinus, tangente et les règles des sinus et cosinus.",
+        "trigonometric-identities": "Démontrer et appliquer des identités standard dont les identités pythagoriciennes et d'addition.",
+        "trigonometric-equations": "Résoudre des équations trigonométriques sur un intervalle donné, y compris les angles multiples.",
+        "exponentials-and-logarithms": "Simplifier avec les lois des logarithmes, résoudre des équations exponentielles et modéliser la croissance et la décroissance.",
+        "differentiation": "Différencier des polynômes et des fonctions standard ; trouver gradients, tangentes et points stationnaires.",
+        "integration": "Intégrer des polynômes et des fonctions standard ; évaluer des intégrales définies et calculer des aires.",
+        "numerical-methods": "Localiser des racines par changement de signe, utiliser l'itération à point fixe et appliquer Newton-Raphson.",
+        "vectors": "Additionner et mettre à l'échelle des vecteurs ; trouver des modules, des vecteurs unitaires et les appliquer à la géométrie.",
+        "proof": "Construire des preuves par déduction, exhaustion et contradiction.",
+        "parametric-equations": "Interpréter et convertir entre les formes paramétriques et cartésiennes de courbes."
       }
     }
   },

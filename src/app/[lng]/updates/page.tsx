@@ -63,8 +63,8 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                                         - Sixth form questions added (more will be added incrementally)<br/>
                                         - Question formatting updated (vectors show correctly & spacing)<br/>
                                         - 2023 exam papers added (AQA and Edexcel)<br/>
-                                        - Landing page updated<br/>
-                                        - Exam papers text fix<br/>
+                                        - Landing page updated & translations<br/>
+                                        - Exam page translation added & text fix<br/>
                                     </p>
                                     
                                 </div>

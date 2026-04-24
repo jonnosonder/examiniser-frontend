@@ -932,6 +932,244 @@ export const sixthFormGenerators: Record<string, QuestionGeneratorWithLevels> = 
 
         throw new Error(`Unhandled difficulty: ${difficulty}`);
     }, [1, 2, 3, 4]),
+    "numerical-methods": createGenerator(async ({ difficulty }) => {
+        if (difficulty === 1) {
+            // Location of roots: sign-change argument on f(x) = x³ + ax + b
+            let a = 0;
+            let b = 0;
+            let signIntervals: Array<[number, number]> = [];
+            let noSignIntervals: string[] = [];
+
+            let guard = 0;
+            do {
+                a = randInt(-4, 4);
+                b = nonZeroInt(-6, 6);
+                signIntervals = [];
+                noSignIntervals = [];
+                for (let n = -4; n <= 3; n++) {
+                    const fn = n ** 3 + a * n + b;
+                    const fn1 = (n + 1) ** 3 + a * (n + 1) + b;
+                    if (fn * fn1 < 0) {
+                        signIntervals.push([n, n + 1]);
+                    } else if (fn !== 0 && fn1 !== 0) {
+                        noSignIntervals.push(`(${n}, ${n + 1})`);
+                    }
+                }
+                guard++;
+            } while (signIntervals.length === 0 && guard < 100);
+
+            if (signIntervals.length === 0) {
+                a = 0; b = -5;
+                signIntervals = [[1, 2]];
+                noSignIntervals = ['(-1, 0)', '(0, 1)', '(2, 3)'];
+            }
+
+            const [ra, rb] = choose(signIntervals);
+            const answer = `(${ra}, ${rb})`;
+            const fStr = formatCubic(0, a, b);
+
+            const phrasing = choose([
+                `\\text{Which of the following intervals contains a root of } f(x) = ${fStr}?`,
+                `\\text{The equation } ${fStr} = 0 \\text{ has a root in one of the intervals below.} \\\\ \\text{Using a sign-change argument, which interval contains a root?}`,
+                `\\text{By evaluating } f(x) = ${fStr} \\ \\text{ at the endpoints, identify the interval that contains a root.}`,
+                `\\text{Use a sign-change argument to show } f(x) = ${fStr} \\ \\text{ has a root. Which interval below contains it?}`,
+            ]);
+
+            return {
+                latex: phrasing,
+                answer,
+                options: buildOptions(answer, shuffle(noSignIntervals).slice(0, 3)),
+                forceOption: 2,
+            };
+        }
+
+        if (difficulty === 2) {
+            // Fixed-point iteration: x_{n+1} = ∛(k − a·xₙ), find x₁
+            // Equation: x³ + ax − k = 0, rearranged as x = ∛(k − ax)
+            const a = choose([1, 2, 3]);
+            const x0 = choose([1, 2]);
+            const extra = randInt(2, 7);
+            const k = x0 ** 3 + a * x0 + extra; // ensures f(x0) = −extra < 0 so x0 < root
+            const x1 = Math.cbrt(k - a * x0);   // = Math.cbrt(x0³ + extra)
+            const answer = x1.toFixed(3);
+
+            const aStr = a === 1 ? '' : `${a}`;
+            const iterFormula = `x_{n+1} = \\sqrt[3]{${k} - ${aStr}x_n}`;
+            const fStr = formatCubic(0, a, -k);
+
+            const phrasing = choose([
+                `\\text{The equation } f(x) = ${fStr} \\text{ has a root near } x = ${x0}. \\ \\\\ \\text{Using the iterative formula } ${iterFormula} \\text{ with } x_0 = ${x0}, \\text{ find } x_1 \\text{ to 3 d.p.}`,
+                `\\text{The iterative formula } ${iterFormula} \\text{ is used to find a root of } ${fStr} = 0. \\ \\\\ \\text{Starting from } x_0 = ${x0}, \\text{ calculate } x_1 \\text{ to 3 d.p.}`,
+                `\\text{Use the recurrence relation } ${iterFormula} \\text{ with starting value } x_0 = ${x0}. \\\\ \\text{Calculate } x_1 \\text{ to 3 d.p.}`,
+                `\\text{Given the iterative sequence defined by } ${iterFormula} \\text{ and } x_0 = ${x0}, \\\\ \\text{find the value of } x_1 \\text{ to 3 d.p.}`,
+            ]);
+
+            return {
+                latex: phrasing,
+                answer,
+                options: buildOptions(answer, [
+                    Math.cbrt(k - a * (x0 + 1)).toFixed(3), // wrong x0
+                    Math.cbrt(k - a * x0 + 1).toFixed(3),   // off-by-one inside
+                    Math.cbrt(k + a * x0).toFixed(3),        // added instead of subtracted
+                ]),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 3) {
+            // Fixed-point iteration: x_{n+1} = ∛(k − a·xₙ), find x₃
+            const a = choose([1, 2, 3]);
+            const x0 = choose([1, 2]);
+            const extra = randInt(2, 7);
+            const k = x0 ** 3 + a * x0 + extra;
+            const iterate = (x: number) => Math.cbrt(k - a * x);
+            const x1 = iterate(x0);
+            const x2 = iterate(x1);
+            const x3 = iterate(x2);
+            const answer = x3.toFixed(3);
+
+            const aStr = a === 1 ? '' : `${a}`;
+            const iterFormula = `x_{n+1} = \\sqrt[3]{${k} - ${aStr}x_n}`;
+            const fStr = formatCubic(0, a, -k);
+
+            const phrasing = choose([
+                `\\text{Using the iterative formula } ${iterFormula} \\text{ with } x_0 = ${x0}, \\text{ find } x_3 \\text{ to 3 d.p.}`,
+                `\\text{The iterative formula } ${iterFormula} \\text{ approximates a root of } ${fStr} = 0. \\ \\\\ \\text{Starting with } x_0 = ${x0}, \\text{ find } x_3 \\text{ to 3 d.p.}`,
+                `\\text{Given } ${iterFormula} \\text{ with } x_0 = ${x0}, \\text{ calculate } x_3 \\text{ to 3 d.p.}`,
+                `\\text{Use the recurrence } ${iterFormula} \\text{ with starting value } x_0 = ${x0} \\text{ to obtain } x_3 \\ \\text{ to 3 d.p.}`,
+            ]);
+
+            return {
+                latex: phrasing,
+                answer,
+                options: buildOptions(answer, [
+                    x1.toFixed(3),   // stopped after 1 iteration
+                    x2.toFixed(3),   // stopped after 2 iterations
+                    iterate(x3).toFixed(3), // did 4 iterations instead
+                ]),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 4) {
+            // Newton-Raphson: f(x) = x³ + ax + b, find x₁
+            let a = 0;
+            let b = 0;
+            let x0 = 1;
+            let x1 = 0;
+            let guard = 0;
+
+            do {
+                a = randInt(-3, 4);
+                b = nonZeroInt(-8, 8);
+                x0 = choose([1, 2, -1]);
+                const fx0 = x0 ** 3 + a * x0 + b;
+                const dfx0 = 3 * x0 ** 2 + a;
+                x1 = x0 - fx0 / dfx0;
+                guard++;
+            } while ((Math.abs(3 * x0 ** 2 + a) < 1 || Math.abs(x1 - x0) < 0.05) && guard < 100);
+
+            const fStr = formatCubic(0, a, b);
+            const dfStr = a === 0 ? '3x^2' : a > 0 ? `3x^2 + ${a}` : `3x^2 - ${Math.abs(a)}`;
+            const answer = x1.toFixed(3);
+
+            const fx0 = x0 ** 3 + a * x0 + b;
+            const dfx0 = 3 * x0 ** 2 + a;
+            const wrongDeriv1 = (x0 - fx0 / (3 * x0 ** 2)).toFixed(3);           // forgot +a in f'
+            const wrongSign   = (x0 + fx0 / dfx0).toFixed(3);                     // added instead of subtracted
+            const wrongFx     = (x0 - (x0 ** 3 + a * x0) / dfx0).toFixed(3);     // forgot constant b
+
+            const phrasing = choose([
+                `\\text{Use the Newton-Raphson method once, starting from } x_0 = ${x0}, \\text{ to find } x_1 \\text{ for } f(x) = ${fStr}.\\ \\\\ \\text{Give your answer to 3 d.p.}`,
+                `\\text{Given } f(x) = ${fStr}, \\text{ apply one Newton-Raphson step with } x_0 = ${x0} \\text{ to find } x_1 \\text{ to 3 d.p.}`,
+                `\\text{The Newton-Raphson formula is } x_{n+1} = x_n - \\frac{f(x_n)}{f'(x_n)}. \\ \\\\ \\text{Given } f(x) = ${fStr} \\text{ and } x_0 = ${x0}, \\text{ find } x_1 \\text{ to 3 d.p.}`,
+                `\\text{For } f(x) = ${fStr}, \\text{ perform one Newton-Raphson iteration from } x_0 = ${x0}. \\ \\\\ \\text{Find } x_1 \\text{ to 3 d.p.}`,
+            ]);
+
+            return {
+                latex: phrasing,
+                answer,
+                options: buildOptions(answer, [wrongDeriv1, wrongSign, wrongFx]),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 5) {
+            // Newton-Raphson: iterate to convergence, find root to 3 d.p.
+            let a = 0;
+            let b = 0;
+            let x0 = 1;
+            let root = 0;
+            let valid = false;
+            let guard = 0;
+
+            do {
+                a = choose([-3, -2, -1, 1, 2, 3]);
+                b = choose([-9, -8, -7, -6, 5, 6, 7, 8, 9]);
+                x0 = choose([1, 2, -1, -2]);
+
+                let x = x0;
+                let converged = false;
+                for (let iter = 0; iter < 100; iter++) {
+                    const fx = x ** 3 + a * x + b;
+                    const dfx = 3 * x ** 2 + a;
+                    if (Math.abs(dfx) < 1e-10) break;
+                    const xNext = x - fx / dfx;
+                    if (Math.abs(xNext - x) < 5e-7) {
+                        root = xNext;
+                        converged = true;
+                        break;
+                    }
+                    x = xNext;
+                }
+
+                if (converged && Math.abs(root - Math.round(root)) > 0.05) {
+                    const fRoot = root ** 3 + a * root + b;
+                    if (Math.abs(fRoot) < 0.001) {
+                        valid = true;
+                    }
+                }
+                guard++;
+            } while (!valid && guard < 200);
+
+            const fStr = formatCubic(0, a, b);
+            const answer = root.toFixed(3);
+
+            // Distractors: one step only, wrong derivative, slightly wrong
+            const x1FromX0 = x0 - (x0 ** 3 + a * x0 + b) / (3 * x0 ** 2 + a);
+
+            let wrongRoot = 0;
+            let wX = x0;
+            for (let iter = 0; iter < 50; iter++) {
+                const fx = wX ** 3 + a * wX + b;
+                const dfx = 2 * wX ** 2 + a; // wrong: 2x² instead of 3x²
+                if (Math.abs(dfx) < 1e-10) break;
+                const wXNext = wX - fx / dfx;
+                if (Math.abs(wXNext - wX) < 5e-7) { wrongRoot = wXNext; break; }
+                wX = wXNext;
+            }
+
+            const phrasing = choose([
+                `\\text{Use the Newton-Raphson method, starting with } x_0 = ${x0}, \\text{ to find a root of } f(x) = ${fStr}. \\ \\\\ \\text{Give your answer to 3 d.p.}`,
+                `\\text{Apply Newton-Raphson with } x_0 = ${x0} \\text{ to find a root of } ${fStr} = 0 \\text{ to 3 d.p.}`,
+                `\\text{The equation } ${fStr} = 0 \\text{ has a root near } x = ${x0}. \\ \\text{ Use Newton-Raphson to find this root to 3 d.p.}`,
+                `\\text{Starting from } x_0 = ${x0}, \\text{ use the Newton-Raphson formula to find a root of } f(x) = ${fStr} \\text{ to 3 d.p.}`,
+            ]);
+
+            return {
+                latex: phrasing,
+                answer,
+                options: buildOptions(answer, [
+                    x1FromX0.toFixed(3),
+                    wrongRoot !== 0 ? wrongRoot.toFixed(3) : (root + 0.1).toFixed(3),
+                    (root + 0.001).toFixed(3),
+                ], () => (root + (randInt(1, 9) * 0.01)).toFixed(3)),
+                forceOption: 0,
+            };
+        }
+
+        throw new Error(`Unhandled difficulty: ${difficulty}`);
+    }, [1, 2, 3, 4, 5]),
     "vectors": createGenerator(async ({ difficulty }) => {
         if (difficulty === 1) {
             const triples: Array<[number, number, number]> = [
