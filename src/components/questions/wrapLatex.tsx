@@ -9,6 +9,7 @@ const SPACING_COMMANDS =
   /\\(left|right|big|Big|bigg|Bigg|displaystyle|textstyle|scriptstyle|scriptscriptstyle|,|;|!| |quad|qquad)/g;
 
 const WRAPPABLE_ENVS = ['aligned', 'align', 'multline', 'gather'];
+const MATRIX_ENVS = ['matrix', 'pmatrix', 'bmatrix', 'Bmatrix', 'vmatrix', 'Vmatrix', 'smallmatrix', 'array'];
 
 const OPERATORS = ['+', '-', '='];
 
@@ -75,6 +76,34 @@ function tokenToLatex(token: Token): string {
   return token.content;
 }
 
+function findOpeningBracketInLookback(segment: string, lookback: number): number {
+  const start = Math.max(0, segment.length - lookback);
+
+  for (let i = segment.length - 1; i >= start; i--) {
+    const ch = segment[i];
+
+    let bracketStart = -1;
+    if (ch === '(' || ch === '[') {
+      bracketStart = i;
+    } else if (ch === '\\' && (segment.slice(i, i + 7) === '\\left(' || segment.slice(i, i + 7) === '\\left[')) {
+      bracketStart = i;
+    }
+
+    if (bracketStart >= 0) {
+      // If ≤3 non-space characters immediately precede the bracket, pull them onto the new line too
+      const before = segment.slice(0, bracketStart).trimEnd();
+      const lastSpace = before.lastIndexOf(' ');
+      const trailing = before.slice(lastSpace + 1);
+      if (trailing.length > 0 && trailing.length <= 3) {
+        return lastSpace + 1;
+      }
+      return bracketStart;
+    }
+  }
+
+  return -1;
+}
+
 /**
  * Try to break a long line at top-level operators in latex segments,
  * or at word boundaries inside \text{} blocks.
@@ -136,6 +165,34 @@ function breakLine(line: string, maxLineWidth: number): string[] {
           OPERATORS.includes(ch) &&
           currentWidth + estimateWidth(segment) >= maxLineWidth
         ) {
+          const bracketIndex = findOpeningBracketInLookback(segment, 20);
+
+          if (bracketIndex > 0) {
+            const beforeBracket = segment.slice(0, bracketIndex).trimEnd();
+            const fromBracket = segment.slice(bracketIndex).trimStart();
+
+            if (beforeBracket) {
+              currentTokens.push({ type: 'latex', content: beforeBracket });
+            }
+
+            if (currentTokens.length > 0) {
+              lines.push(currentTokens.map(tokenToLatex).join(''));
+            }
+
+            currentTokens = [];
+            currentWidth = 0;
+
+            if (fromBracket) {
+              currentTokens.push({ type: 'latex', content: fromBracket });
+              currentWidth += estimateWidth(fromBracket);
+            }
+
+            // Keep current operator in the segment so order remains unchanged.
+            segment = ch;
+            broke = true;
+            continue;
+          }
+
           currentTokens.push({ type: 'latex', content: segment.trimEnd() });
           lines.push(currentTokens.map(tokenToLatex).join(''));
           currentTokens = [{ type: 'latex', content: '\\quad ' + ch }];
@@ -173,14 +230,24 @@ function stripLineBreaks(latex: string): string {
   return latex.replace(/\s*\\\\\s*/g, ' ').trim();
 }
 
+function normalizeSpacingAndPunctuation(latex: string): string {
+  return latex
+    .replace(/\.([A-Z])/g, '. $1')
+    .replace(/ {2,}/g, ' ')
+    .trim();
+}
+
+function hasEnv(latex: string, envs: string[]): boolean {
+  return envs.some((env) => latex.includes(`\\begin{${env}}`));
+}
+
 function wrapLatex(latex: string, maxLineWidth: number = 60): string {
-  for (const env of WRAPPABLE_ENVS) {
-    if (latex.includes(`\\begin{${env}}`)) {
-      return latex;
-    }
+  // Keep native line breaks for display environments and matrix/vector layouts.
+  if (hasEnv(latex, WRAPPABLE_ENVS) || hasEnv(latex, MATRIX_ENVS)) {
+    return latex;
   }
 
-  const cleaned = stripLineBreaks(latex);
+  const cleaned = normalizeSpacingAndPunctuation(stripLineBreaks(latex));
  
   if (estimateWidth(cleaned) <= maxLineWidth) {
     return cleaned;

@@ -141,6 +141,113 @@ const buildOptions = (correct: string, distractors: string[], fallbackFactory?: 
     return shuffle(Array.from(options).slice(0, 4));
 };
 
+type Vector2 = {
+    x: number;
+    y: number;
+};
+
+const formatVectorIJ = (vector: Vector2): string => {
+    const parts: string[] = [];
+
+    if (vector.x !== 0) {
+        if (vector.x === 1) parts.push('\\mathbf{i}');
+        else if (vector.x === -1) parts.push('-\\mathbf{i}');
+        else parts.push(`${vector.x}\\mathbf{i}`);
+    }
+
+    if (vector.y !== 0) {
+        if (parts.length === 0) {
+            if (vector.y === 1) parts.push('\\mathbf{j}');
+            else if (vector.y === -1) parts.push('-\\mathbf{j}');
+            else parts.push(`${vector.y}\\mathbf{j}`);
+        } else {
+            if (vector.y === 1) parts.push('+ \\mathbf{j}');
+            else if (vector.y === -1) parts.push('- \\mathbf{j}');
+            else if (vector.y > 0) parts.push(`+ ${vector.y}\\mathbf{j}`);
+            else parts.push(`- ${Math.abs(vector.y)}\\mathbf{j}`);
+        }
+    }
+
+    if (parts.length === 0) return '\\mathbf{0}';
+    return `(${parts.join(' ')})`;
+};
+
+const formatVectorPair = (vector: Vector2): string => `(${vector.x}, ${vector.y})`;
+
+const addVectors = (left: Vector2, right: Vector2): Vector2 => ({
+    x: left.x + right.x,
+    y: left.y + right.y,
+});
+
+const subtractVectors = (left: Vector2, right: Vector2): Vector2 => ({
+    x: left.x - right.x,
+    y: left.y - right.y,
+});
+
+const scaleVector = (vector: Vector2, scalar: number): Vector2 => ({
+    x: vector.x * scalar,
+    y: vector.y * scalar,
+});
+
+const dotProduct = (left: Vector2, right: Vector2): number => left.x * right.x + left.y * right.y;
+
+const vectorMagnitude = (vector: Vector2): number => Math.sqrt(vector.x * vector.x + vector.y * vector.y);
+
+const bearingFromVelocity = (velocity: Vector2): number => {
+    const angle = (Math.atan2(velocity.x, velocity.y) * 180) / Math.PI;
+    const bearing = (angle + 360) % 360;
+    return Math.round(bearing);
+};
+
+const formatBearing = (bearing: number): string => `${bearing}`.padStart(3, '0') + '°';
+
+const randomVector = (min: number, max: number, allowZero = false): Vector2 => {
+    let vector = { x: randInt(min, max), y: randInt(min, max) };
+    while (!allowZero && vector.x === 0 && vector.y === 0) {
+        vector = { x: randInt(min, max), y: randInt(min, max) };
+    }
+    return vector;
+};
+
+const nCr = (n: number, r: number): number => {
+    if (r < 0 || r > n) return 0;
+    const reduced = Math.min(r, n - r);
+    let value = 1;
+
+    for (let i = 1; i <= reduced; i += 1) {
+        value = (value * (n - reduced + i)) / i;
+    }
+
+    return Math.round(value);
+};
+
+const binomialPmf = (n: number, p: number, r: number): number => {
+    return nCr(n, r) * (p ** r) * ((1 - p) ** (n - r));
+};
+
+const binomialRange = (n: number, p: number, from: number, to: number): number => {
+    let total = 0;
+    for (let r = from; r <= to; r += 1) {
+        total += binomialPmf(n, p, r);
+    }
+    return total;
+};
+
+const formatProbability = (value: number): string => value.toFixed(3);
+
+const clampProbability = (value: number): number => {
+    if (value < 0) return 0;
+    if (value > 1) return 1;
+    return value;
+};
+
+const buildProbabilityOptions = (answerValue: number, distractors: number[]): string[] => {
+    const answer = formatProbability(clampProbability(answerValue));
+    return buildOptions(answer, distractors.map((value) => formatProbability(clampProbability(value))), () => {
+        return formatProbability(randInt(0, 1000) / 1000);
+    });
+};
+
 type Rational = {
     numerator: number;
     denominator: number;
@@ -825,5 +932,393 @@ export const sixthFormGenerators: Record<string, QuestionGeneratorWithLevels> = 
 
         throw new Error(`Unhandled difficulty: ${difficulty}`);
     }, [1, 2, 3, 4]),
+    "vectors": createGenerator(async ({ difficulty }) => {
+        if (difficulty === 1) {
+            const triples: Array<[number, number, number]> = [
+                [3, 4, 5],
+                [5, 12, 13],
+                [8, 15, 17],
+                [7, 24, 25],
+            ];
+            const [a, b, m] = choose(triples);
+            const signX = Math.random() < 0.5 ? -1 : 1;
+            const signY = Math.random() < 0.5 ? -1 : 1;
+            const scale = randInt(1, 3);
+            const velocity = { x: signX * a * scale, y: signY * b * scale };
+            const speed = m * scale;
+            const answer = `${speed}`;
+
+            const phrasing = choose([
+                `\\text{Relative to a fixed origin } O, \\text{ unit vectors } \\mathbf{i} \\text{ and } \\mathbf{j} \\text{ point east and north. } \\\\ \\text{A particle moves with velocity } \\mathbf{v} = ${formatVectorIJ(velocity)} \\text{ m s}^{-1}. \\     \\text{ Find the speed of the particle.}`,
+                `\\text{A boat travels with velocity } ${formatVectorIJ(velocity)} \\text{ m s}^{-1}, \\text{ where } \\mathbf{i} \\ \\text{ is east and } \\mathbf{j} \\text{ is north. } \\\\ \\text{Calculate the speed of the boat.}`,
+                `\\text{An aircraft has velocity vector } \\mathbf{v} = ${formatVectorIJ(velocity)} \\text{ m s}^{-1}. \\ \\\\ \\text{Find } |\\mathbf{v}|, \\text{ the magnitude of its velocity.}`,
+                `\\text{At time } t, \\text{ a particle has velocity } ${formatVectorIJ(velocity)} \\text{ m s}^{-1}. \\ \\\\ \\text{Find the speed of the particle at this instant.}`,
+            ]);
+
+            return {
+                latex: phrasing,
+                answer,
+                options: buildOptions(answer, [
+                    `${Math.abs(velocity.x) + Math.abs(velocity.y)}`,
+                    `${Math.abs(Math.abs(velocity.x) - Math.abs(velocity.y))}`,
+                    `${speed + randInt(1, 5)}`,
+                ], () => `${speed + randInt(-6, 6)}`),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 2) {
+            const r0 = randomVector(-12, 12, true);
+            const v = randomVector(-6, 6);
+            const t = randInt(2, 7);
+            const position = addVectors(r0, scaleVector(v, t));
+            const answer = formatVectorPair(position);
+
+            const phrasing = choose([
+                `\\text{Relative to a fixed origin } O, \\text{ a particle has position vector } \\mathbf{r} = ${formatVectorIJ(r0)} + t${formatVectorIJ(v)}. \\ \\\\ \\text{Find the position vector of the particle when } t = ${t}.`,
+                `\\text{A body moves so that its displacement from } O \\text{ at time } t \\text{ seconds is } \\\\ \\mathbf{r} = ${formatVectorIJ(r0)} + t${formatVectorIJ(v)} \\ \\text{ m. Find the position of the body when } t = ${t}.`,
+                `\\text{A particle starts at } ${formatVectorIJ(r0)} \\ \\text{ and moves with constant velocity } ${formatVectorIJ(v)} \\ \\text{ m s}^{-1}. \\ \\\\ \\text{Find its position vector after } ${t} \\text{ seconds.}`,
+                `\\text{The position vector of a particle at time } t \\text{ is } \\mathbf{r} = ${formatVectorIJ(r0)} + t${formatVectorIJ(v)}. \\ \\\\ \\text{State the coordinates of the particle when } t = ${t}.`,
+            ]);
+
+            return {
+                latex: phrasing,
+                answer,
+                options: buildOptions(answer, [
+                    formatVectorPair(addVectors(r0, v)),
+                    formatVectorPair(subtractVectors(r0, scaleVector(v, t))),
+                    formatVectorPair(addVectors(scaleVector(r0, t), v)),
+                ], () => formatVectorPair(randomVector(-40, 40, true))),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 3) {
+            let velocity = randomVector(-8, 8);
+            while (velocity.x === 0 && velocity.y === 0) {
+                velocity = randomVector(-8, 8);
+            }
+
+            const bearing = bearingFromVelocity(velocity);
+            const answer = formatBearing(bearing);
+
+            const phrasing = choose([
+                `\\text{A ship sails with constant velocity } ${formatVectorIJ(velocity)} \\ \\text{ km h}^{-1}, \\text{ where } \\mathbf{i} \\ \\text{ is east and } \\mathbf{j} \\ \\text{ is north.} \\ \\\\ \\text{Find the bearing of the ship's motion, to the nearest degree.}`,
+                `\\text{A drone flies with velocity vector } ${formatVectorIJ(velocity)} \\ \\text{ m s}^{-1}. \\ \\\\ \\text{Given that } \\mathbf{i} \\ \\text{ points east and } \\mathbf{j} \\ \\text{ points north, find the bearing of its flight.}`,
+                `\\text{A particle moves with constant velocity } ${formatVectorIJ(velocity)} \\ \\text{ m s}^{-1}, \\text{ where } \\mathbf{i} \\ \\text{ and } \\mathbf{j} \\ \\text{ are the east and north unit vectors.} \\ \\\\ \\text{Find the bearing of its motion to the nearest degree.}`,
+                `\\text{A boat travels with velocity } ${formatVectorIJ(velocity)} \\ \\text{ km h}^{-1} \\text{ relative to a fixed origin.} \\ \\\\ \\text{Taking } \\mathbf{i} \\ \\text{ as east and } \\mathbf{j} \\ \\text{ as north, find the bearing of travel.}`,
+            ]);
+
+            return {
+                latex: phrasing,
+                answer,
+                options: buildOptions(answer, [
+                    formatBearing((360 - bearing) % 360),
+                    formatBearing((bearing + 90) % 360),
+                    formatBearing((bearing + 180) % 360),
+                ], () => formatBearing(randInt(0, 359))),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 4) {
+            const tAligned = randInt(2, 9);
+            const rA = randomVector(-12, 12, true);
+            const vA = randomVector(-6, 6);
+            const vB = randomVector(-6, 6);
+
+            let adjustedVB = vB;
+            while (adjustedVB.x === vA.x) {
+                adjustedVB = randomVector(-6, 6);
+            }
+
+            const xB0 = rA.x + (vA.x - adjustedVB.x) * tAligned;
+            const yB0 = randInt(-14, 14);
+            const rB = { x: xB0, y: yB0 };
+            const answer = `${tAligned}`;
+
+            const setup = `\\text{Particles } A \\text{ and } B \\text{ have position vectors} \\\\ \\mathbf{r}_A = ${formatVectorIJ(rA)} + t${formatVectorIJ(vA)} \\text{ and } \\mathbf{r}_B = ${formatVectorIJ(rB)} + t${formatVectorIJ(adjustedVB)}. \\`;
+            const question = choose([
+                `\\text{Find the time } t \\text{ when } A \\text{ and } B \\text{ are due north/south of each other.}`,
+                `\\text{Find the value of } t \\text{ when } A \\text{ is directly north or south of } B.`,
+                `\\text{Find the time at which } A \\text{ and } B \\text{ lie on the same north-south line.}`,
+                `\\text{Find } t \\text{ such that the east-west displacement between } A \\text{ and } B \\text{ is zero.}`,
+            ]);
+
+            return {
+                latex: `${setup} \\\\ ${question}`,
+                answer: [answer, `t=${answer}`, `t = ${answer}`],
+                options: buildOptions(answer, [
+                    `${tAligned + 1}`,
+                    `${Math.max(1, tAligned - 1)}`,
+                    `${tAligned + 2}`,
+                ], () => `${randInt(1, 12)}`),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 5) {
+            const tMeet = randInt(2, 9);
+            const rA = randomVector(-14, 14, true);
+            const vA = randomVector(-6, 6);
+            const vRel = randomVector(-4, 4);
+            const vB = addVectors(vA, vRel);
+            const rB = subtractVectors(rA, scaleVector(vRel, tMeet));
+            const answer = `${tMeet}`;
+
+            const setup = `\\text{Particles } A \\text{ and } B \\text{ move with} \\\\ \\mathbf{r}_A = ${formatVectorIJ(rA)} + t${formatVectorIJ(vA)} \\text{ and } \\mathbf{r}_B = ${formatVectorIJ(rB)} + t${formatVectorIJ(vB)}. \\`;
+            const question = choose([
+                `\\text{Find the time at which the particles collide.}`,
+                `\\text{Show that } A \\text{ and } B \\text{ meet, and find the time of their collision.}`,
+                `\\text{Find the value of } t \\text{ at which } A \\text{ and } B \\text{ are at the same position.}`,
+                `\\text{Verify that the particles collide and state the time at which this occurs.}`,
+            ]);
+
+            return {
+                latex: `${setup} \\\\ ${question}`,
+                answer: [answer, `t=${answer}`, `t = ${answer}`],
+                options: buildOptions(answer, [
+                    `${tMeet + 1}`,
+                    `${Math.max(1, tMeet - 1)}`,
+                    `${tMeet + 2}`,
+                ], () => `${randInt(1, 12)}`),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 6) {
+            const triples: Array<[number, number, number]> = [
+                [3, 4, 5],
+                [5, 12, 13],
+                [8, 15, 17],
+            ];
+            const [a, b, m] = choose(triples);
+            const relVelocity = { x: a, y: b };
+            const tClosest = randInt(2, 8);
+            const k = choose([1, 2, 3]);
+            const perp = { x: -b * k, y: a * k };
+
+            const rA0 = randomVector(-10, 10, true);
+            const vA = randomVector(-5, 5);
+            const vB = addVectors(vA, relVelocity);
+            const delta0 = subtractVectors(perp, scaleVector(relVelocity, tClosest));
+            const rB0 = addVectors(rA0, delta0);
+            const minDistance = m * k;
+            const answer = `${minDistance}`;
+
+            const setup = `\\text{Particles } A \\text{ and } B \\text{ move with } \\\\ \\mathbf{r}_A = ${formatVectorIJ(rA0)} + t${formatVectorIJ(vA)} \\text{ and } \\mathbf{r}_B = ${formatVectorIJ(rB0)} + t${formatVectorIJ(vB)}. \\`;
+            const question = choose([
+                `\\text{Find the minimum distance between } A \\text{ and } B.`,
+                `\\text{Find the least distance between the two particles during their motion.}`,
+                `\\text{Find the closest distance between } A \\text{ and } B.`,
+                `\\text{Find the minimum value of } |\\mathbf{r}_A - \\mathbf{r}_B|.`,
+            ]);
+
+            return {
+                latex: `${setup} \\\\ ${question}`,
+                answer,
+                options: buildOptions(answer, [
+                    `${minDistance + m}`,
+                    `${Math.max(1, minDistance - m)}`,
+                    `${Math.round(vectorMagnitude(delta0))}`,
+                ], () => `${randInt(2, 40)}`),
+                forceOption: 0,
+            };
+        }
+
+        throw new Error(`Unhandled difficulty: ${difficulty}`);
+    }, [1, 2, 3, 4, 5, 6]),
+    "binomial-distribution": createGenerator(async ({ difficulty }) => {
+        const probabilityPool = [0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.5, 0.6, 0.7];
+
+        if (difficulty === 1) {
+            const n = randInt(4, 8);
+            const p = choose(probabilityPool.filter((value) => value >= 0.2 && value <= 0.7));
+            const r = randInt(0, n);
+            const context = choose([
+                { item: 'emails', success: 'gets a reply' },
+                { item: 'bulbs', success: 'is faulty' },
+                { item: 'students', success: 'passes a test' },
+            ]);
+
+            const answerValue = binomialPmf(n, p, r);
+            const answer = formatProbability(answerValue);
+            const phrasing = choose([
+                `\\text{A random variable } X \\text{ follows } B(${n}, ${p}). \\text{ Find } P(X=${r}).`,
+                `\\text{In a binomial model with } n=${n} \\text{ and } p=${p}, \\text{ calculate the probability that there are exactly } ${r} \\text{ successes.}`,
+                `\\text{Each of } ${n} \\text{ independent } \\text{${context.item}} \\text{ has probability } ${p} \\text{ of success (it } \\text{${context.success}} \\text{).} \\ \\\\ \\text{Find the probability of exactly } ${r} \\text{ successes.}`,
+                `\\text{Let } X \\sim B(${n}, ${p}). \\text{ Work out } P(X=${r}).`,
+            ]);
+
+            return {
+                latex: `${phrasing} \\text{ Give your answer to 3 d.p.}`,
+                answer,
+                options: buildProbabilityOptions(answerValue, [
+                    binomialPmf(n, p, Math.max(0, Math.min(n, r + 1))),
+                    binomialPmf(n, p, Math.max(0, r - 1)),
+                    1 - answerValue,
+                ]),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 2) {
+            const n = randInt(6, 10);
+            const p = choose(probabilityPool.filter((value) => value >= 0.2 && value <= 0.6));
+            const k = randInt(1, n - 1);
+            const mode = choose(['atMost', 'atLeast']);
+
+            const atMost = binomialRange(n, p, 0, k);
+            const atLeast = binomialRange(n, p, k, n);
+            const exact = binomialPmf(n, p, k);
+            const answerValue = mode === 'atMost' ? atMost : atLeast;
+            const answer = formatProbability(answerValue);
+
+            const phrasing = mode === 'atMost'
+                ? choose([
+                    `\\text{A random variable } X \\sim B(${n}, ${p}). \\text{ Find } P(X \\leq ${k}).  `,
+                    `\\text{For } X \\sim B(${n}, ${p}), \\text{ calculate the probability that there are at most } ${k} \\ \\text{ successes. }`,
+                    `\\text{The number of successful outcomes } X \\text{ in } ${n} \\text{ trials is binomial with } p=${p}. \\ \\\\ \\text{Find } P(X \\leq ${k}). \\`,
+                    `\\text{Given } X \\sim B(${n}, ${p}), \\text{ work out the probability that } X \\text{ does not exceed } ${k}.`,
+                ])
+                : choose([
+                    `\\text{A random variable } X \\sim B(${n}, ${p}). \\text{ Find } P(X \\geq ${k}).  `,
+                    `\\text{For } X \\sim B(${n}, ${p}), \\text{ calculate the probability of at least } ${k} \\ \\text{ successes. }`,
+                    `\\text{The number of successes } X \\text{ in } ${n} \\text{ independent trials follows } B(${n}, ${p}). \\ \\\\ \\text{Find } P(X \\geq ${k}). \\`,
+                    `\\text{Given } X \\sim B(${n}, ${p}), \\text{ find the probability that } X \\text{ is } ${k} \\text{ or more. }`,
+                ]);
+
+            return {
+                latex: `${phrasing} \\text{ Give your answer to 3 d.p.}`,
+                answer,
+                options: buildProbabilityOptions(answerValue, [
+                    mode === 'atMost' ? atLeast : atMost,
+                    exact,
+                    1 - answerValue,
+                ]),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 3) {
+            const n = randInt(10, 14);
+            const p = choose(probabilityPool.filter((value) => value >= 0.25 && value <= 0.6));
+            const lower = randInt(1, n - 4);
+            const upper = randInt(lower + 1, n - 1);
+            const answerValue = binomialRange(n, p, lower, upper);
+            const answer = formatProbability(answerValue);
+
+            const phrasing = choose([
+                `\\text{Let } X \\sim B(${n}, ${p}). \\text{ Find } P(${lower} \\leq X \\leq ${upper}).`,
+                `\\text{A call centre records the number } X \\text{ of successful callbacks out of } ${n} \\ \\text{ attempts, with success probability } ${p}. \\ \\\\ \\text{Find } P(${lower} \\leq X \\leq ${upper}). \\`,
+                `\\text{A random variable is modelled by } B(${n}, ${p}). \\ \\text{Calculate the probability that } X \\text{ is between } ${lower} \\text{ and } ${upper} \\text{ inclusive.}`,
+                `\\text{For } X \\sim B(${n}, ${p}), \\text{ work out } P(${lower} \\leq X \\leq ${upper}).`,
+            ]);
+
+            return {
+                latex: `${phrasing} \\text{ Give your answer to 3 d.p.}`,
+                answer,
+                options: buildProbabilityOptions(answerValue, [
+                    binomialRange(n, p, lower + 1, upper),
+                    binomialRange(n, p, lower, upper - 1),
+                    1 - answerValue,
+                ]),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 4) {
+            const parameterSet = choose([
+                { n: 10, p: 0.3 },
+                { n: 12, p: 0.25 },
+                { n: 15, p: 0.4 },
+                { n: 20, p: 0.35 },
+                { n: 16, p: 0.5 },
+            ]);
+            const n = parameterSet.n;
+            const p = parameterSet.p;
+            const mean = n * p;
+            const r = randInt(1, Math.max(1, n - 2));
+            const answerValue = binomialPmf(n, p, r);
+            const answer = formatProbability(answerValue);
+
+            const phrasing = choose([
+                `\\text{A random variable } X \\sim B(${n}, p). \\text{ Given that } E(X) = ${mean}, \\text{ find } P(X=${r}). \\`,
+                `\\text{The number of successes } X \\text{ in } ${n} \\text{ trials is binomial with parameter } p. \\ \\text{If } E(X)=${mean}, \\text{ calculate } P(X=${r}). \\`,
+                `\\text{Let } X \\sim B(${n}, p) \\text{ and suppose the mean is } ${mean}. \\ \\\\ \\text{Find the probability of exactly } ${r} \\text{ successes.}`,
+                `\\text{A binomial variable has } n=${n} \\text{ and unknown } p. \\ \\text{Given } E(X)=${mean}, \\text{work out } P(X=${r}). \\`,
+            ]);
+
+            return {
+                latex: `${phrasing} \\text{ Give your answer to 3 d.p.}`,
+                answer,
+                options: buildProbabilityOptions(answerValue, [
+                    binomialPmf(n, p, Math.max(0, r - 1)),
+                    binomialPmf(n, p, Math.min(n, r + 1)),
+                    1 - answerValue,
+                ]),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 5) {
+            const n = randInt(9, 15);
+            const p = choose(probabilityPool.filter((value) => value >= 0.2 && value <= 0.6));
+            const mode = choose(['givenAtLeastOne', 'givenAtLeastThreshold']);
+
+            if (mode === 'givenAtLeastOne') {
+                const r = randInt(1, n);
+                const numerator = binomialPmf(n, p, r);
+                const denominator = 1 - binomialPmf(n, p, 0);
+                const answerValue = numerator / denominator;
+                const answer = formatProbability(answerValue);
+
+                const phrasing = choose([
+                    `\\text{Let } X \\sim B(${n}, ${p}). \\text{ Find } P(X=${r} \\mid X \\geq 1).`,
+                    `\\text{A quality-control process gives } X \\sim B(${n}, ${p}). \\ \\text{Given that at least one item is defective, find } P(X=${r}).`,
+                    `\\text{The random variable } X \\text{ follows } B(${n}, ${p}). \\text{Calculate } P(X=${r} \\mid X>0).`,
+                    `\\text{In } ${n} \\text{ independent trials with success probability } ${p}, \\text{let } X \\text{ be the number of successes.} \\ \\\\ \\text{Find } P(X=${r} \\mid X \\geq 1).`,
+                ]);
+
+                return {
+                    latex: `${phrasing} \\text{ Give your answer to 3 d.p.}`,
+                    answer,
+                    options: buildProbabilityOptions(answerValue, [
+                        numerator,
+                        denominator,
+                        1 - answerValue,
+                    ]),
+                    forceOption: 0,
+                };
+            }
+
+            const threshold = randInt(1, n - 2);
+            const r = randInt(threshold, n);
+            const numerator = binomialPmf(n, p, r);
+            const denominator = binomialRange(n, p, threshold, n);
+            const answerValue = numerator / denominator;
+            const answer = formatProbability(answerValue);
+
+            const phrasing = choose([
+                `\\text{Let } X \\sim B(${n}, ${p}). \\text{ Find } P(X=${r} \\mid X \\geq ${threshold}).`,
+                `\\text{A random variable } X \\text{ is binomial with parameters } ${n} \\text{ and } ${p}. \\text{Given that } X \\geq ${threshold}, \\text{find } P(X=${r}).`,
+                `\\text{For } X \\sim B(${n}, ${p}), \\text{ calculate the conditional probability } P(X=${r} \\mid X \\geq ${threshold}).`,
+                `\\text{In a binomial model with } n=${n} \\text{ and } p=${p}, \\text{work out } P(X=${r} \\mid X \\geq ${threshold}).`,
+            ]);
+
+            return {
+                latex: `${phrasing} \\text{ Give your answer to 3 d.p.}`,
+                answer,
+                options: buildProbabilityOptions(answerValue, [
+                    numerator,
+                    denominator,
+                    1 - answerValue,
+                ]),
+                forceOption: 0,
+            };
+        }
+
+        throw new Error(`Unhandled difficulty: ${difficulty}`);
+    }, [1, 2, 3, 4, 5]),
 };
 

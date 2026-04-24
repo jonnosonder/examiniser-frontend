@@ -139,7 +139,7 @@ export default function ExamPapersPage({ params }: { params: Promise<{ lng: Loca
                       <div>
                         <p className="text-xl font-nunito text-primary">{source.name}</p>
                         <p className="text-sm text-primary mt-1 opacity-60">
-                          {new Set(source.papers.map((entry) => entry.year)).size} years of papers / {source.papers.reduce((sum, entry) => sum + entry.papers.length, 0)} papers
+                          {new Set(source.papers.map((entry) => entry.year)).size} years of papers / {source.papers.reduce((sum, entry) => sum + entry.papers.reduce((paperSum, paper) => paperSum + (paper.tierVariants?.length ?? 1), 0), 0)} papers
                         </p>
                       </div>
                       <p className="text-xl text-primary">{isExpanded ? "−" : "+"}</p>

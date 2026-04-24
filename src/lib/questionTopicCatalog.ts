@@ -230,34 +230,35 @@ export const QUESTION_CATALOG: Record<QuestionLevel, MainTopicDef[]> = {
                 //{ slug: "parametric-equations", titleKey: "sixth-subtopics.parametric-equations", descriptionKey: "descriptions.sixthFormSub.pure.parametric-equations" }
             ]
         },
-        //{
-        //    id: "mechanics",
-        //    titleKey: "sixth-form-topics.mechanics",
-        //    descriptionKey: "descriptions.sixthForm.mechanics",
-        //    subtopics: [
-        //        { slug: "kinematics-suvat", titleKey: "sixth-subtopics.kinematics-suvat", descriptionKey: "descriptions.sixthFormSub.mechanics.kinematics-suvat" },
-        //        { slug: "variable-acceleration", titleKey: "sixth-subtopics.variable-acceleration", descriptionKey: "descriptions.sixthFormSub.mechanics.variable-acceleration" },
-        //        { slug: "forces-and-newtons-laws", titleKey: "sixth-subtopics.forces-newton", descriptionKey: "descriptions.sixthFormSub.mechanics.forces-and-newtons-laws" },
-        //        { slug: "connected-particles", titleKey: "sixth-subtopics.connected-particles", descriptionKey: "descriptions.sixthFormSub.mechanics.connected-particles" },
-        //        { slug: "projectiles", titleKey: "sixth-subtopics.projectiles", descriptionKey: "descriptions.sixthFormSub.mechanics.projectiles" },
-        //        { slug: "moments", titleKey: "sixth-subtopics.moments", descriptionKey: "descriptions.sixthFormSub.mechanics.moments" }
-        //    ]
-        //},
-        //{
-        //    id: "statistics",
-        //    titleKey: "sixth-form-topics.statistics",
-        //    descriptionKey: "descriptions.sixthForm.statistics",
-        //    subtopics: [
-        //        { slug: "data-presentation", titleKey: "sixth-subtopics.data-presentation", descriptionKey: "descriptions.sixthFormSub.statistics.data-presentation" },
-        //        { slug: "measures-of-location-and-spread", titleKey: "sixth-subtopics.measures", descriptionKey: "descriptions.sixthFormSub.statistics.measures-of-location-and-spread" },
-        //        { slug: "correlation-and-regression", titleKey: "sixth-subtopics.correlation-regression", descriptionKey: "descriptions.sixthFormSub.statistics.correlation-and-regression" },
-        //        { slug: "probability", titleKey: "sixth-subtopics.probability", descriptionKey: "descriptions.sixthFormSub.statistics.probability" },
-        //        { slug: "binomial-distribution", titleKey: "sixth-subtopics.binomial", descriptionKey: "descriptions.sixthFormSub.statistics.binomial-distribution" },
-        //        { slug: "normal-distribution", titleKey: "sixth-subtopics.normal", descriptionKey: "descriptions.sixthFormSub.statistics.normal-distribution" },
-        //        { slug: "hypothesis-testing", titleKey: "sixth-subtopics.hypothesis-testing", descriptionKey: "descriptions.sixthFormSub.statistics.hypothesis-testing" },
-        //        { slug: "large-data-set", titleKey: "sixth-subtopics.large-data-set", descriptionKey: "descriptions.sixthFormSub.statistics.large-data-set" }
-        //    ]
-        //}
+        {
+            id: "mechanics",
+            titleKey: "sixth-form-topics.mechanics",
+            descriptionKey: "descriptions.sixthForm.mechanics",
+            subtopics: [
+                //{ slug: "kinematics-suvat", titleKey: "sixth-subtopics.kinematics-suvat", descriptionKey: "descriptions.sixthFormSub.mechanics.kinematics-suvat" },
+                //{ slug: "variable-acceleration", titleKey: "sixth-subtopics.variable-acceleration", descriptionKey: "descriptions.sixthFormSub.mechanics.variable-acceleration" },
+                //{ slug: "forces-and-newtons-laws", titleKey: "sixth-subtopics.forces-newton", descriptionKey: "descriptions.sixthFormSub.mechanics.forces-and-newtons-laws" },
+                //{ slug: "connected-particles", titleKey: "sixth-subtopics.connected-particles", descriptionKey: "descriptions.sixthFormSub.mechanics.connected-particles" },
+                //{ slug: "projectiles", titleKey: "sixth-subtopics.projectiles", descriptionKey: "descriptions.sixthFormSub.mechanics.projectiles" },
+                //{ slug: "moments", titleKey: "sixth-subtopics.moments", descriptionKey: "descriptions.sixthFormSub.mechanics.moments" },
+                { slug: "vectors", titleKey: "sixth-subtopics.vectors", descriptionKey: "descriptions.sixthFormSub.mechanics.vectors" }
+            ]
+        },
+        {
+            id: "statistics",
+            titleKey: "sixth-form-topics.statistics",
+            descriptionKey: "descriptions.sixthForm.statistics",
+            subtopics: [
+                //{ slug: "data-presentation", titleKey: "sixth-subtopics.data-presentation", descriptionKey: "descriptions.sixthFormSub.statistics.data-presentation" },
+                //{ slug: "measures-of-location-and-spread", titleKey: "sixth-subtopics.measures", descriptionKey: "descriptions.sixthFormSub.statistics.measures-of-location-and-spread" },
+                //{ slug: "correlation-and-regression", titleKey: "sixth-subtopics.correlation-regression", descriptionKey: "descriptions.sixthFormSub.statistics.correlation-and-regression" },
+                //{ slug: "probability", titleKey: "sixth-subtopics.probability", descriptionKey: "descriptions.sixthFormSub.statistics.probability" },
+                { slug: "binomial-distribution", titleKey: "sixth-subtopics.binomial", descriptionKey: "descriptions.sixthFormSub.statistics.binomial-distribution" },
+                //{ slug: "normal-distribution", titleKey: "sixth-subtopics.normal", descriptionKey: "descriptions.sixthFormSub.statistics.normal-distribution" },
+                //{ slug: "hypothesis-testing", titleKey: "sixth-subtopics.hypothesis-testing", descriptionKey: "descriptions.sixthFormSub.statistics.hypothesis-testing" },
+                //{ slug: "large-data-set", titleKey: "sixth-subtopics.large-data-set", descriptionKey: "descriptions.sixthFormSub.statistics.large-data-set" }
+            ]
+        }
     ]
 };
 

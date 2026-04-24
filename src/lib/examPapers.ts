@@ -102,12 +102,81 @@ const rawExamPaperSources: ExamPaperSource[] = [
         ],
       },
       {
+        level: "secondary",
+        year: "2023",
+        papers: [
+          {
+            id: "paper-1",
+            name: "Paper 1",
+            tierVariants: [
+              {
+                tier: "foundation",
+                name: "Foundation",
+                questionPath: "/exam-papers/aqa/secondary/2023/paper-1/foundation/question.PDF",
+                answerPath: "/exam-papers/aqa/secondary/2023/paper-1/foundation/answer.PDF",
+              },
+              {
+                tier: "higher",
+                name: "Higher",
+                questionPath: "/exam-papers/aqa/secondary/2023/paper-1/higher/question.PDF",
+                answerPath: "/exam-papers/aqa/secondary/2023/paper-1/higher/answer.PDF",
+              },
+            ],
+          },
+          {
+            id: "paper-2",
+            name: "Paper 2",
+            tierVariants: [
+              {
+                tier: "foundation",
+                name: "Foundation",
+                questionPath: "/exam-papers/aqa/secondary/2023/paper-2/foundation/question.PDF",
+                answerPath: "/exam-papers/aqa/secondary/2023/paper-2/foundation/answer.PDF",
+              },
+              {
+                tier: "higher",
+                name: "Higher",
+                questionPath: "/exam-papers/aqa/secondary/2023/paper-2/higher/question.PDF",
+                answerPath: "/exam-papers/aqa/secondary/2023/paper-2/higher/answer.PDF",
+              },
+            ],
+          },
+          {
+            id: "paper-3",
+            name: "Paper 3",
+            tierVariants: [
+              {
+                tier: "foundation",
+                name: "Foundation",
+                questionPath: "/exam-papers/aqa/secondary/2023/paper-3/foundation/question.PDF",
+                answerPath: "/exam-papers/aqa/secondary/2023/paper-3/foundation/answer.PDF",
+              },
+              {
+                tier: "higher",
+                name: "Higher",
+                questionPath: "/exam-papers/aqa/secondary/2023/paper-3/higher/question.PDF",
+                answerPath: "/exam-papers/aqa/secondary/2023/paper-3/higher/answer.PDF",
+              },
+            ],
+          },
+        ],
+      },
+      {
         level: "sixth-form",
         year: "2024",
         papers: [
           { id: "paper-1", name: "Paper 1", questionPath: "/exam-papers/aqa/sixth-form/2024/paper-1/question.PDF", answerPath: "/exam-papers/aqa/sixth-form/2024/paper-1/answer.PDF" },
           { id: "paper-2", name: "Paper 2", questionPath: "/exam-papers/aqa/sixth-form/2024/paper-2/question.PDF", answerPath: "/exam-papers/aqa/sixth-form/2024/paper-2/answer.PDF" },
           { id: "paper-3", name: "Paper 3", questionPath: "/exam-papers/aqa/sixth-form/2024/paper-3/question.PDF", answerPath: "/exam-papers/aqa/sixth-form/2024/paper-3/answer.PDF" },
+        ],
+      },
+      {
+        level: "sixth-form",
+        year: "2023",
+        papers: [
+          { id: "paper-1", name: "Paper 1", questionPath: "/exam-papers/aqa/sixth-form/2023/paper-1/question.PDF", answerPath: "/exam-papers/aqa/sixth-form/2023/paper-1/answer.PDF" },
+          { id: "paper-2", name: "Paper 2", questionPath: "/exam-papers/aqa/sixth-form/2023/paper-2/question.PDF", answerPath: "/exam-papers/aqa/sixth-form/2023/paper-2/answer.PDF" },
+          { id: "paper-3", name: "Paper 3", questionPath: "/exam-papers/aqa/sixth-form/2023/paper-3/question.PDF", answerPath: "/exam-papers/aqa/sixth-form/2023/paper-3/answer.PDF" },
         ],
       },
     ],
@@ -177,6 +246,66 @@ const rawExamPaperSources: ExamPaperSource[] = [
         ],
       },
       {
+        level: "secondary",
+        year: "2023",
+        papers: [
+          {
+            id: "paper-1",
+            name: "Paper 1",
+            tierVariants: [
+              {
+                tier: "foundation",
+                name: "Foundation",
+                questionPath: "/exam-papers/edexcel/secondary/2023/paper-1/foundation/question.PDF",
+                answerPath: "/exam-papers/edexcel/secondary/2023/paper-1/foundation/answer.PDF",
+              },
+              {
+                tier: "higher",
+                name: "Higher",
+                questionPath: "/exam-papers/edexcel/secondary/2023/paper-1/higher/question.PDF",
+                answerPath: "/exam-papers/edexcel/secondary/2023/paper-1/higher/answer.PDF",
+              },
+            ],
+          },
+          {
+            id: "paper-2",
+            name: "Paper 2",
+            tierVariants: [
+              {
+                tier: "foundation",
+                name: "Foundation",
+                questionPath: "/exam-papers/edexcel/secondary/2023/paper-2/foundation/question.PDF",
+                answerPath: "/exam-papers/edexcel/secondary/2023/paper-2/foundation/answer.PDF",
+              },
+              {
+                tier: "higher",
+                name: "Higher",
+                questionPath: "/exam-papers/edexcel/secondary/2023/paper-2/higher/question.PDF",
+                answerPath: "/exam-papers/edexcel/secondary/2023/paper-2/higher/answer.PDF",
+              },
+            ],
+          },
+          {
+            id: "paper-3",
+            name: "Paper 3",
+            tierVariants: [
+              {
+                tier: "foundation",
+                name: "Foundation",
+                questionPath: "/exam-papers/edexcel/secondary/2023/paper-3/foundation/question.PDF",
+                answerPath: "/exam-papers/edexcel/secondary/2023/paper-3/foundation/answer.PDF",
+              },
+              {
+                tier: "higher",
+                name: "Higher",
+                questionPath: "/exam-papers/edexcel/secondary/2023/paper-3/higher/question.PDF",
+                answerPath: "/exam-papers/edexcel/secondary/2023/paper-3/higher/answer.PDF",
+              },
+            ],
+          },
+        ],
+      },
+      {
         level: "sixth-form",
         year: "2024",
         papers: [
@@ -184,6 +313,16 @@ const rawExamPaperSources: ExamPaperSource[] = [
           { id: "paper-2", name: "Paper 2 - Pure 2", questionPath: "/exam-papers/edexcel/sixth-form/2024/paper-2/question.PDF", answerPath: "/exam-papers/edexcel/sixth-form/2024/paper-2/answer.PDF" },
           { id: "paper-3", name: "Paper 3 - Statistics", questionPath: "/exam-papers/edexcel/sixth-form/2024/paper-3/question.PDF", answerPath: "/exam-papers/edexcel/sixth-form/2024/paper-3/answer.PDF" },
           { id: "paper-4", name: "Paper 4 - Mechanics", questionPath: "/exam-papers/edexcel/sixth-form/2024/paper-4/question.PDF", answerPath: "/exam-papers/edexcel/sixth-form/2024/paper-4/answer.PDF" },
+        ],
+      },
+      {
+        level: "sixth-form",
+        year: "2023",
+        papers: [
+          { id: "paper-1", name: "Paper 1 - Pure 1", questionPath: "/exam-papers/edexcel/sixth-form/2023/paper-1/question.PDF", answerPath: "/exam-papers/edexcel/sixth-form/2023/paper-1/answer.PDF" },
+          { id: "paper-2", name: "Paper 2 - Pure 2", questionPath: "/exam-papers/edexcel/sixth-form/2023/paper-2/question.PDF", answerPath: "/exam-papers/edexcel/sixth-form/2023/paper-2/answer.PDF" },
+          { id: "paper-3", name: "Paper 3 - Statistics", questionPath: "/exam-papers/edexcel/sixth-form/2023/paper-3/question.PDF", answerPath: "/exam-papers/edexcel/sixth-form/2023/paper-3/answer.PDF" },
+          { id: "paper-4", name: "Paper 4 - Mechanics", questionPath: "/exam-papers/edexcel/sixth-form/2023/paper-4/question.PDF", answerPath: "/exam-papers/edexcel/sixth-form/2023/paper-4/answer.PDF" },
         ],
       },
     ],

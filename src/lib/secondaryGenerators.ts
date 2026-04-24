@@ -4352,7 +4352,7 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
 
             return {
                 svg,
-                latex: `\\text{Translate the red point by } \\begin{pmatrix} ${transX} \\\\ ${transY} \\end{pmatrix}. \\text{ What are the new coordinates?}`,
+                latex: `\\text{Translate the red point by } \\begin{pmatrix}${transX}\\\\${transY}\\end{pmatrix}. \\text{ What are the new coordinates?}`,
                 answer: correct,
                 options,
                 forceOption: 0,
@@ -4431,7 +4431,7 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
 
             return {
                 svg,
-                latex: `\\text{Translate the shape by the vector } \\begin{pmatrix} ${transX} \\\\ ${transY} \\end{pmatrix}.\\\\\\text{ What are the coordinates of vertex } ${vertexLabel}\\text{ after translation?}`,
+                latex: `\\text{Translate the shape by the vector } \\begin{pmatrix}${transX}\\\\${transY}\\end{pmatrix}.\\\\\\text{ What are the coordinates of vertex } ${vertexLabel}\\text{ after translation?}`,
                 answer: correct,
                 options,
                 forceOption: 0,
@@ -8665,3 +8665,5 @@ export const secondaryGenerators: Record<string, QuestionGeneratorWithLevels> = 
         throw new Error(`Unhandled difficulty: ${difficulty}`);
     }, [1]),
 };
+
+
