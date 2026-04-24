@@ -403,6 +403,23 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
       delay: "120ms" 
     },
     { 
+      id: "sixthForm", 
+      label: t("education.sixth-form"),       
+      items: [
+        "sixth-form-topics.pure",
+        "sixth-form-topics.mechanics",
+        "sixth-form-topics.statistics",
+        "general.see-all",
+      ],
+      links: [
+        "/sixth-form/pure",
+        "/sixth-form/mechanics",
+        "/sixth-form/statistics",
+        "/sixth-form",
+      ],
+      delay: "240ms" 
+    },
+    { 
       id: "exam_paper", 
       label: t("education.exam-papers"),       
       items: ["AQA", "Edexcel", "general.see-all"],  // "OCR", "Baccalauréat", "Selectividad", "大学入学共通テスト", "高考", 
@@ -418,33 +435,6 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
         //"/exam-papers?source=chinese-gaokao",
       ],
       delay: "360ms" 
-    },
-    { 
-      id: "sixthForm", 
-      label: t("education.sixth-form"),       
-      items: [
-        "sixth-form-topics.algebra",
-        "sixth-form-topics.functions",
-        "sixth-form-topics.calculus",
-        "sixth-form-topics.trigonometry",
-        "sixth-form-topics.vectors",
-        "sixth-form-topics.statistics",
-        "sixth-form-topics.mechanics",
-        "sixth-form-topics.discrete",
-        "general.see-all",
-      ],
-      links: [
-        "/sixth-form/algebra",
-        "/sixth-form/functions",
-        "/sixth-form/calculus",
-        "/sixth-form/trigonometry",
-        "/sixth-form/vectors",
-        "/sixth-form/statistics",
-        "/sixth-form/mechanics",
-        "/sixth-form/discrete",
-        "/sixth-form",
-      ],
-      delay: "240ms" 
     },
   ];
 
@@ -571,7 +561,7 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
 
           {/* Buttons */}
           <div className='flex space-x-8' onClick={handleClose}>
-            {buttons.slice(0, -1).map(({ id, label, items, links, delay }) => (
+            {buttons.map(({ id, label, items, links, delay }) => (
               <div
                 key={id}
                 className="flex items-center justify-center"
@@ -670,8 +660,8 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
             >
               <p className='text-2xl font-bold font-nunito text-primary mb-4'>{t('home.try-it-now')}</p>
                 <div className='flex flex-col w-full gap-2'>
-                  <div className='grid w-full grid-cols-2 gap-3'>
-                    {(["primary", "secondary"] as GeneratorLevel[]).map((level) => (
+                  <div className='grid w-full grid-cols-3 gap-3'>
+                    {(["primary", "secondary", "sixthForm"] as GeneratorLevel[]).map((level) => (
                       <button
                         key={level}
                         type='button'
