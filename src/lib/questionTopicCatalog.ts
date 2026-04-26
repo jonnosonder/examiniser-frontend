@@ -213,22 +213,20 @@ export const QUESTION_CATALOG: Record<QuestionLevel, MainTopicDef[]> = {
                 { slug: "algebra-and-functions", titleKey: "sixth-subtopics.algebra-functions", descriptionKey: "descriptions.sixthFormSub.pure.algebra-and-functions" },
                 { slug: "differentiation", titleKey: "sixth-subtopics.differentiation", descriptionKey: "descriptions.sixthFormSub.pure.differentiation" },
                 { slug: "numerical-methods", titleKey: "sixth-subtopics.numerical-methods", descriptionKey: "descriptions.sixthFormSub.pure.numerical-methods" },
+                { slug: "binomial-expansion", titleKey: "sixth-subtopics.binomial-expansion", descriptionKey: "descriptions.sixthFormSub.pure.binomial-expansion" },
+                { slug: "sequences-and-series", titleKey: "sixth-subtopics.sequences-series", descriptionKey: "descriptions.sixthFormSub.pure.sequences-and-series" },
+                { slug: "integration", titleKey: "sixth-subtopics.integration", descriptionKey: "descriptions.sixthFormSub.pure.integration" },
+                { slug: "parametric-equations", titleKey: "sixth-subtopics.parametric-equations", descriptionKey: "descriptions.sixthFormSub.pure.parametric-equations" }
                 //{ slug: "quadratics", titleKey: "sixth-subtopics.quadratics", descriptionKey: "descriptions.sixthFormSub.pure.quadratics" },
                 //{ slug: "inequalities", titleKey: "sixth-subtopics.inequalities", descriptionKey: "descriptions.sixthFormSub.pure.inequalities" },
                 //{ slug: "polynomials", titleKey: "sixth-subtopics.polynomials", descriptionKey: "descriptions.sixthFormSub.pure.polynomials" },
                 //{ slug: "coordinate-geometry", titleKey: "sixth-subtopics.coordinate-geometry", descriptionKey: "descriptions.sixthFormSub.pure.coordinate-geometry" },
-                //{ slug: "sequences-and-series", titleKey: "sixth-subtopics.sequences-series", descriptionKey: "descriptions.sixthFormSub.pure.sequences-and-series" },
-                //{ slug: "binomial-expansion", titleKey: "sixth-subtopics.binomial-expansion", descriptionKey: "descriptions.sixthFormSub.pure.binomial-expansion" },
                 //{ slug: "trigonometry", titleKey: "sixth-subtopics.trigonometry", descriptionKey: "descriptions.sixthFormSub.pure.trigonometry" },
                 //{ slug: "trigonometric-identities", titleKey: "sixth-subtopics.trig-identities", descriptionKey: "descriptions.sixthFormSub.pure.trigonometric-identities" },
                 //{ slug: "trigonometric-equations", titleKey: "sixth-subtopics.trig-equations", descriptionKey: "descriptions.sixthFormSub.pure.trigonometric-equations" },
                 //{ slug: "exponentials-and-logarithms", titleKey: "sixth-subtopics.exp-logs", descriptionKey: "descriptions.sixthFormSub.pure.exponentials-and-logarithms" },
-                //{ slug: "differentiation", titleKey: "sixth-subtopics.differentiation", descriptionKey: "descriptions.sixthFormSub.pure.differentiation" },
-                //{ slug: "integration", titleKey: "sixth-subtopics.integration", descriptionKey: "descriptions.sixthFormSub.pure.integration" },
-                //{ slug: "numerical-methods", titleKey: "sixth-subtopics.numerical-methods", descriptionKey: "descriptions.sixthFormSub.pure.numerical-methods" },
                 //{ slug: "vectors", titleKey: "sixth-subtopics.vectors", descriptionKey: "descriptions.sixthFormSub.pure.vectors" },
                 //{ slug: "proof", titleKey: "sixth-subtopics.proof", descriptionKey: "descriptions.sixthFormSub.pure.proof" },
-                //{ slug: "parametric-equations", titleKey: "sixth-subtopics.parametric-equations", descriptionKey: "descriptions.sixthFormSub.pure.parametric-equations" }
             ]
         },
         {
@@ -254,8 +252,8 @@ export const QUESTION_CATALOG: Record<QuestionLevel, MainTopicDef[]> = {
                 //{ slug: "measures-of-location-and-spread", titleKey: "sixth-subtopics.measures", descriptionKey: "descriptions.sixthFormSub.statistics.measures-of-location-and-spread" },
                 //{ slug: "correlation-and-regression", titleKey: "sixth-subtopics.correlation-regression", descriptionKey: "descriptions.sixthFormSub.statistics.correlation-and-regression" },
                 //{ slug: "probability", titleKey: "sixth-subtopics.probability", descriptionKey: "descriptions.sixthFormSub.statistics.probability" },
-                { slug: "binomial-distribution", titleKey: "sixth-subtopics.binomial", descriptionKey: "descriptions.sixthFormSub.statistics.binomial-distribution" },
-                //{ slug: "normal-distribution", titleKey: "sixth-subtopics.normal", descriptionKey: "descriptions.sixthFormSub.statistics.normal-distribution" },
+                { slug: "binomial-distribution", titleKey: "sixth-subtopics.binomial-distribution", descriptionKey: "descriptions.sixthFormSub.statistics.binomial-distribution" },
+                { slug: "normal-distribution", titleKey: "sixth-subtopics.normal-distribution", descriptionKey: "descriptions.sixthFormSub.statistics.normal-distribution" },
                 //{ slug: "hypothesis-testing", titleKey: "sixth-subtopics.hypothesis-testing", descriptionKey: "descriptions.sixthFormSub.statistics.hypothesis-testing" },
                 //{ slug: "large-data-set", titleKey: "sixth-subtopics.large-data-set", descriptionKey: "descriptions.sixthFormSub.statistics.large-data-set" }
             ]

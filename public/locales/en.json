@@ -603,7 +603,7 @@
       },
       "statistics": {
         "binomial-distribution": "Model repeated independent trials with B(n, p); calculate exact, cumulative, and conditional probabilities.",
-        "normal-distribution": "Explore key concepts in Normal Distribution.",
+        "normal-distribution": "Model and interpret continuous data with the normal distribution; standardise values and find interval probabilities.",
         "statistical-sampling": "Explore key concepts in Statistical Sampling.",
         "hypothesis-testing": "Explore key concepts in Hypothesis Testing.",
         "correlation-and-regression": "Explore key concepts in Correlation And Regression."
@@ -801,7 +801,7 @@
     "trig-sine-cosine-rule": "Sine & cosine rules",
     "arithmetic-geometric": "Arithmetic & geometric series",
     "sigma-notation": "Sigma notation",
-    "binomial": "Binomial expansion",
+    "binomial": "Binomial Distribution",
     "exp-log-laws": "Laws of exponentials & logarithms",
     "exp-log-equations": "Exponential & log equations",
     "exp-log-modelling": "Modelling with exponentials & logs",

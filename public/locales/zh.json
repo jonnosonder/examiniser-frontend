@@ -603,7 +603,7 @@
       },
       "statistics": {
         "binomial-distribution": "学习Binomial Distribution的关键概念。",
-        "normal-distribution": "学习Normal Distribution的关键概念。",
+        "normal-distribution": "使用正态分布建模与解释连续数据，进行标准化并计算区间概率。",
         "statistical-sampling": "学习Statistical Sampling的关键概念。",
         "hypothesis-testing": "学习Hypothesis Testing的关键概念。",
         "correlation-and-regression": "学习Correlation And Regression的关键概念。"
@@ -801,7 +801,7 @@
     "trig-sine-cosine-rule": "正弦、余弦定理",
     "arithmetic-geometric": "等差与等比数列",
     "sigma-notation": "求和符号 Σ",
-    "binomial": "二项式展开",
+    "binomial": "Binomial Distribution",
     "exp-log-laws": "指数与对数运算法则",
     "exp-log-equations": "指数与对数方程",
     "exp-log-modelling": "指数与对数建模",
@@ -843,7 +843,7 @@
     "dot-product": "Dot Product",
     "equations-of-lines": "Equations Of Lines",
     "binomial-distribution": "Binomial Distribution",
-    "normal-distribution": "Normal Distribution",
+    "normal-distribution": "正态分布",
     "statistical-sampling": "Statistical Sampling",
     "correlation-and-regression": "Correlation And Regression",
     "forces": "Forces",

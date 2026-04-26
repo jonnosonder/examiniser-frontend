@@ -604,7 +604,7 @@
       },
       "statistics": {
         "binomial-distribution": "Modela ensayos independientes con B(n, p); calcula probabilidades exactas, acumuladas y condicionales.",
-        "normal-distribution": "Trabaja con distribuci�n normal y sus propiedades.",
+        "normal-distribution": "Modela e interpreta datos continuos con la distribución normal; tipifica valores y calcula probabilidades en intervalos.",
         "statistical-sampling": "Comprende m�todos de muestreo estad�stico.",
         "hypothesis-testing": "Realiza pruebas de hip�tesis con niveles de significancia.",
         "correlation-and-regression": "Estudia correlaci�n y regresi�n lineal."
@@ -802,7 +802,7 @@
     "trig-sine-cosine-rule": "Teorema del seno y coseno",
     "arithmetic-geometric": "Series aritméticas y geométricas",
     "sigma-notation": "Notación sigma",
-    "binomial": "Binomio de Newton",
+    "binomial": "Binomial Distribution",
     "exp-log-laws": "Leyes de exponenciales y logaritmos",
     "exp-log-equations": "Ecuaciones exponenciales y logarítmicas",
     "exp-log-modelling": "Modelos exponenciales y logarítmicos",
@@ -844,7 +844,7 @@
     "dot-product": "Dot Product",
     "equations-of-lines": "Equations Of Lines",
     "binomial-distribution": "Binomial Distribution",
-    "normal-distribution": "Normal Distribution",
+    "normal-distribution": "Distribución normal",
     "statistical-sampling": "Statistical Sampling",
     "correlation-and-regression": "Correlation And Regression",
     "forces": "Forces",

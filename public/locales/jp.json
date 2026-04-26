@@ -604,7 +604,7 @@
       },
       "statistics": {
         "binomial-distribution": "Binomial Distributionの重要な概念を学びます。",
-        "normal-distribution": "Normal Distributionの重要な概念を学びます。",
+        "normal-distribution": "正規分布で連続データをモデル化・解釈し、標準化と区間確率を求めます。",
         "statistical-sampling": "Statistical Samplingの重要な概念を学びます。",
         "hypothesis-testing": "Hypothesis Testingの重要な概念を学びます。",
         "correlation-and-regression": "Correlation And Regressionの重要な概念を学びます。"
@@ -802,7 +802,7 @@
     "trig-sine-cosine-rule": "正弦・余弦定理",
     "arithmetic-geometric": "等差・等比数列",
     "sigma-notation": "シグマ記法",
-    "binomial": "二項展開",
+    "binomial": "Binomial Distribution",
     "exp-log-laws": "指数・対数の法則",
     "exp-log-equations": "指数・対数方程式",
     "exp-log-modelling": "指数・対数モデル",
@@ -844,7 +844,7 @@
     "dot-product": "Dot Product",
     "equations-of-lines": "Equations Of Lines",
     "binomial-distribution": "Binomial Distribution",
-    "normal-distribution": "Normal Distribution",
+    "normal-distribution": "正規分布",
     "statistical-sampling": "Statistical Sampling",
     "correlation-and-regression": "Correlation And Regression",
     "forces": "Forces",

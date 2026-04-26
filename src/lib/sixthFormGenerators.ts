@@ -189,8 +189,6 @@ const scaleVector = (vector: Vector2, scalar: number): Vector2 => ({
     y: vector.y * scalar,
 });
 
-const dotProduct = (left: Vector2, right: Vector2): number => left.x * right.x + left.y * right.y;
-
 const vectorMagnitude = (vector: Vector2): number => Math.sqrt(vector.x * vector.x + vector.y * vector.y);
 
 const bearingFromVelocity = (velocity: Vector2): number => {
@@ -301,8 +299,6 @@ const subtractRational = (left: Rational, right: Rational): Rational => {
         left.denominator * right.denominator
     );
 };
-
-const powerToKey = (value: Rational): string => `${value.numerator}/${value.denominator}`;
 
 const rationalToLatex = (value: Rational): string => {
     if (value.denominator === 1) {
@@ -460,7 +456,7 @@ export const sixthFormGenerators: Record<string, QuestionGeneratorWithLevels> = 
         }
 
         if (difficulty === 2) {
-            let rootA = nonZeroInt(-8, 8);
+            const rootA = nonZeroInt(-8, 8);
             let rootB = nonZeroInt(-8, 8);
 
             while (rootB === rootA) {
@@ -488,7 +484,7 @@ export const sixthFormGenerators: Record<string, QuestionGeneratorWithLevels> = 
         }
 
         if (difficulty === 3) {
-            let rootA = nonZeroInt(-6, 6);
+            const rootA = nonZeroInt(-6, 6);
             let rootB = nonZeroInt(-6, 6);
 
             while (rootB === rootA || rootB === -rootA) {
@@ -639,7 +635,7 @@ export const sixthFormGenerators: Record<string, QuestionGeneratorWithLevels> = 
 
         if (difficulty === 7) {
             const power = choose([1, 3]);
-            let rootA = randInt(1, 4);
+            const rootA = randInt(1, 4);
             let rootB = randInt(1, 4);
 
             while (rootB === rootA) {
@@ -682,7 +678,6 @@ export const sixthFormGenerators: Record<string, QuestionGeneratorWithLevels> = 
                 const rightExponent = (leftPower * (solution + shift)) / rightPower;
 
                 if (!Number.isInteger(rightExponent)) {
-                    const adjustedRightPower = 1;
                     const adjustedRightExponent = leftPower * (solution + shift);
                     const answerValue = `${solution}`;
                     const displayAnswer = `x=${solution}`;
@@ -1007,6 +1002,7 @@ export const sixthFormGenerators: Record<string, QuestionGeneratorWithLevels> = 
             return {
                 latex: phrasing,
                 answer,
+                equalValue: true,
                 options: buildOptions(answer, [
                     Math.cbrt(k - a * (x0 + 1)).toFixed(3), // wrong x0
                     Math.cbrt(k - a * x0 + 1).toFixed(3),   // off-by-one inside
@@ -1042,6 +1038,7 @@ export const sixthFormGenerators: Record<string, QuestionGeneratorWithLevels> = 
             return {
                 latex: phrasing,
                 answer,
+                equalValue: true,
                 options: buildOptions(answer, [
                     x1.toFixed(3),   // stopped after 1 iteration
                     x2.toFixed(3),   // stopped after 2 iterations
@@ -1070,7 +1067,6 @@ export const sixthFormGenerators: Record<string, QuestionGeneratorWithLevels> = 
             } while ((Math.abs(3 * x0 ** 2 + a) < 1 || Math.abs(x1 - x0) < 0.05) && guard < 100);
 
             const fStr = formatCubic(0, a, b);
-            const dfStr = a === 0 ? '3x^2' : a > 0 ? `3x^2 + ${a}` : `3x^2 - ${Math.abs(a)}`;
             const answer = x1.toFixed(3);
 
             const fx0 = x0 ** 3 + a * x0 + b;
@@ -1089,6 +1085,7 @@ export const sixthFormGenerators: Record<string, QuestionGeneratorWithLevels> = 
             return {
                 latex: phrasing,
                 answer,
+                equalValue: true,
                 options: buildOptions(answer, [wrongDeriv1, wrongSign, wrongFx]),
                 forceOption: 0,
             };
@@ -1159,11 +1156,1049 @@ export const sixthFormGenerators: Record<string, QuestionGeneratorWithLevels> = 
             return {
                 latex: phrasing,
                 answer,
+                equalValue: true,
                 options: buildOptions(answer, [
                     x1FromX0.toFixed(3),
                     wrongRoot !== 0 ? wrongRoot.toFixed(3) : (root + 0.1).toFixed(3),
                     (root + 0.001).toFixed(3),
                 ], () => (root + (randInt(1, 9) * 0.01)).toFixed(3)),
+                forceOption: 0,
+            };
+        }
+
+        throw new Error(`Unhandled difficulty: ${difficulty}`);
+    }, [1, 2, 3, 4, 5]),
+    "binomial-expansion": createGenerator(async ({ difficulty }) => {
+        const termToLatex = (coefficient: number, power: number): string => {
+            return formatDifferentiationTerm({ coefficient: rational(coefficient), power: rational(power) });
+        };
+
+        const termsToLatex = (terms: Array<{ coefficient: number; power: number }>): string => {
+            const formatted = terms
+                .map(({ coefficient, power }) => termToLatex(coefficient, power))
+                .filter((part) => part !== '0');
+            return joinExpressionParts(formatted);
+        };
+
+        const expandLinearPower = (a: number, b: number, n: number): string => {
+            const terms: Array<{ coefficient: number; power: number }> = [];
+
+            for (let k = 0; k <= n; k += 1) {
+                const coefficient = nCr(n, k) * (a ** (n - k)) * (b ** k);
+                const power = n - k;
+                terms.push({ coefficient, power });
+            }
+
+            return termsToLatex(terms);
+        };
+
+        const generalisedCoefficient = (nValue: Rational, k: number): Rational => {
+            let coefficient = rational(1);
+
+            for (let i = 0; i < k; i += 1) {
+                const factor = rational(nValue.numerator - i * nValue.denominator, nValue.denominator);
+                coefficient = multiplyRational(coefficient, factor);
+                coefficient = multiplyRational(coefficient, rational(1, i + 1));
+            }
+
+            return coefficient;
+        };
+
+        const scaleRationalByIntPower = (value: Rational, base: number, power: number): Rational => {
+            return multiplyRational(value, rational(base ** power));
+        };
+
+        const rationalToNumber = (value: Rational): number => value.numerator / value.denominator;
+
+        const formatBinomialPower = (nValue: Rational): string => {
+            if (nValue.denominator === 1) return `${nValue.numerator}`;
+            return nValue.numerator < 0
+                ? `-\\frac{${Math.abs(nValue.numerator)}}{${nValue.denominator}}`
+                : `\\frac{${nValue.numerator}}{${nValue.denominator}}`;
+        };
+
+        const generalisedTermsToLatex = (nValue: Rational, m: number, upToPower: number): string => {
+            const terms: DifferentiationTerm[] = [];
+
+            for (let k = 0; k <= upToPower; k += 1) {
+                const coeff = scaleRationalByIntPower(generalisedCoefficient(nValue, k), m, k);
+                terms.push({
+                    coefficient: coeff,
+                    power: rational(k),
+                });
+            }
+
+            return formatDifferentiationExpression(sortTermsDescending(terms));
+        };
+
+        if (difficulty === 1) {
+            const a = choose([2, 3, 4, 5]);
+            const sign = Math.random() < 0.5 ? 1 : -1;
+            const constant = sign * a;
+            const n = choose([3, 4, 5]);
+
+            const answer = expandLinearPower(1, constant, n);
+            const wrongSign = expandLinearPower(1, -constant, n);
+            const wrongPower = expandLinearPower(1, constant, Math.max(2, n - 1));
+            const wrongMixed = expandLinearPower(1, choose([-5, -4, -3, 3, 4, 5]), n);
+
+            const phrasing = choose([
+                `\\text{Expand and simplify } (x ${formatSignedNumber(constant)})^{${n}}.`,
+                `\\text{Find the full expansion of } (x ${formatSignedNumber(constant)})^{${n}} \\text{ in descending powers of } x.`,
+                `\\text{Write } (x ${formatSignedNumber(constant)})^{${n}} \\text{ as a polynomial in } x.`,
+                `\\text{Expand } (x ${formatSignedNumber(constant)})^{${n}} \\text{ and collect like terms.}`,
+            ]);
+
+            return {
+                latex: phrasing,
+                answer,
+                checkWeakLatexEquivalent: true,
+                options: buildOptions(answer, [wrongSign, wrongPower, wrongMixed], () => {
+                    const c = choose([-6, -5, -4, -3, 3, 4, 5, 6]);
+                    const p = choose([3, 4, 5]);
+                    return expandLinearPower(1, c, p);
+                }),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 2) {
+            const a = choose([2, 3, 4]);
+            const b = choose([-5, -4, -3, 2, 3, 4, 5]);
+            const n = choose([3, 4, 5]);
+
+            const answer = expandLinearPower(a, b, n);
+            const wrongA = expandLinearPower(1, b, n);
+            const wrongB = expandLinearPower(a, -b, n);
+            const wrongN = expandLinearPower(a, b, Math.max(2, n - 1));
+
+            const phrasing = choose([
+                `\\text{Expand and simplify } (${a}x ${formatSignedNumber(b)})^{${n}}.`,
+                `\\text{Find the expansion of } (${a}x ${formatSignedNumber(b)})^{${n}} \\text{ in descending powers of } x.`,
+                `\\text{Write } (${a}x ${formatSignedNumber(b)})^{${n}} \\text{ as a polynomial in } x.`,
+                `\\text{Use the binomial theorem to expand } (${a}x ${formatSignedNumber(b)})^{${n}}.`,
+            ]);
+
+            return {
+                latex: phrasing,
+                answer,
+                checkWeakLatexEquivalent: true,
+                options: buildOptions(answer, [wrongA, wrongB, wrongN], () => {
+                    const aa = choose([2, 3, 4, 5]);
+                    const bb = choose([-6, -5, -4, -3, 3, 4, 5, 6]);
+                    const nn = choose([3, 4, 5]);
+                    return expandLinearPower(aa, bb, nn);
+                }),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 3) {
+            const n = choose([5, 6, 7, 8]);
+            const a = choose([2, 3, 4]);
+            const b = choose([-4, -3, -2, 2, 3, 4]);
+            const power = randInt(1, n - 1);
+            const k = n - power;
+            const coefficient = nCr(n, k) * (a ** power) * (b ** k);
+            const answer = `${coefficient}`;
+
+            const adjacentLow = nCr(n, Math.min(n, k + 1)) * (a ** Math.max(0, power - 1)) * (b ** Math.min(n, k + 1));
+            const adjacentHigh = nCr(n, Math.max(0, k - 1)) * (a ** Math.min(n, power + 1)) * (b ** Math.max(0, k - 1));
+            const signError = Math.abs(coefficient);
+
+            const phrasing = choose([
+                `\\text{Find the coefficient of } x^{${power}} \\text{ in the expansion of } (${a}x ${formatSignedNumber(b)})^{${n}}.`,
+                `\\text{In } (${a}x ${formatSignedNumber(b)})^{${n}}, \\text{ determine the coefficient of } x^{${power}}.`,
+                `\\text{Use the binomial theorem to find the coefficient of } x^{${power}} \\text{ in } (${a}x ${formatSignedNumber(b)})^{${n}}.`,
+                `\\text{What is the coefficient of } x^{${power}} \\text{ in } (${a}x ${formatSignedNumber(b)})^{${n}}?`,
+            ]);
+
+            return {
+                latex: phrasing,
+                answer,
+                options: buildOptions(answer, [
+                    `${adjacentLow}`,
+                    `${adjacentHigh}`,
+                    `${signError}`,
+                ], () => `${coefficient + randInt(-60, 60)}`),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 4) {
+            const nValue = choose([rational(-2), rational(-3), rational(-1, 2), rational(1, 2)]);
+            const m = choose([-3, -2, 2, 3]);
+            const answer = generalisedTermsToLatex(nValue, m, 3);
+
+            const wrongSign = generalisedTermsToLatex(nValue, -m, 3);
+            const wrongIndex = generalisedTermsToLatex(rational(nValue.numerator + nValue.denominator, nValue.denominator), m, 3);
+            const wrongNoScale = generalisedTermsToLatex(nValue, 1, 3);
+
+            const phrasing = choose([
+                `\\text{Find the first four terms in ascending powers of } x \\text{ for } (1 ${m >= 0 ? `+ ${m}x` : `- ${Math.abs(m)}x`})^{${formatBinomialPower(nValue)}}.`,
+                `\\text{Expand } (1 ${m >= 0 ? `+ ${m}x` : `- ${Math.abs(m)}x`})^{${formatBinomialPower(nValue)}} \\text{ up to and including the term in } x^3.`,
+                `\\text{Using the binomial expansion for fractional/negative powers, write } (1 ${m >= 0 ? `+ ${m}x` : `- ${Math.abs(m)}x`})^{${formatBinomialPower(nValue)}} \\text{ up to } x^3.`,
+                `\\text{Obtain the first four terms of } (1 ${m >= 0 ? `+ ${m}x` : `- ${Math.abs(m)}x`})^{${formatBinomialPower(nValue)}} \\text{ in ascending powers of } x.`,
+            ]);
+
+            return {
+                latex: `${phrasing} \\ \\text{(Assume } |${m}x| < 1 \\ \\text{ where needed.)}`,
+                answer,
+                checkWeakLatexEquivalent: true,
+                options: buildOptions(answer, [wrongSign, wrongIndex, wrongNoScale], () => {
+                    const nn = choose([rational(-2), rational(-1, 2), rational(1, 2)]);
+                    const mm = choose([-3, -2, 2, 3]);
+                    return generalisedTermsToLatex(nn, mm, 3);
+                }),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 5) {
+            const nValue = choose([rational(-2), rational(-1, 2), rational(1, 2), rational(3, 2)]);
+            const m = choose([-3, -2, 2, 3]);
+            const xValue = choose([0.05, -0.05, 0.1, -0.1]);
+            const mx = m * xValue;
+
+            const c1 = rationalToNumber(generalisedCoefficient(nValue, 1));
+            const c2 = rationalToNumber(generalisedCoefficient(nValue, 2));
+            const c3 = rationalToNumber(generalisedCoefficient(nValue, 3));
+
+            const approximation = 1 + c1 * mx + c2 * (mx ** 2) + c3 * (mx ** 3);
+            const answer = approximation.toFixed(4);
+
+            const twoTerm = (1 + c1 * mx + c2 * (mx ** 2)).toFixed(4);
+            const wrongSign = (1 - c1 * mx + c2 * (mx ** 2) - c3 * (mx ** 3)).toFixed(4);
+            const exact = ((1 + mx) ** (nValue.numerator / nValue.denominator)).toFixed(4);
+
+            const phrasing = choose([
+                `\\text{Use the first four terms of the binomial expansion to estimate } (1 ${m >= 0 ? `+ ${m}x` : `- ${Math.abs(m)}x`})^{${formatBinomialPower(nValue)}} \\ \\text{ when } x = ${xValue}.`,
+                `\\text{Given } f(x) = (1 ${m >= 0 ? `+ ${m}x` : `- ${Math.abs(m)}x`})^{${formatBinomialPower(nValue)}}, \\text{ use a binomial expansion up to } x^3 \\text{ to estimate } f(${xValue}).`,
+                `\\text{Apply a binomial approximation (up to the term in } x^3\\text{) to find an estimate for } (1 ${m >= 0 ? `+ ${m}x` : `- ${Math.abs(m)}x`})^{${formatBinomialPower(nValue)}} \\text{ at } x=${xValue}.`,
+                `\\text{Using binomial expansion terms up to } x^3, \\text{ estimate } (1 ${m >= 0 ? `+ ${m}x` : `- ${Math.abs(m)}x`})^{${formatBinomialPower(nValue)}} \\text{ for } x=${xValue}. \\`,
+            ]);
+
+            return {
+                latex: `${phrasing} \\text{ Give your answer to 4 d.p.}`,
+                answer,
+                equalValue: true,
+                options: buildOptions(answer, [twoTerm, wrongSign, exact], () => {
+                    return (approximation + randInt(-30, 30) / 1000).toFixed(4);
+                }),
+                forceOption: 0,
+            };
+        }
+
+        throw new Error(`Unhandled difficulty: ${difficulty}`);
+    }, [1, 2, 3, 4, 5]),
+    "sequences-and-series": createGenerator(async ({ difficulty }) => {
+        const formatLinearInN = (coefficient: number, constant: number): string => {
+            if (coefficient === 0) return `${constant}`;
+
+            let expression = coefficient === 1 ? 'n' : coefficient === -1 ? '-n' : `${coefficient}n`;
+            if (constant > 0) expression += ` + ${constant}`;
+            if (constant < 0) expression += ` - ${Math.abs(constant)}`;
+            return expression;
+        };
+
+        const formatArithmeticRule = (firstTerm: number, difference: number): string => {
+            return `u_n = ${formatLinearInN(difference, firstTerm - difference)}`;
+        };
+
+        const formatGeometricRule = (firstTerm: number, ratio: number, exponent = 'n-1'): string => {
+            return `u_n = ${firstTerm}(${ratio})^{${exponent}}`;
+        };
+
+        const formatRationalOption = (value: Rational): string => {
+            if (value.denominator === 1) return `${value.numerator}`;
+            return `\\frac{${value.numerator}}{${value.denominator}}`;
+        };
+
+        if (difficulty === 1) {
+            const mode = choose(['arithmetic', 'geometric'] as const);
+
+            if (mode === 'arithmetic') {
+                const firstTerm = choose([-9, -8, -7, -6, -5, -4, -3, 2, 3, 4, 5, 6, 7, 8, 9]);
+                const difference = choose([-6, -5, -4, -3, -2, 2, 3, 4, 5, 6]);
+                const terms = Array.from({ length: 4 }, (_, index) => firstTerm + index * difference);
+
+                const answer = formatArithmeticRule(firstTerm, difference);
+                const wrongShift = `u_n = ${formatLinearInN(difference, firstTerm + difference)}`;
+                const wrongSign = formatArithmeticRule(firstTerm, -difference);
+                const wrongSwap = `u_n = ${formatLinearInN(firstTerm, difference)}`;
+
+                return {
+                    latex: choose([
+                        `\\text{The first four terms of a sequence are } ${terms.join(', ')}. \\ \\text{Which equation correctly defines } u_n \\text{?}`,
+                        `\\text{A sequence begins } ${terms.join(', ')}. \\ \\text{Choose the correct formula for } u_n \\text{.}`,
+                        `\\text{An arithmetic sequence has first terms } ${terms.join(', ')}. \\ \\text{Which option gives the correct } n \\text{th term?}`,
+                        `\\text{An arithmetic sequence starts with } ${terms.join(', ')}. \\ \\text{Select the correct expression for } u_n \\text{.}`,
+                    ]),
+                    answer,
+                    options: buildOptions(answer, [wrongShift, wrongSign, wrongSwap], () => {
+                        const a = choose([-8, -6, -4, -3, 2, 3, 4, 5, 6, 8]);
+                        const d = choose([-5, -4, -3, -2, 2, 3, 4, 5]);
+                        return formatArithmeticRule(a, d);
+                    }),
+                    forceOption: 2,
+                };
+            }
+
+            const firstTerm = choose([-6, -5, -4, -3, 2, 3, 4, 5, 6]);
+            const ratio = choose([-3, -2, 2, 3]);
+            const terms = Array.from({ length: 4 }, (_, index) => firstTerm * (ratio ** index));
+
+            const answer = formatGeometricRule(firstTerm, ratio, 'n-1');
+            const wrongPower = formatGeometricRule(firstTerm, ratio, 'n');
+            const wrongFirst = formatGeometricRule(firstTerm * ratio, ratio, 'n-1');
+            const wrongRatio = formatGeometricRule(firstTerm, -ratio, 'n-1');
+
+            return {
+                latex: choose([
+                    `\\text{The first four terms of a sequence are } ${terms.join(', ')}. \\ \\ \\text{Which equation correctly defines } u_n \\text{?}`,
+                    `\\text{A sequence begins } ${terms.join(', ')}. \\ \\text{Choose the correct formula for } u_n \\text{.}`,
+                    `\\text{A geometric sequence has first terms } ${terms.join(', ')}. \\ \\text{Which option gives the correct } n \\text{th term?}`,
+                    `\\text{A geometric sequence starts with } ${terms.join(', ')}. \\ \\text{Select the correct expression for } u_n \\text{.}`,
+                ]),
+                answer,
+                options: buildOptions(answer, [wrongPower, wrongFirst, wrongRatio], () => {
+                    const a = choose([-5, -4, -3, 2, 3, 4, 5]);
+                    const r = choose([-3, -2, 2, 3]);
+                    return formatGeometricRule(a, r, 'n-1');
+                }),
+                forceOption: 2,
+            };
+        }
+
+        if (difficulty === 2) {
+            const firstTerm = choose([-12, -10, -8, -6, -4, 3, 4, 5, 6, 8, 10, 12]);
+            const difference = choose([-6, -5, -4, -3, -2, 2, 3, 4, 5, 6]);
+            const nValue = randInt(12, 28);
+            const answerValue = firstTerm + (nValue - 1) * difference;
+            const answer = `${answerValue}`;
+
+            const wrongN = `${firstTerm + nValue * difference}`;
+            const wrongSign = `${firstTerm - (nValue - 1) * difference}`;
+            const wrongBefore = `${firstTerm + (nValue - 2) * difference}`;
+
+            return {
+                latex: choose([
+                    `\\text{An arithmetic sequence has first term } ${firstTerm} \\text{ and common difference } ${difference}. \\ \\text{Find } u_{${nValue}}\\text{.}`,
+                    `\\text{Given } u_1=${firstTerm} \\text{ and } d=${difference} \\text{ for an arithmetic sequence, calculate } u_{${nValue}}\\text{.}`,
+                    `\\text{For an arithmetic progression with } a=${firstTerm} \\text{ and } d=${difference}, \\text{ work out the value of the } ${nValue}^{\\text{th}} \\text{ term.}`,
+                    `\\text{A sequence is arithmetic with } u_1=${firstTerm}, d=${difference}. \\ \\text{Find } u_{${nValue}}\\text{.}`,
+                ]),
+                answer,
+                options: buildOptions(answer, [wrongN, wrongSign, wrongBefore], () => `${answerValue + randInt(-40, 40)}`),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 3) {
+            const firstTerm = choose([-5, -4, -3, -2, 2, 3, 4, 5]);
+            const ratio = choose([-3, -2, 2, 3]);
+            const nValue = randInt(5, 8);
+            const answerValue = firstTerm * (ratio ** (nValue - 1));
+            const answer = `${answerValue}`;
+
+            const wrongN = `${firstTerm * (ratio ** nValue)}`;
+            const wrongPrev = `${firstTerm * (ratio ** (nValue - 2))}`;
+            const wrongAbs = `${firstTerm * ((Math.abs(ratio)) ** (nValue - 1))}`;
+
+            return {
+                latex: choose([
+                    `\\text{A geometric sequence has first term } ${firstTerm} \\text{ and common ratio } ${ratio}. \\ \\text{Find } u_{${nValue}}\\text{.}`,
+                    `\\text{Given } u_1=${firstTerm} \\text{ and } r=${ratio}, \\text{ calculate the } ${nValue}^{\\text{th}} \\text{ term of the geometric sequence.}`,
+                    `\\text{For a geometric progression with } a=${firstTerm} \\text{ and } r=${ratio}, \\text{ work out } u_{${nValue}}\\text{.}`,
+                    `\\text{A sequence is geometric with } u_1=${firstTerm}, r=${ratio}. \\ \\text{Find } u_{${nValue}}\\text{.}`,
+                ]),
+                answer,
+                options: buildOptions(answer, [wrongN, wrongPrev, wrongAbs], () => `${answerValue + randInt(-120, 120)}`),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 4) {
+            const firstTerm = choose([-10, -8, -6, -4, 3, 4, 5, 6, 8, 10]);
+            const difference = choose([-5, -4, -3, -2, 2, 3, 4, 5]);
+            const nValue = choose([10, 12, 14, 16, 18, 20]);
+
+            const sum = (nValue * (2 * firstTerm + (nValue - 1) * difference)) / 2;
+            const answer = `${sum}`;
+
+            const wrongNoHalf = `${nValue * (2 * firstTerm + (nValue - 1) * difference)}`;
+            const wrongNd = `${(nValue * (2 * firstTerm + nValue * difference)) / 2}`;
+            const lastTerm = firstTerm + (nValue - 1) * difference;
+            const wrongNoHalfAL = `${nValue * (firstTerm + lastTerm)}`;
+
+            return {
+                latex: choose([
+                    `\\text{An arithmetic series has first term } ${firstTerm} \\text{ and common difference } ${difference}. \\ \\text{Find } S_{${nValue}}\\text{.}`,
+                    `\\text{Given an arithmetic progression with } a=${firstTerm},\\ d=${difference}, \\text{ calculate the sum of the first } ${nValue} \\text{ terms.}`,
+                    `\\text{For an arithmetic series where } u_1=${firstTerm} \\text{ and } d=${difference}, \\text{ work out } S_{${nValue}}\\text{.}`,
+                    `\\text{Find the sum of the first } ${nValue} \\text{ terms of an arithmetic sequence with } a=${firstTerm} \\text{ and } d=${difference}.`,
+                ]),
+                answer,
+                options: buildOptions(answer, [wrongNoHalf, wrongNd, wrongNoHalfAL], () => `${sum + randInt(-200, 200)}`),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 5) {
+            const firstTerm = choose([2, 3, 4, 5, 6, 8, 9, 10, 12]);
+            const [ratioNumerator, ratioDenominator] = choose([
+                [1, 2],
+                [2, 3],
+                [3, 4],
+                [-1, 2],
+                [-2, 3],
+            ] as const);
+
+            const ratioDisplay = `\\frac{${ratioNumerator}}{${ratioDenominator}}`;
+
+            const answerRational = simplifyRational(
+                firstTerm * ratioDenominator,
+                ratioDenominator - ratioNumerator
+            );
+            const answerFraction = formatRationalOption(answerRational);
+            const answerDecimal = (answerRational.numerator / answerRational.denominator).toFixed(3);
+
+            const wrongPlusRational = simplifyRational(
+                firstTerm * ratioDenominator,
+                ratioDenominator + ratioNumerator
+            );
+            const wrongPartialRational = simplifyRational(
+                firstTerm * (ratioDenominator + ratioNumerator),
+                ratioDenominator
+            );
+            const wrongFraction = `${firstTerm}`;
+
+            return {
+                latex: choose([
+                    `\\text{A geometric series has first term } ${firstTerm} \\text{ and common ratio } ${ratioDisplay}. \\ \\text{Given } |r|<1, \\text{ find } S_{\\infty}.`,
+                    `\\text{For a geometric progression with } a=${firstTerm} \\text{ and } r=${ratioDisplay}, \\text{ calculate the sum to infinity.}`,
+                    `\\text{Given } u_1=${firstTerm} \\text{ and common ratio } r=${ratioDisplay} \\text{ with } |r|<1, \\text{ work out } S_{\\infty}.`,
+                    `\\text{Find the sum to infinity of a geometric series where } a=${firstTerm} \\text{ and } r=${ratioDisplay}.`,
+                ]),
+                answer: [answerFraction, answerDecimal],
+                equalValue: true,
+                options: buildOptions(answerFraction, [
+                    formatRationalOption(wrongPlusRational),
+                    formatRationalOption(wrongPartialRational),
+                    wrongFraction,
+                ], () => {
+                    const offset = randInt(-6, 6);
+                    const variant = simplifyRational(answerRational.numerator + offset, answerRational.denominator);
+                    return formatRationalOption(variant);
+                }),
+                forceOption: 0,
+            };
+        }
+
+        throw new Error(`Unhandled difficulty: ${difficulty}`);
+    }, [1, 2, 3, 4, 5]),
+    "integration": createGenerator(async ({ difficulty }) => {
+        const formatSignedLinearBracket = (coefficient: number, constant: number): string => {
+            let expression = coefficient === 1 ? 'x' : coefficient === -1 ? '-x' : `${coefficient}x`;
+
+            if (constant > 0) expression += ` + ${constant}`;
+            if (constant < 0) expression += ` - ${Math.abs(constant)}`;
+
+            return expression;
+        };
+
+        const simplifyNumber = (value: number): string => {
+            if (Math.abs(value - Math.round(value)) < 1e-9) {
+                return `${Math.round(value)}`;
+            }
+
+            return value.toFixed(3).replace(/\.0+$/, '').replace(/(\.\d*?)0+$/, '$1');
+        };
+
+        const formatTrigTerm = (coefficient: number, trig: 'sin' | 'cos'): string => {
+            if (coefficient === 0) return '';
+            const absCoefficient = Math.abs(coefficient);
+            const coeffPart = absCoefficient === 1 ? '' : `${absCoefficient}`;
+            const trigPart = trig === 'sin' ? '\\sin x' : '\\cos x';
+            return coefficient < 0 ? `-${coeffPart}${trigPart}` : `${coeffPart}${trigPart}`;
+        };
+
+        const joinTerms = (parts: string[]): string => {
+            return parts.reduce((expression, part, index) => {
+                if (index === 0) return part;
+                if (part.startsWith('-')) {
+                    return `${expression} - ${part.slice(1)}`;
+                }
+                return `${expression} + ${part}`;
+            }, '');
+        };
+
+        const buildLogIntegralAnswer = (numerator: number, denominatorCoeff: number, denominatorConst: number): string => {
+            const scalar = numerator / denominatorCoeff;
+            const scalarPart = Math.abs(scalar) === 1
+                ? (scalar < 0 ? '-' : '')
+                : simplifyNumber(scalar);
+            return `${scalarPart}\\ln|${formatSignedLinearBracket(denominatorCoeff, denominatorConst)}| + C`;
+        };
+
+        const buildLogTerm = (numerator: number, denominatorCoeff: number, denominatorConst: number): string => {
+            return buildLogIntegralAnswer(numerator, denominatorCoeff, denominatorConst).replace(' + C', '');
+        };
+
+        const buildLogTermWithoutAbs = (numerator: number, denominatorCoeff: number, denominatorConst: number): string => {
+            const scalar = numerator / denominatorCoeff;
+            const scalarPart = Math.abs(scalar) === 1
+                ? (scalar < 0 ? '-' : '')
+                : simplifyNumber(scalar);
+            return `${scalarPart}\\ln(${formatSignedLinearBracket(denominatorCoeff, denominatorConst)})`;
+        };
+
+        const integrateTerms = (terms: DifferentiationTerm[]): DifferentiationTerm[] => {
+            return terms.map((term) => {
+                const newPower = rational(term.power.numerator + term.power.denominator, term.power.denominator);
+                return {
+                    coefficient: multiplyRational(term.coefficient, rational(newPower.denominator, newPower.numerator)),
+                    power: newPower,
+                };
+            });
+        };
+
+        const formatIntegralExpression = (terms: DifferentiationTerm[], constantLabel = 'C'): string => {
+            const expression = formatDifferentiationExpression(sortTermsDescending(terms));
+            return expression === '0' ? constantLabel : `${expression} + ${constantLabel}`;
+        };
+
+        const buildIntegralDistractor = (
+            terms: DifferentiationTerm[],
+            mode: 'noDivide' | 'keepPower' | 'signError'
+        ): string => {
+            const transformed = sortTermsDescending(terms.map((term) => {
+                const newPower = rational(term.power.numerator + term.power.denominator, term.power.denominator);
+
+                if (mode === 'noDivide') {
+                    return {
+                        coefficient: term.coefficient,
+                        power: newPower,
+                    };
+                }
+
+                if (mode === 'keepPower') {
+                    return {
+                        coefficient: multiplyRational(term.coefficient, rational(newPower.denominator, newPower.numerator)),
+                        power: term.power,
+                    };
+                }
+
+                return {
+                    coefficient: multiplyRational(term.coefficient, rational(-newPower.denominator, newPower.numerator)),
+                    power: newPower,
+                };
+            }));
+
+            return formatIntegralExpression(transformed);
+        };
+
+        const formatNumericAnswer = (value: number): string => {
+            if (Math.abs(value - Math.round(value)) < 1e-9) {
+                return `${Math.round(value)}`;
+            }
+
+            return value.toFixed(3).replace(/\.0+$/, '').replace(/(\.\d*?)0+$/, '$1');
+        };
+
+        const evaluateTerms = (terms: DifferentiationTerm[], xValue: number): number => {
+            return terms.reduce((total, term) => total + evaluateTermAt(term, xValue), 0);
+        };
+
+        if (difficulty === 1) {
+            const termCount = randInt(2, 4);
+            const powers = randomDistinctPowers([1, 2, 3, 4, 5].map((power) => rational(power)), termCount);
+            const terms = sortTermsDescending(powers.map((power) => ({
+                coefficient: rational(nonZeroInt(-8, 8)),
+                power,
+            })));
+
+            if (Math.random() < 0.5) {
+                terms.push({ coefficient: rational(nonZeroInt(-6, 6)), power: rational(0) });
+            }
+
+            const answerTerms = integrateTerms(terms);
+            const answer = formatIntegralExpression(answerTerms);
+
+            return {
+                latex: choose([
+                    `\\text{Find } \\int (${formatDifferentiationExpression(terms)}) \\, dx.`,
+                    `\\text{Integrate with respect to } x:\\ ${formatDifferentiationExpression(terms)}`,
+                    `\\text{Find an antiderivative of } ${formatDifferentiationExpression(terms)} \\text{ with respect to } x.`,
+                    `\\text{Given } \\frac{dy}{dx} = ${formatDifferentiationExpression(terms)}, \\text{ find } y.`,
+                ]),
+                answer,
+                checkWeakLatexEquivalent: true,
+                lowercaseCheck: true,
+                options: buildOptions(answer, [
+                    buildIntegralDistractor(terms, 'noDivide'),
+                    buildIntegralDistractor(terms, 'keepPower'),
+                    buildIntegralDistractor(terms, 'signError'),
+                ], () => formatIntegralExpression(integrateTerms(sortTermsDescending(
+                    randomDistinctPowers(
+                        [1, 2, 3, 4].map((power) => rational(power)),
+                        randInt(2, 3)
+                    ).map((power) => ({
+                        coefficient: rational(nonZeroInt(-6, 6)),
+                        power,
+                    }))
+                )))),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 2) {
+            const powerPool = [
+                rational(-3),
+                rational(-2),
+                rational(-1, 2),
+                rational(1, 2),
+                rational(1),
+                rational(3, 2),
+                rational(2),
+                rational(5, 2),
+                rational(3),
+            ];
+            const termCount = randInt(2, 4);
+            const powers = randomDistinctPowers(powerPool, termCount);
+            const terms = sortTermsDescending(powers.map((power) => ({
+                coefficient: rational(nonZeroInt(-8, 8)),
+                power,
+            })));
+
+            const answerTerms = integrateTerms(terms);
+            const answer = formatIntegralExpression(answerTerms);
+
+            return {
+                latex: choose([
+                    `\\text{Integrate with respect to } x:\\ ${formatDifferentiationExpression(terms)}`,
+                    `\\text{Find } \\int (${formatDifferentiationExpression(terms)}) \\, dx.`,
+                    `\\text{Find an antiderivative of } ${formatDifferentiationExpression(terms)} \\text{ with respect to } x.`,
+                    `\\text{Given } \\frac{dy}{dx} = ${formatDifferentiationExpression(terms)}, \\text{ find } y.`,
+                ]),
+                answer,
+                checkWeakLatexEquivalent: true,
+                lowercaseCheck: true,
+                options: buildOptions(answer, [
+                    buildIntegralDistractor(terms, 'noDivide'),
+                    buildIntegralDistractor(terms, 'keepPower'),
+                    buildIntegralDistractor(terms, 'signError'),
+                ], () => formatIntegralExpression(integrateTerms(sortTermsDescending(
+                    randomDistinctPowers(
+                        powerPool,
+                        randInt(2, 3)
+                    ).map((power) => ({
+                        coefficient: rational(nonZeroInt(-6, 6)),
+                        power,
+                    }))
+                )))),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 3) {
+            const termCount = randInt(2, 4);
+            const powers = randomDistinctPowers([0, 1, 2, 3, 4].map((power) => rational(power)), termCount);
+            const terms = sortTermsDescending(powers.map((power) => ({
+                coefficient: rational(nonZeroInt(-7, 7)),
+                power,
+            })));
+            const lowerBound = choose([0, 1]);
+            const upperBound = choose([2, 3]);
+            const antiderivativeTerms = integrateTerms(terms);
+            const answerValue = evaluateTerms(antiderivativeTerms, upperBound) - evaluateTerms(antiderivativeTerms, lowerBound);
+            const answer = formatNumericAnswer(answerValue);
+
+            return {
+                latex: choose([
+                    `\\text{Evaluate } \\int_{${lowerBound}}^{${upperBound}} (${formatDifferentiationExpression(terms)}) \\, dx.`,
+                    `\\text{Find the exact value of } \\int_{${lowerBound}}^{${upperBound}} ${formatDifferentiationExpression(terms)} \\, dx.`,
+                    `\\text{Calculate } \\int_{${lowerBound}}^{${upperBound}} (${formatDifferentiationExpression(terms)}) \\, dx.`,
+                    `\\text{Work out the definite integral } \\int_{${lowerBound}}^{${upperBound}} (${formatDifferentiationExpression(terms)}) \\, dx.`,
+                ]),
+                answer,
+                equalValue: true,
+                options: buildOptions(answer, [
+                    formatNumericAnswer(evaluateTerms(antiderivativeTerms, upperBound)),
+                    formatNumericAnswer(evaluateTerms(antiderivativeTerms, lowerBound) - evaluateTerms(antiderivativeTerms, upperBound)),
+                    formatNumericAnswer(answerValue + randInt(-6, 6)),
+                ], () => formatNumericAnswer(answerValue + randInt(-12, 12))),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 4) {
+            const rootA = randInt(1, 3);
+            const rootB = rootA + randInt(1, 3);
+            const scale = choose([1, 2, 3]);
+            const quadraticTerms: DifferentiationTerm[] = [
+                { coefficient: rational(scale), power: rational(2) },
+                { coefficient: rational(-scale * (rootA + rootB)), power: rational(1) },
+                { coefficient: rational(scale * rootA * rootB), power: rational(0) },
+            ];
+            const integrand = formatDifferentiationExpression(quadraticTerms);
+            const antiderivativeTerms = integrateTerms(quadraticTerms);
+            const answerValue = evaluateTerms(antiderivativeTerms, rootB) - evaluateTerms(antiderivativeTerms, rootA);
+            const answer = formatNumericAnswer(answerValue);
+
+            return {
+                latex: choose([
+                    `\\text{The curve } y=${integrand} \\text{ crosses the } x\\text{-axis at } x=${rootA} \\text{ and } x=${rootB}. \\ \\text{Find the area enclosed between the curve and the } x\\text{-axis.}`,
+                    `\\text{Find the area between } y=${integrand} \\text{ and the } x\\text{-axis from } x=${rootA} \\text{ to } x=${rootB}.`,
+                    `\\text{Calculate the exact area bounded by } y=${integrand}, \\ x=${rootA}, \\ x=${rootB} \\text{ and the } x\\text{-axis.}`,
+                    `\\text{Find the area of the finite region enclosed by } y=${integrand} \\text{ and the } x\\text{-axis between } x=${rootA} \\text{ and } x=${rootB}.`,
+                ]),
+                answer,
+                equalValue: true,
+                options: buildOptions(answer, [
+                    formatNumericAnswer(answerValue / 2),
+                    formatNumericAnswer(-answerValue),
+                    formatNumericAnswer(answerValue + randInt(1, 8)),
+                ], () => formatNumericAnswer(answerValue + randInt(-10, 10))),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 5) {
+            const xPoint = choose([-2, -1, 1, 2]);
+            const constantOfIntegration = nonZeroInt(-8, 8);
+            const termCount = randInt(2, 3);
+            const powers = randomDistinctPowers([1, 2, 3, 4].map((power) => rational(power)), termCount);
+            const derivativeTerms = sortTermsDescending(powers.map((power) => ({
+                coefficient: rational(nonZeroInt(-6, 6)),
+                power,
+            })));
+            const antiderivativeTerms = integrateTerms(derivativeTerms);
+            const yPoint = evaluateTerms(antiderivativeTerms, xPoint) + constantOfIntegration;
+            const answer = formatIntegralExpression([
+                ...antiderivativeTerms,
+                { coefficient: rational(constantOfIntegration), power: rational(0) },
+            ], '');
+
+            const answerWithoutTrailing = answer.replace(/ \+ $/, '').replace(/ \+\s*$/, '');
+            const wrongConstant = formatIntegralExpression([
+                ...antiderivativeTerms,
+                { coefficient: rational(-constantOfIntegration), power: rational(0) },
+            ], '').replace(/ \+ $/, '').replace(/ \+\s*$/, '');
+            const wrongNoConstant = formatDifferentiationExpression(sortTermsDescending(antiderivativeTerms));
+            const wrongNoDivide = formatDifferentiationExpression(sortTermsDescending(derivativeTerms.map((term) => ({
+                coefficient: term.coefficient,
+                power: rational(term.power.numerator + term.power.denominator, term.power.denominator),
+            }))));
+
+            return {
+                latex: choose([
+                    `\\text{Given } \\frac{dy}{dx} = ${formatDifferentiationExpression(derivativeTerms)} \\text{ and the curve passes through } (${xPoint}, ${formatNumericAnswer(yPoint)}), \\text{ find } y.`,
+                    `\\text{A curve satisfies } \\frac{dy}{dx} = ${formatDifferentiationExpression(derivativeTerms)} \\text{ and passes through } (${xPoint}, ${formatNumericAnswer(yPoint)}). \\ \\text{Find the equation of the curve.}`,
+                    `\\text{Find the function } y \\text{ if } \\frac{dy}{dx} = ${formatDifferentiationExpression(derivativeTerms)} \\text{ and } y=${formatNumericAnswer(yPoint)} \\text{ when } x=${xPoint}.`,
+                    `\\text{The derivative of a curve is } ${formatDifferentiationExpression(derivativeTerms)}. \\text{Given that the curve goes through } (${xPoint}, ${formatNumericAnswer(yPoint)}), \\text{ determine } y.`,
+                ]),
+                answer: [answerWithoutTrailing, answerWithoutTrailing.replace(/\+\s/g, '+').replace(/-\s/g, '-')],
+                checkWeakLatexEquivalent: true,
+                options: buildOptions(answerWithoutTrailing, [
+                    wrongConstant,
+                    wrongNoConstant,
+                    wrongNoDivide,
+                ], () => wrongNoConstant),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 6) {
+            const denominatorCoeff = choose([1, 2, 3, 4]);
+            const denominatorConst = choose([-7, -5, -3, -2, 2, 3, 5, 7]);
+            const scalar = choose([-4, -3, -2, -1, 1, 2, 3, 4]);
+            const numerator = scalar * denominatorCoeff;
+            const answer = buildLogIntegralAnswer(numerator, denominatorCoeff, denominatorConst);
+            const wrongNoDivide = `${buildLogTerm(numerator * denominatorCoeff, denominatorCoeff, denominatorConst)} + C`;
+            const wrongNoAbs = `${buildLogTermWithoutAbs(numerator, denominatorCoeff, denominatorConst)} + C`;
+            const wrongSign = buildLogIntegralAnswer(-numerator, denominatorCoeff, denominatorConst);
+
+            return {
+                latex: choose([
+                    `\\text{Find } \\int \\frac{${numerator}}{${formatSignedLinearBracket(denominatorCoeff, denominatorConst)}} \\, dx.`,
+                    `\\text{Integrate with respect to } x:\\ \\frac{${numerator}}{${formatSignedLinearBracket(denominatorCoeff, denominatorConst)}}`,
+                    `\\text{Given } \\frac{dy}{dx} = \\frac{${numerator}}{${formatSignedLinearBracket(denominatorCoeff, denominatorConst)}}, \\text{ find } y.`,
+                    `\\text{Find an antiderivative of } \\frac{${numerator}}{${formatSignedLinearBracket(denominatorCoeff, denominatorConst)}} \\text{ with respect to } x.`,
+                ]),
+                answer,
+                checkWeakLatexEquivalent: true,
+                lowercaseCheck: true,
+                options: buildOptions(answer, [wrongNoDivide, wrongNoAbs, wrongSign], () => {
+                    const a = choose([1, 2, 3, 4]);
+                    const b = choose([-6, -4, -2, 2, 4, 6]);
+                    const k = choose([-3, -2, -1, 1, 2, 3]);
+                    return buildLogIntegralAnswer(k * a, a, b);
+                }),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 7) {
+            const denominatorCoeff = choose([1, 2, 3]);
+            const denominatorConst = choose([-6, -4, -2, 2, 4, 6]);
+            const logScalar = choose([-3, -2, -1, 1, 2, 3]);
+            const numerator = logScalar * denominatorCoeff;
+            const sinCoeff = nonZeroInt(-4, 4);
+            const cosCoeff = nonZeroInt(-4, 4);
+
+            const logPart = buildLogTerm(numerator, denominatorCoeff, denominatorConst);
+            const trigAnswerParts = [
+                logPart,
+                formatTrigTerm(-cosCoeff, 'cos'),
+                formatTrigTerm(sinCoeff, 'sin'),
+            ].filter((part) => part !== '');
+            const answer = `${joinTerms(trigAnswerParts)} + C`;
+
+            const wrongLogSign = `${joinTerms([
+                buildLogIntegralAnswer(-numerator, denominatorCoeff, denominatorConst).replace(' + C', ''),
+                formatTrigTerm(-cosCoeff, 'cos'),
+                formatTrigTerm(sinCoeff, 'sin'),
+            ].filter((part) => part !== ''))} + C`;
+            const wrongTrigSigns = `${joinTerms([
+                logPart,
+                formatTrigTerm(cosCoeff, 'cos'),
+                formatTrigTerm(-sinCoeff, 'sin'),
+            ].filter((part) => part !== ''))} + C`;
+            const wrongNoDivide = `${joinTerms([
+                buildLogTerm(numerator * denominatorCoeff, denominatorCoeff, denominatorConst),
+                formatTrigTerm(-cosCoeff, 'cos'),
+                formatTrigTerm(sinCoeff, 'sin'),
+            ].filter((part) => part !== ''))} + C`;
+            const integrand = joinTerms([
+                `\\frac{${numerator}}{${formatSignedLinearBracket(denominatorCoeff, denominatorConst)}}`,
+                formatTrigTerm(sinCoeff, 'cos'),
+                formatTrigTerm(cosCoeff, 'sin'),
+            ].filter((part) => part !== ''));
+
+            return {
+                latex: choose([
+                    `\\text{Find } \\int \\left(${integrand}\\right) \\, dx.`,
+                    `\\text{Integrate with respect to } x:\\ ${integrand}`,
+                    `\\text{Given } \\frac{dy}{dx} = ${integrand}, \\text{ find } y.`,
+                    `\\text{Find an antiderivative of } ${integrand} \\text{ with respect to } x.`,
+                ]),
+                answer,
+                checkWeakLatexEquivalent: true,
+                lowercaseCheck: true,
+                options: buildOptions(answer, [wrongLogSign, wrongTrigSigns, wrongNoDivide], () => answer),
+                forceOption: 2,
+            };
+        }
+
+        throw new Error(`Unhandled difficulty: ${difficulty}`);
+    }, [1, 2, 3, 4, 5, 6, 7]),
+    "parametric-equations": createGenerator(async ({ difficulty }) => {
+        const rationalToDisplay = (value: Rational): string => {
+            if (value.denominator === 1) {
+                return `${value.numerator}`;
+            }
+
+            return `\\frac{${value.numerator}}{${value.denominator}}`;
+        };
+
+        const formatLinearInXFromRational = (slope: Rational, intercept: Rational): string => {
+            const slopeIsZero = slope.numerator === 0;
+            const interceptIsZero = intercept.numerator === 0;
+
+            if (slopeIsZero) {
+                return rationalToDisplay(intercept);
+            }
+
+            let expression = '';
+            if (slope.numerator === slope.denominator) {
+                expression = 'x';
+            } else if (slope.numerator === -slope.denominator) {
+                expression = '-x';
+            } else {
+                expression = `${rationalToDisplay(slope)}x`;
+            }
+
+            if (interceptIsZero) {
+                return expression;
+            }
+
+            if (intercept.numerator > 0) {
+                return `${expression} + ${rationalToDisplay(intercept)}`;
+            }
+
+            return `${expression} - ${rationalToDisplay(rational(Math.abs(intercept.numerator), intercept.denominator))}`;
+        };
+
+        const formatSignedLinearInT = (coefficient: number, constant: number): string => {
+            const variablePart = coefficient === 1 ? 't' : coefficient === -1 ? '-t' : `${coefficient}t`;
+            if (constant === 0) return variablePart;
+            if (constant > 0) return `${variablePart} + ${constant}`;
+            return `${variablePart} - ${Math.abs(constant)}`;
+        };
+
+        const formatPoint = (x: number, y: number): string => `(${x}, ${y})`;
+
+        if (difficulty === 1) {
+            const a = nonZeroInt(-5, 5);
+            const c = nonZeroInt(-5, 5);
+            const b = randInt(-8, 8);
+            const d = randInt(-8, 8);
+
+            const slope = simplifyRational(c, a);
+            const intercept = simplifyRational(d * a - c * b, a);
+            const answer = `y = ${formatLinearInXFromRational(slope, intercept)}`;
+
+            const wrongSlope = simplifyRational(a, c);
+            const wrongInterceptSign = simplifyRational(d * a + c * b, a);
+            const wrongNoScale = rational(c * b + d, 1);
+
+            return {
+                latex: choose([
+                    `\\text{Given } x = ${formatSignedLinearInT(a, b)} \\text{ and } y = ${formatSignedLinearInT(c, d)}, \\text{ eliminate } t \\text{ and write } y \\text{ in terms of } x.`,
+                    `\\text{A curve is defined by } x = ${formatSignedLinearInT(a, b)}, \\ y = ${formatSignedLinearInT(c, d)}. \\ \\text{Find the Cartesian equation.}`,
+                    `\\text{For } x = ${formatSignedLinearInT(a, b)} \\text{ and } y = ${formatSignedLinearInT(c, d)}, \\text{express } y \\text{ as a function of } x.`,
+                    `\\text{The parametric equations } x = ${formatSignedLinearInT(a, b)}, \\ y = ${formatSignedLinearInT(c, d)} \\text{ represent a straight line.} \\ \\text{Find its equation in the form } y=mx+c.`,
+                ]),
+                answer,
+                checkWeakLatexEquivalent: true,
+                options: buildOptions(answer, [
+                    `y = ${formatLinearInXFromRational(wrongSlope, intercept)}`,
+                    `y = ${formatLinearInXFromRational(slope, wrongInterceptSign)}`,
+                    `y = ${formatLinearInXFromRational(rational(c, 1), wrongNoScale)}`,
+                ]),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 2) {
+            const p = randInt(-6, 6);
+            const q = randInt(-8, 8);
+            const tValue = choose([-4, -3, -2, 2, 3, 4]);
+
+            const dxdt = 2 * tValue + p;
+            const dydt = 3 * tValue * tValue + q;
+
+            if (dxdt === 0) {
+                const fallback = `${dydt}`;
+                return {
+                    latex: `\\text{Given } x=t^2 ${p >= 0 ? `+ ${p}t` : `- ${Math.abs(p)}t`} \\text{ and } y=t^3 ${q >= 0 ? `+ ${q}t` : `- ${Math.abs(q)}t`}, \\text{ find } \\frac{dy}{dx} \\text{ when } t=${tValue}.`,
+                    answer: fallback,
+                    options: buildOptions(fallback, [`${dydt + 2}`, `${dydt - 2}`, `${-dydt}`]),
+                    forceOption: 0,
+                };
+            }
+
+            const gradient = simplifyRational(dydt, dxdt);
+            const answer = rationalToDisplay(gradient);
+
+            return {
+                latex: choose([
+                    `\\text{Given } x=t^2 ${p >= 0 ? `+ ${p}t` : `- ${Math.abs(p)}t`} \\text{ and } y=t^3 ${q >= 0 ? `+ ${q}t` : `- ${Math.abs(q)}t`}, \\text{ find } \\frac{dy}{dx} \\text{ when } t=${tValue}.`,
+                    `\\text{A curve is defined parametrically by } x=t^2 ${p >= 0 ? `+ ${p}t` : `- ${Math.abs(p)}t`}, \\ y=t^3 ${q >= 0 ? `+ ${q}t` : `- ${Math.abs(q)}t`}. \\ \\text{Calculate the gradient at } t=${tValue}.`,
+                    `\\text{For } x=t^2 ${p >= 0 ? `+ ${p}t` : `- ${Math.abs(p)}t`} \\text{ and } y=t^3 ${q >= 0 ? `+ ${q}t` : `- ${Math.abs(q)}t`}, \\text{evaluate } \\frac{dy}{dx} \\text{ at } t=${tValue}.`,
+                    `\\text{The parametric curve } x=t^2 ${p >= 0 ? `+ ${p}t` : `- ${Math.abs(p)}t`}, \\ y=t^3 ${q >= 0 ? `+ ${q}t` : `- ${Math.abs(q)}t`} \\text{ has parameter } t. \\ \\text{Find } \\frac{dy}{dx} \\text{ at } t=${tValue}.`,
+                ]),
+                answer,
+                checkWeakLatexEquivalent: true,
+                options: buildOptions(answer, [
+                    rationalToDisplay(simplifyRational(dxdt, dydt)),
+                    `${dydt}`,
+                    rationalToDisplay(simplifyRational(3 * tValue + q, dxdt)),
+                ]),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 3) {
+            const m = randInt(1, 4);
+            const p = randInt(-6, 6);
+
+            const xValue = m * m + p;
+            const yTop = 2 * m * m * m;
+            const yBottom = -2 * m * m * m;
+
+            const answerPrimary = `${formatPoint(xValue, yTop)} \\text{ and } ${formatPoint(xValue, yBottom)}`;
+            const answerSecondary = `${formatPoint(xValue, yBottom)} \\text{ and } ${formatPoint(xValue, yTop)}`;
+
+            return {
+                latex: choose([
+                    `\\text{The curve } C \\text{ is defined by } x=t^2 ${p >= 0 ? `+ ${p}` : `- ${Math.abs(p)}`}, \\ y=t^3 - ${3 * m * m}t. \\ \\text{Find the coordinates of the stationary points of } C.`,
+                    `\\text{Given } x=t^2 ${p >= 0 ? `+ ${p}` : `- ${Math.abs(p)}`} \\text{ and } y=t^3 - ${3 * m * m}t, \\text{determine the stationary points on the curve.}`,
+                    `\\text{A parametric curve is given by } x=t^2 ${p >= 0 ? `+ ${p}` : `- ${Math.abs(p)}`}, \\ y=t^3 - ${3 * m * m}t. \\ \\text{Find all points where the tangent is horizontal.}`,
+                    `\\text{For } x=t^2 ${p >= 0 ? `+ ${p}` : `- ${Math.abs(p)}`} \\text{ and } y=t^3 - ${3 * m * m}t, \\text{find the stationary points.}`,
+                ]),
+                answer: [answerPrimary, answerSecondary],
+                checkWeakLatexEquivalent: true,
+                options: buildOptions(answerPrimary, [
+                    `${formatPoint(xValue + m, yTop)} \\text{ and } ${formatPoint(xValue - m, yBottom)}`,
+                    `${formatPoint(xValue, m * m * m)} \\text{ and } ${formatPoint(xValue, -m * m * m)}`,
+                    `${formatPoint(xValue + p, yTop)} \\text{ and } ${formatPoint(xValue + p, yBottom)}`,
+                ]),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 4) {
+            const a = randInt(-5, 5);
+            const b = randInt(-5, 5);
+            const t0 = choose([-3, -2, -1, 1, 2, 3]);
+
+            const x0 = t0 * t0 + a;
+            const y0 = t0 * t0 * t0 + b * t0;
+            const gradient = simplifyRational(3 * t0 * t0 + b, 2 * t0);
+            const intercept = subtractRational(rational(y0), multiplyRational(gradient, rational(x0)));
+            const answer = `y = ${formatLinearInXFromRational(gradient, intercept)}`;
+
+            const reciprocal = simplifyRational(gradient.denominator, gradient.numerator);
+            const wrongIntercept = subtractRational(rational(y0), multiplyRational(reciprocal, rational(x0)));
+            const wrongSignIntercept = subtractRational(rational(y0), multiplyRational(rational(-gradient.numerator, gradient.denominator), rational(x0)));
+
+            return {
+                latex: choose([
+                    `\\text{The curve } C \\text{ is defined by } x=t^2 ${a >= 0 ? `+ ${a}` : `- ${Math.abs(a)}`}, \\ y=t^3 ${b >= 0 ? `+ ${b}t` : `- ${Math.abs(b)}t`}. \\ \\text{Find the equation of the tangent to } C \\text{ at } t=${t0}.`,
+                    `\\text{Given } x=t^2 ${a >= 0 ? `+ ${a}` : `- ${Math.abs(a)}`} \\text{ and } y=t^3 ${b >= 0 ? `+ ${b}t` : `- ${Math.abs(b)}t`}, \\text{find the tangent at parameter value } t=${t0}.`,
+                    `\\text{A parametric curve has equations } x=t^2 ${a >= 0 ? `+ ${a}` : `- ${Math.abs(a)}`}, \\ y=t^3 ${b >= 0 ? `+ ${b}t` : `- ${Math.abs(b)}t`}. \\ \\text{Determine the equation of the tangent line when } t=${t0}.`,
+                    `\\text{For } x=t^2 ${a >= 0 ? `+ ${a}` : `- ${Math.abs(a)}`} \\text{ and } y=t^3 ${b >= 0 ? `+ ${b}t` : `- ${Math.abs(b)}t`}, \\text{write down the tangent equation at } t=${t0}.`,
+                ]),
+                answer,
+                checkWeakLatexEquivalent: true,
+                options: buildOptions(answer, [
+                    `y = ${formatLinearInXFromRational(reciprocal, wrongIntercept)}`,
+                    `y = ${formatLinearInXFromRational(gradient, wrongSignIntercept)}`,
+                    `y = ${formatLinearInXFromRational(gradient, rational(y0))}`,
+                ]),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 5) {
+            const p = randInt(1, 5);
+            const q = randInt(1, 6);
+            const tUpper = choose([2, 3, 4]);
+
+            const areaNumerator = 2 * tUpper * tUpper * tUpper + 3 * q * tUpper * tUpper;
+            const area = simplifyRational(areaNumerator, 3);
+            const answer = rationalToDisplay(area);
+
+            const wrongNoDxdt = simplifyRational(tUpper * tUpper + 2 * q * tUpper, 2);
+            const wrongNegative = rational(-area.numerator, area.denominator);
+            const wrongBoundary = simplifyRational(2 * (tUpper - 1) ** 3 + 3 * q * (tUpper - 1) ** 2, 3);
+
+            return {
+                latex: choose([
+                    `\\text{The curve } C \\text{ is defined by } x=t^2 ${p >= 0 ? `+ ${p}` : `- ${Math.abs(p)}`}, \\ y=t+${q}, \ 0 \\leq t \\leq ${tUpper}. \\ \\text{Find the exact area enclosed by } C, \\text{the } x\\text{-axis and the lines } t=0, t=${tUpper}.`,
+                    `\\text{Given } x=t^2 ${p >= 0 ? `+ ${p}` : `- ${Math.abs(p)}`} \\text{ and } y=t+${q} \\text{ for } 0 \\leq t \\leq ${tUpper}, \\text{find } \\int y \\, dx \\ \\text{ exactly over this interval.}`,
+                    `\\text{A parametric curve has equations } x=t^2 ${p >= 0 ? `+ ${p}` : `- ${Math.abs(p)}`}, \\ y=t+${q}, \ 0 \\leq t \\leq ${tUpper}. \\ \\text{Find the exact area under the curve.}`,
+                    `\\text{For } x=t^2 ${p >= 0 ? `+ ${p}` : `- ${Math.abs(p)}`} \\text{ and } y=t+${q}, \ 0 \\leq t \\leq ${tUpper}, \\text{calculate the exact area under } C \\ \\text{ with respect to the } x\\text{-axis.}`,
+                ]),
+                answer,
+                checkWeakLatexEquivalent: true,
+                options: buildOptions(answer, [
+                    rationalToDisplay(wrongNoDxdt),
+                    rationalToDisplay(wrongNegative),
+                    rationalToDisplay(wrongBoundary),
+                ]),
                 forceOption: 0,
             };
         }
@@ -1558,5 +2593,230 @@ export const sixthFormGenerators: Record<string, QuestionGeneratorWithLevels> = 
 
         throw new Error(`Unhandled difficulty: ${difficulty}`);
     }, [1, 2, 3, 4, 5]),
+    "normal-distribution": createGenerator(async ({ difficulty }) => {
+        const erf = (value: number): number => {
+            const sign = value < 0 ? -1 : 1;
+            const x = Math.abs(value);
+            const a1 = 0.254829592;
+            const a2 = -0.284496736;
+            const a3 = 1.421413741;
+            const a4 = -1.453152027;
+            const a5 = 1.061405429;
+            const p = 0.3275911;
+
+            const t = 1 / (1 + p * x);
+            const y = 1 - (((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t * Math.exp(-x * x));
+            return sign * y;
+        };
+
+        const normalCdf = (z: number): number => 0.5 * (1 + erf(z / Math.sqrt(2)));
+
+        const formatNormal = (mean: number, sigma: number): string => `N(${mean}, ${sigma ** 2})`;
+
+        const formatNumber = (value: number): string => {
+            if (Math.abs(value - Math.round(value)) < 1e-9) {
+                return `${Math.round(value)}`;
+            }
+            return value.toFixed(1).replace(/\.0$/, '');
+        };
+
+        const formatProbabilityAnswer = (value: number): string => formatProbability(clampProbability(value));
+
+        const zPool = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
+
+        if (difficulty === 1) {
+            const zMagnitude = choose(zPool);
+            const z = Math.random() < 0.5 ? zMagnitude : -zMagnitude;
+            const mode = choose(['lessThan', 'greaterThan'] as const);
+            const answerValue = mode === 'lessThan' ? normalCdf(z) : 1 - normalCdf(z);
+            const answer = formatProbabilityAnswer(answerValue);
+            const oppositeTail = formatProbabilityAnswer(mode === 'lessThan' ? 1 - normalCdf(z) : normalCdf(z));
+            const absTail = formatProbabilityAnswer(normalCdf(Math.abs(z)));
+            const mirroredTail = formatProbabilityAnswer(normalCdf(-Math.abs(z)));
+
+            const phrasing = mode === 'lessThan'
+                ? choose([
+                    `\\text{Let } Z \\sim N(0,1). \\text{ Find } P(Z < ${formatNumber(z)}).`,
+                    `\\text{A standard normal variable } Z \\text{ satisfies } Z \\sim N(0,1). \\text{Calculate } P(Z < ${formatNumber(z)}).`,
+                    `\\text{For } Z \\sim N(0,1), \\text{ work out } P(Z \\leq ${formatNumber(z)}).`,
+                    `\\text{Find the probability that a standard normal variable is less than } ${formatNumber(z)}.`,
+                ])
+                : choose([
+                    `\\text{Let } Z \\sim N(0,1). \\text{ Find } P(Z > ${formatNumber(z)}).`,
+                    `\\text{A standard normal variable } Z \\text{ satisfies } Z \\sim N(0,1). \\text{Calculate } P(Z > ${formatNumber(z)}).`,
+                    `\\text{For } Z \\sim N(0,1), \\text{ work out } P(Z \\geq ${formatNumber(z)}).`,
+                    `\\text{Find the probability that a standard normal variable exceeds } ${formatNumber(z)}.`,
+                ]);
+
+            return {
+                latex: `${phrasing} \\ \\text{Give your answer to 3 d.p.}`,
+                answer,
+                equalValue: true,
+                options: buildProbabilityOptions(answerValue, [
+                    Number(oppositeTail),
+                    Number(absTail),
+                    Number(mirroredTail),
+                ]),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 2) {
+            const mean = choose([40, 50, 60, 70, 80]);
+            const sigma = choose([4, 5, 6, 8, 10]);
+            const zMagnitude = choose([0.5, 1, 1.5, 2]);
+            const z = Math.random() < 0.5 ? zMagnitude : -zMagnitude;
+            const boundary = mean + z * sigma;
+            const mode = choose(['lessThan', 'greaterThan'] as const);
+            const answerValue = mode === 'lessThan' ? normalCdf(z) : 1 - normalCdf(z);
+            const answer = formatProbabilityAnswer(answerValue);
+
+            const phrasing = mode === 'lessThan'
+                ? choose([
+                    `\\text{A random variable } X \\sim ${formatNormal(mean, sigma)}. \\text{ Find } P(X < ${formatNumber(boundary)}).`,
+                    `\\text{Given } X \\sim ${formatNormal(mean, sigma)}, \\text{ calculate } P(X < ${formatNumber(boundary)}).`,
+                    `\\text{For } X \\sim ${formatNormal(mean, sigma)}, \\text{ work out } P(X \\leq ${formatNumber(boundary)}).`,
+                    `\\text{The variable } X \\text{ is normally distributed with } X \\sim ${formatNormal(mean, sigma)}. \\text{Find } P(X < ${formatNumber(boundary)}).`,
+                ])
+                : choose([
+                    `\\text{A random variable } X \\sim ${formatNormal(mean, sigma)}. \\text{ Find } P(X > ${formatNumber(boundary)}).`,
+                    `\\text{Given } X \\sim ${formatNormal(mean, sigma)}, \\text{ calculate } P(X > ${formatNumber(boundary)}).`,
+                    `\\text{For } X \\sim ${formatNormal(mean, sigma)}, \\text{ work out } P(X \\geq ${formatNumber(boundary)}).`,
+                    `\\text{The variable } X \\text{ is normally distributed with } X \\sim ${formatNormal(mean, sigma)}. \\text{Find } P(X > ${formatNumber(boundary)}).`,
+                ]);
+
+            return {
+                latex: `${phrasing} \\ \\text{Give your answer to 3 d.p.}`,
+                answer,
+                equalValue: true,
+                options: buildProbabilityOptions(answerValue, [
+                    mode === 'lessThan' ? 1 - normalCdf(z) : normalCdf(z),
+                    normalCdf(Math.abs(z)),
+                    normalCdf(-Math.abs(z)),
+                ]),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 3) {
+            const mean = choose([35, 40, 50, 65, 80]);
+            const sigma = choose([4, 5, 6, 8]);
+            const zLower = choose([-2, -1.5, -1, -0.5]);
+            const zUpper = choose([0.5, 1, 1.5, 2]);
+            const lower = mean + zLower * sigma;
+            const upper = mean + zUpper * sigma;
+            const answerValue = normalCdf(zUpper) - normalCdf(zLower);
+            const answer = formatProbabilityAnswer(answerValue);
+
+            return {
+                latex: choose([
+                    `\\text{Let } X \\sim ${formatNormal(mean, sigma)}. \\text{ Find } P(${formatNumber(lower)} < X < ${formatNumber(upper)}). \\text{ Give your answer to 3 d.p.}`,
+                    `\\text{A normal variable } X \\text{ has distribution } ${formatNormal(mean, sigma)}. \\text{Calculate } P(${formatNumber(lower)} < X < ${formatNumber(upper)}). \\text{ Give your answer to 3 d.p.}`,
+                    `\\text{For } X \\sim ${formatNormal(mean, sigma)}, \\text{ work out } P(${formatNumber(lower)} \\leq X \\leq ${formatNumber(upper)}). \\text{ Give your answer to 3 d.p.}`,
+                    `\\text{The variable } X \\sim ${formatNormal(mean, sigma)}. \\text{Find the probability that } X \\text{ lies between } ${formatNumber(lower)} \\text{ and } ${formatNumber(upper)}. \\text{ Give your answer to 3 d.p.}`,
+                ]),
+                equalValue: true,
+                answer,
+                options: buildProbabilityOptions(answerValue, [
+                    normalCdf(zUpper),
+                    1 - normalCdf(zLower),
+                    normalCdf(zUpper) - normalCdf(Math.abs(zLower)),
+                ]),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 4) {
+            const mean = choose([50, 60, 70, 80, 90]);
+            const sigma = choose([2, 4, 6, 8]);
+            const z = choose([0.5, 1, 1.5, 2]);
+            const mode = choose(['lessThan', 'greaterThan'] as const);
+            const probability = mode === 'lessThan' ? normalCdf(z) : 1 - normalCdf(z);
+            const boundary = mean + z * sigma;
+            const answer = `${formatNumber(boundary)}`;
+
+            const phrasing = mode === 'lessThan'
+                ? choose([
+                    `\\text{A random variable } X \\sim ${formatNormal(mean, sigma)}. \\text{Given that } P(X < k) = ${formatProbabilityAnswer(probability)}, \\text{ find } k.`,
+                    `\\text{For } X \\sim ${formatNormal(mean, sigma)}, \\text{ the probability that } X \\text{ is less than } k \\text{ is } ${formatProbabilityAnswer(probability)}. \\ \\text{Find } k.`,
+                    `\\text{If } X \\sim ${formatNormal(mean, sigma)} \\text{ and } P(X < k) = ${formatProbabilityAnswer(probability)}, \\text{ calculate } k.`,
+                    `\\text{The variable } X \\sim ${formatNormal(mean, sigma)}. \\ \\text{Given } P(X \\leq k) = ${formatProbabilityAnswer(probability)}, \\text{work out } k.`,
+                ])
+                : choose([
+                    `\\text{A random variable } X \\sim ${formatNormal(mean, sigma)}. \\ \\text{Given that } P(X > k) = ${formatProbabilityAnswer(probability)}, \\text{ find } k.`,
+                    `\\text{For } X \\sim ${formatNormal(mean, sigma)}, \\text{ the probability that } X \\text{ exceeds } k \\text{ is } ${formatProbabilityAnswer(probability)}. \\ \\text{Find } k.`,
+                    `\\text{If } X \\sim ${formatNormal(mean, sigma)} \\text{ and } P(X > k) = ${formatProbabilityAnswer(probability)}, \\text{ calculate } k.`,
+                    `\\text{The variable } X \\sim ${formatNormal(mean, sigma)}. \\ \\text{Given } P(X \\geq k) = ${formatProbabilityAnswer(probability)}, \\text{work out } k.`,
+                ]);
+
+            return {
+                latex: phrasing,
+                answer,
+                equalValue: true,
+                options: buildOptions(answer, [
+                    `${formatNumber(mean - z * sigma)}`,
+                    `${formatNumber(mean + (z + 0.5) * sigma)}`,
+                    `${formatNumber(mean + (z - 0.5) * sigma)}`,
+                ], () => `${formatNumber(boundary + choose([-8, -4, 4, 8]))}`),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 5) {
+            const mode = choose(['findMean', 'findSigma'] as const);
+
+            if (mode === 'findMean') {
+                const sigma = choose([2, 4, 6, 8]);
+                const z = choose([0.5, 1, 1.5, 2]);
+                const mean = choose([40, 50, 60, 70, 80]);
+                const boundary = mean + z * sigma;
+                const probability = normalCdf(z);
+                const answer = `${mean}`;
+
+                return {
+                    latex: choose([
+                        `\\text{A random variable } X \\sim N(\\mu, ${sigma ** 2}). \\text{ Given that } P(X < ${formatNumber(boundary)}) = ${formatProbabilityAnswer(probability)}, \\text{ find } \\mu.`,
+                        `\\text{The variable } X \\text{ is normally distributed with } X \\sim N(\\mu, ${sigma ** 2}). \\ \\text{If } P(X < ${formatNumber(boundary)}) = ${formatProbabilityAnswer(probability)}, \\text{calculate } \\mu.`,
+                        `\\text{For } X \\sim N(\\mu, ${sigma ** 2}), \\text{ the probability that } X < ${formatNumber(boundary)} \\text{ is } ${formatProbabilityAnswer(probability)}. \\ \\text{Find } \\mu.`,
+                        `\\text{Given } X \\sim N(\\mu, ${sigma ** 2}) \\text{ and } P(X \\leq ${formatNumber(boundary)}) = ${formatProbabilityAnswer(probability)}, \\text{ work out } \\mu.`,
+                    ]),
+                    answer,
+                    equalValue: true,
+                    options: buildOptions(answer, [
+                        `${mean + sigma}`,
+                        `${mean - sigma}`,
+                        `${boundary}`,
+                    ], () => `${mean + choose([-12, -8, -4, 4, 8, 12])}`),
+                    forceOption: 0,
+                };
+            }
+
+            const mean = choose([50, 60, 70, 80]);
+            const sigma = choose([2, 4, 6, 8]);
+            const z = choose([0.5, 1, 1.5, 2]);
+            const boundary = mean + z * sigma;
+            const probability = normalCdf(z);
+            const answer = `${sigma}`;
+
+            return {
+                latex: choose([
+                    `\\text{A random variable } X \\sim N(${mean}, \\sigma^2). \\text{ Given that } P(X < ${formatNumber(boundary)}) = ${formatProbabilityAnswer(probability)}, \\text{ find } \\sigma.`,
+                    `\\text{The variable } X \\text{ is normally distributed with } X \\sim N(${mean}, \\sigma^2). \\text{If } P(X < ${formatNumber(boundary)}) = ${formatProbabilityAnswer(probability)}, \\text{calculate } \\sigma.`,
+                    `\\text{For } X \\sim N(${mean}, \\sigma^2), \\text{ the probability that } X < ${formatNumber(boundary)} \\text{ is } ${formatProbabilityAnswer(probability)}. \\ \\text{Find } \\sigma.`,
+                    `\\text{Given } X \\sim N(${mean}, \\sigma^2) \\text{ and } P(X \\leq ${formatNumber(boundary)}) = ${formatProbabilityAnswer(probability)}, \\text{ work out } \\sigma.`,
+                ]),
+                answer,
+                equalValue: true,
+                options: buildOptions(answer, [
+                    `${sigma + 2}`,
+                    `${Math.max(1, sigma - 2)}`,
+                    `${z * sigma}`,
+                ], () => `${choose([2, 4, 6, 8, 10])}`),
+                forceOption: 0,
+            };
+        }
+
+        throw new Error(`Unhandled difficulty: ${difficulty}`);
+    }, [1, 2, 3, 4, 5])
 };
 

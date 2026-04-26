@@ -80,7 +80,7 @@ export default function Navbar({ lng, pageOn } : {lng: Locale, pageOn:"/"|"/crea
             <>
               <div className={`circle ${isBurgerActive ? "expanded" : ""}`}></div>
 
-              <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center flex-col fixed z-20">{isBurgerActive && (
+              <div className={`fixed top-0 left-0 w-full h-full flex justify-center items-center flex-col z-20 ${isBurgerActive ? 'pointer-events-auto' : 'pointer-events-none'}`}>{isBurgerActive && (
                 <div className="burgerItems">
                   <button 
                     className="burgerBtn"

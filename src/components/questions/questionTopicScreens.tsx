@@ -62,8 +62,10 @@ export function QuestionLevelOverview({
 
     return (
         <div className="flex w-full bg-background">
-            <SidePanel lng={lng} buttons={buttons} />
-            <div className="flex-1 flex flex-col items-center justify-start ml-10 mr-10">
+            <div className="hidden sm:block">
+                <SidePanel lng={lng} buttons={buttons} />
+            </div>
+            <div className="flex-1 flex flex-col items-center justify-start ml-4 mr-4 sm:ml-10 sm:mr-10">
                 <Link href={`/${lng}/`} className="flex w-full items-center justify-end self-end mt-5 text-sm text-primary">
                     <span className="underline">{t("general.back-to-home")}</span>&nbsp;→
                 </Link>
@@ -154,8 +156,10 @@ export function QuestionTopicHub({
 
     return (
         <div className="flex w-full bg-background">
-            <SidePanel lng={lng} buttons={navButtons} />
-            <div className="flex-1 flex flex-col items-center justify-start ml-10 mr-10">
+            <div className="hidden sm:block">
+                <SidePanel lng={lng} buttons={navButtons} />
+            </div>
+            <div className="flex-1 flex flex-col items-center justify-start ml-4 mr-4 sm:ml-10 sm:mr-10">
                 <div className="flex w-full flex-wrap justify-between items-center gap-y-2 mt-5 gap-x-4">
                     <Link href={overviewHref} className="text-sm text-primary">
                         ←&nbsp;<span className="underline">{t("general.back-to-level", { level: t(level === "primary" ? "education.primary-school" : level === "secondary" ? "education.secondary-school" : "education.sixth-form") })}</span>
@@ -242,13 +246,17 @@ export function QuestionSubtopicLeaf({
     const [answerMode, setAnswerMode] = React.useState<"typed" | "multipleChoice">("typed");
     const [userAnswerLatex, setUserAnswerLatex] = React.useState("");
     const [answerCorrect, setAnswerCorrect] = React.useState<boolean | null>(null);
+    const [lowercaseCheck, setLowercaseCheck] = React.useState(false);
     const [checkWeakLatexEquivalent, setcheckWeakLatexEquivalent] = React.useState<boolean>(false);
     const [checkEqualValue, setCheckEqualValue] = React.useState<boolean>(false);
     const [answerRevealed, setAnswerRevealed] = React.useState(false);
     const [feedback, setFeedback] = React.useState("");
     const [isGenerating, setIsGenerating] = React.useState(false);
     const [maxLineWidth, setMaxLineWidth] = React.useState<number>(90);
+    const [useStackedQuestionOptions, setUseStackedQuestionOptions] = React.useState(false);
     const questionDivRef = React.useRef<HTMLDivElement>(null);
+    const questionOptionsRef = React.useRef<HTMLDivElement>(null);
+    const questionOptionContentRefs = React.useRef<Record<string, HTMLDivElement | null>>({});
 
     const canType = questionForceOption !== 2;
     const canChoose = questionOptions.length > 0 && questionForceOption !== 1;
@@ -263,6 +271,7 @@ export function QuestionSubtopicLeaf({
         setAnswerMode("typed");
         setUserAnswerLatex("");
         setAnswerCorrect(null);
+        setLowercaseCheck(false);
         setCheckEqualValue(false);
         setAnswerRevealed(false);
         setFeedback("");
@@ -282,6 +291,56 @@ export function QuestionSubtopicLeaf({
         window.addEventListener('resize', updateMaxLineWidth);
         return () => window.removeEventListener('resize', updateMaxLineWidth);
     }, []);
+
+    React.useEffect(() => {
+        if (effectiveAnswerMode !== "multipleChoice" || questionOptions.length === 0) {
+            setUseStackedQuestionOptions(false);
+            return;
+        }
+
+        const measureOptionWidths = () => {
+            if (!questionOptionsRef.current) {
+                return;
+            }
+
+            if (!window.matchMedia("(min-width: 640px)").matches) {
+                setUseStackedQuestionOptions(false);
+                return;
+            }
+
+            const gapWidth = 12;
+            const buttonHorizontalPadding = 32;
+            const gridWidth = questionOptionsRef.current.getBoundingClientRect().width;
+            const twoColumnContentWidth = Math.max(0, (gridWidth - gapWidth) / 2 - buttonHorizontalPadding);
+
+            const shouldStack = questionOptions.some((option) => {
+                const optionContent = questionOptionContentRefs.current[option];
+                return optionContent ? optionContent.scrollWidth > twoColumnContentWidth + 1 : false;
+            });
+
+            setUseStackedQuestionOptions(shouldStack);
+        };
+
+        let animationFrame = window.requestAnimationFrame(measureOptionWidths);
+        const resizeObserver = typeof ResizeObserver !== "undefined"
+            ? new ResizeObserver(() => {
+                window.cancelAnimationFrame(animationFrame);
+                animationFrame = window.requestAnimationFrame(measureOptionWidths);
+            })
+            : null;
+
+        if (resizeObserver && questionOptionsRef.current) {
+            resizeObserver.observe(questionOptionsRef.current);
+        }
+
+        window.addEventListener("resize", measureOptionWidths);
+
+        return () => {
+            window.cancelAnimationFrame(animationFrame);
+            resizeObserver?.disconnect();
+            window.removeEventListener("resize", measureOptionWidths);
+        };
+    }, [effectiveAnswerMode, questionOptions]);
 
     const levels = availableLevels;
 
@@ -322,6 +381,7 @@ export function QuestionSubtopicLeaf({
             setQuestionOptions([]);
             setQuestionForceOption(0);
             setAnswerMode("typed");
+            setLowercaseCheck(false);
             setCheckEqualValue(false);
             setFeedback("Question generation timed out after 3 seconds. Please try again.");
             return;
@@ -335,6 +395,7 @@ export function QuestionSubtopicLeaf({
         setQuestionSvg(result.svg ?? "");
         setQuestionAnswers(Array.isArray(result.answer) ? result.answer : [result.answer]);
         setQuestionOptions(options);
+        setLowercaseCheck(result.lowercaseCheck ?? false);
         setcheckWeakLatexEquivalent(result.checkWeakLatexEquivalent ?? false)
         setCheckEqualValue(result.equalValue ?? false);
         setQuestionForceOption(result.forceOption ?? 0);
@@ -352,6 +413,10 @@ export function QuestionSubtopicLeaf({
         const trimmed = answer.trim().replace(/\s+/g, "");
         const isLatex = /\\|\^|_|\{|\}|\\frac|\\sqrt|\\pi|\\theta|\\sin|\\cos|\\tan|\\log|\\ln/.test(trimmed);
         const fixFractions = addFractionFences(trimmed);
+        if (lowercaseCheck) {
+            return fixFractions.toLowerCase();
+        }
+
         return isLatex ? fixFractions : fixFractions.toLowerCase();
     };
 
@@ -466,11 +531,11 @@ export function QuestionSubtopicLeaf({
 
     return (
         <div className="relative flex w-full bg-background">
-            <div className="relative flex-shrink-0 w-44 sm:w-48 lg:w-52">
+            <div className="relative hidden sm:block flex-shrink-0 w-44 sm:w-48 lg:w-52">
                 <SidePanel lng={lng} buttons={navButtons} />
             </div>
 
-            <div className="flex-1 min-w-0 flex flex-col items-center justify-start ml-10 mr-10 transition-all duration-300">
+            <div className="flex-1 min-w-0 flex flex-col items-center justify-start ml-4 mr-4 sm:ml-10 sm:mr-10 transition-all duration-300">
                 <div className="flex w-full flex-wrap justify-between items-center gap-y-2 mt-5 gap-x-4">
                     <Link href={hubHref} className="text-sm text-primary">
                         ←&nbsp;<span className="underline">{t("general.back-to-topic", { topic: t(topic.titleKey) })}</span>
@@ -593,7 +658,10 @@ export function QuestionSubtopicLeaf({
                                         ) : null}
 
                                         {effectiveAnswerMode === "multipleChoice" && questionOptions.length > 0 ? (
-                                            <div className="grid gap-3 sm:grid-cols-2">
+                                            <div
+                                                ref={questionOptionsRef}
+                                                className={`grid gap-3 ${useStackedQuestionOptions ? "grid-cols-1" : "sm:grid-cols-2"}`}
+                                            >
                                                 {questionOptions.map((option) => (
                                                     <button
                                                         key={option}
@@ -618,7 +686,14 @@ export function QuestionSubtopicLeaf({
                                                         }
                                                         `}
                                                     >
-                                                        {renderOptionLabel(option)}
+                                                        <div
+                                                            ref={(element) => {
+                                                                questionOptionContentRefs.current[option] = element;
+                                                            }}
+                                                            className="mx-auto w-full min-w-0"
+                                                        >
+                                                            {renderOptionLabel(option)}
+                                                        </div>
                                                     </button>
                                                 ))}
                                             </div>

@@ -479,13 +479,13 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
         }
       `}</style>
 
-      <div onClick={handleClose}>
+      <div className="relative z-50 pointer-events-auto">
         <Navbar lng={lng} pageOn='/'/>
       </div>
 
-      <div className="w-full bg-background h-screen overflow-y-auto snap-y snap-mandatory">
+      <div className="w-full bg-background min-h-screen overflow-y-auto snap-y snap-mandatory">
 
-      <section className="relative h-[100dvh] w-full overflow-hidden flex flex-col snap-start">
+      <section className="relative min-h-[100dvh] w-full overflow-hidden flex flex-col snap-start">
 
         {/* Grid background */}
         <div className="
@@ -562,7 +562,7 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
           </div>
 
           {/* Buttons */}
-          <div className='flex space-x-8' onClick={handleClose}>
+          <div className='flex flex-wrap items-center justify-center gap-4 sm:gap-6 lg:gap-8' onClick={handleClose}>
             {buttons.map(({ id, label, items, links, delay }) => (
               <div
                 key={id}
@@ -578,8 +578,8 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
                   className="relative overflow-visible transition-all duration-300 ease-in-out"
                   onClick={(e) => e.stopPropagation()}
                   style={{
-                    width: activeButton === id ? "24rem" : "14rem",
-                    height: activeButton === id ? "24rem" : "14rem",
+                    width: activeButton === id ? "min(24rem, 80vw)" : "min(14rem, 70vw)",
+                    height: activeButton === id ? "min(24rem, 80vw)" : "min(14rem, 70vw)",
                     borderRadius: "12px",
                     background: "#fff",
                   }}
@@ -650,9 +650,9 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
           >
             {t("home.but-how-description")}
           </p>
-          <div className='flex flex-col items-center justify-center mt-4'>
+          <div className='flex flex-col items-center justify-center mt-4 w-full px-4 sm:px-0'>
             <div
-              className='flex flex-col w-3/4 bg-white rounded-[2rem] p-6 shadow-xl transition-all duration-500'
+              className='flex flex-col w-full sm:w-3/4 bg-white rounded-[2rem] p-6 shadow-xl transition-all duration-500'
               style={{
                 opacity: butHowVisible ? 1 : 0,
                 transform: butHowVisible ? 'translateY(0)' : 'translateY(22px)',
@@ -735,7 +735,7 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
       </section>
 
       {/* "Every question in one place" section */}
-      <section ref={everySectionRef} className="relative h-[100dvh] w-full bg-background snap-start overflow-hidden">
+      <section ref={everySectionRef} className="relative w-full bg-background snap-start overflow-hidden flex flex-col py-12 sm:py-16 lg:py-20">
         <div
           className="absolute inset-0 z-0 [background-image:linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] [background-size:20px_20px]"
           aria-hidden
@@ -749,12 +749,12 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
           aria-hidden
         />
 
-        <div className="relative z-[1] h-full w-full px-6 sm:px-10 lg:px-16 py-10 sm:py-14" onClick={handleClose}>
+        <div className="relative z-[1] flex flex-col w-full px-4 sm:px-6 lg:px-16" onClick={handleClose}>
           <div
-            className="mt-6 sm:mt-8 h-[calc(100%-1.5rem)] sm:h-[calc(100%-2rem)] rounded-[2rem] border-2 border-primary/20 bg-white/70 shadow-xl backdrop-blur-sm p-5 sm:p-8 lg:p-10"
+            className="rounded-xl sm:rounded-[2rem] border-2 border-primary/20 bg-white/70 shadow-lg sm:shadow-xl backdrop-blur-sm p-4 sm:p-6 lg:p-10"
           >
-            <div className="grid h-full grid-cols-1 gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-              <div className="flex flex-col justify-between">
+            <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+              <div className="flex flex-col gap-6 sm:gap-8">
                 <div
                   className="transition-all duration-500"
                   style={{
@@ -762,36 +762,36 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
                     transform: everySectionVisible ? 'translateY(0)' : 'translateY(20px)',
                   }}
                 >
-                  <p className="inline-flex items-center rounded-full border border-primary/30 bg-primary/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+                  <p className="inline-flex items-center rounded-full border border-primary/30 bg-primary/5 px-2 sm:px-3 py-0.5 sm:py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
                     {t("home.topic-atlas")}
                   </p>
-                  <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-inter font-semibold text-primary text-left leading-tight">
+                  <h2 className="mt-4 text-2xl sm:text-3xl lg:text-5xl font-inter font-semibold text-primary text-left leading-tight">
                     {t("home.every-question-in-one-place-1")} {" "}
                     <span className="text-[var(--contrast)]">{t("home.every-question-in-one-place-2")}</span> {" "}
                     {t("home.every-question-in-one-place-3")}
                   </h2>
-                  <p className="mt-4 text-base sm:text-lg text-primary/80 max-w-2xl">
+                  <p className="mt-4 text-sm sm:text-base lg:text-lg text-primary/80 max-w-2xl">
                     {t("home.every-question-in-one-place-description")}
                   </p>
                 </div>
 
                 <div
-                  className="mt-6 rounded-2xl border border-primary/20 bg-white p-4 sm:p-5 transition-all duration-500"
+                  className="rounded-xl sm:rounded-2xl border border-primary/20 bg-white p-3 sm:p-4 lg:p-5 transition-all duration-500"
                   style={{
                     opacity: everySectionVisible ? 1 : 0,
                     transform: everySectionVisible ? 'translateY(0)' : 'translateY(20px)',
                     transitionDelay: everySectionVisible ? '140ms' : '0ms',
                   }}
                 >
-                  <p className="text-sm uppercase tracking-[0.18em] text-primary/60">{t("home.library-status")}</p>
-                  <p className="mt-2 text-2xl font-nunito text-primary">
+                  <p className="text-xs sm:text-sm uppercase tracking-[0.18em] text-primary/60">{t("home.library-status")}</p>
+                  <p className="mt-2 text-xl sm:text-2xl font-nunito text-primary">
                     {t("home.library-status-count", {
                       totalLevels: levelBoxCountsBySchool.primary + levelBoxCountsBySchool.secondary + levelBoxCountsBySchool.sixthForm,
                       mappedSubtopics: allSubtopics.length,
                     })}
                   </p>
-                  <p className="mt-1 text-sm text-primary/70">{t("home.library-status-description")}</p>
-                  <div className="mt-4 flex flex-col gap-2 text-sm sm:text-base">
+                  <p className="mt-1 text-xs sm:text-sm text-primary/70">{t("home.library-status-description")}</p>
+                  <div className="mt-4 flex flex-col gap-2 text-xs sm:text-sm lg:text-base">
                     <p className="flex items-baseline text-primary/85">
                       <span className="inline-block font-medium">{t('education.primary-school')}</span>
                       <span className="mx-2 text-primary/40">-</span>
@@ -812,15 +812,17 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
               </div>
 
               <div
-                className="rounded-2xl border-2 border-primary bg-white shadow-[0_10px_30px_rgba(3,46,46,0.12)] p-4 sm:p-5 overflow-hidden flex flex-col min-h-0 transition-all duration-500"
+                className="rounded-xl sm:rounded-2xl border-2 border-primary bg-white shadow-lg sm:shadow-[0_10px_30px_rgba(3,46,46,0.12)] p-3 sm:p-4 lg:p-5 overflow-hidden flex flex-col transition-all duration-500"
                 style={{
                   opacity: everySectionVisible ? 1 : 0,
                   transform: everySectionVisible ? 'translateY(0)' : 'translateY(20px)',
                   transitionDelay: everySectionVisible ? '280ms' : '0ms',
+                  height: '500px',
+                  maxHeight: '60vh',
                 }}
               >
-                <div className="mb-4 flex items-center justify-between">
-                  <p className="text-sm uppercase tracking-[0.18em] text-primary/60">{t("home.question-map")}</p>
+                <div className="mb-3 sm:mb-4 flex items-center justify-between">
+                  <p className="text-xs sm:text-sm uppercase tracking-[0.18em] text-primary/60">{t("home.question-map")}</p>
                   <div className="inline-flex gap-1">
                     <span className="h-2.5 w-2.5 rounded-full bg-[var(--contrast)]" />
                     <span className="h-2.5 w-2.5 rounded-full bg-[var(--accent)]" />
@@ -849,7 +851,7 @@ export default function Home({ params }: { params: Promise<{ lng: Locale }> }) {
                       <div
                         key={`${schoolLevel}-${subtopicSlug}-${difficulty}`}
                         title={t("home.question-map-tooltip", { level: schoolLevelLabel, subtopic: subtopicSlug, difficulty })}
-                        className={`rounded-md border text-[10px] font-semibold flex items-center justify-center select-none ${
+                        className={`rounded-sm border text-[8px] sm:text-[10px] font-semibold flex items-center justify-center select-none ${
                           schoolLevel === "primary"
                             ? 'border-[#198f8f] bg-[#198f8f]/15 text-[#156e6e]'
                             : schoolLevel === "secondary"

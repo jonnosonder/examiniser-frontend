@@ -603,7 +603,7 @@
       },
       "statistics": {
         "binomial-distribution": "Modéliser des essais indépendants avec B(n, p) ; calculer des probabilités exactes, cumulées et conditionnelles.",
-        "normal-distribution": "Explore les notions clés de Normal Distribution.",
+        "normal-distribution": "Modéliser et interpréter des données continues avec la loi normale ; standardiser des valeurs et calculer des probabilités d'intervalle.",
         "statistical-sampling": "Explore les notions clés de Statistical Sampling.",
         "hypothesis-testing": "Explore les notions clés de Hypothesis Testing.",
         "correlation-and-regression": "Explore les notions clés de Correlation And Regression."
@@ -801,7 +801,7 @@
     "trig-sine-cosine-rule": "Loi des sinus et cosinus",
     "arithmetic-geometric": "Suites arithmétiques et géométriques",
     "sigma-notation": "Notation sigma",
-    "binomial": "Binôme de Newton",
+    "binomial": "Binomial Distribution",
     "exp-log-laws": "Exponentielle et logarithme : lois",
     "exp-log-equations": "Équations exponentielles et logarithmiques",
     "exp-log-modelling": "Modèles exponentiels et logarithmiques",
@@ -843,7 +843,7 @@
     "dot-product": "Dot Product",
     "equations-of-lines": "Equations Of Lines",
     "binomial-distribution": "Binomial Distribution",
-    "normal-distribution": "Normal Distribution",
+    "normal-distribution": "Loi normale",
     "statistical-sampling": "Statistical Sampling",
     "correlation-and-regression": "Correlation And Regression",
     "forces": "Forces",
