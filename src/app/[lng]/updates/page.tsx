@@ -63,6 +63,7 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                                         - New Sixthform questions added (more will be added incrementally)<br/>
                                         - Sixthform topic icon fix<br/>
                                         - Mobile UI update<br/>
+                                        - Landing screen updated<br/>
                                     </p>
                                     
                                 </div>

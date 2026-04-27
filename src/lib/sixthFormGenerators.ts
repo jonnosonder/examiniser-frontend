@@ -2205,6 +2205,256 @@ export const sixthFormGenerators: Record<string, QuestionGeneratorWithLevels> = 
 
         throw new Error(`Unhandled difficulty: ${difficulty}`);
     }, [1, 2, 3, 4, 5]),
+    "trigonometric-identities": createGenerator(async ({ difficulty }) => {
+        const formatExact = (numerator: number, denominator = 1): string => {
+            return rationalToLatex(rational(numerator, denominator));
+        };
+
+        if (difficulty === 1) {
+            const identity = choose([
+                {
+                    prompt: '\\sin^2 x + \\cos^2 x',
+                    answer: '1',
+                    distractors: ['0', '\\sin x + \\cos x', '\\tan^2 x'],
+                },
+                {
+                    prompt: '1 + \\tan^2 x',
+                    answer: '\\sec^2 x',
+                    distractors: ['\\tan^2 x', '\\cos^2 x', '1 - \\tan^2 x'],
+                },
+                {
+                    prompt: '\\sec^2 x - 1',
+                    answer: '\\tan^2 x',
+                    distractors: ['\\sec^2 x', '1 + \\tan^2 x', '\\cos^2 x'],
+                },
+                {
+                    prompt: '1 - \\sin^2 x',
+                    answer: '\\cos^2 x',
+                    distractors: ['\\sin^2 x', '\\tan^2 x', '1 + \\cos^2 x'],
+                },
+            ]);
+
+            return {
+                latex: choose([
+                    `\\text{Which expression is identically equal to } ${identity.prompt}\\text{?}`,
+                    `\\text{Choose the correct identity for } ${identity.prompt}\\text{.}`,
+                    `\\text{Which of the following is equivalent to } ${identity.prompt}\\text{ for all valid } x\\text{?}`,
+                    `\\text{Using standard trigonometric identities, simplify } ${identity.prompt}\\text{.}`,
+                ]),
+                answer: identity.answer,
+                checkWeakLatexEquivalent: true,
+                options: buildOptions(identity.answer, identity.distractors),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 2) {
+            const simplification = choose([
+                {
+                    prompt: '\\frac{1 - \\cos^2 x}{\\sin x}',
+                    answer: '\\sin x',
+                    distractors: ['\\cos x', '\\tan x', '1'],
+                },
+                {
+                    prompt: '\\frac{1 - \\sin^2 x}{\\cos x}',
+                    answer: '\\cos x',
+                    distractors: ['\\sin x', '\\tan x', '1'],
+                },
+                {
+                    prompt: '\\frac{\\sec^2 x - 1}{\\tan x}',
+                    answer: '\\tan x',
+                    distractors: ['\\sec x', '\\cos x', '1'],
+                },
+                {
+                    prompt: '\\frac{\\sin^2 x + \\cos^2 x}{\\sec x}',
+                    answer: '\\cos x',
+                    distractors: ['\\sec x', '\\sin x', '1'],
+                },
+            ]);
+
+            return {
+                latex: choose([
+                    `\\text{Simplify } ${simplification.prompt}\\text{.}`,
+                    `\\text{Write } ${simplification.prompt}\\text{ in its simplest form.}`,
+                    `\\text{Using trigonometric identities, reduce } ${simplification.prompt}\\text{.}`,
+                    `\\text{Hence simplify } ${simplification.prompt}\\text{.}`,
+                ]),
+                answer: simplification.answer,
+                checkWeakLatexEquivalent: true,
+                options: buildOptions(simplification.answer, simplification.distractors),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 3) {
+            const expression = choose([
+                {
+                    prompt: '\\frac{1 - \\cos^2 x}{\\cos^2 x}',
+                    answer: '\\tan^2 x',
+                    distractors: ['\\sin^2 x', '\\sec^2 x', '\\cos^2 x'],
+                },
+                {
+                    prompt: '\\frac{1}{1 + \\tan^2 x}',
+                    answer: '\\cos^2 x',
+                    distractors: ['\\sin^2 x', '\\sec^2 x', '\\tan^2 x'],
+                },
+                {
+                    prompt: '\\frac{\\sec^2 x - 1}{\\sec^2 x}',
+                    answer: '\\sin^2 x',
+                    distractors: ['\\cos^2 x', '\\tan^2 x', '1'],
+                },
+                {
+                    prompt: '\\frac{\\sin^2 x}{1 - \\cos^2 x}',
+                    answer: '1',
+                    distractors: ['\\sin x', '\\cos x', '\\tan^2 x'],
+                },
+            ]);
+
+            return {
+                latex: choose([
+                    `\\text{Express } ${expression.prompt}\\text{ in its simplest form.}`,
+                    `\\text{Write } ${expression.prompt}\\text{ as a single expression using trigonometric identities.}`,
+                    `\\text{Simplify } ${expression.prompt}\\text{.}`,
+                    `\\text{Hence reduce } ${expression.prompt}\\text{ to its simplest equivalent form.}`,
+                ]),
+                answer: expression.answer,
+                checkWeakLatexEquivalent: true,
+                options: buildOptions(expression.answer, expression.distractors),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 4) {
+            const [a, b, c] = choose([
+                [3, 4, 5],
+                [5, 12, 13],
+                [8, 15, 17],
+            ] as const);
+            const scenario = choose(['sinAcute', 'cosQuadrantII', 'tanAcute', 'tanQuadrantII'] as const);
+
+            if (scenario === 'sinAcute') {
+                const answer = formatExact(b, c);
+
+                return {
+                    latex: choose([
+                        `\\text{Given that } \\sin x = ${formatExact(a, c)} \\text{ and } x \\text{ is acute, find } \\cos x\\text{.}`,
+                        `\\text{If } \\sin x = ${formatExact(a, c)} \\text{ for an acute angle } x, \\text{work out } \\cos x\\text{.}`,
+                        `\\text{An acute angle } x \\text{ satisfies } \\sin x = ${formatExact(a, c)}. \\text{Find the exact value of } \\cos x\\text{.}`,
+                        `\\text{Use a trigonometric identity to find } \\cos x \\text{ given } \\sin x = ${formatExact(a, c)} \\text{ and } x \\text{ acute.}`,
+                    ]),
+                    answer,
+                    checkWeakLatexEquivalent: true,
+                    options: buildOptions(answer, [
+                        formatExact(-b, c),
+                        formatExact(a, c),
+                        formatExact(c, b),
+                    ]),
+                    forceOption: 2,
+                };
+            }
+
+            if (scenario === 'cosQuadrantII') {
+                const answer = formatExact(b, c);
+
+                return {
+                    latex: choose([
+                        `\\text{Given that } \\cos x = -${formatExact(a, c)} \\text{ and } x \\text{ lies in the second quadrant, find } \\sin x\\text{.}`,
+                        `\\text{If } \\cos x = -${formatExact(a, c)} \\text{ with } x \\text{ in quadrant II, work out } \\sin x\\text{.}`,
+                        `\\text{An angle } x \\text{ is in the second quadrant and } \\cos x = -${formatExact(a, c)}. \\text{Find the exact value of } \\sin x\\text{.}`,
+                        `\\text{Use an identity to determine } \\sin x \\text{ when } \\cos x = -${formatExact(a, c)} \\text{ and } x \\text{ is in quadrant II.}`,
+                    ]),
+                    answer,
+                    checkWeakLatexEquivalent: true,
+                    options: buildOptions(answer, [
+                        formatExact(-b, c),
+                        formatExact(a, c),
+                        formatExact(c, b),
+                    ]),
+                    forceOption: 0,
+                };
+            }
+
+            if (scenario === 'tanAcute') {
+                const answer = formatExact(c, b);
+
+                return {
+                    latex: choose([
+                        `\\text{Given that } \\tan x = ${formatExact(a, b)} \\text{ and } x \\text{ is acute, find } \\sec x\\text{.}`,
+                        `\\text{If } \\tan x = ${formatExact(a, b)} \\text{ for an acute angle } x, \\text{work out } \\sec x\\text{.}`,
+                        `\\text{An acute angle } x \\text{ satisfies } \\tan x = ${formatExact(a, b)}. \\text{Find the exact value of } \\sec x\\text{.}`,
+                        `\\text{Use } 1 + \\tan^2 x = \\sec^2 x \\text{ to find } \\sec x \\text{ when } \\tan x = ${formatExact(a, b)}\\text{.}`,
+                    ]),
+                    answer,
+                    checkWeakLatexEquivalent: true,
+                    options: buildOptions(answer, [
+                        formatExact(-c, b),
+                        formatExact(c, a),
+                        formatExact(b, c),
+                    ]),
+                    forceOption: 0,
+                };
+            }
+
+            const answer = formatExact(-c, b);
+
+            return {
+                latex: choose([
+                    `\\text{Given that } \\tan x = -${formatExact(a, b)} \\text{ and } x \\text{ lies in the second quadrant, find } \\sec x\\text{.}`,
+                    `\\text{If } \\tan x = -${formatExact(a, b)} \\text{ with } x \\text{ in quadrant II, work out } \\sec x\\text{.}`,
+                    `\\text{An angle } x \\text{ is in the second quadrant and } \\tan x = -${formatExact(a, b)}. \\text{Find the exact value of } \\sec x\\text{.}`,
+                    `\\text{Use } 1 + \\tan^2 x = \\sec^2 x \\text{ and the quadrant information to find } \\sec x\\text{.}`,
+                ]),
+                answer,
+                checkWeakLatexEquivalent: true,
+                options: buildOptions(answer, [
+                    formatExact(c, b),
+                    formatExact(-c, a),
+                    formatExact(b, c),
+                ]),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 5) {
+            const doubleAngle = choose([
+                {
+                    prompt: '1 - 2\\sin^2 x',
+                    answer: '\\cos 2x',
+                    distractors: ['\\sin 2x', '1 + 2\\sin^2 x', '2\\cos^2 x + 1'],
+                },
+                {
+                    prompt: '2\\cos^2 x - 1',
+                    answer: '\\cos 2x',
+                    distractors: ['\\sin 2x', '1 - 2\\cos^2 x', '\\cos^2 x'],
+                },
+                {
+                    prompt: '2\\sin x \\cos x',
+                    answer: '\\sin 2x',
+                    distractors: ['\\cos 2x', '\\tan 2x', '2\\sin^2 x'],
+                },
+                {
+                    prompt: '\\frac{1 - \\cos 2x}{2}',
+                    answer: '\\sin^2 x',
+                    distractors: ['\\cos^2 x', '\\sin 2x', '\\frac{1 + \\cos 2x}{2}'],
+                },
+            ]);
+
+            return {
+                latex: choose([
+                    `\\text{Which of the following is equivalent to } ${doubleAngle.prompt}\\text{?}`,
+                    `\\text{Use a double-angle identity to simplify } ${doubleAngle.prompt}\\text{.}`,
+                    `\\text{Find the correct equivalent form of } ${doubleAngle.prompt}\\text{.}`,
+                    `\\text{Write } ${doubleAngle.prompt}\\text{ as a simpler trigonometric expression.}`,
+                ]),
+                answer: doubleAngle.answer,
+                checkWeakLatexEquivalent: true,
+                options: buildOptions(doubleAngle.answer, doubleAngle.distractors),
+                forceOption: 0,
+            };
+        }
+
+        throw new Error(`Unhandled difficulty: ${difficulty}`);
+    }, [1, 2, 3, 4, 5]),
     "vectors": createGenerator(async ({ difficulty }) => {
         if (difficulty === 1) {
             const triples: Array<[number, number, number]> = [
