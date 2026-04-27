@@ -2472,7 +2472,7 @@ export const sixthFormGenerators: Record<string, QuestionGeneratorWithLevels> = 
             const answer = `${speed}`;
 
             const phrasing = choose([
-                `\\text{Relative to a fixed origin } O, \\text{ unit vectors } \\mathbf{i} \\text{ and } \\mathbf{j} \\text{ point east and north. } \\\\ \\text{A particle moves with velocity } \\mathbf{v} = ${formatVectorIJ(velocity)} \\text{ m s}^{-1}. \\     \\text{ Find the speed of the particle.}`,
+                `\\text{Relative to a fixed origin } O, \\text{ unit vectors } \\mathbf{i} \\text{ and } \\mathbf{j} \\ \\text{point east and north. } \\\\ \\text{A particle moves with velocity } \\mathbf{v} = ${formatVectorIJ(velocity)} \\text{ m s}^{-1}. \\     \\text{ Find the speed of the particle.}`,
                 `\\text{A boat travels with velocity } ${formatVectorIJ(velocity)} \\text{ m s}^{-1}, \\text{ where } \\mathbf{i} \\ \\text{ is east and } \\mathbf{j} \\text{ is north. } \\\\ \\text{Calculate the speed of the boat.}`,
                 `\\text{An aircraft has velocity vector } \\mathbf{v} = ${formatVectorIJ(velocity)} \\text{ m s}^{-1}. \\ \\\\ \\text{Find } |\\mathbf{v}|, \\text{ the magnitude of its velocity.}`,
                 `\\text{At time } t, \\text{ a particle has velocity } ${formatVectorIJ(velocity)} \\text{ m s}^{-1}. \\ \\\\ \\text{Find the speed of the particle at this instant.}`,
@@ -2500,7 +2500,7 @@ export const sixthFormGenerators: Record<string, QuestionGeneratorWithLevels> = 
             const phrasing = choose([
                 `\\text{Relative to a fixed origin } O, \\text{ a particle has position vector } \\mathbf{r} = ${formatVectorIJ(r0)} + t${formatVectorIJ(v)}. \\ \\\\ \\text{Find the position vector of the particle when } t = ${t}.`,
                 `\\text{A body moves so that its displacement from } O \\text{ at time } t \\text{ seconds is } \\\\ \\mathbf{r} = ${formatVectorIJ(r0)} + t${formatVectorIJ(v)} \\ \\text{ m. Find the position of the body when } t = ${t}.`,
-                `\\text{A particle starts at } ${formatVectorIJ(r0)} \\ \\text{ and moves with constant velocity } ${formatVectorIJ(v)} \\ \\text{ m s}^{-1}. \\ \\\\ \\text{Find its position vector after } ${t} \\text{ seconds.}`,
+                `\\text{A particle starts at } ${formatVectorIJ(r0)} \\ \\text{and moves with constant velocity } ${formatVectorIJ(v)} \\text{ m s}^{-1}. \\ \\\\ \\text{Find its position vector after } ${t} \\text{ seconds.}`,
                 `\\text{The position vector of a particle at time } t \\text{ is } \\mathbf{r} = ${formatVectorIJ(r0)} + t${formatVectorIJ(v)}. \\ \\\\ \\text{State the coordinates of the particle when } t = ${t}.`,
             ]);
 
@@ -2528,7 +2528,7 @@ export const sixthFormGenerators: Record<string, QuestionGeneratorWithLevels> = 
             const phrasing = choose([
                 `\\text{A ship sails with constant velocity } ${formatVectorIJ(velocity)} \\ \\text{ km h}^{-1}, \\text{ where } \\mathbf{i} \\ \\text{ is east and } \\mathbf{j} \\ \\text{ is north.} \\ \\\\ \\text{Find the bearing of the ship's motion, to the nearest degree.}`,
                 `\\text{A drone flies with velocity vector } ${formatVectorIJ(velocity)} \\ \\text{ m s}^{-1}. \\ \\\\ \\text{Given that } \\mathbf{i} \\ \\text{ points east and } \\mathbf{j} \\ \\text{ points north, find the bearing of its flight.}`,
-                `\\text{A particle moves with constant velocity } ${formatVectorIJ(velocity)} \\ \\text{ m s}^{-1}, \\text{ where } \\mathbf{i} \\ \\text{ and } \\mathbf{j} \\ \\text{ are the east and north unit vectors.} \\ \\\\ \\text{Find the bearing of its motion to the nearest degree.}`,
+                `\\text{A particle moves with constant velocity } ${formatVectorIJ(velocity)} \\ \\text{ m s}^{-1}, \\text{ where } \\mathbf{i} \\ \\text{ and } \\mathbf{j} \\ \\text{are the east and north unit vectors.} \\ \\\\ \\text{Find the bearing of its motion to the nearest degree.}`,
                 `\\text{A boat travels with velocity } ${formatVectorIJ(velocity)} \\ \\text{ km h}^{-1} \\text{ relative to a fixed origin.} \\ \\\\ \\text{Taking } \\mathbf{i} \\ \\text{ as east and } \\mathbf{j} \\ \\text{ as north, find the bearing of travel.}`,
             ]);
 
@@ -2560,7 +2560,7 @@ export const sixthFormGenerators: Record<string, QuestionGeneratorWithLevels> = 
             const rB = { x: xB0, y: yB0 };
             const answer = `${tAligned}`;
 
-            const setup = `\\text{Particles } A \\text{ and } B \\text{ have position vectors} \\\\ \\mathbf{r}_A = ${formatVectorIJ(rA)} + t${formatVectorIJ(vA)} \\text{ and } \\mathbf{r}_B = ${formatVectorIJ(rB)} + t${formatVectorIJ(adjustedVB)}. \\`;
+            const setup = `\\text{Particles } A \\text{ and } B \\text{ have position vectors } \\\\ \\mathbf{r}_A = ${formatVectorIJ(rA)} + t${formatVectorIJ(vA)} \\text{ and } \\mathbf{r}_B = ${formatVectorIJ(rB)} + t${formatVectorIJ(adjustedVB)}. \\`;
             const question = choose([
                 `\\text{Find the time } t \\text{ when } A \\text{ and } B \\text{ are due north/south of each other.}`,
                 `\\text{Find the value of } t \\text{ when } A \\text{ is directly north or south of } B.`,
@@ -2589,7 +2589,7 @@ export const sixthFormGenerators: Record<string, QuestionGeneratorWithLevels> = 
             const rB = subtractVectors(rA, scaleVector(vRel, tMeet));
             const answer = `${tMeet}`;
 
-            const setup = `\\text{Particles } A \\text{ and } B \\text{ move with} \\\\ \\mathbf{r}_A = ${formatVectorIJ(rA)} + t${formatVectorIJ(vA)} \\text{ and } \\mathbf{r}_B = ${formatVectorIJ(rB)} + t${formatVectorIJ(vB)}. \\`;
+            const setup = `\\text{Particles } A \\text{ and } B \\text{ move with } \\\\ \\mathbf{r}_A = ${formatVectorIJ(rA)} + t${formatVectorIJ(vA)} \\ \\text{and } \\mathbf{r}_B = ${formatVectorIJ(rB)} + t${formatVectorIJ(vB)}. \\`;
             const question = choose([
                 `\\text{Find the time at which the particles collide.}`,
                 `\\text{Show that } A \\text{ and } B \\text{ meet, and find the time of their collision.}`,

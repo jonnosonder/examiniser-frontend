@@ -1,8 +1,8 @@
 {
   "home": {
     "question-description": "免费生成无限道数学题，附解答与讲解！",
-    "editor-description": "一个专门制作试题和考试试卷的编辑器。易于创建和浏览，内置模板，全免费！",
-    "Start-Now": "现在开始",
+    "create-description": "一个专注于创建问题和考试试卷的数学编辑器。内置模板，轻松创建和导航，全部免费！",
+    "start-creating": "开始创作",
     "in-development": "开发中",
     "CEP": "创建考试试卷",
     "IMQ": " 数学问题",
@@ -111,7 +111,7 @@
   },
   "navBar": {
     "questions": "问题",
-    "editor": "编辑器",
+    "create": "创建",
     "about": "关于",
     "updates": "更新",
     "Start-Creating": "开始创作"

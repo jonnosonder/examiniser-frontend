@@ -1,8 +1,8 @@
 {
   "home": {
     "question-description": "Genera problemas matemáticos infinitos, con soluciones y explicaciones gratis!",
-    "editor-description": "Un editor especializado en crear preguntas y exámenes. ¡Fácil de crear y navegar con plantillas integradas, todo gratis!",
-    "Start-Now": "Empezar Ahora",
+    "create-description": "Un editor especializado en matemáticas para la creación de preguntas y exámenes. Fácil de crear y navegar gracias a sus plantillas integradas, ¡todo gratis!",
+    "start-creating": "Empezar a Crear",
     "in-development": "En Desarrollo",
     "CEP": "Crear Exámenes",
     "IMQ": "de Matemáticas",
@@ -112,7 +112,7 @@
   },
   "navBar": {
     "questions": "Preguntas",
-    "editor": "Editor",
+    "create": "Crear",
     "about": "Acerca de",
     "updates": "Actualizaciones",
     "Start-Creating": "Comenzar a Crear"

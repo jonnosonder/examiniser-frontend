@@ -1,8 +1,8 @@
 {
   "home": {
     "question-description": "Generate infinite maths problems, with solutions and explanation for free!",
-    "editor-description": "An editor specialised in making question and exam papers. Easy to create and navigate with inbuilt templates all for free!",
-    "Start-Now": "Start Now",
+    "create-description": "A specialised maths editor in making question and exam papers. Easy to create and navigate with inbuilt templates all for free!",
+    "start-creating": "Start Creating",
     "in-development": "In Development",
     "CEP": "Create Exam Papers",
     "IMQ": " Maths Problems",
@@ -111,7 +111,7 @@
   },
   "navBar": {
     "questions": "Questions",
-    "editor": "Editor",
+    "create": "Create",
     "about": "About",
     "updates": "Updates",
     "Start-Creating": "Start Creating"

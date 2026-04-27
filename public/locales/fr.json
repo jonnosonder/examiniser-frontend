@@ -1,8 +1,8 @@
 {
   "home": {
     "question-description": "Génère des problèmes mathématiques infinis, avec des solutions et des explications gratuites !",
-    "editor-description": "Un éditeur spécialisé dans la création de questions et de sujets d'examen. Facile à créer et à naviguer avec des modèles intégrés, le tout gratuitement !",
-    "Start-Now": "Commence Maintenant",
+    "create-description": "Un éditeur spécialisé en mathématiques pour la création de questions et de sujets d'examen. Facile à créer et à naviguer grâce à ses modèles intégrés, le tout gratuitement !",
+    "start-creating": "Commence à Créer",
     "in-development": "En Développement",
     "CEP": "Créez des sujets d'examen",
     "IMQ": "Problèmes de mathématiques ",
@@ -111,7 +111,7 @@
   },
   "navBar": {
     "questions": "Questions",
-    "editor": "Éditeur",
+    "create": "Créer",
     "about": "À propos",
     "updates": "Mises à jour",
     "Start-Creating": "Commence à Créer"

@@ -13,7 +13,7 @@ import "@/styles/navbar.css"
 
 const navLinks = [
   { title: 'questions', href: '/' },
-  //{ title: 'editor', href: '/create-exam-paper' },
+  { title: 'create', href: '/create' },
   { title: 'about', href: '/about' },
   { title: 'updates', href: '/updates' }
 ];
