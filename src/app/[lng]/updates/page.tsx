@@ -41,7 +41,7 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                                     onClick={() => toggleEditPanelSection(14)}
                                 >   
                                     <div>
-                                        0.1.03 <span className='text-grey ml-1 text-sm'>—&nbsp; xx/xx/2026</span>
+                                        0.1.03 <span className='text-grey ml-1 text-sm'>—&nbsp; 27/04/2026</span>
                                     </div>
                                     {editPanelIndex === 14 ? (
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
