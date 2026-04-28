@@ -11,7 +11,7 @@ const SPACING_COMMAND_PATTERN = /^(left|right|big|Big|bigg|Bigg|displaystyle|tex
 const OPERATORS = ['+', '-', '='];
 const TEXT_WIDTH_SAFETY_FACTOR = 1.2;
 const SCRIPT_WIDTH_FACTOR = 0.55;
-const BASE_FONT_SIZE = 18;
+const BASE_FONT_SIZE = 13.5;
 
 type Token =
   | { type: 'text'; content: string }
@@ -227,6 +227,7 @@ function breakLine(line: string, maxLineWidth: number, fontSize: number): string
         let breakAt = -1;
         let consumed = 0;
         let lastNaturalBreak = -1;
+        let lastColonBreak = -1;
 
         for (let k = 0; k < remaining.length; k++) {
           const char = remaining[k];
@@ -236,8 +237,28 @@ function breakLine(line: string, maxLineWidth: number, fontSize: number): string
             lastNaturalBreak = k + 1;
           }
 
+          if (char === ':') {
+            lastColonBreak = k + 1;
+          }
+
           if (consumed > available) {
-            breakAt = lastNaturalBreak > 0 ? lastNaturalBreak : Math.max(1, k);
+            if (lastColonBreak > 0) {
+              breakAt = lastColonBreak;
+              if (remaining[breakAt] === ' ') breakAt++;
+            } else {
+              const colonAhead = remaining.indexOf(':', k);
+              if (colonAhead >= 0 && colonAhead - k <= 6) {
+                const uptoColon = remaining.slice(0, colonAhead + 1);
+                if (estimatePlainTextWidth(uptoColon) * fontScale <= available * 1.15) {
+                  breakAt = colonAhead + 1;
+                  if (remaining[breakAt] === ' ') breakAt++;
+                }
+              }
+            }
+
+            if (breakAt < 0) {
+              breakAt = lastNaturalBreak > 0 ? lastNaturalBreak : Math.max(1, k);
+            }
             break;
           }
         }
