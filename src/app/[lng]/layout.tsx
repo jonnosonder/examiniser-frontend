@@ -3,9 +3,9 @@
 
 import { DataProvider } from "../../context/dataContext";
 
-import Analytics from "@/components/editor/analytics";
+import Analytics from "@/components/general/analytics";
 import type { ReactNode } from "react";
-import LocaleClientWrapper from "@/components/editor/LocaleClientWrapper";
+import LocaleClientWrapper from "@/components/general/LocaleClientWrapper";
 import * as React from "react";
 import { Locale } from "@/lib/locales";
 

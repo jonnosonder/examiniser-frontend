@@ -5,9 +5,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ReloadLink } from '../editor/reloadLink';
+import { ReloadLink } from '../general/reloadLink';
 import { useTranslation } from 'react-i18next';
-import SwitchLanuageDropDown from '../editor/switchLanuageDropDown';
+import SwitchLanuageDropDown from '../general/switchLanuageDropDown';
 import { Locale } from '@/lib/locales';
 import "@/styles/navbar.css"
 

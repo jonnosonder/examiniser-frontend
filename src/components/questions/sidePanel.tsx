@@ -5,8 +5,8 @@
 
 import * as React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { ReloadLink } from '../editor/reloadLink';
-import SwitchLanuageDropDown from '../editor/switchLanuageDropDown';
+import { ReloadLink } from '../general/reloadLink';
+import SwitchLanuageDropDown from '../general/switchLanuageDropDown';
 import { Locale } from '@/lib/locales';
 import "@/styles/navbar.css"
 
