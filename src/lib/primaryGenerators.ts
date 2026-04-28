@@ -4023,9 +4023,7 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
 
             return {
                 latex:
-                    `\\text{What does this equal:}\\\\` +
-                    `x = ${x}\\\\` +
-                    `${a}x + ${b} = \\ ?`,
+                    `\\text{If } x = ${x}\\text{, then what does this equal: } ${a}x + ${b} = \\ ?`,
                 answer: result.toString(),
                 forceOption: 0,
             };
@@ -4044,9 +4042,7 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
 
         return {
             latex:
-                `\\text{What does this equal:}\\\\` +
-                `x = ${x},\\; y = ${y}\\\\` +
-                `${a}x + ${b}y = \\ ?`,
+                `\\text{If } x = ${x}\\text{ and } y = ${y}\\text{, then what does this equal: } ${a}x + ${b}y = \\ ?`,
             answer: result.toString(),
             forceOption: 0,
         };

@@ -3,9 +3,6 @@ import { BlockMath } from 'react-katex';
 interface WrappedMathProps {
   latex: string;
   maxLineWidth?: number;
-  textAlign?: 'left' | 'center' | 'right';
-  fontSize?: number;
-  disableOverflow?: boolean;
 }
 
 const SPACING_COMMANDS =
@@ -266,69 +263,12 @@ function wrapLatex(latex: string, maxLineWidth: number = 60): string {
   return wrapped;
 }
 
-export function WrappedMath({ latex, maxLineWidth = 60, textAlign = 'center', fontSize = 18, disableOverflow = false }: WrappedMathProps) {
+export function WrappedMath({ latex, maxLineWidth = 60 }: WrappedMathProps) {
   const wrapped = wrapLatex(latex, maxLineWidth);
-  const overflowClassName = disableOverflow ? 'wrapped-math-no-overflow' : '';
  
   return (
-    <>
-      <div
-        className={`wrapped-math wrapped-math-${textAlign} ${overflowClassName}`.trim()}
-        style={{
-          overflowX: disableOverflow ? 'clip' : 'auto',
-          // Always hidden so the wrapper box fully contains KaTeX content,
-          // ensuring offsetHeight measurements are accurate. Generous padding
-          // gives superscripts and descenders enough room.
-          overflowY: 'hidden',
-          paddingTop: disableOverflow ? '0.6em' : 0,
-          paddingBottom: disableOverflow ? '0.4em' : 0,
-          maxWidth: '100%',
-          textAlign,
-          fontSize: `${fontSize}px`,
-        }}
-      >
-        <BlockMath math={wrapped} />
-      </div>
-      <style jsx global>{`
-        .wrapped-math .katex-display {
-          margin: 0;
-        }
-
-        .wrapped-math .katex-display > .katex {
-          max-width: 100%;
-          white-space: normal;
-        }
-
-        .wrapped-math-left .katex-display {
-          text-align: left;
-        }
-
-        .wrapped-math-left .katex-display > .katex {
-          margin-left: 0;
-          margin-right: auto;
-          text-align: left;
-        }
-
-        .wrapped-math-center .katex-display {
-          text-align: center;
-        }
-
-        .wrapped-math-center .katex-display > .katex {
-          margin-left: auto;
-          margin-right: auto;
-          text-align: center;
-        }
-
-        .wrapped-math-right .katex-display {
-          text-align: right;
-        }
-
-        .wrapped-math-right .katex-display > .katex {
-          margin-left: auto;
-          margin-right: 0;
-          text-align: right;
-        }
-      `}</style>
-    </>
+    <div style={{ overflowX: 'auto', maxWidth: '100%', textAlign: 'center' }}>
+      <BlockMath math={wrapped} />
+    </div>
   );
 }

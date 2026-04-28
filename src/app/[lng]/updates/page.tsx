@@ -62,6 +62,7 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                                     <p className="text-sm">
                                         - Creating maths exam papers feature added<br/>
                                         - Locale language fix<br/>
+                                        - Update some questions layout and phrasing<br/>
                                     </p>
                                     
                                 </div>

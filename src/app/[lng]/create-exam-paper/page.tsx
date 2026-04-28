@@ -7,7 +7,7 @@ import { Locale } from "@/lib/locales";
 import { QUESTION_CATALOG, type MainTopicDef, type QuestionLevel, type SubtopicDef } from "@/lib/questionTopicCatalog";
 import { getQuestionGeneratorLevels } from "@/lib/questionGeneratorRegistry";
 import { generateQuestionWithTimeout } from "@/lib/questionGenerators";
-import { WrappedMath } from "@/components/questions/wrapLatex";
+import { EditorWrapLatex } from "../../../components/questions/editorWrapLatex";
 import { toCanvas } from "html-to-image";
 import { jsPDF } from "jspdf";
 import Link from "next/link";
@@ -38,6 +38,8 @@ type TopicResult = {
     subtopicLabel: string;
 };
 
+type SidebarSection = "layout" | "styling" | "questions" | null;
+
 const INITIAL_QUESTIONS: QuestionItem[] = [];
 const STAGE_OPTIONS: StageOption[] = [
     { id: "primary", label: "Primary" },
@@ -53,9 +55,12 @@ const PAGE_MARGIN_X = 72;
 const QUESTION_MARGIN_X = 96;
 const PAGE_MARGIN_TOP = 96;
 const PAGE_MARGIN_BOTTOM = 80;
-const QUESTION_GAP = 26;
+const DEFAULT_QUESTION_GAP = 0;
+const MIN_QUESTION_GAP = 0;
+const MAX_QUESTION_GAP = 48;
 const QUESTION_RENDER_PADDING_Y = 12;
-const QUESTION_HEIGHT_BUFFER = 40;
+const MIN_QUESTION_HEIGHT = 84;
+const QUESTION_HEIGHT_BUFFER = 12;
 const MIN_ZOOM_PERCENT = 50;
 const MAX_ZOOM_PERCENT = 200;
 const ZOOM_STEP = 10;
@@ -204,19 +209,19 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
     const { lng } = resolvedParams;
 
     const [selectedLayout, setSelectedLayout] = React.useState<"linear" | "grid">("linear");
-    const [layoutOpen, setLayoutOpen] = React.useState(false);
-    const [stylingOpen, setStylingOpen] = React.useState(false);
+    const [activeSidebarSection, setActiveSidebarSection] = React.useState<SidebarSection>("questions");
     const [paperTitle, setPaperTitle] = React.useState("Exam Paper");
     const [questionNumberStyle, setQuestionNumberStyle] = React.useState<"short" | "long">("long");
     const [questionTextAlign, setQuestionTextAlign] = React.useState<"left" | "center" | "right">("left");
-    const [questionFontSize, setQuestionFontSize] = React.useState(18);
-    const [questionFontSizeInput, setQuestionFontSizeInput] = React.useState("18");
+    const [questionFontSize, setQuestionFontSize] = React.useState(12);
+    const [questionFontSizeInput, setQuestionFontSizeInput] = React.useState("12");
+    const [questionSpacing, setQuestionSpacing] = React.useState(DEFAULT_QUESTION_GAP);
+    const [questionSpacingInput, setQuestionSpacingInput] = React.useState(String(DEFAULT_QUESTION_GAP));
     const [exportFileName, setExportFileName] = React.useState("Exam Paper");
     const [downloadModalOpen, setDownloadModalOpen] = React.useState(false);
     const [downloadCompression, setDownloadCompression] = React.useState<PdfCompressionLevel>("medium");
     const [isExportingPdf, setIsExportingPdf] = React.useState(false);
     const [zoomPercent, setZoomPercent] = React.useState(100);
-    const [questionsOpen, setQuestionsOpen] = React.useState(true);
     const [questions, setQuestions] = React.useState<QuestionItem[]>(INITIAL_QUESTIONS);
     const [editingQuestionId, setEditingQuestionId] = React.useState<number | null>(null);
     const [editingQuestionTitle, setEditingQuestionTitle] = React.useState("");
@@ -243,7 +248,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
     const questionMeasureRefs = React.useRef<Record<number, HTMLDivElement | null>>({});
     const exportPageRefs = React.useRef<Array<HTMLDivElement | null>>([]);
     const [questionHeights, setQuestionHeights] = React.useState<Record<number, number>>({});
-    const [canvasMaxLineWidth, setCanvasMaxLineWidth] = React.useState(() => estimateMaxLineWidth(PAGE_WIDTH , questionFontSize));
+    const [canvasMaxLineWidth, setCanvasMaxLineWidth] = React.useState(() => estimateMaxLineWidth(PAGE_WIDTH - QUESTION_MARGIN_X * 2, questionFontSize));
 
     const questionContentWidth = PAGE_WIDTH - QUESTION_MARGIN_X * 2;
     const zoomScale = zoomPercent / 100;
@@ -396,7 +401,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
         let cursorY = PAGE_MARGIN_TOP;
 
         for (const question of questions) {
-            const measuredHeight = Math.max(136, (questionHeights[question.id] ?? 140) + QUESTION_HEIGHT_BUFFER);
+            const measuredHeight = Math.max(MIN_QUESTION_HEIGHT, (questionHeights[question.id] ?? MIN_QUESTION_HEIGHT) + QUESTION_HEIGHT_BUFFER);
             const willOverflow = cursorY + measuredHeight > PAGE_HEIGHT - PAGE_MARGIN_BOTTOM;
 
             if (willOverflow && cursorY > PAGE_MARGIN_TOP) {
@@ -413,14 +418,14 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                 measuredHeight,
             });
 
-            cursorY += measuredHeight + QUESTION_GAP;
+            cursorY += measuredHeight + questionSpacing;
         }
 
         return {
             placements,
             pageCount: Math.max(1, pageIndex + 1),
         };
-    }, [questionContentWidth, questionHeights, questions]);
+    }, [questionContentWidth, questionHeights, questionSpacing, questions]);
 
     const stageHeight = React.useMemo(() => {
         return questionPlacements.pageCount * PAGE_HEIGHT + (questionPlacements.pageCount - 1) * PAGE_GAP;
@@ -456,6 +461,10 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
 
     const zoomIn = React.useCallback(() => {
         setZoomPercent((currentZoom) => Math.min(MAX_ZOOM_PERCENT, currentZoom + ZOOM_STEP));
+    }, []);
+
+    const toggleSidebarSection = React.useCallback((section: Exclude<SidebarSection, null>) => {
+        setActiveSidebarSection((currentSection) => currentSection === section ? null : section);
     }, []);
 
     const closeEditQuestionModal = React.useCallback(() => {
@@ -504,9 +513,67 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
         setQuestionFontSizeInput(String(nextFontSize));
     }, [questionFontSize]);
 
+    const handleQuestionFontSizeChange = React.useCallback((rawValue: string) => {
+        setQuestionFontSizeInput(rawValue);
+
+        const trimmedValue = rawValue.trim();
+        if (!trimmedValue) {
+            return;
+        }
+
+        const parsed = Number.parseInt(trimmedValue, 10);
+        if (Number.isNaN(parsed)) {
+            return;
+        }
+
+        if (parsed >= 10 && parsed <= 36) {
+            setQuestionFontSize(parsed);
+        }
+    }, []);
+
+    const commitQuestionSpacing = React.useCallback((rawValue: string) => {
+        const trimmedValue = rawValue.trim();
+        if (!trimmedValue) {
+            setQuestionSpacingInput("");
+            return;
+        }
+
+        const parsed = Number.parseInt(trimmedValue, 10);
+        if (Number.isNaN(parsed)) {
+            setQuestionSpacingInput(String(questionSpacing));
+            return;
+        }
+
+        const nextSpacing = Math.min(MAX_QUESTION_GAP, Math.max(MIN_QUESTION_GAP, parsed));
+        setQuestionSpacing(nextSpacing);
+        setQuestionSpacingInput(String(nextSpacing));
+    }, [questionSpacing]);
+
+    const handleQuestionSpacingChange = React.useCallback((rawValue: string) => {
+        setQuestionSpacingInput(rawValue);
+
+        const trimmedValue = rawValue.trim();
+        if (!trimmedValue) {
+            return;
+        }
+
+        const parsed = Number.parseInt(trimmedValue, 10);
+        if (Number.isNaN(parsed)) {
+            return;
+        }
+
+        if (parsed >= MIN_QUESTION_GAP && parsed <= MAX_QUESTION_GAP) {
+            setQuestionSpacing(parsed);
+        }
+    }, []);
+
     React.useEffect(() => {
         setQuestionFontSizeInput(String(questionFontSize));
     }, [questionFontSize]);
+
+    React.useEffect(() => {
+        setQuestionSpacingInput(String(questionSpacing));
+    }, [questionSpacing]);
 
     React.useEffect(() => {
         const recalculateLineWidth = () => {
@@ -1086,7 +1153,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                         {formatQuestionNumber(questions.findIndex((item) => item.id === question.id))}
                                                     </p>
                                                     <div className="mt-2 text-black">
-                                                        <WrappedMath latex={question.latex} maxLineWidth={canvasMaxLineWidth} textAlign={questionTextAlign} fontSize={questionFontSize} disableOverflow={true} />
+                                                        <EditorWrapLatex latex={question.latex} maxLineWidth={canvasMaxLineWidth} textAlign={questionTextAlign} fontSize={questionFontSize} />
                                                     </div>
                                                 </div>
                                             );
@@ -1110,7 +1177,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                     {formatQuestionNumber(index)}
                                                 </p>
                                                 <div className="mt-2 text-black">
-                                                    <WrappedMath latex={question.latex} maxLineWidth={canvasMaxLineWidth} textAlign={questionTextAlign} fontSize={questionFontSize} disableOverflow={true} />
+                                                    <EditorWrapLatex latex={question.latex} maxLineWidth={canvasMaxLineWidth} textAlign={questionTextAlign} fontSize={questionFontSize} />
                                                 </div>
                                             </div>
                                         ))}
@@ -1128,49 +1195,82 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                         <button
                             type="button"
                             className="flex w-full items-center justify-between px-4 py-3 text-left text-black"
-                            onClick={() => setLayoutOpen((open) => !open)}
-                            aria-expanded={layoutOpen}
+                            onClick={() => toggleSidebarSection("layout")}
+                            aria-expanded={activeSidebarSection === "layout"}
                         >
                             <span className="font-nunito text-lg font-semibold">Layout</span>
-                            <SectionToggleIcon open={layoutOpen} />
+                            <SectionToggleIcon open={activeSidebarSection === "layout"} />
                         </button>
-                        {layoutOpen && (
-                            <div className="flex w-full justify-center px-3 py-3">
-                                <div className={`items-center justify-center flex flex-col rounded-md m-2 ${selectedLayout === "linear" ? "transition duration-200 shadow-[0_0_0_0.2rem_var(--accent)]" : ""}`}>
-                                    <p className="text-center text-grey text-sm">Linear</p>
-                                    <button className="items-center justify-center flex" onClick={() => setSelectedLayout("linear")}>
-                                <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <rect x="4.5" y="4.5" width="39" height="39" rx="5.5" stroke="black"/>
-                                    <line x1="4" y1="24" x2="44" y2="24" stroke="black"/>
-                                    <line x1="4" y1="14.5" x2="44" y2="14.5" stroke="black"/>
-                                    <line x1="4" y1="33.5" x2="44" y2="33.5" stroke="black"/>
-                                </svg>
-                            </button>
+                        {activeSidebarSection === "layout" && (
+                            <div className="px-4 pb-4">
+                                <div className="flex w-full justify-center py-3">
+                                    <button onClick={() => setSelectedLayout("linear")} className={`items-center justify-center flex flex-col rounded-md m-2 ${selectedLayout === "linear" ? "transition duration-200 shadow-[0_0_0_0.2rem_var(--accent)]" : ""}`}>
+                                        <p className="text-center text-grey text-sm">Linear</p>
+                                        <div className="items-center justify-center flex">
+                                            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <rect x="4.5" y="4.5" width="39" height="39" rx="5.5" stroke="black"/>
+                                                <line x1="4" y1="24" x2="44" y2="24" stroke="black"/>
+                                                <line x1="4" y1="14.5" x2="44" y2="14.5" stroke="black"/>
+                                                <line x1="4" y1="33.5" x2="44" y2="33.5" stroke="black"/>
+                                            </svg>
+                                        </div>
+                                    </button>
+                                    <button onClick={() => setSelectedLayout("grid")} className={`items-center justify-center flex flex-col rounded-md m-2 ${selectedLayout === "grid" ? "transition duration-200 shadow-[0_0_0_0.2rem_var(--accent)]" : ""}`}>
+                                        <p className="text-center text-grey text-sm">Grid</p>
+                                        <div className="items-center justify-center flex">
+                                            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <rect x="4.5" y="4.5" width="39" height="39" rx="5.5" stroke="black"/>
+                                                <line x1="4" y1="24" x2="44" y2="24" stroke="black"/>
+                                                <line x1="24" y1="44" x2="24" y2="4" stroke="black"/>
+                                            </svg>
+                                        </div>
+                                    </button>
+                                </div>
+                                <label htmlFor="question-spacing" className="mb-2 mt-2 block font-nunito text-center text-xs uppercase tracking-[0.18em] text-grey">
+                                    Question Spacing
+                                </label>
+                                <div className="flex items-center gap-3">
+                                    <input
+                                        id="question-spacing"
+                                        type="number"
+                                        min={MIN_QUESTION_GAP}
+                                        max={MAX_QUESTION_GAP}
+                                        value={questionSpacingInput}
+                                        onChange={(event) => handleQuestionSpacingChange(event.target.value)}
+                                        onBlur={(event) => commitQuestionSpacing(event.target.value)}
+                                        onKeyDown={(event) => {
+                                            if (event.key === "Enter") {
+                                                commitQuestionSpacing(event.currentTarget.value);
+                                                event.currentTarget.blur();
+                                            }
+                                        }}
+                                        className="h-11 w-20 shrink-0 rounded-lg border border-black/20 bg-white px-3 font-nunito text-sm text-black outline-none transition-shadow duration-200 focus:shadow-[0_0_0_3px_var(--accent)]"
+                                    />
+                                    <input
+                                        type="range"
+                                        min={MIN_QUESTION_GAP}
+                                        max={MAX_QUESTION_GAP}
+                                        step={1}
+                                        value={questionSpacing}
+                                        onChange={(event) => setQuestionSpacing(Number.parseInt(event.target.value, 10))}
+                                        className="h-2 w-full cursor-pointer appearance-none rounded-full bg-black/15 accent-black"
+                                        aria-label="Question spacing"
+                                    />
+                                </div>
                             </div>
-                            <div className={`items-center justify-center flex flex-col rounded-md m-2 ${selectedLayout === "grid" ? "transition duration-200 shadow-[0_0_0_0.2rem_var(--accent)]" : ""}`}>
-                                <p className="text-center text-grey text-sm">Grid</p>
-                                <button className="items-center justify-center flex" onClick={() => setSelectedLayout("grid")}>
-                                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <rect x="4.5" y="4.5" width="39" height="39" rx="5.5" stroke="black"/>
-                                        <line x1="4" y1="24" x2="44" y2="24" stroke="black"/>
-                                        <line x1="24" y1="44" x2="24" y2="4" stroke="black"/>
-                                    </svg>
-                                </button>   
-                            </div>           
-                        </div>
                         )}
                     </div>
                     <div className="w-full shrink-0 border-t border-black/10 bg-white">
                         <button
                             type="button"
                             className="flex w-full items-center justify-between px-4 py-3 text-left text-black"
-                            onClick={() => setStylingOpen((open) => !open)}
-                            aria-expanded={stylingOpen}
+                            onClick={() => toggleSidebarSection("styling")}
+                            aria-expanded={activeSidebarSection === "styling"}
                         >
                             <span className="font-nunito text-lg font-semibold">Styling</span>
-                            <SectionToggleIcon open={stylingOpen} />
+                            <SectionToggleIcon open={activeSidebarSection === "styling"} />
                         </button>
-                        {stylingOpen && (
+                        {activeSidebarSection === "styling" && (
                             <div className="px-4 pb-4">
                                 <label htmlFor="paper-title" className="mb-2 block font-nunito text-xs uppercase tracking-[0.18em] text-grey">
                                     Title
@@ -1225,7 +1325,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                     min={10}
                                     max={36}
                                     value={questionFontSizeInput}
-                                    onChange={(event) => setQuestionFontSizeInput(event.target.value)}
+                                    onChange={(event) => handleQuestionFontSizeChange(event.target.value)}
                                     onBlur={(event) => commitQuestionFontSize(event.target.value)}
                                     onKeyDown={(event) => {
                                         if (event.key === "Enter") {
@@ -1242,13 +1342,13 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                         <button
                             type="button"
                             className="flex w-full items-center justify-between px-4 py-3 text-left text-black"
-                            onClick={() => setQuestionsOpen((open) => !open)}
-                            aria-expanded={questionsOpen}
+                            onClick={() => toggleSidebarSection("questions")}
+                            aria-expanded={activeSidebarSection === "questions"}
                         >
                             <span className="font-nunito text-lg font-semibold">Questions</span>
-                            <SectionToggleIcon open={questionsOpen} />
+                            <SectionToggleIcon open={activeSidebarSection === "questions"} />
                         </button>
-                        {questionsOpen && (
+                        {activeSidebarSection === "questions" && (
                             <div className="flex min-h-0 flex-1 flex-col">
                                 <div className="flex w-full items-center justify-between px-4 pb-3 pt-3">
                                     <p className="font-nunito text-sm uppercase tracking-[0.24em] text-grey">
@@ -1442,12 +1542,11 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                             {formatQuestionNumber(questions.findIndex((item) => item.id === question.id))}
                                         </p>
                                         <div className="mt-2 text-black">
-                                            <WrappedMath
+                                            <EditorWrapLatex
                                                 latex={question.latex}
                                                 maxLineWidth={canvasMaxLineWidth}
                                                 textAlign={questionTextAlign}
                                                 fontSize={questionFontSize}
-                                                disableOverflow={true}
                                             />
                                         </div>
                                     </div>
