@@ -123,7 +123,11 @@
     "contact": "Contacto",
     "contactInfo": "No dudes en enviar un correo con sugerencias, problemas o traducciones.",
     "how-to-show-support": "Cómo Mostrar Apoyo",
-    "how-to-show-support-info": "Si te gusta el sitio web y quieres mostrar tu apoyo, la mejor manera es compartir el sitio web con tus amigos y profesores. Si deseas hacer más, no dudes en hacer clic en el enlace a continuación para visitar el GitHub de este sitio web y darle una estrella."
+    "how-to-show-support-info": "Si te gusta el sitio web y quieres mostrar tu apoyo, la mejor manera es compartir el sitio web con tus amigos y profesores. Si deseas hacer más, no dudes en hacer clic en el enlace a continuación para visitar el GitHub de este sitio web y darle una estrella.",
+    "open-contact-page": "Abrir página de contacto",
+    "trust-centre": "Centro de confianza",
+    "site-policies-and-contact": "Políticas del sitio y contacto",
+    "trust-centre-info": "Si necesitas información sobre políticas, privacidad o una página de soporte dedicada, usa los enlaces de abajo."
   },
   "updates": {
     "updates": "Actualizaciones",
@@ -865,5 +869,144 @@
     "integration": "Integraci�n",
     "vectors": "Vectores",
     "parametric-equations": "Ecuaciones param�tricas"
+  },
+  "legal": {
+    "common": {
+      "policy-hub": "Centro de políticas",
+      "hub-description": "Estas páginas explican cómo funciona Examiniser, cómo se gestionan los datos y cómo contactar al propietario del sitio.",
+      "open-page": "Abrir página"
+    },
+    "links": {
+      "privacy": {
+        "label": "Política de privacidad",
+        "description": "Cómo se gestionan en Examiniser los datos del sitio, la analítica y la información relacionada con publicidad."
+      },
+      "terms": {
+        "label": "Términos de uso",
+        "description": "Qué ofrece Examiniser, los límites de uso aceptable y las condiciones legales para usar el sitio."
+      },
+      "contact": {
+        "label": "Contacto",
+        "description": "Formas de reportar problemas, solicitar cambios relacionados con datos o hacer consultas generales sobre el sitio."
+      }
+    },
+    "privacy": {
+      "eyebrow": "Privacidad",
+      "title": "Política de privacidad",
+      "intro": "Esta política explica qué información recopila Examiniser, cómo se usa para operar el sitio y cómo contactar al propietario sobre cuestiones de privacidad.",
+      "sections": {
+        "operators": {
+          "title": "Quién opera este sitio",
+          "p1": "Examiniser es operado por un desarrollador independiente y editor educativo. Si necesitas contactar al propietario por asuntos de privacidad, escribe a examiniser@gmail.com."
+        },
+        "collected": {
+          "title": "Qué información puede recopilarse",
+          "b1": "Información técnica básica como tipo de navegador, tipo de dispositivo, página de referencia y región aproximada mediante herramientas de analítica.",
+          "b2": "Mensajes que envíes voluntariamente por correo electrónico, incluida tu dirección y el contenido del mensaje.",
+          "b3": "Eventos de uso del sitio necesarios para entender qué páginas se utilizan y qué partes deben mejorarse."
+        },
+        "analytics": {
+          "title": "Analítica y publicidad",
+          "p1": "Examiniser usa Google Analytics para comprender el tráfico y mejorar la experiencia del sitio.",
+          "p2": "Examiniser puede usar Google AdSense para mostrar anuncios. Google y sus socios pueden usar cookies para mostrar anuncios según visitas previas a este u otros sitios.",
+          "p3": "Puedes obtener más información sobre cómo Google usa la información en su documentación de publicidad y privacidad."
+        },
+        "usage": {
+          "title": "Cómo se usa la información",
+          "b1": "Para operar, mantener y mejorar Examiniser.",
+          "b2": "Para responder mensajes, reportes de errores, solicitudes de traducción o consultas de soporte.",
+          "b3": "Para medir rendimiento, entender patrones de uso y proteger el sitio frente a usos indebidos."
+        },
+        "third-party": {
+          "title": "Servicios de terceros",
+          "p1": "El sitio puede depender de terceros como Google Analytics, Google AdSense, alojamiento web, CDN y otros proveedores de infraestructura técnica. Esos servicios pueden procesar datos técnicos según sus propias políticas de privacidad."
+        },
+        "choices": {
+          "title": "Tus opciones",
+          "b1": "Puedes escribir a examiniser@gmail.com para hacer consultas relacionadas con privacidad.",
+          "b2": "Puedes optar por no contactar por correo si no deseas proporcionar datos de contacto.",
+          "b3": "Puedes gestionar las cookies en la configuración de tu navegador, sujeto a posibles limitaciones de funcionalidad."
+        },
+        "updates": {
+          "title": "Actualizaciones de la política",
+          "p1": "Esta política puede actualizarse conforme cambie Examiniser. Las actualizaciones relevantes se reflejarán en esta página.",
+          "p2": "Última actualización: 28 de abril de 2026."
+        }
+      }
+    },
+    "terms": {
+      "eyebrow": "Términos",
+      "title": "Términos de uso",
+      "intro": "Estos términos explican las reglas para usar Examiniser y los límites del servicio ofrecido a través del sitio.",
+      "sections": {
+        "service": {
+          "title": "Descripción del servicio",
+          "p1": "Examiniser ofrece herramientas educativas, preguntas de matemáticas generadas, recursos de exámenes y funciones de estudio relacionadas para estudiantes, docentes y aprendizaje autodirigido."
+        },
+        "acceptable-use": {
+          "title": "Uso aceptable",
+          "b1": "Usa el sitio para fines educativos, de investigación o productividad personal de forma legal.",
+          "b2": "No intentes interrumpir, sobrecargar, extraer datos de forma abusiva, ingeniería inversa de sistemas protegidos ni interferir con el acceso de otros usuarios.",
+          "b3": "No uses el sitio de forma que infrinja la ley aplicable o los derechos de terceros."
+        },
+        "accuracy": {
+          "title": "Contenido educativo y exactitud",
+          "p1": "Examiniser busca ofrecer material educativo útil, pero el servicio se proporciona según disponibilidad. Las preguntas generadas, soluciones y otros resultados pueden contener errores u omisiones ocasionalmente.",
+          "p2": "Eres responsable de verificar si el material es adecuado para tu clase, plan de estudio o propósito de evaluación."
+        },
+        "ip": {
+          "title": "Propiedad intelectual",
+          "p1": "Salvo que se indique lo contrario, el diseño, la marca, el código, los textos y el material educativo original de Examiniser pertenecen al propietario del sitio o a sus licenciantes."
+        },
+        "external": {
+          "title": "Servicios y enlaces externos",
+          "p1": "El sitio puede incluir enlaces a servicios externos como GitHub, proveedores de analítica, redes publicitarias o recursos de exámenes alojados. Examiniser no es responsable del contenido o políticas de servicios de terceros."
+        },
+        "liability": {
+          "title": "Limitación de responsabilidad",
+          "p1": "En la máxima medida permitida por la ley, Examiniser se ofrece sin garantías de disponibilidad ininterrumpida, exactitud o idoneidad para un fin concreto.",
+          "p2": "El propietario del sitio no es responsable de pérdidas derivadas del uso del sitio, de confiar en material generado o de una indisponibilidad temporal del servicio."
+        },
+        "contact-updates": {
+          "title": "Contacto y actualizaciones",
+          "p1": "Las consultas sobre estos términos pueden enviarse a examiniser@gmail.com.",
+          "p2": "Estos términos pueden actualizarse a medida que el sitio cambie. Última actualización: 28 de abril de 2026."
+        }
+      }
+    },
+    "contact": {
+      "eyebrow": "Contacto",
+      "title": "Contactar con Examiniser",
+      "intro": "Usa esta página si quieres reportar un error, sugerir una función, hablar sobre traducciones o hacer una consulta de privacidad o políticas del sitio.",
+      "sections": {
+        "primary": {
+          "title": "Método de contacto principal",
+          "p1": "Correo: examiniser@gmail.com",
+          "p2": "Este es el canal principal para consultas generales, correcciones, solicitudes de privacidad, ayuda con traducciones y reportes de incidencias."
+        },
+        "helpful": {
+          "title": "Información útil para incluir",
+          "b1": "La URL exacta de la página donde ocurrió el problema.",
+          "b2": "Una breve descripción del problema o solicitud.",
+          "b3": "Capturas de pantalla o mensajes de error copiados si algo falló.",
+          "b4": "Tu navegador y dispositivo si el problema parece específico de diseño o móvil."
+        },
+        "reasons": {
+          "title": "Motivos comunes para contactar",
+          "b1": "Errores o generación de preguntas que no funciona.",
+          "b2": "Correcciones de redacción matemática, diseño o soluciones.",
+          "b3": "Mejoras de traducción.",
+          "b4": "Consultas de privacidad, políticas o publicidad."
+        },
+        "response": {
+          "title": "Expectativa de respuesta",
+          "p1": "Examiniser está gestionado por un único desarrollador, por lo que los tiempos de respuesta pueden variar. Los mensajes se revisan manualmente."
+        }
+      }
+    }
+  },
+  "not-found": {
+    "title": "Vaya, ¿qué página intentabas encontrar?",
+    "back-home": "Volver al inicio"
   }
 }

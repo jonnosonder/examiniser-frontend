@@ -18,19 +18,17 @@ export function generateStaticParams() {
   return [{ lng: "en" }, { lng: "es" }, { lng: "fr" }, { lng: "jp" }, { lng: "zh" }];
 }
 
+export const dynamicParams = false;
+
 export default function LocaleLayout({ children, params }: LocaleLayoutProps) {
   const { lng } = React.use(params) as { lng: Locale };
 
   return (
     <>
-      <body>
-          <Analytics />
-          <DataProvider>
-            <LocaleClientWrapper lng={lng}>{
-              children
-            }</LocaleClientWrapper >
-          </DataProvider>
-      </body>
+      <Analytics />
+      <DataProvider>
+        <LocaleClientWrapper lng={lng}>{children}</LocaleClientWrapper>
+      </DataProvider>
     </>
   );
 }

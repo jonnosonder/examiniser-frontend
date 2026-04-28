@@ -105,7 +105,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Additional Apple Touch Icons (for iOS) */}
         <link rel="apple-touch-icon" sizes="152x152" href="/icons/favicon-152x152.png" />
       </head>
-      {children}
+      <body>{children}</body>
     </html>
   );
 }

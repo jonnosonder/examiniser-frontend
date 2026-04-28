@@ -2,22 +2,26 @@
 // Copyright © 2025 Jonathan Kwok
 
 "use client";
+
 import React from "react";
-import { usePathname, useRouter } from "next/navigation";
-import { LocaleResources, LocaleValues } from "@/lib/locales";
+import { useRouter, useParams } from "next/navigation";
+import { useTranslation } from "react-i18next";
+import { LocaleValues } from "@/lib/locales";
 
-const RootFallback404: React.FC = () => {
+const LocalizedNotFound: React.FC = () => {
   const router = useRouter();
-  const pathname = usePathname();
+  const params = useParams<{ lng?: string }>();
+  const { t, i18n } = useTranslation();
 
-  const rawLocale = pathname?.split("/")[1];
+  const rawLocale = params?.lng;
   const locale = rawLocale && LocaleValues.includes(rawLocale) ? rawLocale : "en";
   const homePath = `/${locale}`;
 
-  const notFoundStrings = (LocaleResources as Record<string, { translation?: Record<string, unknown> }>)[locale]
-    ?.translation?.["not-found"] as { title?: string; "back-home"?: string } | undefined;
-  const title = notFoundStrings?.title ?? "Woah, what page did you try to find?";
-  const backHome = notFoundStrings?.["back-home"] ?? "Back Home";
+  React.useEffect(() => {
+    if (i18n.language !== locale) {
+      void i18n.changeLanguage(locale);
+    }
+  }, [i18n, locale]);
 
   return (
     <>
@@ -40,9 +44,9 @@ const RootFallback404: React.FC = () => {
       >
         <div className="flex flex-col items-center justify-center backdrop-blur-[2px] border border-grey rounded-lg shadow-lg p-8 hover:shadow-[0_0_0_1rem_theme('colors.accent')] transition-all duration-300 ease-in-out">
           <h1 className="text-6xl">404</h1>
-          <h2 className="text-2xl">{title}</h2>
+          <h2 className="text-2xl">{t("not-found.title")}</h2>
           <p onClick={() => router.push(homePath)} className="underline cursor-pointer">
-            {backHome}
+            {t("not-found.back-home")}
           </p>
         </div>
       </div>
@@ -50,4 +54,4 @@ const RootFallback404: React.FC = () => {
   );
 };
 
-export default RootFallback404;
+export default LocalizedNotFound;

@@ -122,7 +122,11 @@
     "contact": "Contact",
     "contactInfo": "Feel free to email about any suggestions, problems or translations.",
     "how-to-show-support": "How to Show Support",
-    "how-to-show-support-info": "If you like the website and want to show support, the best way is to share the website with your friends and teachers. If you wish to do more, feel free to click the link below to visit the GitHub for this website and give it a star."
+    "how-to-show-support-info": "If you like the website and want to show support, the best way is to share the website with your friends and teachers. If you wish to do more, feel free to click the link below to visit the GitHub for this website and give it a star.",
+    "open-contact-page": "Open contact page",
+    "trust-centre": "Trust Centre",
+    "site-policies-and-contact": "Site policies and contact",
+    "trust-centre-info": "If you need policy information, privacy details, or a dedicated support page, use the links below."
   },
   "updates": {
     "updates": "Updates",
@@ -864,5 +868,144 @@
     "integration": "Integration",
     "vectors": "Vectors",
     "parametric-equations": "Parametric Equations"
+  },
+  "legal": {
+    "common": {
+      "policy-hub": "Policy Hub",
+      "hub-description": "These pages explain how Examiniser is run, how data is handled, and how to contact the site owner.",
+      "open-page": "Open page"
+    },
+    "links": {
+      "privacy": {
+        "label": "Privacy Policy",
+        "description": "How site data, analytics, and advertising-related information are handled on Examiniser."
+      },
+      "terms": {
+        "label": "Terms of Use",
+        "description": "What Examiniser provides, the boundaries of acceptable use, and the legal terms for using the site."
+      },
+      "contact": {
+        "label": "Contact",
+        "description": "Ways to report issues, request data-related changes, or ask general questions about the site."
+      }
+    },
+    "privacy": {
+      "eyebrow": "Privacy",
+      "title": "Privacy Policy",
+      "intro": "This policy explains what information Examiniser collects, how it is used to run the site, and how to contact the site owner about privacy questions.",
+      "sections": {
+        "operators": {
+          "title": "Who operates this site",
+          "p1": "Examiniser is operated by an independent developer and educational publisher. If you need to contact the site owner about privacy matters, email examiniser@gmail.com."
+        },
+        "collected": {
+          "title": "What information may be collected",
+          "b1": "Basic technical information such as browser type, device type, referring page, and approximate region through analytics tools.",
+          "b2": "Messages that you voluntarily send by email, including your email address and the contents of your message.",
+          "b3": "Site usage events needed to understand which pages are used and which parts of the site need improvement."
+        },
+        "analytics": {
+          "title": "Analytics and advertising",
+          "p1": "Examiniser uses Google Analytics to understand traffic and improve the site experience.",
+          "p2": "Examiniser may use Google AdSense to display advertising. Google and its partners may use cookies to serve ads based on prior visits to this site or other websites.",
+          "p3": "Users may learn more about how Google uses information by visiting Google's advertising and privacy documentation."
+        },
+        "usage": {
+          "title": "How information is used",
+          "b1": "To operate, maintain, and improve Examiniser.",
+          "b2": "To respond to messages, bug reports, translation requests, or support questions.",
+          "b3": "To measure performance, understand usage patterns, and protect the site from misuse."
+        },
+        "third-party": {
+          "title": "Third-party services",
+          "p1": "The site may rely on third-party services such as Google Analytics, Google AdSense, website hosting, CDN delivery, and other technical infrastructure providers. Those services may process technical data according to their own privacy policies."
+        },
+        "choices": {
+          "title": "Your choices",
+          "b1": "You can contact examiniser@gmail.com to ask privacy-related questions.",
+          "b2": "You can choose not to contact the site by email if you do not want to provide contact details.",
+          "b3": "You can manage cookies through your browser settings, subject to any functionality limitations that might result."
+        },
+        "updates": {
+          "title": "Policy updates",
+          "p1": "This policy may be updated as Examiniser changes. Material updates will be reflected on this page.",
+          "p2": "Last updated: 28 April 2026."
+        }
+      }
+    },
+    "terms": {
+      "eyebrow": "Terms",
+      "title": "Terms of Use",
+      "intro": "These terms explain the rules for using Examiniser and the limits of the service provided through the site.",
+      "sections": {
+        "service": {
+          "title": "Service description",
+          "p1": "Examiniser provides educational tools, generated maths questions, exam paper resources, and related study features for students, teachers, and self-directed learners."
+        },
+        "acceptable-use": {
+          "title": "Acceptable use",
+          "b1": "Use the site for lawful educational, research, or personal productivity purposes.",
+          "b2": "Do not attempt to disrupt, overload, scrape abusively, reverse engineer protected systems, or interfere with other users' access.",
+          "b3": "Do not use the site in a way that violates applicable law or the rights of others."
+        },
+        "accuracy": {
+          "title": "Educational content and accuracy",
+          "p1": "Examiniser aims to provide useful educational material, but the service is offered on an as-available basis. Generated questions, worked solutions, and other outputs may occasionally contain mistakes or omissions.",
+          "p2": "You are responsible for checking whether material is suitable for your own classroom, study plan, or assessment purpose."
+        },
+        "ip": {
+          "title": "Intellectual property",
+          "p1": "Unless otherwise stated, the Examiniser website design, branding, code, text, and original educational material remain the property of the site owner or its licensors."
+        },
+        "external": {
+          "title": "External services and links",
+          "p1": "The site may include links to external services such as GitHub, analytics providers, advertising networks, or hosted exam-paper assets. Examiniser is not responsible for the content or policies of third-party services."
+        },
+        "liability": {
+          "title": "Limitation of liability",
+          "p1": "To the fullest extent permitted by law, Examiniser is provided without guarantees of uninterrupted availability, correctness, or suitability for a particular purpose.",
+          "p2": "The site owner is not liable for losses arising from use of the website, reliance on generated material, or temporary unavailability of the service."
+        },
+        "contact-updates": {
+          "title": "Contact and updates",
+          "p1": "Questions about these terms can be sent to examiniser@gmail.com.",
+          "p2": "These terms may be updated as the site changes. Last updated: 28 April 2026."
+        }
+      }
+    },
+    "contact": {
+      "eyebrow": "Contact",
+      "title": "Contact Examiniser",
+      "intro": "Use this page if you want to report a bug, suggest a feature, discuss translations, or ask a privacy or policy question about the site.",
+      "sections": {
+        "primary": {
+          "title": "Primary contact method",
+          "p1": "Email: examiniser@gmail.com",
+          "p2": "This is the main contact address for general questions, corrections, privacy requests, translation help, and issue reports."
+        },
+        "helpful": {
+          "title": "Helpful information to include",
+          "b1": "The exact page URL where the issue happened.",
+          "b2": "A short description of the problem or request.",
+          "b3": "Screenshots or copied error messages if something broke.",
+          "b4": "Your browser and device if the problem looks layout-specific or mobile-specific."
+        },
+        "reasons": {
+          "title": "Common reasons to get in touch",
+          "b1": "Bug reports or broken question generation.",
+          "b2": "Corrections to maths wording, layout, or solutions.",
+          "b3": "Translation improvements.",
+          "b4": "Privacy, policy, or advertising questions."
+        },
+        "response": {
+          "title": "Response expectation",
+          "p1": "Examiniser is run by a solo developer, so response times may vary. Messages are reviewed manually."
+        }
+      }
+    }
+  },
+  "not-found": {
+    "title": "Woah, what page did you try to find?",
+    "back-home": "Back Home"
   }
 }

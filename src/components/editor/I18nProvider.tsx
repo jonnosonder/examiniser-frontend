@@ -6,6 +6,7 @@
 import { I18nextProvider, initReactI18next } from "react-i18next";
 import i18next, { i18n as I18nType } from "i18next";
 import type { ReactNode } from "react";
+import { useEffect } from "react";
 import { LocaleResources } from "@/lib/locales";
 
 interface I18nWithReact extends I18nType {
@@ -29,6 +30,12 @@ export default function I18nProvider({ children, lng }: Props) {
     });
     i18n._reactInitialized = true;
   }
+
+  useEffect(() => {
+    if (i18n.language !== lng) {
+      void i18n.changeLanguage(lng);
+    }
+  }, [i18n, lng]);
 
   return <I18nextProvider i18n={i18n}>{children}</I18nextProvider>;
 }
