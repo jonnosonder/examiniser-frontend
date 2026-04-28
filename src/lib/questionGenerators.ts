@@ -13,6 +13,7 @@ type PendingRequest = {
 
 let sharedGeneratorWorker: Worker | null = null;
 const pendingRequests = new Map<string, PendingRequest>();
+let previousGeneratedLatex: string | null = null;
 
 function getFallbackResult(): import("./questionGeneratorCommon").QuestionResult {
     return {
@@ -72,7 +73,16 @@ export async function generateQuestionWithTimeout(
     if (typeof Worker === "undefined") {
         const generator = getQuestionGenerator(args.level, args.subtopicSlug);
         return Promise.race([
-            Promise.resolve(generator(args)).catch(() => fallback),
+            Promise.resolve()
+                .then(async () => {
+                    let result = await Promise.resolve(generator(args));
+                    if (previousGeneratedLatex && result.latex === previousGeneratedLatex) {
+                        result = await Promise.resolve(generator(args));
+                    }
+                    previousGeneratedLatex = result.latex;
+                    return result;
+                })
+                .catch(() => fallback),
             new Promise<import("./questionGeneratorCommon").QuestionResult>((resolve) =>
                 setTimeout(() => resolve(fallback), timeoutMs)
             ),

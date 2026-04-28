@@ -14,16 +14,22 @@ type WorkerResponse = {
   result: QuestionResult;
 };
 
-self.addEventListener("message", async (event: MessageEvent<WorkerRequest>) => {
-  const { id, args } = event.data;
+let previousLatex: string | null = null;
+
+async function generateQuestionResult(args: QuestionGeneratorArgs): Promise<QuestionResult> {
   const generator = getQuestionGenerator(args.level, args.subtopicSlug);
 
-  let result: QuestionResult;
-
   try {
-    result = await Promise.resolve(generator(args));
+    let result = await Promise.resolve(generator(args));
+
+    if (previousLatex && result.latex === previousLatex) {
+      result = await Promise.resolve(generator(args));
+    }
+
+    previousLatex = result.latex;
+    return result;
   } catch (error) {
-    result = {
+    return {
       latex: "\\text{Question generation error}",
       answer: "",
       options: [],
@@ -31,6 +37,11 @@ self.addEventListener("message", async (event: MessageEvent<WorkerRequest>) => {
       explanation: String(error instanceof Error ? error.message : error),
     };
   }
+}
+
+self.addEventListener("message", async (event: MessageEvent<WorkerRequest>) => {
+  const { id, args } = event.data;
+  const result = await generateQuestionResult(args);
 
   const response: WorkerResponse = { id, result };
   self.postMessage(response);

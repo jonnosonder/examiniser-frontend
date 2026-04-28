@@ -63,6 +63,7 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                                         - Creating maths exam papers feature added<br/>
                                         - Locale language fix<br/>
                                         - Update some questions layout and phrasing<br/>
+                                        - Lower chance to generate the same question twice in a row<br/>
                                     </p>
                                     
                                 </div>

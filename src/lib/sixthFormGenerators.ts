@@ -2455,6 +2455,282 @@ export const sixthFormGenerators: Record<string, QuestionGeneratorWithLevels> = 
 
         throw new Error(`Unhandled difficulty: ${difficulty}`);
     }, [1, 2, 3, 4, 5]),
+    "projectiles": createGenerator(async ({ difficulty }) => {
+        const g = 9.8;
+
+        const toRadians = (angle: number): number => (angle * Math.PI) / 180;
+
+        const formatProjectileNumber = (value: number): string => {
+            if (Math.abs(value - Math.round(value)) < 1e-9) {
+                return `${Math.round(value)}`;
+            }
+
+            return value.toFixed(3).replace(/\.0+$/, '').replace(/(\.\d*?)0+$/, '$1');
+        };
+
+        const buildNumericOptions = (answerValue: number, distractors: number[]): string[] => {
+            return buildOptions(
+                formatProjectileNumber(answerValue),
+                distractors.filter((value) => Number.isFinite(value)).map((value) => formatProjectileNumber(value)),
+                () => formatProjectileNumber(answerValue + randInt(-40, 40) / 10)
+            );
+        };
+
+        const anglePool = [30, 45, 60];
+
+        if (difficulty === 1) {
+            const speed = choose([12, 14, 16, 18, 20, 24, 28, 30, 35]);
+            const angle = choose(anglePool);
+            const horizontalComponent = speed * Math.cos(toRadians(angle));
+            const verticalComponent = speed * Math.sin(toRadians(angle));
+            const mode = choose(['horizontal', 'vertical'] as const);
+            const answerValue = mode === 'horizontal' ? horizontalComponent : verticalComponent;
+
+            return {
+                latex: mode === 'horizontal'
+                    ? choose([
+                        `\\text{A particle is projected with speed } ${speed} \\text{ m s}^{-1} \\text{ at an angle of elevation } ${angle}^{\\circ}. \\ \\text{Find the horizontal component of its initial velocity.}`,
+                        `\\text{A projectile is launched at speed } ${speed} \\text{ m s}^{-1} \\text{ at } ${angle}^{\\circ} \\ \\text{ above the horizontal.} \\ \\text{Work out the horizontal component of the initial velocity.}`,
+                        `\\text{Resolve an initial speed of } ${speed} \\text{ m s}^{-1} \\text{ at angle } ${angle}^{\\circ}. \\ \\text{Find the horizontal component.}`,
+                        `\\text{A projectile is fired with initial speed } ${speed} \\text{ m s}^{-1} \\text{ at } ${angle}^{\\circ}. \\ \\text{State the horizontal component of velocity.}`,
+                    ])
+                    : choose([
+                        `\\text{A particle is projected with speed } ${speed} \\text{ m s}^{-1} \\text{ at an angle of elevation } ${angle}^{\\circ}. \\ \\text{Find the vertical component of its initial velocity.}`,
+                        `\\text{A projectile is launched at speed } ${speed} \\text{ m s}^{-1} \\text{ at } ${angle}^{\\circ} \\text{ above the horizontal.} \\ \\text{Work out the vertical component of the initial velocity.}`,
+                        `\\text{Resolve an initial speed of } ${speed} \\text{ m s}^{-1} \\text{ at angle } ${angle}^{\\circ}. \\ \\text{Find the vertical component.}`,
+                        `\\text{A projectile is fired with initial speed } ${speed} \\text{ m s}^{-1} \\text{ at } ${angle}^{\\circ}. \\ \\text{State the vertical component of velocity.}`,
+                    ]),
+                answer: formatProjectileNumber(answerValue),
+                equalValue: true,
+                options: buildNumericOptions(answerValue, [
+                    mode === 'horizontal' ? verticalComponent : horizontalComponent,
+                    speed,
+                    speed * Math.sin(toRadians(90 - angle)),
+                ]),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 2) {
+            const time = choose([2, 3, 4, 5]);
+            const height = 0.5 * g * time * time;
+            const speed = choose([12, 15, 18, 20, 24, 27, 30]);
+            const horizontalDistance = speed * time;
+            const mode = choose(['speed', 'distance', 'time'] as const);
+
+            if (mode === 'speed') {
+                const wrongTime = Math.sqrt(height / g);
+                const answerValue = speed;
+
+                return {
+                    latex: choose([
+                        `\\text{A particle is projected horizontally from a point } ${formatProjectileNumber(height)} \\text{ m above a horizontal plane.} \\text{It lands } ${formatProjectileNumber(horizontalDistance)} \\text{ m from the point vertically below the launch point. } \\ \\text{Find its initial speed.}`,
+                        `\\text{A projectile is launched horizontally from height } ${formatProjectileNumber(height)} \\text{ m and hits the ground } ${formatProjectileNumber(horizontalDistance)} \\text{ m away. } \\text{Calculate the initial speed.}`,
+                        `\\text{A particle moves freely under gravity after being projected horizontally from } ${formatProjectileNumber(height)} \\text{ m above the ground. } \\text{If it travels } ${formatProjectileNumber(horizontalDistance)} \\text{ m horizontally before landing, find the speed of projection.}`,
+                        `\\text{A projectile is fired horizontally from a point } ${formatProjectileNumber(height)} \\text{ m above the ground and lands } ${formatProjectileNumber(horizontalDistance)} \\text{ m away.} \\text{Work out the launch speed.}`,
+                    ]),
+                    answer: formatProjectileNumber(answerValue),
+                    equalValue: true,
+                    options: buildNumericOptions(answerValue, [
+                        horizontalDistance / wrongTime,
+                        horizontalDistance / (time + 1),
+                        horizontalDistance / Math.max(1, time - 1),
+                    ]),
+                    forceOption: 0,
+                };
+            }
+
+            if (mode === 'distance') {
+                const wrongTime = Math.sqrt(height / g);
+                const answerValue = horizontalDistance;
+
+                return {
+                    latex: choose([
+                        `\\text{A particle is projected horizontally with speed } ${speed} \\text{ m s}^{-1} \\text{ from a point } ${formatProjectileNumber(height)} \\text{ m above a horizontal plane. } \\text{Find how far from the launch point it lands horizontally.}`,
+                        `\\text{A projectile is launched horizontally at } ${speed} \\text{ m s}^{-1} \\text{ from height } ${formatProjectileNumber(height)} \\text{ m. } \\text{Calculate the horizontal distance travelled before hitting the ground.}`,
+                        `\\text{A particle is projected horizontally with speed } ${speed} \\text{ m s}^{-1} \\text{ and falls } ${formatProjectileNumber(height)} \\text{ m to the ground. } \\text{Find the horizontal range.}`,
+                        `\\text{A projectile is fired horizontally from a cliff of height } ${formatProjectileNumber(height)} \\text{ m at } ${speed} \\text{ m s}^{-1}. \\ \\text{Work out the horizontal distance before impact.}`,
+                    ]),
+                    answer: formatProjectileNumber(answerValue),
+                    equalValue: true,
+                    options: buildNumericOptions(answerValue, [
+                        speed * wrongTime,
+                        speed * (time + 1),
+                        speed * Math.max(1, time - 1),
+                    ]),
+                    forceOption: 0,
+                };
+            }
+
+            return {
+                latex: choose([
+                    `\\text{A particle is projected horizontally from a point } ${formatProjectileNumber(height)} \\text{ m above a horizontal plane. } \\text{Find the time taken to hit the plane.}`,
+                    `\\text{A projectile is launched horizontally from height } ${formatProjectileNumber(height)} \\text{ m. } \\text{Calculate the time before it reaches the ground.}`,
+                    `\\text{A particle moves freely under gravity after being projected horizontally from a height of } ${formatProjectileNumber(height)} \\text{ m. } \\text{Work out the time of flight.}`,
+                    `\\text{A projectile is fired horizontally from a platform } ${formatProjectileNumber(height)} \\text{ m above the ground. } \\text{Find how long it takes to land.}`,
+                ]),
+                answer: formatProjectileNumber(time),
+                equalValue: true,
+                options: buildNumericOptions(time, [
+                    Math.sqrt(height / g),
+                    Math.sqrt((4 * height) / g),
+                    time + 1,
+                ]),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 3) {
+            const speed = choose([21, 28, 35, 42]);
+            const angle = choose(anglePool);
+            const verticalComponent = speed * Math.sin(toRadians(angle));
+            const timeToMaximumHeight = verticalComponent / g;
+            const maximumHeight = (verticalComponent * verticalComponent) / (2 * g);
+            const mode = choose(['timeToMax', 'maximumHeight'] as const);
+
+            if (mode === 'timeToMax') {
+                return {
+                    latex: choose([
+                        `\\text{A particle is projected from a point on horizontal ground with speed } ${speed} \\text{ m s}^{-1} \\text{ at angle } ${angle}^{\\circ}. \\ \\text{Find the time taken to reach greatest height.}`,
+                        `\\text{A projectile is launched with speed } ${speed} \\text{ m s}^{-1} \\text{ at an angle of elevation } ${angle}^{\\circ}. \\ \\text{Calculate the time to its highest point.}`,
+                        `\\text{For a projectile fired at } ${speed} \\text{ m s}^{-1} \\text{ and } ${angle}^{\\circ} \\text{ above the horizontal, find when the vertical velocity first becomes zero.}`,
+                        `\\text{A particle moves freely under gravity after projection at speed } ${speed} \\text{ m s}^{-1} \\text{ and angle } ${angle}^{\\circ}. \\ \\text{Work out the time to greatest height.}`,
+                    ]),
+                    answer: formatProjectileNumber(timeToMaximumHeight),
+                    equalValue: true,
+                    options: buildNumericOptions(timeToMaximumHeight, [
+                        (2 * verticalComponent) / g,
+                        (speed * Math.cos(toRadians(angle))) / g,
+                        maximumHeight,
+                    ]),
+                    forceOption: 0,
+                };
+            }
+
+            return {
+                latex: choose([
+                    `\\text{A particle is projected from horizontal ground with speed } ${speed} \\text{ m s}^{-1} \\text{ at angle } ${angle}^{\\circ}. \\ \\text{Find the greatest height reached.}`,
+                    `\\text{A projectile is launched with speed } ${speed} \\text{ m s}^{-1} \\text{ at an elevation of } ${angle}^{\\circ}. \\ \\text{Calculate its maximum height above the point of projection.}`,
+                    `\\text{For a projectile fired at } ${speed} \\text{ m s}^{-1} \\text{ and } ${angle}^{\\circ}, \\ \\text{find the height of the highest point of its path.}`,
+                    `\\text{A particle moves freely under gravity after projection at speed } ${speed} \\text{ m s}^{-1} \\text{ and angle } ${angle}^{\\circ}. \\ \\text{Work out the maximum height.}`,
+                ]),
+                answer: formatProjectileNumber(maximumHeight),
+                equalValue: true,
+                options: buildNumericOptions(maximumHeight, [
+                    verticalComponent / g,
+                    (verticalComponent * verticalComponent) / g,
+                    (speed * speed * Math.sin(toRadians(angle))) / (2 * g),
+                ]),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 4) {
+            const speed = choose([24, 28, 35, 42, 49]);
+            const angle = choose(anglePool);
+            const verticalComponent = speed * Math.sin(toRadians(angle));
+            const horizontalComponent = speed * Math.cos(toRadians(angle));
+            const timeOfFlight = (2 * verticalComponent) / g;
+            const range = horizontalComponent * timeOfFlight;
+            const mode = choose(['timeOfFlight', 'range'] as const);
+
+            if (mode === 'timeOfFlight') {
+                return {
+                    latex: choose([
+                        `\\text{A particle is projected from a point on horizontal ground with speed } ${speed} \\text{ m s}^{-1} \\text{ at angle } ${angle}^{\\circ}. \\ \\text{Find the time of flight.}`,
+                        `\\text{A projectile is fired at } ${speed} \\text{ m s}^{-1} \\text{ and } ${angle}^{\\circ} \\text{ above horizontal, landing back on the same level. } \\text{Calculate the total time in flight.}`,
+                        `\\text{For a particle projected with speed } ${speed} \\text{ m s}^{-1} \\text{ at an angle of } ${angle}^{\\circ}, \\ \\text{find the time until it next hits the horizontal plane.}`,
+                        `\\text{A projectile is launched from level ground at } ${speed} \\text{ m s}^{-1} \\text{ and angle } ${angle}^{\\circ}. \\ \\text{Work out how long it remains in the air.}`,
+                    ]),
+                    answer: formatProjectileNumber(timeOfFlight),
+                    equalValue: true,
+                    options: buildNumericOptions(timeOfFlight, [
+                        verticalComponent / g,
+                        (2 * horizontalComponent) / g,
+                        range / speed,
+                    ]),
+                    forceOption: 0,
+                };
+            }
+
+            return {
+                latex: choose([
+                    `\\text{A particle is projected from a point on horizontal ground with speed } ${speed} \\text{ m s}^{-1} \\text{ at angle } ${angle}^{\\circ}. \\ \\text{Find the range of the projectile.}`,
+                    `\\text{A projectile is fired at } ${speed} \\text{ m s}^{-1} \\text{ and } ${angle}^{\\circ}, \\text{landing on the same horizontal plane. } \\text{Calculate the horizontal range.}`,
+                    `\\text{For a projectile launched with speed } ${speed} \\text{ m s}^{-1} \\text{ at angle } ${angle}^{\\circ}, \\ \\text{find the horizontal distance travelled before it returns to the ground.}`,
+                    `\\text{A particle is projected at } ${speed} \\text{ m s}^{-1} \\text{ and } ${angle}^{\\circ}. \\ \\text{Work out the range on a horizontal plane.}`,
+                ]),
+                answer: formatProjectileNumber(range),
+                equalValue: true,
+                options: buildNumericOptions(range, [
+                    horizontalComponent * (verticalComponent / g),
+                    (speed * speed * Math.sin(toRadians(angle))) / g,
+                    horizontalComponent * timeOfFlight * 2,
+                ]),
+                forceOption: 0,
+            };
+        }
+
+        if (difficulty === 5) {
+            const mode = choose(['aboveHeight', 'trajectoryHeight'] as const);
+
+            if (mode === 'aboveHeight') {
+                const speed = choose([28, 35, 42, 49]);
+                const angle = choose(anglePool);
+                const verticalComponent = speed * Math.sin(toRadians(angle));
+                const timeToMaximumHeight = verticalComponent / g;
+                const availableDeltas = [0.5, 1, 1.5].filter((delta) => delta < timeToMaximumHeight - 0.1);
+                const delta = choose(availableDeltas.length > 0 ? availableDeltas : [0.5]);
+                const firstTime = timeToMaximumHeight - delta;
+                const secondTime = timeToMaximumHeight + delta;
+                const thresholdHeight = verticalComponent * firstTime - 0.5 * g * firstTime * firstTime;
+                const answerValue = secondTime - firstTime;
+
+                return {
+                    latex: choose([
+                        `\\text{A particle is projected from a point } O \\text{ with speed } ${speed} \\text{ m s}^{-1} \\text{ at angle } ${angle}^{\\circ}. \\ \\text{Find the length of time for which the particle is } ${formatProjectileNumber(thresholdHeight)} \\text{ m or more above } O.`,
+                        `\\text{A projectile is launched at } ${speed} \\text{ m s}^{-1} \\text{ and } ${angle}^{\\circ}. \\ \\text{Calculate how long it stays at least } ${formatProjectileNumber(thresholdHeight)} \\text{ m above the point of projection.}`,
+                        `\\text{A particle moves freely under gravity after being projected with speed } ${speed} \\text{ m s}^{-1} \\text{ at } ${angle}^{\\circ}. \\ \\text{For how long is it } ${formatProjectileNumber(thresholdHeight)} \\text{ m or higher than its launch point?}`,
+                        `\\text{A projectile is fired from } O \\text{ at speed } ${speed} \\text{ m s}^{-1} \\text{ and angle } ${angle}^{\\circ}. \\ \\text{Work out the total time for which its height is at least } ${formatProjectileNumber(thresholdHeight)} \\text{ m.}`,
+                    ]),
+                    answer: formatProjectileNumber(answerValue),
+                    equalValue: true,
+                    options: buildNumericOptions(answerValue, [
+                        firstTime,
+                        secondTime,
+                        timeToMaximumHeight,
+                    ]),
+                    forceOption: 0,
+                };
+            }
+
+            const speed = choose([24, 28, 35, 42]);
+            const angle = choose(anglePool);
+            const tangent = Math.tan(toRadians(angle));
+            const range = (speed * speed * Math.sin(toRadians(2 * angle))) / g;
+            const x = choose([0.25, 0.4, 0.5, 0.6].map((factor) => range * factor));
+            const y = x * tangent - (g * x * x * (1 + tangent * tangent)) / (2 * speed * speed);
+
+            return {
+                latex: choose([
+                    `\\text{A particle is projected from a point with speed } ${speed} \\text{ m s}^{-1} \\text{ at angle } ${angle}^{\\circ}. \\ \\text{When the particle has moved a horizontal distance of } ${formatProjectileNumber(x)} \\text{ m, find its height above the point of projection.}`,
+                    `\\text{A projectile is launched at } ${speed} \\text{ m s}^{-1} \\text{ and angle } ${angle}^{\\circ}. \\ \\text{Calculate its height when it is } ${formatProjectileNumber(x)} \\text{ m horizontally from the point of projection.}`,
+                    `\\text{For a particle projected with speed } ${speed} \\text{ m s}^{-1} \\text{ at an angle of } ${angle}^{\\circ}, \\text{find } y \\ \\text{when } x=${formatProjectileNumber(x)} \\text{ m.}`,
+                    `\\text{A projectile is fired from } O \\text{ with speed } ${speed} \\text{ m s}^{-1} \\text{ at elevation } ${angle}^{\\circ}. \\ \\text{Work out the height of the particle after travelling } ${formatProjectileNumber(x)} \\text{ m horizontally.}`,
+                ]),
+                answer: formatProjectileNumber(y),
+                equalValue: true,
+                options: buildNumericOptions(y, [
+                    x * tangent,
+                    (g * x * x * (1 + tangent * tangent)) / (2 * speed * speed),
+                    x * tangent - (g * x * x) / (2 * speed * speed),
+                ]),
+                forceOption: 0,
+            };
+        }
+
+        throw new Error(`Unhandled difficulty: ${difficulty}`);
+    }, [1, 2, 3, 4, 5]),
     "vectors": createGenerator(async ({ difficulty }) => {
         if (difficulty === 1) {
             const triples: Array<[number, number, number]> = [

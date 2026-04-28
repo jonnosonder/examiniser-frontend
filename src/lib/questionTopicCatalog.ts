@@ -238,7 +238,7 @@ export const QUESTION_CATALOG: Record<QuestionLevel, MainTopicDef[]> = {
                 //{ slug: "variable-acceleration", titleKey: "sixth-subtopics.variable-acceleration", descriptionKey: "descriptions.sixthFormSub.mechanics.variable-acceleration" },
                 //{ slug: "forces-and-newtons-laws", titleKey: "sixth-subtopics.forces-newton", descriptionKey: "descriptions.sixthFormSub.mechanics.forces-and-newtons-laws" },
                 //{ slug: "connected-particles", titleKey: "sixth-subtopics.connected-particles", descriptionKey: "descriptions.sixthFormSub.mechanics.connected-particles" },
-                //{ slug: "projectiles", titleKey: "sixth-subtopics.projectiles", descriptionKey: "descriptions.sixthFormSub.mechanics.projectiles" },
+                { slug: "projectiles", titleKey: "sixth-subtopics.projectiles", descriptionKey: "descriptions.sixthFormSub.mechanics.projectiles" },
                 //{ slug: "moments", titleKey: "sixth-subtopics.moments", descriptionKey: "descriptions.sixthFormSub.mechanics.moments" },
                 { slug: "vectors", titleKey: "sixth-subtopics.vectors", descriptionKey: "descriptions.sixthFormSub.mechanics.vectors" }
             ]
