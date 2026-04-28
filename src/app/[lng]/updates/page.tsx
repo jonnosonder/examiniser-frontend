@@ -64,7 +64,7 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                                         - Locale language fix<br/>
                                         - Update some questions layout and phrasing<br/>
                                         - Lower chance to generate the exact same question twice in a row<br/>
-                                        - Privacy, Terms of Use added<br/>
+                                        - Privacy & Terms of Use added<br/>
                                         - About page updated<br/>
                                         - Not found page language fix<br/>
                                     </p>

@@ -7,6 +7,8 @@ interface EditorWrapLatexProps {
   textAlign?: 'left' | 'center' | 'right';
 }
 
+type LineAlign = EditorWrapLatexProps['textAlign'];
+
 const SPACING_COMMAND_PATTERN = /^(left|right|big|Big|bigg|Bigg|displaystyle|textstyle|scriptstyle|scriptscriptstyle|,|;|!| |quad|qquad)$/;
 const OPERATORS = ['+', '-', '='];
 const TEXT_WIDTH_SAFETY_FACTOR = 1.2;
@@ -357,7 +359,13 @@ function normalizeSpacingAndPunctuation(latex: string): string {
   return latex.replace(/\.([A-Z])/g, '. $1').replace(/ {2,}/g, ' ').trim();
 }
 
-function wrapLatex(latex: string, maxLineWidth: number, fontSize: number): string {
+function getArrayAlignment(textAlign: LineAlign): 'l' | 'c' | 'r' {
+  if (textAlign === 'left') return 'l';
+  if (textAlign === 'right') return 'r';
+  return 'c';
+}
+
+function wrapLatex(latex: string, maxLineWidth: number, fontSize: number, textAlign: LineAlign): string {
   const cleaned = normalizeSpacingAndPunctuation(stripLineBreaks(latex));
 
   if (estimateWidth(cleaned, fontSize) <= maxLineWidth) {
@@ -366,11 +374,16 @@ function wrapLatex(latex: string, maxLineWidth: number, fontSize: number): strin
 
   const result = breakLine(cleaned, maxLineWidth, fontSize);
   const wrapped = result.join(' \\\\ ');
-  return result.length > 1 ? `\\begin{gathered} ${wrapped} \\end{gathered}` : wrapped;
+  if (result.length <= 1) {
+    return wrapped;
+  }
+
+  const alignment = getArrayAlignment(textAlign);
+  return `\\begin{array}{${alignment}} ${wrapped} \\end{array}`;
 }
 
 export function EditorWrapLatex({ latex, maxLineWidth = 60, fontSize = 18, textAlign = 'center' }: EditorWrapLatexProps) {
-  const wrapped = wrapLatex(latex, maxLineWidth, fontSize);
+  const wrapped = wrapLatex(latex, maxLineWidth, fontSize, textAlign);
 
   return (
     <>
