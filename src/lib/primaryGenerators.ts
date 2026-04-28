@@ -88,7 +88,7 @@ export const primaryGenerators: Record<string, QuestionGeneratorWithLevels> = {
         );
 
         return {
-            latex: `\\text{Counting in ${step}, what is the missing number: } ${display.join(", ")}`,
+            latex: `\\text{Counting in ${step}'s, what is the missing number: } ${display.join(", ")}`,
             answer: answer.toString(),
             forceOption: 0,
         };

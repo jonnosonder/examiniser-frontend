@@ -51,3 +51,9 @@ body {
 math-field::part(active-background) {
   background-color: rgba(255, 0, 0, 0.2) !important;
 }
+
+/* For debugging layout issues 
+* {
+  outline: 1px solid red;
+}
+*/

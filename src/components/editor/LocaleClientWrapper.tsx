@@ -17,11 +17,25 @@ export default function LocaleClientWrapper({ children, lng }: Props) {
   useEffect(() => {
     if (!lng) {
       const browserLang = navigator.language.slice(0, 2);
-      const supported: Record<string, "en" | "fr" | "zh"> = { en: "en", fr: "fr", zh: "zh" };
+      const supported: Record<string, "en" | "es" | "fr" | "jp" | "zh"> = {
+        en: "en",
+        es: "es",
+        fr: "fr",
+        jp: "jp",
+        zh: "zh",
+      };
       setLocale(supported[browserLang] || "en");
+      return;
     }
+
+    if (locale !== lng) {
+      setLocale(lng);
+    }
+  }, [lng]);
+
+  useEffect(() => {
     document.documentElement.lang = locale;
-  }, [lng, locale]);
+  }, [locale]);
 
   return <I18nProvider lng={locale}>{children}</I18nProvider>;
 }
