@@ -17,6 +17,13 @@ Copyright © 2025 Jonathan Kwok
 }
 
 @font-face {
+  font-family: 'Nunito';
+  src: url('/fonts/website/Nunito-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+}
+
+@font-face {
   font-family: 'Roboto-500';
   src: url('/fonts/website/Roboto-VariableFont_wdth_wght.ttf') format('truetype');
   font-weight: 500;

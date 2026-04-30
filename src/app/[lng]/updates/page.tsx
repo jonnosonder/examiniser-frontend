@@ -67,6 +67,7 @@ export default function Contact({ params }: { params: Promise<{ lng: Locale }> }
                                         - Privacy & Terms of Use added<br/>
                                         - About page updated<br/>
                                         - Not found page language fix<br/>
+                                        - Global font fix<br/>
                                     </p>
                                     
                                 </div>

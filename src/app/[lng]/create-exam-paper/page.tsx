@@ -89,6 +89,70 @@ const PDF_COMPRESSION_OPTIONS: Array<{
 ];
 
 const SVG_RENDER_CLASS = "mt-3 flex justify-center overflow-x-auto overflow-y-hidden [&_svg]:mx-auto [&_svg]:h-auto [&_svg]:max-w-full";
+const TITLE_FONT_FAMILY_KONVA = "Times New Roman";
+const TITLE_FONT_FAMILY_PDF = "times";
+
+function uint8ArrayToBase64(bytes: Uint8Array): string {
+    let binary = "";
+    const chunkSize = 0x8000;
+    for (let index = 0; index < bytes.length; index += chunkSize) {
+        const chunk = bytes.subarray(index, index + chunkSize);
+        binary += String.fromCharCode(...chunk);
+    }
+    return btoa(binary);
+}
+
+async function registerNunitoPdfFont(doc: jsPDF): Promise<boolean> {
+    try {
+        const normalFontUrl = "/fonts/editor/Nunito-500.ttf";
+        const boldFontUrl = "/fonts/editor/Nunito-800.ttf";
+        const normalFontFileName = "Nunito-500.ttf";
+        const boldFontFileName = "Nunito-800.ttf";
+        const fontFamily = "Nunito";
+
+        const pdfWithFontApi = doc as jsPDF & {
+            addFileToVFS: (fileName: string, data: string) => void;
+            addFont: (fileName: string, postScriptName: string, fontStyle: string) => void;
+            getFontList: () => Record<string, string[]>;
+        };
+
+        const existingFonts = pdfWithFontApi.getFontList?.() ?? {};
+        if (!existingFonts[fontFamily]) {
+            const [normalResponse, boldResponse] = await Promise.all([
+                fetch(normalFontUrl),
+                fetch(boldFontUrl),
+            ]);
+
+            if (normalResponse.ok && boldResponse.ok) {
+                const [normalBytes, boldBytes] = await Promise.all([
+                    normalResponse.arrayBuffer(),
+                    boldResponse.arrayBuffer(),
+                ]);
+
+                pdfWithFontApi.addFileToVFS(normalFontFileName, uint8ArrayToBase64(new Uint8Array(normalBytes)));
+                pdfWithFontApi.addFileToVFS(boldFontFileName, uint8ArrayToBase64(new Uint8Array(boldBytes)));
+                pdfWithFontApi.addFont(normalFontFileName, fontFamily, "normal");
+                pdfWithFontApi.addFont(boldFontFileName, fontFamily, "bold");
+            } else {
+                // Keep export working until static 500/800 files are available.
+                const fallbackResponse = await fetch("/fonts/website/Nunito-VariableFont_wght.ttf");
+                if (!fallbackResponse.ok) {
+                    return false;
+                }
+
+                const fallbackBytes = new Uint8Array(await fallbackResponse.arrayBuffer());
+                const fallbackFileName = "Nunito-VariableFont_wght.ttf";
+                pdfWithFontApi.addFileToVFS(fallbackFileName, uint8ArrayToBase64(fallbackBytes));
+                pdfWithFontApi.addFont(fallbackFileName, fontFamily, "normal");
+                pdfWithFontApi.addFont(fallbackFileName, fontFamily, "bold");
+            }
+        }
+
+        return true;
+    } catch {
+        return false;
+    }
+}
 
 function toTitleFromSlug(value: string) {
     return value
@@ -1146,6 +1210,8 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                 subject: "Exam paper",
             });
 
+            const hasNunitoFont = await registerNunitoPdfFont(doc);
+            const exportFontFamily = hasNunitoFont ? "Nunito" : "helvetica";
             const questionIndexById = new Map(questions.map((question, index) => [question.id, index]));
 
             for (let pageIndex = 0; pageIndex < questionPlacements.pageCount; pageIndex += 1) {
@@ -1196,9 +1262,9 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                     compressionOption.imageCompression,
                 );
 
-                const titleText = (paperTitle || "Exam Paper").trim() || "Exam Paper";
+                const titleText = (paperTitle || "Examiniser Paper").trim() || "Examiniser Paper";
                 doc.setTextColor(0, 0, 0);
-                doc.setFont("helvetica", "bold");
+                doc.setFont(TITLE_FONT_FAMILY_PDF, "bold");
                 doc.setFontSize(19.5);
                 doc.text(
                     titleText,
@@ -1206,8 +1272,8 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                     (42 + 26) * PX_TO_MM,
                 );
 
-                doc.setTextColor(90, 90, 90);
-                doc.setFont("helvetica", "normal");
+                doc.setTextColor(0, 0, 0);
+                doc.setFont(TITLE_FONT_FAMILY_PDF, "normal");
                 doc.setFontSize(10.5);
                 doc.text(
                     `Page ${pageIndex + 1}`,
@@ -1217,7 +1283,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                 );
 
                 doc.setTextColor(0, 0, 0);
-                doc.setFont("helvetica", "normal");
+                doc.setFont(exportFontFamily, "normal");
                 doc.setFontSize(9);
                 questionPlacements.placements
                     .filter((placement) => placement.pageIndex === pageIndex)
@@ -1228,9 +1294,9 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                         }
 
                         doc.text(
-                            formatQuestionNumber(questionIndex),
+                            formatQuestionNumber(questionIndex).toUpperCase(),
                             (placement.x + 8) * PX_TO_MM,
-                            (placement.y + QUESTION_RENDER_PADDING_Y + 12) * PX_TO_MM,
+                            (placement.y + QUESTION_RENDER_PADDING_Y + 6) * PX_TO_MM,
                         );
                     });
             }
@@ -1340,10 +1406,10 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                         <Text
                                                             x={PAGE_MARGIN_X}
                                                             y={pageY + 42}
-                                                            text={paperTitle || "Exam Paper"}
+                                                            text={paperTitle || "Examiniser Paper"}
                                                             fontSize={26}
-                                                            fontFamily="Nunito"
-                                                            fontStyle="700"
+                                                            fontFamily={TITLE_FONT_FAMILY_KONVA}
+                                                            fontStyle="bold"
                                                             fill="#141414"
                                                         />
                                                         <Text
@@ -1353,8 +1419,8 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                             align="right"
                                                             text={`Page ${index + 1}`}
                                                             fontSize={14}
-                                                            fontFamily="Nunito"
-                                                            fill="#5a5a5a"
+                                                            fontFamily={TITLE_FONT_FAMILY_KONVA}
+                                                            fill="#141414"
                                                         />
                                                     </React.Fragment>
                                                 );
@@ -1413,7 +1479,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                     <p className="font-nunito text-xs uppercase tracking-[0.18em] text-black">
                                                         {formatQuestionNumber(questionIndex)}
                                                     </p>
-                                                    <div className="mt-2 text-black">
+                                                    <div className="text-black">
                                                         <EditorWrapLatex latex={question.latex} maxLineWidth={questionMaxLineWidth} textAlign={questionTextAlign} fontSize={questionFontSize} debug />
                                                     </div>
                                                     {question.svg && (
@@ -1917,13 +1983,14 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                             }}
                         >
                             <p
-                                className="absolute font-nunito text-black"
+                                className="absolute text-black"
                                 data-export-vector-text="true"
                                 style={{
                                     left: PAGE_MARGIN_X,
                                     top: 42,
                                     fontSize: 26,
                                     fontWeight: 700,
+                                    fontFamily: TITLE_FONT_FAMILY_KONVA,
                                 }}
                             >
                                 {paperTitle || "Exam Paper"}

@@ -284,43 +284,12 @@ function breakLine(line: string, maxLineWidth: number, fontSize: number, debug: 
 
         let breakAt = -1;
         let consumed = 0;
-        let lastColonBreak = -1;
 
         for (let k = 0; k < remaining.length; k++) {
           const char = remaining[k];
           consumed += estimatePlainTextWidth(char) * fontScale;
 
-          if (char === ':') {
-            lastColonBreak = k + 1;
-          }
-
           if (consumed > available) {
-            if (lastColonBreak > 0) {
-              breakAt = lastColonBreak;
-              if (remaining[breakAt] === ' ') breakAt++;
-              logWrapDebug(debug, 'text:break-at-colon', {
-                tokenIndex: i,
-                available,
-                consumed,
-                breakAt,
-              });
-            } else {
-              const colonAhead = remaining.indexOf(':', k);
-              if (colonAhead >= 0 && colonAhead - k <= 6) {
-                const uptoColon = remaining.slice(0, colonAhead + 1);
-                if (estimatePlainTextWidth(uptoColon) * fontScale <= available * 1.15) {
-                  breakAt = colonAhead + 1;
-                  if (remaining[breakAt] === ' ') breakAt++;
-                  logWrapDebug(debug, 'text:break-at-nearby-colon', {
-                    tokenIndex: i,
-                    available,
-                    consumed,
-                    breakAt,
-                  });
-                }
-              }
-            }
-
             if (breakAt < 0) {
               const backwardBoundary = findBackwardTextWrapBoundary(remaining, k);
 
