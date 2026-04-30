@@ -3,17 +3,22 @@ import { BlockMath } from 'react-katex';
 interface EditorWrapLatexProps {
   latex: string;
   maxLineWidth?: number;
-  fontSize?: number;
+  fontSize: number;
   textAlign?: 'left' | 'center' | 'right';
+  debug?: boolean;
 }
 
 type LineAlign = EditorWrapLatexProps['textAlign'];
 
 const SPACING_COMMAND_PATTERN = /^(left|right|big|Big|bigg|Bigg|displaystyle|textstyle|scriptstyle|scriptscriptstyle|,|;|!| |quad|qquad)$/;
 const OPERATORS = ['+', '-', '='];
-const TEXT_WIDTH_SAFETY_FACTOR = 1.2;
-const SCRIPT_WIDTH_FACTOR = 0.55;
-const BASE_FONT_SIZE = 13.5;
+const TEXT_WIDTH_SAFETY_FACTOR = 1.1;
+const LATEX_WIDTH_SAFETY_FACTOR = 1.14;
+const SCRIPT_WIDTH_FACTOR = 1;
+const BASE_FONT_SIZE = 2.4;
+const EARLY_WRAP_RATIO = 0.80;
+const MATRIX_VECTOR_ENV_PATTERN = /\\begin\{(matrix|pmatrix|bmatrix|Bmatrix|vmatrix|Vmatrix|smallmatrix)\}[\s\S]*?\\end\{\1\}/g;
+const MATRIX_VECTOR_PLACEHOLDER_PATTERN = /__MATRIX_BLOCK_(\d+)__/g;
 
 type Token =
   | { type: 'text'; content: string }
@@ -158,7 +163,14 @@ function getFontScale(fontSize: number): number {
 
 function estimateTokenWidth(token: Token, fontSize: number): number {
   const fontScale = getFontScale(fontSize);
-  return (token.type === 'text' ? estimatePlainTextWidth(token.content) : estimateLatexVisualWidth(token.content)) * fontScale;
+  const rawWidth = token.type === 'text'
+    ? estimatePlainTextWidth(token.content)
+    : estimateLatexVisualWidth(token.content) * LATEX_WIDTH_SAFETY_FACTOR;
+  return rawWidth * fontScale;
+}
+
+function getTargetLineWidth(maxLineWidth: number): number {
+  return Math.max(8, maxLineWidth * EARLY_WRAP_RATIO);
 }
 
 function estimateWidth(latex: string, fontSize: number): number {
@@ -196,28 +208,72 @@ function findOpeningBracketInLookback(segment: string, lookback: number): number
   return -1;
 }
 
-function breakLine(line: string, maxLineWidth: number, fontSize: number): string[] {
+function findBackwardTextWrapBoundary(text: string, fromIndex: number): number {
+  for (let i = Math.min(fromIndex, text.length - 1); i >= 0; i--) {
+    const ch = text[i];
+    if (ch === ' ' || ch === '\\') {
+      return i + 1;
+    }
+  }
+  return -1;
+}
+
+function logWrapDebug(debug: boolean, message: string, details?: unknown) {
+  if (!debug) return;
+  if (details === undefined) {
+    console.debug(`[EditorWrapLatex] ${message}`);
+    return;
+  }
+  console.debug(`[EditorWrapLatex] ${message}`, details);
+}
+
+function breakLine(line: string, maxLineWidth: number, fontSize: number, debug: boolean): string[] {
   const tokens = tokenize(line);
   const lines: string[] = [];
   let currentTokens: Token[] = [];
   let currentWidth = 0;
   const fontScale = getFontScale(fontSize);
+  const targetLineWidth = getTargetLineWidth(maxLineWidth);
+
+  logWrapDebug(debug, 'breakLine:start', {
+    line,
+    tokenCount: tokens.length,
+    maxLineWidth,
+    targetLineWidth,
+    fontSize,
+    fontScale,
+  });
 
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i];
     const tokenWidth = estimateTokenWidth(token, fontSize);
 
-    if (currentWidth + tokenWidth <= maxLineWidth) {
+    if (currentWidth + tokenWidth <= targetLineWidth) {
       currentTokens.push(token);
       currentWidth += tokenWidth;
+      logWrapDebug(debug, 'token:fits', {
+        tokenIndex: i,
+        tokenType: token.type,
+        tokenWidth,
+        currentWidth,
+        targetLineWidth,
+      });
       continue;
     }
+
+    logWrapDebug(debug, 'token:overflow', {
+      tokenIndex: i,
+      tokenType: token.type,
+      tokenWidth,
+      currentWidth,
+      targetLineWidth,
+    });
 
     if (token.type === 'text') {
       let remaining = token.content;
 
       while (remaining.length > 0) {
-        const available = Math.max(0.5, maxLineWidth - currentWidth);
+        const available = Math.max(0.5, targetLineWidth - currentWidth);
 
         if (estimatePlainTextWidth(remaining) * fontScale <= available) {
           currentTokens.push({ type: 'text', content: remaining });
@@ -228,16 +284,11 @@ function breakLine(line: string, maxLineWidth: number, fontSize: number): string
 
         let breakAt = -1;
         let consumed = 0;
-        let lastNaturalBreak = -1;
         let lastColonBreak = -1;
 
         for (let k = 0; k < remaining.length; k++) {
           const char = remaining[k];
           consumed += estimatePlainTextWidth(char) * fontScale;
-
-          if (char === ' ' || char === ',' || char === ';' || char === ':' || char === '.' || char === '?' || char === '!') {
-            lastNaturalBreak = k + 1;
-          }
 
           if (char === ':') {
             lastColonBreak = k + 1;
@@ -247,6 +298,12 @@ function breakLine(line: string, maxLineWidth: number, fontSize: number): string
             if (lastColonBreak > 0) {
               breakAt = lastColonBreak;
               if (remaining[breakAt] === ' ') breakAt++;
+              logWrapDebug(debug, 'text:break-at-colon', {
+                tokenIndex: i,
+                available,
+                consumed,
+                breakAt,
+              });
             } else {
               const colonAhead = remaining.indexOf(':', k);
               if (colonAhead >= 0 && colonAhead - k <= 6) {
@@ -254,12 +311,44 @@ function breakLine(line: string, maxLineWidth: number, fontSize: number): string
                 if (estimatePlainTextWidth(uptoColon) * fontScale <= available * 1.15) {
                   breakAt = colonAhead + 1;
                   if (remaining[breakAt] === ' ') breakAt++;
+                  logWrapDebug(debug, 'text:break-at-nearby-colon', {
+                    tokenIndex: i,
+                    available,
+                    consumed,
+                    breakAt,
+                  });
                 }
               }
             }
 
             if (breakAt < 0) {
-              breakAt = lastNaturalBreak > 0 ? lastNaturalBreak : Math.max(1, k);
+              const backwardBoundary = findBackwardTextWrapBoundary(remaining, k);
+
+              if (backwardBoundary > 0) {
+                breakAt = backwardBoundary;
+                logWrapDebug(debug, 'text:break-at-backward-space-or-slash', {
+                  tokenIndex: i,
+                  available,
+                  consumed,
+                  chosenBreakAt: breakAt,
+                });
+              } else if (currentTokens.length > 0) {
+                // Keep words intact: move the full remainder to the next line if current line has content.
+                breakAt = 0;
+                logWrapDebug(debug, 'text:carry-word-to-next-line', {
+                  tokenIndex: i,
+                  available,
+                  consumed,
+                });
+              } else {
+                breakAt = Math.max(1, k);
+                logWrapDebug(debug, 'text:hard-break-fallback', {
+                  tokenIndex: i,
+                  available,
+                  consumed,
+                  chosenBreakAt: breakAt,
+                });
+              }
             }
             break;
           }
@@ -274,6 +363,11 @@ function breakLine(line: string, maxLineWidth: number, fontSize: number): string
           currentTokens.push({ type: 'text', content: piece });
         }
 
+        logWrapDebug(debug, 'line:push-from-text', {
+          tokenIndex: i,
+          linePreview: currentTokens.map(tokenToLatex).join(''),
+          remainingAfterBreak: remaining.slice(breakAt).trimStart(),
+        });
         lines.push(currentTokens.map(tokenToLatex).join(''));
         currentTokens = [];
         currentWidth = 0;
@@ -292,7 +386,7 @@ function breakLine(line: string, maxLineWidth: number, fontSize: number): string
       if (ch === '{') depth++;
       else if (ch === '}') depth--;
 
-      if (depth === 0 && OPERATORS.includes(ch) && currentWidth + estimateWidth(segment, fontSize) >= maxLineWidth) {
+      if (depth === 0 && OPERATORS.includes(ch) && currentWidth + estimateWidth(segment, fontSize) >= targetLineWidth) {
         const bracketIndex = findOpeningBracketInLookback(segment, 20);
 
         if (bracketIndex > 0) {
@@ -304,6 +398,12 @@ function breakLine(line: string, maxLineWidth: number, fontSize: number): string
           }
 
           if (currentTokens.length > 0) {
+            logWrapDebug(debug, 'line:push-from-latex-bracket-split', {
+              tokenIndex: i,
+              operator: ch,
+              bracketIndex,
+              linePreview: currentTokens.map(tokenToLatex).join(''),
+            });
             lines.push(currentTokens.map(tokenToLatex).join(''));
           }
 
@@ -321,9 +421,14 @@ function breakLine(line: string, maxLineWidth: number, fontSize: number): string
         }
 
         currentTokens.push({ type: 'latex', content: segment.trimEnd() });
+        logWrapDebug(debug, 'line:push-from-latex-operator-split', {
+          tokenIndex: i,
+          operator: ch,
+          linePreview: currentTokens.map(tokenToLatex).join(''),
+        });
         lines.push(currentTokens.map(tokenToLatex).join(''));
         currentTokens = [{ type: 'latex', content: '\\quad ' + ch }];
-        currentWidth = 6 * fontScale;
+        currentWidth = estimateWidth('\\quad ' + ch, fontSize);
         segment = '';
         broke = true;
         continue;
@@ -337,7 +442,13 @@ function breakLine(line: string, maxLineWidth: number, fontSize: number): string
       currentWidth += estimateWidth(segment, fontSize);
     }
 
-    if (!broke && currentWidth > maxLineWidth) {
+    if (!broke && currentWidth > targetLineWidth) {
+      logWrapDebug(debug, 'line:push-from-post-token-overflow', {
+        tokenIndex: i,
+        currentWidth,
+        targetLineWidth,
+        linePreview: currentTokens.map(tokenToLatex).join(''),
+      });
       lines.push(currentTokens.map(tokenToLatex).join(''));
       currentTokens = [];
       currentWidth = 0;
@@ -345,18 +456,60 @@ function breakLine(line: string, maxLineWidth: number, fontSize: number): string
   }
 
   if (currentTokens.length > 0) {
+    logWrapDebug(debug, 'line:push-final', {
+      linePreview: currentTokens.map(tokenToLatex).join(''),
+    });
     lines.push(currentTokens.map(tokenToLatex).join(''));
   }
 
+  logWrapDebug(debug, 'breakLine:done', {
+    lineCount: lines.length,
+    lines,
+  });
   return lines.length > 0 ? lines : [line];
 }
 
+function withProtectedMatrixBlocks(latex: string, transform: (value: string) => string): string {
+  const blocks: string[] = [];
+  const masked = latex.replace(MATRIX_VECTOR_ENV_PATTERN, (match) => {
+    const placeholder = `__MATRIX_BLOCK_${blocks.length}__`;
+    blocks.push(match);
+    return placeholder;
+  });
+
+  const transformed = transform(masked);
+  return transformed.replace(MATRIX_VECTOR_PLACEHOLDER_PATTERN, (_, indexText: string) => {
+    const index = Number.parseInt(indexText, 10);
+    return blocks[index] ?? '';
+  });
+}
+
 function stripLineBreaks(latex: string): string {
-  return latex.replace(/\s*\\\\\s*/g, ' ').trim();
+  return latex.trim();
 }
 
 function normalizeSpacingAndPunctuation(latex: string): string {
-  return latex.replace(/\.([A-Z])/g, '. $1').replace(/ {2,}/g, ' ').trim();
+  return withProtectedMatrixBlocks(latex, (value) => (
+    value
+      .replace(/\s*\\\\\s*/g, ' ')
+      .replace(/\.([A-Z])/g, '. $1')
+      .replace(/ {2,}/g, ' ')
+      .trim()
+  ));
+}
+
+function normalizeLineStartAfterBreak(line: string): string {
+  let normalized = line;
+
+  if (normalized.startsWith('\\ ')) {
+    normalized = normalized.slice(2).trimStart();
+  }
+
+  if (normalized.startsWith('\\text{ ')) {
+    normalized = `\\text{${normalized.slice('\\text{ '.length)}`;
+  }
+
+  return normalized;
 }
 
 function getArrayAlignment(textAlign: LineAlign): 'l' | 'c' | 'r' {
@@ -365,33 +518,61 @@ function getArrayAlignment(textAlign: LineAlign): 'l' | 'c' | 'r' {
   return 'c';
 }
 
-function wrapLatex(latex: string, maxLineWidth: number, fontSize: number, textAlign: LineAlign): string {
+function wrapLatex(latex: string, maxLineWidth: number, fontSize: number, textAlign: LineAlign, debug: boolean): string {
   const cleaned = normalizeSpacingAndPunctuation(stripLineBreaks(latex));
+  const targetLineWidth = getTargetLineWidth(maxLineWidth);
+  const estimated = estimateWidth(cleaned, fontSize);
 
-  if (estimateWidth(cleaned, fontSize) <= maxLineWidth) {
+  logWrapDebug(debug, 'wrapLatex:input', {
+    latex,
+    cleaned,
+    fontSize,
+    maxLineWidth,
+    targetLineWidth,
+    estimated,
+    textAlign,
+  });
+
+  if (estimated <= targetLineWidth) {
+    logWrapDebug(debug, 'wrapLatex:no-wrap-needed', {
+      cleaned,
+      estimated,
+      targetLineWidth,
+    });
     return cleaned;
   }
 
-  const result = breakLine(cleaned, maxLineWidth, fontSize);
-  const wrapped = result.join(' \\\\ ');
+  const result = breakLine(cleaned, maxLineWidth, fontSize, debug);
+  const normalizedResult = result.map((line, index) => (
+    index === 0 ? line : normalizeLineStartAfterBreak(line)
+  ));
+  const wrapped = normalizedResult.join(' \\\\ ');
   if (result.length <= 1) {
+    logWrapDebug(debug, 'wrapLatex:single-line-after-break', { wrapped });
     return wrapped;
   }
 
   const alignment = getArrayAlignment(textAlign);
-  return `\\begin{array}{${alignment}} ${wrapped} \\end{array}`;
+  const wrappedArray = `\\begin{array}{${alignment}} ${wrapped} \\end{array}`;
+  logWrapDebug(debug, 'wrapLatex:wrapped-array', {
+    alignment,
+    lineCount: normalizedResult.length,
+    wrappedArray,
+  });
+  return wrappedArray;
 }
 
-export function EditorWrapLatex({ latex, maxLineWidth = 60, fontSize = 18, textAlign = 'center' }: EditorWrapLatexProps) {
-  const wrapped = wrapLatex(latex, maxLineWidth, fontSize, textAlign);
+export function EditorWrapLatex({ latex, maxLineWidth = 60, fontSize = 18, textAlign = 'center', debug = false }: EditorWrapLatexProps) {
+  const wrapped = wrapLatex(latex, maxLineWidth, fontSize, textAlign, debug);
 
+  console.log(`Final wrapped LaTeX: ${wrapped}`);
   return (
     <>
       <div
         className={`editor-wrapped-math editor-wrapped-math-${textAlign}`}
         style={{
           overflow: 'hidden',
-          maxWidth: '100%',
+          width: '100%',
           textAlign,
           fontSize: `${fontSize}px`,
           paddingTop: '0.6em',
@@ -406,7 +587,7 @@ export function EditorWrapLatex({ latex, maxLineWidth = 60, fontSize = 18, textA
         }
 
         .editor-wrapped-math .katex-display > .katex {
-          max-width: 100%;
+          width: 100%;
           white-space: normal;
         }
 

@@ -90,11 +90,6 @@ const PDF_COMPRESSION_OPTIONS: Array<{
 
 const SVG_RENDER_CLASS = "mt-3 flex justify-center overflow-x-auto overflow-y-hidden [&_svg]:mx-auto [&_svg]:h-auto [&_svg]:max-w-full";
 
-function estimateMaxLineWidth(contentWidth: number, fontSize: number): number {
-    const maxQuestionWidth = contentWidth - 12;
-    return Math.max(20, Math.floor(maxQuestionWidth / Math.max(8.2, fontSize * 0.62)));
-}
-
 function toTitleFromSlug(value: string) {
     return value
         .split("-")
@@ -240,7 +235,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
 
     const [selectedLayout, setSelectedLayout] = React.useState<"linear" | "grid">("linear");
     const [activeSidebarSection, setActiveSidebarSection] = React.useState<SidebarSection>("questions");
-    const [paperTitle, setPaperTitle] = React.useState("Exam Paper");
+    const [paperTitle, setPaperTitle] = React.useState("Examiniser Paper");
     const [questionNumberStyle, setQuestionNumberStyle] = React.useState<"short" | "long">("long");
     const [questionTextAlign, setQuestionTextAlign] = React.useState<"left" | "center" | "right">("left");
     const [questionFontSize, setQuestionFontSize] = React.useState(12);
@@ -257,7 +252,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
     const [questionBorderColorGreen, setQuestionBorderColorGreen] = React.useState(0);
     const [questionBorderColorBlue, setQuestionBorderColorBlue] = React.useState(0);
     const [borderColorPanelOpen, setBorderColorPanelOpen] = React.useState(false);
-    const [exportFileName, setExportFileName] = React.useState("Exam Paper");
+    const [exportFileName, setExportFileName] = React.useState("Examiniser Paper");
     const [downloadModalOpen, setDownloadModalOpen] = React.useState(false);
     const [downloadCompression, setDownloadCompression] = React.useState<PdfCompressionLevel>("medium");
     const [isExportingPdf, setIsExportingPdf] = React.useState(false);
@@ -288,7 +283,11 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
     const questionMeasureRefs = React.useRef<Record<number, HTMLDivElement | null>>({});
     const exportPageRefs = React.useRef<Array<HTMLDivElement | null>>([]);
     const [questionHeights, setQuestionHeights] = React.useState<Record<number, number>>({});
-    const [questionMaxLineWidth, setQuestionMaxLineWidth] = React.useState(() => estimateMaxLineWidth(PAGE_WIDTH - QUESTION_MARGIN_X * 2 - 16, questionFontSize));
+    const [questionMaxLineWidth, setQuestionMaxLineWidth] = React.useState(() => PAGE_WIDTH - QUESTION_MARGIN_X * 2 - 16);
+
+    React.useEffect(() => {
+        console.log("Estimated max line width:", questionMaxLineWidth);
+    }, [questionMaxLineWidth]);
 
     const questionContentWidth = PAGE_WIDTH - QUESTION_MARGIN_X * 2;
     const zoomScale = zoomPercent / 100;
@@ -819,7 +818,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
             const horizontalBorderAllowance = selectedLayout === "grid" ? questionBorderWidth * 2 : 0;
             const innerQuestionWidth = Math.max(40, activeQuestionWidth - horizontalPadding - horizontalBorderAllowance);
 
-            setQuestionMaxLineWidth(estimateMaxLineWidth(innerQuestionWidth, questionFontSize));
+            setQuestionMaxLineWidth(innerQuestionWidth);
         };
 
         recalculateLineWidth();
@@ -1415,7 +1414,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                         {formatQuestionNumber(questionIndex)}
                                                     </p>
                                                     <div className="mt-2 text-black">
-                                                        <EditorWrapLatex latex={question.latex} maxLineWidth={questionMaxLineWidth} textAlign={questionTextAlign} fontSize={questionFontSize} />
+                                                        <EditorWrapLatex latex={question.latex} maxLineWidth={questionMaxLineWidth} textAlign={questionTextAlign} fontSize={questionFontSize} debug />
                                                     </div>
                                                     {question.svg && (
                                                         <div className={SVG_RENDER_CLASS} dangerouslySetInnerHTML={{ __html: question.svg }} />
