@@ -54,6 +54,7 @@ const PAGE_GAP = 40;
 const PAGE_MARGIN_X = 72;
 // Approximate a default A4 document margin at this canvas scale.
 const QUESTION_MARGIN_X = 96;
+const HORIZONTAL_PADDING_PX = 18;
 const PAGE_MARGIN_TOP = 96;
 const PAGE_MARGIN_BOTTOM = 80;
 const DEFAULT_QUESTION_GAP = 10;
@@ -65,7 +66,7 @@ const MAX_GRID_COLUMNS = 4;
 const DEFAULT_QUESTION_BORDER_WIDTH = 0;
 const MIN_QUESTION_BORDER_WIDTH = 0;
 const MAX_QUESTION_BORDER_WIDTH = 8;
-const QUESTION_RENDER_PADDING_Y = 12;
+const QUESTION_RENDER_PADDING_Y = 4;
 const MIN_QUESTION_HEIGHT = 84;
 const QUESTION_HEIGHT_BUFFER = 12;
 const MIN_ZOOM_PERCENT = 50;
@@ -91,6 +92,7 @@ const PDF_COMPRESSION_OPTIONS: Array<{
 const SVG_RENDER_CLASS = "mt-3 flex justify-center overflow-x-auto overflow-y-hidden [&_svg]:mx-auto [&_svg]:h-auto [&_svg]:max-w-full";
 const TITLE_FONT_FAMILY_KONVA = "Times New Roman";
 const TITLE_FONT_FAMILY_PDF = "times";
+const EXPORT_QUESTION_NUMBER_SPACER_PX = "0.6em";
 
 function uint8ArrayToBase64(bytes: Uint8Array): string {
     let binary = "";
@@ -210,9 +212,8 @@ function PlusIcon() {
 function HammerIcon() {
     return (
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <path d="M14.4 4L20 9.6L17.2 12.4L11.6 6.8L14.4 4Z" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M3 21L12.2 11.8" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M8.5 5.5L11.5 8.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+            <circle cx="11" cy="11" r="6" stroke="currentColor" strokeWidth="1.7" />
+            <path d="M16 16L21 21" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
         </svg>
     );
 }
@@ -340,14 +341,21 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
     const [selectedTopicId, setSelectedTopicId] = React.useState<string | null>(null);
     const [selectedSubtopicSlug, setSelectedSubtopicSlug] = React.useState<string | null>(null);
     const [selectedDifficulty, setSelectedDifficulty] = React.useState<"random" | number>("random");
+    const [previewQuestionLatex, setPreviewQuestionLatex] = React.useState<string | null>(null);
+    const [isGeneratingPreviewQuestion, setIsGeneratingPreviewQuestion] = React.useState(false);
     const [quantity, setQuantity] = React.useState(1);
     const [isGeneratingQuestions, setIsGeneratingQuestions] = React.useState(false);
     const [regeneratingQuestionIds, setRegeneratingQuestionIds] = React.useState<Record<number, boolean>>({});
+    const [isRegeneratingAllQuestions, setIsRegeneratingAllQuestions] = React.useState(false);
     const nextQuestionId = React.useRef(INITIAL_QUESTIONS.length + 1);
+    const previewQuestionRequestId = React.useRef(0);
     const questionMeasureRefs = React.useRef<Record<number, HTMLDivElement | null>>({});
     const exportPageRefs = React.useRef<Array<HTMLDivElement | null>>([]);
     const [questionHeights, setQuestionHeights] = React.useState<Record<number, number>>({});
-    const [questionMaxLineWidth, setQuestionMaxLineWidth] = React.useState(() => PAGE_WIDTH - QUESTION_MARGIN_X * 2 - 16);
+    const [questionMaxLineWidth, setQuestionMaxLineWidth] = React.useState(
+        () => PAGE_WIDTH - QUESTION_MARGIN_X * 2 - HORIZONTAL_PADDING_PX
+    );
+
 
     React.useEffect(() => {
         console.log("Estimated max line width:", questionMaxLineWidth);
@@ -361,9 +369,8 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
             return questionContentWidth;
         }
 
-        const normalizedColumns = Math.max(MIN_GRID_COLUMNS, Math.min(MAX_GRID_COLUMNS, gridColumns));
-        const availableWidth = questionContentWidth - questionSpacing * (normalizedColumns - 1);
-        return Math.max(80, availableWidth / normalizedColumns);
+        const availableWidth = questionContentWidth - (questionSpacing * (gridColumns - 1));
+        return Math.max(40, availableWidth / gridColumns);
     }, [gridColumns, questionContentWidth, questionSpacing, selectedLayout]);
 
     const stageCatalog = React.useMemo(() => QUESTION_CATALOG[modalStage], [modalStage]);
@@ -514,7 +521,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
 
         if (selectedLayout === "linear") {
             for (const question of questions) {
-                const measuredHeight = Math.max(MIN_QUESTION_HEIGHT, (questionHeights[question.id] ?? MIN_QUESTION_HEIGHT) + QUESTION_HEIGHT_BUFFER);
+                const measuredHeight = questionHeights[question.id] ?? MIN_QUESTION_HEIGHT;
                 const willOverflow = cursorY + measuredHeight > PAGE_HEIGHT - PAGE_MARGIN_BOTTOM;
 
                 if (willOverflow && cursorY > PAGE_MARGIN_TOP) {
@@ -878,17 +885,21 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
 
     React.useEffect(() => {
         const recalculateLineWidth = () => {
-            const horizontalPadding = 16; // px-2 on both sides
-            const horizontalBorderAllowance = selectedLayout === "grid" ? questionBorderWidth * 2 : 0;
-            const innerQuestionWidth = Math.max(40, activeQuestionWidth - horizontalPadding - horizontalBorderAllowance);
-
-            setQuestionMaxLineWidth(innerQuestionWidth);
+            // activeQuestionWidth is already the per-column CSS width in pixels.
+            // The question divs use `box-sizing: border-box`, so border widths are
+            // already included inside activeQuestionWidth — do not subtract them.
+            // Subtract only the horizontal padding applied by the `px-2` class.
+            const innerWidth = activeQuestionWidth - HORIZONTAL_PADDING_PX;
+            setQuestionMaxLineWidth(Math.max(40, innerWidth));
         };
-
+    
         recalculateLineWidth();
         window.addEventListener("resize", recalculateLineWidth);
         return () => window.removeEventListener("resize", recalculateLineWidth);
-    }, [activeQuestionWidth, questionBorderWidth, questionFontSize, selectedLayout]);
+        // questionFontSize is NOT a dependency: the inner pixel width of the
+        // container does not change when font size changes.
+    }, [activeQuestionWidth, selectedLayout]);
+
 
     const moveQuestion = React.useCallback((fromIndex: number, toIndex: number) => {
         setQuestions((currentQuestions) => {
@@ -1013,7 +1024,48 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
         setSelectedTopicId(null);
         setSelectedSubtopicSlug(null);
         setSelectedDifficulty("random");
+        setPreviewQuestionLatex(null);
     }, [modalStage]);
+
+    React.useEffect(() => {
+        if (!addModalOpen || !selectedTopicId || !selectedSubtopicSlug) {
+            setPreviewQuestionLatex(null);
+            setIsGeneratingPreviewQuestion(false);
+            return;
+        }
+
+        const nextDifficulty = selectedDifficulty === "random"
+            ? (randomFromArray(availableDifficulties) ?? 1)
+            : selectedDifficulty;
+        const requestId = previewQuestionRequestId.current + 1;
+        previewQuestionRequestId.current = requestId;
+        setIsGeneratingPreviewQuestion(true);
+
+        generateQuestionWithTimeout({
+            level: modalStage,
+            topicId: selectedTopicId,
+            subtopicSlug: selectedSubtopicSlug,
+            difficulty: nextDifficulty,
+        })
+            .then((result) => {
+                if (previewQuestionRequestId.current !== requestId) {
+                    return;
+                }
+                setPreviewQuestionLatex(result.latex || "\\text{Question generation unavailable}");
+            })
+            .catch(() => {
+                if (previewQuestionRequestId.current !== requestId) {
+                    return;
+                }
+                setPreviewQuestionLatex("\\text{Question generation unavailable}");
+            })
+            .finally(() => {
+                if (previewQuestionRequestId.current !== requestId) {
+                    return;
+                }
+                setIsGeneratingPreviewQuestion(false);
+            });
+    }, [addModalOpen, availableDifficulties, modalStage, selectedDifficulty, selectedSubtopicSlug, selectedTopicId]);
 
     React.useEffect(() => {
         if (!addModalOpen) {
@@ -1095,6 +1147,103 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
             });
         }
     }, [questions, regeneratingQuestionIds]);
+
+    const regenerateAllQuestions = React.useCallback(async () => {
+        if (!questions.length || isRegeneratingAllQuestions) {
+            return;
+        }
+
+        const regenerationPlan = questions.map((question) => {
+            const availableLevels = getQuestionGeneratorLevels(question.stage, question.subtopicSlug);
+            const nextDifficulty = question.levelMode === "random"
+                ? (randomFromArray(availableLevels) ?? 1)
+                : question.level;
+
+            return {
+                id: question.id,
+                stage: question.stage,
+                topicId: question.topicId,
+                subtopicSlug: question.subtopicSlug,
+                nextDifficulty,
+            };
+        });
+
+        const plannedQuestionIds = new Set(regenerationPlan.map((item) => item.id));
+
+        setIsRegeneratingAllQuestions(true);
+        setRegeneratingQuestionIds((current) => {
+            const next = { ...current };
+            regenerationPlan.forEach((item) => {
+                next[item.id] = true;
+            });
+            return next;
+        });
+
+        setQuestions((currentQuestions) => currentQuestions.map((question) => {
+            const plannedQuestion = regenerationPlan.find((item) => item.id === question.id);
+            if (!plannedQuestion) {
+                return question;
+            }
+
+            return {
+                ...question,
+                level: plannedQuestion.nextDifficulty,
+                latex: "\\text{Regenerating question...}",
+                svg: undefined,
+            };
+        }));
+
+        try {
+            const regeneratedResults = await Promise.all(regenerationPlan.map(async (planItem) => {
+                try {
+                    const result = await generateQuestionWithTimeout({
+                        level: planItem.stage,
+                        topicId: planItem.topicId,
+                        subtopicSlug: planItem.subtopicSlug,
+                        difficulty: planItem.nextDifficulty,
+                    });
+
+                    return {
+                        id: planItem.id,
+                        nextDifficulty: planItem.nextDifficulty,
+                        latex: result.latex || "\\text{Question generation unavailable}",
+                        svg: result.svg,
+                    };
+                } catch {
+                    return {
+                        id: planItem.id,
+                        nextDifficulty: planItem.nextDifficulty,
+                        latex: "\\text{Question generation unavailable}",
+                        svg: undefined,
+                    };
+                }
+            }));
+
+            const resultsById = new Map(regeneratedResults.map((result) => [result.id, result]));
+            setQuestions((currentQuestions) => currentQuestions.map((question) => {
+                const result = resultsById.get(question.id);
+                if (!result) {
+                    return question;
+                }
+
+                return {
+                    ...question,
+                    level: result.nextDifficulty,
+                    latex: result.latex,
+                    svg: result.svg,
+                };
+            }));
+        } finally {
+            setRegeneratingQuestionIds((current) => {
+                const next = { ...current };
+                plannedQuestionIds.forEach((questionId) => {
+                    delete next[questionId];
+                });
+                return next;
+            });
+            setIsRegeneratingAllQuestions(false);
+        }
+    }, [isRegeneratingAllQuestions, questions]);
 
     const saveEditedQuestion = React.useCallback(async () => {
         if (!editingQuestion) {
@@ -1480,7 +1629,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                         {formatQuestionNumber(questionIndex)}
                                                     </p>
                                                     <div className="text-black">
-                                                        <EditorWrapLatex latex={question.latex} maxLineWidth={questionMaxLineWidth} textAlign={questionTextAlign} fontSize={questionFontSize} debug />
+                                                        <EditorWrapLatex latex={question.latex} maxLineWidth={questionMaxLineWidth} textAlign={questionTextAlign} fontSize={questionFontSize} debug={false} />
                                                     </div>
                                                     {question.svg && (
                                                         <div className={SVG_RENDER_CLASS} dangerouslySetInnerHTML={{ __html: question.svg }} />
@@ -1514,8 +1663,8 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                 <p className="font-nunito text-xs uppercase tracking-[0.18em] text-black">
                                                     {formatQuestionNumber(index)}
                                                 </p>
-                                                <div className="mt-2 text-black">
-                                                    <EditorWrapLatex latex={question.latex} maxLineWidth={questionMaxLineWidth} textAlign={questionTextAlign} fontSize={questionFontSize} />
+                                                <div className="text-black">
+                                                    <EditorWrapLatex latex={question.latex} maxLineWidth={questionMaxLineWidth} textAlign={questionTextAlign} fontSize={questionFontSize} debug={false} />
                                                 </div>
                                                 {question.svg && (
                                                     <div className={SVG_RENDER_CLASS} dangerouslySetInnerHTML={{ __html: question.svg }} />
@@ -1960,6 +2109,16 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                         </div>
                                     ))}
                                 </div>
+                                <div className="px-4 pb-4 pt-2">
+                                    <button
+                                        type="button"
+                                        className="w-full rounded-lg border border-black bg-black px-4 py-2 font-nunito text-sm text-white transition duration-200 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+                                        onClick={regenerateAllQuestions}
+                                        disabled={!questions.length || isRegeneratingAllQuestions}
+                                    >
+                                        {isRegeneratingAllQuestions ? "Regenerating all questions..." : "Regenerate All Questions"}
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </div>
@@ -2043,7 +2202,8 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                         <p className="font-nunito text-xs uppercase tracking-[0.18em] text-black" data-export-vector-text="true">
                                             {formatQuestionNumber(questionIndex)}
                                         </p>
-                                        <div className="mt-2 text-black">
+                                        <div aria-hidden="true" style={{ height: EXPORT_QUESTION_NUMBER_SPACER_PX }} />
+                                        <div className="text-black">
                                             <EditorWrapLatex
                                                 latex={question.latex}
                                                 maxLineWidth={questionMaxLineWidth}
@@ -2090,7 +2250,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                             </div>
 
                             <div>
-                                <p className="mb-2 font-nunito text-sm uppercase tracking-[0.22em] text-grey">Hammer Search Topic</p>
+                                <p className="mb-2 font-nunito text-sm uppercase tracking-[0.22em] text-grey">Search Topic</p>
                                 <div className="relative">
                                     <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-grey">
                                         <HammerIcon />
@@ -2188,7 +2348,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                 <input
                                     type="number"
                                     min={1}
-                                    max={40}
+                                    max={1000}
                                     value={quantity}
                                     onChange={(event) => {
                                         const parsed = Number.parseInt(event.target.value, 10);
@@ -2196,7 +2356,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                             setQuantity(1);
                                             return;
                                         }
-                                        setQuantity(Math.min(40, Math.max(1, parsed)));
+                                        setQuantity(Math.min(1000, Math.max(1, parsed)));
                                     }}
                                     className="h-11 w-28 rounded-lg border border-black/20 px-3 font-nunito text-sm text-black outline-none transition-shadow duration-200 focus:shadow-[0_0_0_3px_var(--accent)]"
                                 />
@@ -2204,11 +2364,29 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
 
                             <div className="rounded-xl border border-black/15 bg-white px-3 py-2">
                                 <p className="font-nunito text-xs uppercase tracking-[0.16em] text-grey">Preview</p>
-                                <p className="mt-1 font-nunito text-sm text-black">
-                                    {selectedSubtopic
-                                        ? `${stageLabel(modalStage)} • ${toTitleFromSlug(selectedSubtopic.topic.id)} • ${toTitleFromSlug(selectedSubtopic.subtopic.slug)}`
-                                        : "Pick a stage and search-select a topic."}
-                                </p>
+                                {selectedSubtopic ? (
+                                    <>
+                                        <p className="mt-1 font-nunito text-sm text-black">
+                                            {`${stageLabel(modalStage)} • ${toTitleFromSlug(selectedSubtopic.topic.id)} • ${toTitleFromSlug(selectedSubtopic.subtopic.slug)}`}
+                                        </p>
+                                        <div className="mt-2 rounded-lg border border-black/10 bg-[#fffdf8] px-3 py-2 text-black">
+                                            {isGeneratingPreviewQuestion && !previewQuestionLatex ? (
+                                                <p className="font-nunito text-sm text-grey">Generating preview question...</p>
+                                            ) : previewQuestionLatex ? (
+                                                <EditorWrapLatex
+                                                    latex={previewQuestionLatex}
+                                                    maxLineWidth={420}
+                                                    textAlign="left"
+                                                    fontSize={10}
+                                                />
+                                            ) : (
+                                                <p className="font-nunito text-sm text-grey">Preview unavailable.</p>
+                                            )}
+                                        </div>
+                                    </>
+                                ) : (
+                                    <p className="mt-1 font-nunito text-sm text-black">Pick a stage and search-select a topic.</p>
+                                )}
                             </div>
                         </div>
 

@@ -965,7 +965,7 @@ export const sixthFormGenerators: Record<string, QuestionGeneratorWithLevels> = 
 
             const phrasing = choose([
                 `\\text{Which of the following intervals contains a root of } f(x) = ${fStr}?`,
-                `\\text{The equation } ${fStr} = 0 \\ \\text{has a root in one of the intervals below.} \\\\ \\text{Using a sign-change argument, which interval contains a root?}`,
+                `\\text{The equation } ${fStr} = 0 \\ \\text{ has a root in one of the intervals below.} \\\\ \\text{Using a sign-change argument, which interval contains a root?}`,
                 `\\text{By evaluating } f(x) = ${fStr} \\ \\text{at the endpoints, identify the interval that contains a root.}`,
                 `\\text{Use a sign-change argument to show } f(x) = ${fStr} \\ \\text{has a root. Which interval below contains it?}`,
             ]);
