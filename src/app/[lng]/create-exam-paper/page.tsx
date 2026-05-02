@@ -24,6 +24,7 @@ type QuestionItem = {
     topicId: string;
     subtopicSlug: string;
     latex: string;
+    answerLatex: string;
     svg?: string;
 };
 
@@ -39,7 +40,7 @@ type TopicResult = {
     subtopicLabel: string;
 };
 
-type SidebarSection = "layout" | "styling" | "questions" | null;
+type SidebarSection = "layout" | "styling" | "answers" | "questions" | null;
 
 const INITIAL_QUESTIONS: QuestionItem[] = [];
 const STAGE_OPTIONS: StageOption[] = [
@@ -92,7 +93,6 @@ const PDF_COMPRESSION_OPTIONS: Array<{
 const SVG_RENDER_CLASS = "mt-3 flex justify-center overflow-x-auto overflow-y-hidden [&_svg]:mx-auto [&_svg]:h-auto [&_svg]:max-w-full";
 const TITLE_FONT_FAMILY_KONVA = "Times New Roman";
 const TITLE_FONT_FAMILY_PDF = "times";
-const EXPORT_QUESTION_NUMBER_SPACER_PX = "0.6em";
 
 function uint8ArrayToBase64(bytes: Uint8Array): string {
     let binary = "";
@@ -170,13 +170,45 @@ function stageLabel(stage: QuestionLevel) {
     return STAGE_OPTIONS.find((option) => option.id === stage)?.label ?? "Secondary";
 }
 
+function escapeLatexText(value: string): string {
+    return value
+        .replace(/\\/g, "\\textbackslash{}")
+        .replace(/([{}#$%&_])/g, "\\$1")
+        .replace(/\^/g, "\\textasciicircum{}")
+        .replace(/~/g, "\\textasciitilde{}")
+        .trim();
+}
+
+function toAnswerLatex(answer: string | string[] | undefined): string {
+    const normalizedAnswers = (Array.isArray(answer) ? answer : [answer ?? ""])
+        .map((item) => item.trim())
+        .filter((item) => item.length > 0);
+
+    if (!normalizedAnswers.length) {
+        return "\\text{No answer available}";
+    }
+
+    const latexAnswers = normalizedAnswers.map((item) => {
+        const looksLikeLatex = /\\|\^|_|\{|\}|=|\+|-|\*|\/|\(|\)|\d/.test(item);
+        return looksLikeLatex ? item : `\\text{${escapeLatexText(item)}}`;
+    });
+
+    return latexAnswers.length === 1
+        ? latexAnswers[0]
+        : latexAnswers.join("\\quad\\mid\\quad");
+}
+
 function randomFromArray<T>(items: T[]): T | null {
     if (!items.length) return null;
     return items[Math.floor(Math.random() * items.length)] ?? null;
 }
 
 function sanitizeFileName(value: string): string {
-    return value.replace(/[<>:"/\\|?*\x00-\x1F]/g, "").trim();
+    return value
+        .trim()
+        .replace(/[\\/:*?"<>|]/g, "")
+        .replace(/\s+/g, " ")
+        .slice(0, 120);
 }
 
 function toHexChannel(value: number): string {
@@ -300,6 +332,21 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
 
     const [selectedLayout, setSelectedLayout] = React.useState<"linear" | "grid">("linear");
     const [activeSidebarSection, setActiveSidebarSection] = React.useState<SidebarSection>("questions");
+    const [includeAnswers, setIncludeAnswers] = React.useState(false);
+    const [answersSeparatePdf, setAnswersSeparatePdf] = React.useState(false);
+    const [answerLayout, setAnswerLayout] = React.useState<"linear" | "grid">("linear");
+    const [answerSpacing, setAnswerSpacing] = React.useState(DEFAULT_QUESTION_GAP);
+    const [answerSpacingInput, setAnswerSpacingInput] = React.useState(String(DEFAULT_QUESTION_GAP));
+    const [answerGridColumns, setAnswerGridColumns] = React.useState(DEFAULT_GRID_COLUMNS);
+    const [answerGridColumnsInput, setAnswerGridColumnsInput] = React.useState(String(DEFAULT_GRID_COLUMNS));
+    const [answerBorderWidth, setAnswerBorderWidth] = React.useState(DEFAULT_QUESTION_BORDER_WIDTH);
+    const [answerBorderWidthInput, setAnswerBorderWidthInput] = React.useState(String(DEFAULT_QUESTION_BORDER_WIDTH));
+    const [answerBorderColorHex, setAnswerBorderColorHex] = React.useState("#000000");
+    const [answerBorderColorInput, setAnswerBorderColorInput] = React.useState("#000000");
+    const [answerBorderColorRed, setAnswerBorderColorRed] = React.useState(0);
+    const [answerBorderColorGreen, setAnswerBorderColorGreen] = React.useState(0);
+    const [answerBorderColorBlue, setAnswerBorderColorBlue] = React.useState(0);
+    const [answerBorderColorPanelOpen, setAnswerBorderColorPanelOpen] = React.useState(false);
     const [paperTitle, setPaperTitle] = React.useState("Examiniser Paper");
     const [questionNumberStyle, setQuestionNumberStyle] = React.useState<"short" | "long">("long");
     const [questionTextAlign, setQuestionTextAlign] = React.useState<"left" | "center" | "right">("left");
@@ -318,6 +365,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
     const [questionBorderColorBlue, setQuestionBorderColorBlue] = React.useState(0);
     const [borderColorPanelOpen, setBorderColorPanelOpen] = React.useState(false);
     const [exportFileName, setExportFileName] = React.useState("Examiniser Paper");
+    const [answerExportFileName, setAnswerExportFileName] = React.useState("Examiniser Paper - Answers");
     const [downloadModalOpen, setDownloadModalOpen] = React.useState(false);
     const [downloadCompression, setDownloadCompression] = React.useState<PdfCompressionLevel>("medium");
     const [isExportingPdf, setIsExportingPdf] = React.useState(false);
@@ -350,9 +398,15 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
     const nextQuestionId = React.useRef(INITIAL_QUESTIONS.length + 1);
     const previewQuestionRequestId = React.useRef(0);
     const questionMeasureRefs = React.useRef<Record<number, HTMLDivElement | null>>({});
+    const answerMeasureRefs = React.useRef<Record<number, HTMLDivElement | null>>({});
     const exportPageRefs = React.useRef<Array<HTMLDivElement | null>>([]);
+    const exportAnswerPageRefs = React.useRef<Array<HTMLDivElement | null>>([]);
     const [questionHeights, setQuestionHeights] = React.useState<Record<number, number>>({});
+    const [answerHeights, setAnswerHeights] = React.useState<Record<number, number>>({});
     const [questionMaxLineWidth, setQuestionMaxLineWidth] = React.useState(
+        () => PAGE_WIDTH - QUESTION_MARGIN_X * 2 - HORIZONTAL_PADDING_PX
+    );
+    const [answerMaxLineWidth, setAnswerMaxLineWidth] = React.useState(
         () => PAGE_WIDTH - QUESTION_MARGIN_X * 2 - HORIZONTAL_PADDING_PX
     );
 
@@ -372,6 +426,14 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
         const availableWidth = questionContentWidth - (questionSpacing * (gridColumns - 1));
         return Math.max(40, availableWidth / gridColumns);
     }, [gridColumns, questionContentWidth, questionSpacing, selectedLayout]);
+
+    const activeAnswerWidth = React.useMemo(() => {
+        if (answerLayout === "linear") {
+            return questionContentWidth;
+        }
+        const availableWidth = questionContentWidth - (answerSpacing * (answerGridColumns - 1));
+        return Math.max(40, availableWidth / answerGridColumns);
+    }, [answerGridColumns, answerLayout, answerSpacing, questionContentWidth]);
 
     const stageCatalog = React.useMemo(() => QUESTION_CATALOG[modalStage], [modalStage]);
 
@@ -505,7 +567,46 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
         });
     }, [questionBorderWidth, questions, questionFontSize, questionMaxLineWidth, questionTextAlign]);
 
-    const questionPlacements = React.useMemo(() => {
+    React.useLayoutEffect(() => {
+        if (!questions.length) {
+            setAnswerHeights({});
+            return;
+        }
+
+        const nextHeights: Record<number, number> = {};
+        for (const question of questions) {
+            const node = answerMeasureRefs.current[question.id];
+            if (!node) {
+                continue;
+            }
+            nextHeights[question.id] = Math.ceil(node.offsetHeight);
+        }
+
+        setAnswerHeights((currentHeights) => {
+            const currentKeys = Object.keys(currentHeights);
+            const nextKeys = Object.keys(nextHeights);
+            if (currentKeys.length !== nextKeys.length) {
+                return nextHeights;
+            }
+
+            for (const key of nextKeys) {
+                if (Math.abs((currentHeights[Number(key)] ?? 0) - (nextHeights[Number(key)] ?? 0)) > 1) {
+                    return nextHeights;
+                }
+            }
+
+            return currentHeights;
+        });
+    }, [answerBorderWidth, answerMaxLineWidth, questionFontSize, questionTextAlign, questions]);
+
+    const calculatePlacements = React.useCallback((
+        heights: Record<number, number>,
+        items: QuestionItem[],
+        layout: "linear" | "grid",
+        spacing: number,
+        columns: number,
+        itemWidth: number,
+    ) => {
         type Placement = {
             id: number;
             pageIndex: number;
@@ -519,9 +620,9 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
         let pageIndex = 0;
         let cursorY = PAGE_MARGIN_TOP;
 
-        if (selectedLayout === "linear") {
-            for (const question of questions) {
-                const measuredHeight = questionHeights[question.id] ?? MIN_QUESTION_HEIGHT;
+        if (layout === "linear") {
+            for (const item of items) {
+                const measuredHeight = heights[item.id] ?? MIN_QUESTION_HEIGHT;
                 const willOverflow = cursorY + measuredHeight > PAGE_HEIGHT - PAGE_MARGIN_BOTTOM;
 
                 if (willOverflow && cursorY > PAGE_MARGIN_TOP) {
@@ -530,18 +631,18 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                 }
 
                 placements.push({
-                    id: question.id,
+                    id: item.id,
                     pageIndex,
                     x: QUESTION_MARGIN_X,
                     y: cursorY,
-                    width: activeQuestionWidth,
+                    width: itemWidth,
                     measuredHeight,
                 });
 
-                cursorY += measuredHeight + questionSpacing;
+                cursorY += measuredHeight + spacing;
             }
         } else {
-            const normalizedColumns = Math.max(MIN_GRID_COLUMNS, Math.min(MAX_GRID_COLUMNS, gridColumns));
+            const normalizedColumns = Math.max(MIN_GRID_COLUMNS, Math.min(MAX_GRID_COLUMNS, columns));
             const rowBuffer: Array<{ id: number; measuredHeight: number }> = [];
 
             const flushRow = () => {
@@ -561,20 +662,20 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                     placements.push({
                         id: item.id,
                         pageIndex,
-                        x: QUESTION_MARGIN_X + columnIndex * (activeQuestionWidth + questionSpacing),
+                        x: QUESTION_MARGIN_X + columnIndex * (itemWidth + spacing),
                         y: cursorY,
-                        width: activeQuestionWidth,
+                        width: itemWidth,
                         measuredHeight: rowHeight,
                     });
                 });
 
-                cursorY += rowHeight + questionSpacing;
+                cursorY += rowHeight + spacing;
                 rowBuffer.length = 0;
             };
 
-            for (const question of questions) {
-                const measuredHeight = Math.max(MIN_QUESTION_HEIGHT, (questionHeights[question.id] ?? MIN_QUESTION_HEIGHT) + QUESTION_HEIGHT_BUFFER);
-                rowBuffer.push({ id: question.id, measuredHeight });
+            for (const item of items) {
+                const measuredHeight = Math.max(MIN_QUESTION_HEIGHT, (heights[item.id] ?? MIN_QUESTION_HEIGHT) + QUESTION_HEIGHT_BUFFER);
+                rowBuffer.push({ id: item.id, measuredHeight });
 
                 if (rowBuffer.length === normalizedColumns) {
                     flushRow();
@@ -588,10 +689,27 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
             placements,
             pageCount: Math.max(1, pageIndex + 1),
         };
-    }, [activeQuestionWidth, gridColumns, questionHeights, questionSpacing, questions, selectedLayout]);
+    }, []);
+
+    const questionPlacements = React.useMemo(() => {
+        return calculatePlacements(questionHeights, questions, selectedLayout, questionSpacing, gridColumns, activeQuestionWidth);
+    }, [activeQuestionWidth, calculatePlacements, gridColumns, questionHeights, questionSpacing, questions, selectedLayout]);
+
+    const answerPlacements = React.useMemo(() => {
+        return calculatePlacements(answerHeights, questions, answerLayout, answerSpacing, answerGridColumns, activeAnswerWidth);
+    }, [activeAnswerWidth, answerGridColumns, answerHeights, answerLayout, answerSpacing, calculatePlacements, questions]);
 
     const stageHeight = React.useMemo(() => {
-        return questionPlacements.pageCount * PAGE_HEIGHT + (questionPlacements.pageCount - 1) * PAGE_GAP;
+        const questionHeight = questionPlacements.pageCount * PAGE_HEIGHT + (questionPlacements.pageCount - 1) * PAGE_GAP;
+        if (!includeAnswers) {
+            return questionHeight;
+        }
+
+        const answerHeight = answerPlacements.pageCount * PAGE_HEIGHT + (answerPlacements.pageCount - 1) * PAGE_GAP;
+        return questionHeight + PAGE_GAP + answerHeight;
+    }, [answerPlacements.pageCount, includeAnswers, questionPlacements.pageCount]);
+    const answerSectionTopOffset = React.useMemo(() => {
+        return questionPlacements.pageCount * PAGE_HEIGHT + questionPlacements.pageCount * PAGE_GAP;
     }, [questionPlacements.pageCount]);
     const scaledStageHeight = stageHeight * zoomScale;
     const compressionIndex = React.useMemo(() => {
@@ -603,6 +721,10 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
         exportPageRefs.current = exportPageRefs.current.slice(0, questionPlacements.pageCount);
     }, [questionPlacements.pageCount]);
 
+    React.useEffect(() => {
+        exportAnswerPageRefs.current = exportAnswerPageRefs.current.slice(0, answerPlacements.pageCount);
+    }, [answerPlacements.pageCount]);
+
     const placeTop = React.useCallback((pageIndex: number, y: number) => {
         return pageIndex * (PAGE_HEIGHT + PAGE_GAP) + y;
     }, []);
@@ -610,6 +732,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
     const getZeroSpacingGridBorderWidth = React.useCallback((
         placement: { pageIndex: number; x: number; y: number },
         placements: Array<{ pageIndex: number; x: number; y: number }>,
+        borderWidth: number,
     ) => {
         const hasRightNeighbor = placements.some((candidate) => (
             candidate.pageIndex === placement.pageIndex
@@ -622,8 +745,8 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
             && candidate.y > placement.y
         ));
 
-        return `${questionBorderWidth}px ${hasRightNeighbor ? 0 : questionBorderWidth}px ${hasBottomNeighbor ? 0 : questionBorderWidth}px ${questionBorderWidth}px`;
-    }, [questionBorderWidth]);
+        return `${borderWidth}px ${hasRightNeighbor ? 0 : borderWidth}px ${hasBottomNeighbor ? 0 : borderWidth}px ${borderWidth}px`;
+    }, []);
 
     const formatQuestionNumber = React.useCallback((index: number) => {
         const questionNumber = index + 1;
@@ -867,6 +990,161 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
         setQuestionBorderColorInput(nextHex);
     }, [questionBorderColorGreen, questionBorderColorRed]);
 
+    const commitAnswerSpacing = React.useCallback((rawValue: string) => {
+        const trimmedValue = rawValue.trim();
+        if (!trimmedValue) {
+            setAnswerSpacingInput("");
+            return;
+        }
+
+        const parsed = Number.parseInt(trimmedValue, 10);
+        if (Number.isNaN(parsed)) {
+            setAnswerSpacingInput(String(answerSpacing));
+            return;
+        }
+
+        const nextSpacing = Math.min(MAX_QUESTION_GAP, Math.max(MIN_QUESTION_GAP, parsed));
+        setAnswerSpacing(nextSpacing);
+        setAnswerSpacingInput(String(nextSpacing));
+    }, [answerSpacing]);
+
+    const handleAnswerSpacingChange = React.useCallback((rawValue: string) => {
+        setAnswerSpacingInput(rawValue);
+
+        const trimmedValue = rawValue.trim();
+        if (!trimmedValue) {
+            return;
+        }
+
+        const parsed = Number.parseInt(trimmedValue, 10);
+        if (Number.isNaN(parsed)) {
+            return;
+        }
+
+        if (parsed >= MIN_QUESTION_GAP && parsed <= MAX_QUESTION_GAP) {
+            setAnswerSpacing(parsed);
+        }
+    }, []);
+
+    const commitAnswerGridColumns = React.useCallback((rawValue: string) => {
+        const trimmedValue = rawValue.trim();
+        if (!trimmedValue) {
+            setAnswerGridColumnsInput("");
+            return;
+        }
+
+        const parsed = Number.parseInt(trimmedValue, 10);
+        if (Number.isNaN(parsed)) {
+            setAnswerGridColumnsInput(String(answerGridColumns));
+            return;
+        }
+
+        const nextColumns = Math.min(MAX_GRID_COLUMNS, Math.max(MIN_GRID_COLUMNS, parsed));
+        setAnswerGridColumns(nextColumns);
+        setAnswerGridColumnsInput(String(nextColumns));
+    }, [answerGridColumns]);
+
+    const handleAnswerGridColumnsChange = React.useCallback((rawValue: string) => {
+        setAnswerGridColumnsInput(rawValue);
+
+        const trimmedValue = rawValue.trim();
+        if (!trimmedValue) {
+            return;
+        }
+
+        const parsed = Number.parseInt(trimmedValue, 10);
+        if (Number.isNaN(parsed)) {
+            return;
+        }
+
+        if (parsed >= MIN_GRID_COLUMNS && parsed <= MAX_GRID_COLUMNS) {
+            setAnswerGridColumns(parsed);
+        }
+    }, []);
+
+    const commitAnswerBorderWidth = React.useCallback((rawValue: string) => {
+        const trimmedValue = rawValue.trim();
+        if (!trimmedValue) {
+            setAnswerBorderWidthInput("");
+            return;
+        }
+
+        const parsed = Number.parseInt(trimmedValue, 10);
+        if (Number.isNaN(parsed)) {
+            setAnswerBorderWidthInput(String(answerBorderWidth));
+            return;
+        }
+
+        const nextWidth = Math.min(MAX_QUESTION_BORDER_WIDTH, Math.max(MIN_QUESTION_BORDER_WIDTH, parsed));
+        setAnswerBorderWidth(nextWidth);
+        setAnswerBorderWidthInput(String(nextWidth));
+    }, [answerBorderWidth]);
+
+    const handleAnswerBorderWidthChange = React.useCallback((rawValue: string) => {
+        setAnswerBorderWidthInput(rawValue);
+
+        const trimmedValue = rawValue.trim();
+        if (!trimmedValue) {
+            return;
+        }
+
+        const parsed = Number.parseInt(trimmedValue, 10);
+        if (Number.isNaN(parsed)) {
+            return;
+        }
+
+        if (parsed >= MIN_QUESTION_BORDER_WIDTH && parsed <= MAX_QUESTION_BORDER_WIDTH) {
+            setAnswerBorderWidth(parsed);
+        }
+    }, []);
+
+    const applyAnswerBorderColorHex = React.useCallback((rawValue: string) => {
+        const parsed = parseHexColor(rawValue);
+        if (!parsed) {
+            setAnswerBorderColorInput(answerBorderColorHex);
+            return;
+        }
+
+        const normalizedHex = rgbToHex(parsed.red, parsed.green, parsed.blue);
+        setAnswerBorderColorHex(normalizedHex);
+        setAnswerBorderColorInput(normalizedHex);
+        setAnswerBorderColorRed(parsed.red);
+        setAnswerBorderColorGreen(parsed.green);
+        setAnswerBorderColorBlue(parsed.blue);
+    }, [answerBorderColorHex]);
+
+    const handleAnswerBorderColorInputChange = React.useCallback((rawValue: string) => {
+        setAnswerBorderColorInput(rawValue.toUpperCase());
+    }, []);
+
+    const handleAnswerBorderColorPickerChange = React.useCallback((rawValue: string) => {
+        applyAnswerBorderColorHex(rawValue);
+    }, [applyAnswerBorderColorHex]);
+
+    const handleAnswerBorderRedChange = React.useCallback((value: number) => {
+        const normalized = Math.max(0, Math.min(255, value));
+        const nextHex = rgbToHex(normalized, answerBorderColorGreen, answerBorderColorBlue);
+        setAnswerBorderColorRed(normalized);
+        setAnswerBorderColorHex(nextHex);
+        setAnswerBorderColorInput(nextHex);
+    }, [answerBorderColorBlue, answerBorderColorGreen]);
+
+    const handleAnswerBorderGreenChange = React.useCallback((value: number) => {
+        const normalized = Math.max(0, Math.min(255, value));
+        const nextHex = rgbToHex(answerBorderColorRed, normalized, answerBorderColorBlue);
+        setAnswerBorderColorGreen(normalized);
+        setAnswerBorderColorHex(nextHex);
+        setAnswerBorderColorInput(nextHex);
+    }, [answerBorderColorBlue, answerBorderColorRed]);
+
+    const handleAnswerBorderBlueChange = React.useCallback((value: number) => {
+        const normalized = Math.max(0, Math.min(255, value));
+        const nextHex = rgbToHex(answerBorderColorRed, answerBorderColorGreen, normalized);
+        setAnswerBorderColorBlue(normalized);
+        setAnswerBorderColorHex(nextHex);
+        setAnswerBorderColorInput(nextHex);
+    }, [answerBorderColorGreen, answerBorderColorRed]);
+
     React.useEffect(() => {
         setQuestionFontSizeInput(String(questionFontSize));
     }, [questionFontSize]);
@@ -899,6 +1177,30 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
         // questionFontSize is NOT a dependency: the inner pixel width of the
         // container does not change when font size changes.
     }, [activeQuestionWidth, selectedLayout]);
+
+
+    React.useEffect(() => {
+        setAnswerSpacingInput(String(answerSpacing));
+    }, [answerSpacing]);
+
+    React.useEffect(() => {
+        setAnswerGridColumnsInput(String(answerGridColumns));
+    }, [answerGridColumns]);
+
+    React.useEffect(() => {
+        setAnswerBorderWidthInput(String(answerBorderWidth));
+    }, [answerBorderWidth]);
+
+    React.useEffect(() => {
+        const recalculateAnswerLineWidth = () => {
+            const innerWidth = activeAnswerWidth - HORIZONTAL_PADDING_PX;
+            setAnswerMaxLineWidth(Math.max(40, innerWidth));
+        };
+
+        recalculateAnswerLineWidth();
+        window.addEventListener("resize", recalculateAnswerLineWidth);
+        return () => window.removeEventListener("resize", recalculateAnswerLineWidth);
+    }, [activeAnswerWidth, answerLayout]);
 
 
     const moveQuestion = React.useCallback((fromIndex: number, toIndex: number) => {
@@ -971,7 +1273,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
         setIsGeneratingQuestions(true);
 
         const subtopicLabel = toTitleFromSlug(selectedSubtopicData.slug);
-        const pendingQuestions: Array<Omit<QuestionItem, "latex" | "svg">> = Array.from({ length: quantity }, () => {
+        const pendingQuestions: Array<Omit<QuestionItem, "latex" | "answerLatex" | "svg">> = Array.from({ length: quantity }, () => {
             const nextId = nextQuestionId.current;
             nextQuestionId.current += 1;
             const randomDifficulty = randomFromArray(availableDifficulties) ?? 1;
@@ -1003,6 +1305,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
             const generatedQuestions: QuestionItem[] = pendingQuestions.map((question, index) => ({
                 ...question,
                 latex: generationResults[index]?.latex ?? "\\text{Question generation unavailable}",
+                answerLatex: toAnswerLatex(generationResults[index]?.answer),
                 svg: generationResults[index]?.svg,
             }));
 
@@ -1111,6 +1414,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                 ...question,
                 level: nextDifficulty,
                 latex: "\\text{Regenerating question...}",
+                answerLatex: "\\text{Regenerating answer...}",
                 svg: undefined,
             };
         }));
@@ -1132,6 +1436,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                     ...question,
                     level: nextDifficulty,
                     latex: regeneratedResult.latex || "\\text{Question generation unavailable}",
+                    answerLatex: toAnswerLatex(regeneratedResult.answer),
                     svg: regeneratedResult.svg,
                 };
             }));
@@ -1189,6 +1494,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                 ...question,
                 level: plannedQuestion.nextDifficulty,
                 latex: "\\text{Regenerating question...}",
+                answerLatex: "\\text{Regenerating answer...}",
                 svg: undefined,
             };
         }));
@@ -1207,6 +1513,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                         id: planItem.id,
                         nextDifficulty: planItem.nextDifficulty,
                         latex: result.latex || "\\text{Question generation unavailable}",
+                        answerLatex: toAnswerLatex(result.answer),
                         svg: result.svg,
                     };
                 } catch {
@@ -1214,6 +1521,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                         id: planItem.id,
                         nextDifficulty: planItem.nextDifficulty,
                         latex: "\\text{Question generation unavailable}",
+                        answerLatex: "\\text{Answer generation unavailable}",
                         svg: undefined,
                     };
                 }
@@ -1230,6 +1538,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                     ...question,
                     level: result.nextDifficulty,
                     latex: result.latex,
+                    answerLatex: result.answerLatex,
                     svg: result.svg,
                 };
             }));
@@ -1294,6 +1603,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                     levelMode: editingQuestionLevelMode,
                     level: nextDifficulty,
                     latex: "\\text{Updating question...}",
+                    answerLatex: "\\text{Updating answer...}",
                     svg: undefined,
                 }
                 : question
@@ -1318,6 +1628,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                         levelMode: editingQuestionLevelMode,
                         level: nextDifficulty,
                         latex: regeneratedResult.latex || "\\text{Question generation unavailable}",
+                        answerLatex: toAnswerLatex(regeneratedResult.answer),
                         svg: regeneratedResult.svg,
                     }
                     : question
@@ -1359,9 +1670,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                 subject: "Exam paper",
             });
 
-            const hasNunitoFont = await registerNunitoPdfFont(doc);
-            const exportFontFamily = hasNunitoFont ? "Nunito" : "helvetica";
-            const questionIndexById = new Map(questions.map((question, index) => [question.id, index]));
+            await registerNunitoPdfFont(doc);
 
             for (let pageIndex = 0; pageIndex < questionPlacements.pageCount; pageIndex += 1) {
                 const exportNode = exportPageRefs.current[pageIndex];
@@ -1431,31 +1740,173 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                     { align: "right" },
                 );
 
-                doc.setTextColor(0, 0, 0);
-                doc.setFont(exportFontFamily, "normal");
-                doc.setFontSize(9);
-                questionPlacements.placements
-                    .filter((placement) => placement.pageIndex === pageIndex)
-                    .forEach((placement) => {
-                        const questionIndex = questionIndexById.get(placement.id);
-                        if (questionIndex === undefined) {
-                            return;
-                        }
+            }
 
-                        doc.text(
-                            formatQuestionNumber(questionIndex).toUpperCase(),
-                            (placement.x + 8) * PX_TO_MM,
-                            (placement.y + QUESTION_RENDER_PADDING_Y + 6) * PX_TO_MM,
-                        );
+            if (includeAnswers && !answersSeparatePdf) {
+                const answerTitleText = `${(paperTitle || "Examiniser Paper").trim() || "Examiniser Paper"} - Answers`;
+
+                for (let pageIndex = 0; pageIndex < answerPlacements.pageCount; pageIndex += 1) {
+                    const exportNode = exportAnswerPageRefs.current[pageIndex];
+                    if (!exportNode) {
+                        continue;
+                    }
+
+                    doc.addPage([PAGE_WIDTH * PX_TO_MM, PAGE_HEIGHT * PX_TO_MM], "portrait");
+
+                    const renderedCanvas = await toCanvas(exportNode, {
+                        backgroundColor: "#ffffff",
+                        width: PAGE_WIDTH,
+                        height: PAGE_HEIGHT,
+                        pixelRatio: 2,
+                        cacheBust: true,
+                        filter: (node) => {
+                            if (!(node instanceof Element)) {
+                                return true;
+                            }
+                            return !(
+                                node.getAttribute("data-export-vector-text") === "true"
+                                || node.classList.contains("katex-mathml")
+                                || node.matches("math, semantics, annotation")
+                            );
+                        },
+                        style: {
+                            textShadow: "none",
+                        },
                     });
+
+                    const imageType = "PNG";
+                    const imageData = renderedCanvas.toDataURL(
+                        imageType === "PNG" ? "image/png" : "image/jpeg",
+                        compressionOption.imageQuality,
+                    );
+                    doc.addImage(
+                        imageData,
+                        imageType,
+                        0,
+                        0,
+                        PAGE_WIDTH * PX_TO_MM,
+                        PAGE_HEIGHT * PX_TO_MM,
+                        undefined,
+                        compressionOption.imageCompression,
+                    );
+
+                    doc.setTextColor(0, 0, 0);
+                    doc.setFont(TITLE_FONT_FAMILY_PDF, "bold");
+                    doc.setFontSize(19.5);
+                    doc.text(
+                        answerTitleText,
+                        PAGE_MARGIN_X * PX_TO_MM,
+                        (42 + 26) * PX_TO_MM,
+                    );
+
+                    doc.setTextColor(0, 0, 0);
+                    doc.setFont(TITLE_FONT_FAMILY_PDF, "normal");
+                    doc.setFontSize(10.5);
+                    doc.text(
+                        `Page ${questionPlacements.pageCount + pageIndex + 1}`,
+                        (PAGE_WIDTH - PAGE_MARGIN_X) * PX_TO_MM,
+                        (PAGE_HEIGHT - 42 + 14) * PX_TO_MM,
+                        { align: "right" },
+                    );
+                }
             }
 
             doc.save(`${safeFileName}.pdf`);
+
+            if (includeAnswers && answersSeparatePdf) {
+                const answersDoc = new jsPDF({
+                    unit: "mm",
+                    format: [PAGE_WIDTH * PX_TO_MM, PAGE_HEIGHT * PX_TO_MM],
+                    compress: compressionOption.key !== "none",
+                    putOnlyUsedFonts: true,
+                });
+
+                const answerTitleText = `${(paperTitle || "Examiniser Paper").trim() || "Examiniser Paper"} - Answers`;
+                answersDoc.setProperties({
+                    title: answerTitleText,
+                    author: "examiniser.com",
+                    creator: "examiniser.com",
+                    subject: "Exam paper answers",
+                });
+
+                await registerNunitoPdfFont(answersDoc);
+
+                for (let pageIndex = 0; pageIndex < answerPlacements.pageCount; pageIndex += 1) {
+                    const exportNode = exportAnswerPageRefs.current[pageIndex];
+                    if (!exportNode) {
+                        continue;
+                    }
+
+                    if (pageIndex > 0) {
+                        answersDoc.addPage([PAGE_WIDTH * PX_TO_MM, PAGE_HEIGHT * PX_TO_MM], "portrait");
+                    }
+
+                    const renderedCanvas = await toCanvas(exportNode, {
+                        backgroundColor: "#ffffff",
+                        width: PAGE_WIDTH,
+                        height: PAGE_HEIGHT,
+                        pixelRatio: 2,
+                        cacheBust: true,
+                        filter: (node) => {
+                            if (!(node instanceof Element)) {
+                                return true;
+                            }
+                            return !(
+                                node.getAttribute("data-export-vector-text") === "true"
+                                || node.classList.contains("katex-mathml")
+                                || node.matches("math, semantics, annotation")
+                            );
+                        },
+                        style: {
+                            textShadow: "none",
+                        },
+                    });
+
+                    const imageType = "PNG";
+                    const imageData = renderedCanvas.toDataURL(
+                        imageType === "PNG" ? "image/png" : "image/jpeg",
+                        compressionOption.imageQuality,
+                    );
+                    answersDoc.addImage(
+                        imageData,
+                        imageType,
+                        0,
+                        0,
+                        PAGE_WIDTH * PX_TO_MM,
+                        PAGE_HEIGHT * PX_TO_MM,
+                        undefined,
+                        compressionOption.imageCompression,
+                    );
+
+                    answersDoc.setTextColor(0, 0, 0);
+                    answersDoc.setFont(TITLE_FONT_FAMILY_PDF, "bold");
+                    answersDoc.setFontSize(19.5);
+                    answersDoc.text(
+                        answerTitleText,
+                        PAGE_MARGIN_X * PX_TO_MM,
+                        (42 + 26) * PX_TO_MM,
+                    );
+
+                    answersDoc.setTextColor(0, 0, 0);
+                    answersDoc.setFont(TITLE_FONT_FAMILY_PDF, "normal");
+                    answersDoc.setFontSize(10.5);
+                    answersDoc.text(
+                        `Page ${pageIndex + 1}`,
+                        (PAGE_WIDTH - PAGE_MARGIN_X) * PX_TO_MM,
+                        (PAGE_HEIGHT - 42 + 14) * PX_TO_MM,
+                        { align: "right" },
+                    );
+                }
+
+                const safeAnswerFileName = sanitizeFileName(answerExportFileName) || `${safeFileName} - Answers`;
+                answersDoc.save(`${safeAnswerFileName}.pdf`);
+            }
+
             setDownloadModalOpen(false);
         } finally {
             setIsExportingPdf(false);
         }
-    }, [downloadCompression, exportFileName, formatQuestionNumber, paperTitle, questionPlacements.pageCount, questionPlacements.placements, questions]);
+    }, [answerExportFileName, answerPlacements.pageCount, answersSeparatePdf, downloadCompression, exportFileName, includeAnswers, paperTitle, questionPlacements.pageCount]);
 
     React.useEffect(() => {
         if (!downloadModalOpen) {
@@ -1574,8 +2025,64 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                     </React.Fragment>
                                                 );
                                             })}
+                                            {includeAnswers && Array.from({ length: answerPlacements.pageCount }, (_, index) => {
+                                                const pageY = answerSectionTopOffset + index * (PAGE_HEIGHT + PAGE_GAP);
+                                                return (
+                                                    <React.Fragment key={`answer-page-${index}`}>
+                                                        <Rect
+                                                            x={0}
+                                                            y={pageY}
+                                                            width={PAGE_WIDTH}
+                                                            height={PAGE_HEIGHT}
+                                                            fill="#fffdfa"
+                                                            stroke="#ddd6c8"
+                                                            strokeWidth={1.5}
+                                                            cornerRadius={8}
+                                                            shadowColor="#201812"
+                                                            shadowBlur={20}
+                                                            shadowOpacity={0.12}
+                                                            shadowOffsetY={8}
+                                                        />
+                                                        <Text
+                                                            x={PAGE_MARGIN_X}
+                                                            y={pageY + 42}
+                                                            text={`${paperTitle || "Examiniser Paper"} - Answers`}
+                                                            fontSize={26}
+                                                            fontFamily={TITLE_FONT_FAMILY_KONVA}
+                                                            fontStyle="bold"
+                                                            fill="#141414"
+                                                        />
+                                                        <Text
+                                                            x={PAGE_WIDTH - PAGE_MARGIN_X - 130}
+                                                            y={pageY + PAGE_HEIGHT - 42}
+                                                            width={130}
+                                                            align="right"
+                                                            text={answersSeparatePdf ? `Page ${index + 1}` : `Page ${questionPlacements.pageCount + index + 1}`}
+                                                            fontSize={14}
+                                                            fontFamily={TITLE_FONT_FAMILY_KONVA}
+                                                            fill="#141414"
+                                                        />
+                                                    </React.Fragment>
+                                                );
+                                            })}
                                         </Layer>
                                     </Stage>
+
+                                    {includeAnswers && answersSeparatePdf && (
+                                        <div
+                                            className="pointer-events-none absolute flex items-center gap-3"
+                                            style={{
+                                                top: answerSectionTopOffset - PAGE_GAP / 2 - 10,
+                                                left: 0,
+                                                width: PAGE_WIDTH,
+                                            }}
+                                        >
+                                            <span className="font-nunito text-xs font-semibold uppercase tracking-[0.2em] text-black/50 whitespace-nowrap">
+                                                New PDF
+                                            </span>
+                                            <div className="h-px flex-1 bg-black/25" />
+                                        </div>
+                                    )}
 
                                     <div className="pointer-events-none absolute inset-0">
                                         {!questions.length && (
@@ -1617,7 +2124,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                         borderStyle: "solid",
                                                         borderWidth: isGrid
                                                             ? (shouldMergeGridBorders
-                                                                ? getZeroSpacingGridBorderWidth(placement, questionPlacements.placements)
+                                                                ? getZeroSpacingGridBorderWidth(placement, questionPlacements.placements, questionBorderWidth)
                                                                 : questionBorderWidth)
                                                             : `0 0 ${showLinearDivider ? questionBorderWidth : 0}px 0`,
                                                         borderColor: questionBorderColorHex,
@@ -1634,6 +2141,49 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                     {question.svg && (
                                                         <div className={SVG_RENDER_CLASS} dangerouslySetInnerHTML={{ __html: question.svg }} />
                                                     )}
+                                                </div>
+                                            );
+                                        })}
+
+                                        {includeAnswers && answerPlacements.placements.map((placement) => {
+                                            const question = questions.find((item) => item.id === placement.id);
+                                            if (!question) {
+                                                return null;
+                                            }
+
+                                            const questionIndex = questions.findIndex((item) => item.id === question.id);
+                                            const isGrid = answerLayout === "grid";
+                                            const shouldMergeGridBorders = isGrid && answerSpacing === 0;
+                                            const showLinearDivider = !isGrid && questionIndex >= 0 && questionIndex < questions.length - 1;
+
+                                            return (
+                                                <div
+                                                    key={`canvas-answer-${question.id}`}
+                                                    className="pointer-events-auto absolute px-2"
+                                                    style={{
+                                                        left: placement.x,
+                                                        top: answerSectionTopOffset + placeTop(placement.pageIndex, placement.y),
+                                                        width: placement.width,
+                                                        height: answerLayout === "grid" ? placement.measuredHeight : undefined,
+                                                        paddingTop: QUESTION_RENDER_PADDING_Y,
+                                                        paddingBottom: QUESTION_RENDER_PADDING_Y,
+                                                        borderStyle: "solid",
+                                                        borderWidth: isGrid
+                                                            ? (shouldMergeGridBorders
+                                                                ? getZeroSpacingGridBorderWidth(placement, answerPlacements.placements, answerBorderWidth)
+                                                                : answerBorderWidth)
+                                                            : `0 0 ${showLinearDivider ? answerBorderWidth : 0}px 0`,
+                                                        borderColor: answerBorderColorHex,
+                                                        borderRadius: 0,
+                                                        boxSizing: "border-box",
+                                                    }}
+                                                >
+                                                    <p className="font-nunito text-xs uppercase tracking-[0.18em] text-black">
+                                                        {formatQuestionNumber(questionIndex)}
+                                                    </p>
+                                                    <div className="text-black">
+                                                        <EditorWrapLatex latex={question.answerLatex} maxLineWidth={answerMaxLineWidth} textAlign={questionTextAlign} fontSize={questionFontSize} debug={false} />
+                                                    </div>
                                                 </div>
                                             );
                                         })}
@@ -1671,6 +2221,34 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                 )}
                                             </div>
                                         ))}
+                                        {questions.map((question, index) => (
+                                            <div
+                                                key={`measure-answer-${question.id}`}
+                                                ref={(node) => {
+                                                    answerMeasureRefs.current[question.id] = node;
+                                                }}
+                                                className="mb-4 px-2"
+                                                style={{
+                                                    width: activeAnswerWidth,
+                                                    paddingTop: QUESTION_RENDER_PADDING_Y,
+                                                    paddingBottom: QUESTION_RENDER_PADDING_Y,
+                                                    borderStyle: "solid",
+                                                    borderWidth: answerLayout === "grid"
+                                                        ? answerBorderWidth
+                                                        : `0 0 ${index < questions.length - 1 ? answerBorderWidth : 0}px 0`,
+                                                    borderColor: answerBorderColorHex,
+                                                    borderRadius: answerLayout === "grid" ? 8 : 0,
+                                                    boxSizing: "border-box",
+                                                }}
+                                            >
+                                                <p className="font-nunito text-xs uppercase tracking-[0.18em] text-black">
+                                                    {formatQuestionNumber(index)}
+                                                </p>
+                                                <div className="text-black">
+                                                    <EditorWrapLatex latex={question.answerLatex} maxLineWidth={answerMaxLineWidth} textAlign={questionTextAlign} fontSize={questionFontSize} debug={false} />
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
                             </div>
@@ -1684,7 +2262,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                     <div className="w-full shrink-0 bg-white">
                         <button
                             type="button"
-                            className="flex w-full items-center justify-between px-4 py-3 text-left text-black"
+                            className="flex w-full items-center justify-between px-4 py-1 text-left text-black"
                             onClick={() => toggleSidebarSection("layout")}
                             aria-expanded={activeSidebarSection === "layout"}
                         >
@@ -1898,7 +2476,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                     <div className="w-full shrink-0 border-t border-black/10 bg-white">
                         <button
                             type="button"
-                            className="flex w-full items-center justify-between px-4 py-3 text-left text-black"
+                            className="flex w-full items-center justify-between px-4 py-1 text-left text-black"
                             onClick={() => toggleSidebarSection("styling")}
                             aria-expanded={activeSidebarSection === "styling"}
                         >
@@ -1973,10 +2551,268 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                             </div>
                         )}
                     </div>
+                    <div className="w-full shrink-0 border-t border-black/10 bg-white">
+                        <button
+                            type="button"
+                            className="flex w-full items-center justify-between px-4 py-1 text-left text-black"
+                            onClick={() => toggleSidebarSection("answers")}
+                            aria-expanded={activeSidebarSection === "answers"}
+                        >
+                            <span className="font-nunito text-lg font-semibold">Answers</span>
+                            <SectionToggleIcon open={activeSidebarSection === "answers"} />
+                        </button>
+                        {activeSidebarSection === "answers" && (
+                            <div className="px-4 pb-4">
+                                <label className="flex items-center gap-3 rounded-lg border border-black/10 px-3 py-3 font-nunito text-sm text-black">
+                                    <input
+                                        type="checkbox"
+                                        checked={includeAnswers}
+                                        onChange={(event) => {
+                                            const nextChecked = event.target.checked;
+                                            setIncludeAnswers(nextChecked);
+                                            if (!nextChecked) {
+                                                setAnswersSeparatePdf(false);
+                                            }
+                                        }}
+                                        className="h-4 w-4 rounded border-black/30 accent-black"
+                                    />
+                                    Include answers
+                                </label>
+
+                                <label className={`mt-3 flex items-center gap-3 rounded-lg border px-3 py-3 font-nunito text-sm transition ${includeAnswers
+                                    ? "border-black/10 text-black"
+                                    : "border-black/10 text-grey opacity-55"
+                                    }`}>
+                                    <input
+                                        type="checkbox"
+                                        checked={answersSeparatePdf}
+                                        onChange={(event) => setAnswersSeparatePdf(event.target.checked)}
+                                        disabled={!includeAnswers}
+                                        className="h-4 w-4 rounded border-black/30 accent-black disabled:cursor-not-allowed"
+                                    />
+                                    Export answers as separate PDF
+                                </label>
+
+                                <div className={`mt-4 ${includeAnswers ? "" : "pointer-events-none opacity-45"}`}>
+                                    <div className="flex w-full justify-center py-3">
+                                        <button onClick={() => setAnswerLayout("linear")} className={`items-center justify-center flex flex-col rounded-md m-2 ${answerLayout === "linear" ? "transition duration-200 shadow-[0_0_0_0.2rem_var(--accent)]" : ""}`}>
+                                            <p className="text-center text-grey text-sm">Linear</p>
+                                            <div className="items-center justify-center flex">
+                                                <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <rect x="4.5" y="4.5" width="39" height="39" rx="5.5" stroke="black"/>
+                                                    <line x1="4" y1="24" x2="44" y2="24" stroke="black"/>
+                                                    <line x1="4" y1="14.5" x2="44" y2="14.5" stroke="black"/>
+                                                    <line x1="4" y1="33.5" x2="44" y2="33.5" stroke="black"/>
+                                                </svg>
+                                            </div>
+                                        </button>
+                                        <button onClick={() => setAnswerLayout("grid")} className={`items-center justify-center flex flex-col rounded-md m-2 ${answerLayout === "grid" ? "transition duration-200 shadow-[0_0_0_0.2rem_var(--accent)]" : ""}`}>
+                                            <p className="text-center text-grey text-sm">Grid</p>
+                                            <div className="items-center justify-center flex">
+                                                <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <rect x="4.5" y="4.5" width="39" height="39" rx="5.5" stroke="black"/>
+                                                    <line x1="4" y1="24" x2="44" y2="24" stroke="black"/>
+                                                    <line x1="24" y1="44" x2="24" y2="4" stroke="black"/>
+                                                </svg>
+                                            </div>
+                                        </button>
+                                    </div>
+                                    <label htmlFor="answer-spacing" className="mb-2 mt-2 block font-nunito text-center text-xs uppercase tracking-[0.18em] text-grey">
+                                        Answer Spacing
+                                    </label>
+                                    <div className="flex items-center gap-3">
+                                        <input
+                                            id="answer-spacing"
+                                            type="number"
+                                            min={MIN_QUESTION_GAP}
+                                            max={MAX_QUESTION_GAP}
+                                            value={answerSpacingInput}
+                                            onChange={(event) => handleAnswerSpacingChange(event.target.value)}
+                                            onBlur={(event) => commitAnswerSpacing(event.target.value)}
+                                            onKeyDown={(event) => {
+                                                if (event.key === "Enter") {
+                                                    commitAnswerSpacing(event.currentTarget.value);
+                                                    event.currentTarget.blur();
+                                                }
+                                            }}
+                                            className="h-11 w-20 shrink-0 rounded-lg border border-black/20 bg-white px-3 font-nunito text-sm text-black outline-none transition-shadow duration-200 focus:shadow-[0_0_0_3px_var(--accent)]"
+                                        />
+                                        <input
+                                            type="range"
+                                            min={MIN_QUESTION_GAP}
+                                            max={MAX_QUESTION_GAP}
+                                            step={1}
+                                            value={answerSpacing}
+                                            onChange={(event) => setAnswerSpacing(Number.parseInt(event.target.value, 10))}
+                                            className="h-2 w-full cursor-pointer appearance-none rounded-full bg-black/15 accent-black"
+                                            aria-label="Answer spacing"
+                                        />
+                                    </div>
+                                    {answerLayout === "grid" && (
+                                        <>
+                                            <label htmlFor="answer-grid-columns" className="mb-2 mt-4 block font-nunito text-center text-xs uppercase tracking-[0.18em] text-grey">
+                                                Answer Grid Size
+                                            </label>
+                                            <div className="flex items-center gap-3">
+                                                <input
+                                                    id="answer-grid-columns"
+                                                    type="number"
+                                                    min={MIN_GRID_COLUMNS}
+                                                    max={MAX_GRID_COLUMNS}
+                                                    value={answerGridColumnsInput}
+                                                    onChange={(event) => handleAnswerGridColumnsChange(event.target.value)}
+                                                    onBlur={(event) => commitAnswerGridColumns(event.target.value)}
+                                                    onKeyDown={(event) => {
+                                                        if (event.key === "Enter") {
+                                                            commitAnswerGridColumns(event.currentTarget.value);
+                                                            event.currentTarget.blur();
+                                                        }
+                                                    }}
+                                                    className="h-11 w-20 shrink-0 rounded-lg border border-black/20 bg-white px-3 font-nunito text-sm text-black outline-none transition-shadow duration-200 focus:shadow-[0_0_0_3px_var(--accent)]"
+                                                />
+                                                <input
+                                                    type="range"
+                                                    min={MIN_GRID_COLUMNS}
+                                                    max={MAX_GRID_COLUMNS}
+                                                    step={1}
+                                                    value={answerGridColumns}
+                                                    onChange={(event) => setAnswerGridColumns(Number.parseInt(event.target.value, 10))}
+                                                    className="h-2 w-full cursor-pointer appearance-none rounded-full bg-black/15 accent-black"
+                                                    aria-label="Answer grid size"
+                                                />
+                                            </div>
+                                        </>
+                                    )}
+                                    <label htmlFor="answer-border-width" className="mb-2 mt-4 block font-nunito text-center text-xs uppercase tracking-[0.18em] text-grey">
+                                        Answer Border Width
+                                    </label>
+                                    <div className="flex items-center gap-3">
+                                        <input
+                                            id="answer-border-width"
+                                            type="number"
+                                            min={MIN_QUESTION_BORDER_WIDTH}
+                                            max={MAX_QUESTION_BORDER_WIDTH}
+                                            value={answerBorderWidthInput}
+                                            onChange={(event) => handleAnswerBorderWidthChange(event.target.value)}
+                                            onBlur={(event) => commitAnswerBorderWidth(event.target.value)}
+                                            onKeyDown={(event) => {
+                                                if (event.key === "Enter") {
+                                                    commitAnswerBorderWidth(event.currentTarget.value);
+                                                    event.currentTarget.blur();
+                                                }
+                                            }}
+                                            className="h-11 w-20 shrink-0 rounded-lg border border-black/20 bg-white px-3 font-nunito text-sm text-black outline-none transition-shadow duration-200 focus:shadow-[0_0_0_3px_var(--accent)]"
+                                        />
+                                        <input
+                                            type="range"
+                                            min={MIN_QUESTION_BORDER_WIDTH}
+                                            max={MAX_QUESTION_BORDER_WIDTH}
+                                            step={1}
+                                            value={answerBorderWidth}
+                                            onChange={(event) => setAnswerBorderWidth(Number.parseInt(event.target.value, 10))}
+                                            className="h-2 w-full cursor-pointer appearance-none rounded-full bg-black/15 accent-black"
+                                            aria-label="Answer border width"
+                                        />
+                                    </div>
+                                    <div className="mt-4 flex justify-center">
+                                        <button
+                                            type="button"
+                                            onClick={() => setAnswerBorderColorPanelOpen((isOpen) => !isOpen)}
+                                            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/20 transition-shadow duration-200 focus:outline-none focus:shadow-[0_0_0_3px_var(--accent)]"
+                                            style={{ backgroundColor: answerBorderColorHex }}
+                                            aria-expanded={answerBorderColorPanelOpen}
+                                            aria-label="Toggle answer border color panel"
+                                        >
+                                            <span className="sr-only">Select answer border color</span>
+                                        </button>
+                                    </div>
+                                    {answerBorderColorPanelOpen && (
+                                        <div className="mt-3 rounded-2xl border border-black/15 bg-[#f7f7f7] p-4">
+                                            <div className="flex items-center gap-3">
+                                                <input
+                                                    type="color"
+                                                    value={answerBorderColorHex}
+                                                    onChange={(event) => handleAnswerBorderColorPickerChange(event.target.value)}
+                                                    className="h-12 w-12 cursor-pointer rounded-md border border-black/20 bg-transparent p-0"
+                                                    aria-label="Answer border color picker"
+                                                />
+                                                <input
+                                                    type="text"
+                                                    value={answerBorderColorInput}
+                                                    onChange={(event) => handleAnswerBorderColorInputChange(event.target.value)}
+                                                    onBlur={(event) => applyAnswerBorderColorHex(event.target.value)}
+                                                    onKeyDown={(event) => {
+                                                        if (event.key === "Enter") {
+                                                            applyAnswerBorderColorHex(event.currentTarget.value);
+                                                            event.currentTarget.blur();
+                                                        }
+                                                    }}
+                                                    maxLength={7}
+                                                    className="h-11 flex-1 rounded-lg border border-black/20 bg-white px-3 font-mono text-sm uppercase text-black outline-none transition-shadow duration-200 focus:shadow-[0_0_0_3px_var(--accent)]"
+                                                    aria-label="Answer border hex color"
+                                                    placeholder="#000000"
+                                                />
+                                            </div>
+                                            <div className="mt-4 space-y-3">
+                                                <label className="block">
+                                                    <div className="mb-1 flex items-center justify-between font-nunito text-xs uppercase tracking-[0.14em] text-grey">
+                                                        <span>Red</span>
+                                                        <span>{answerBorderColorRed}</span>
+                                                    </div>
+                                                    <input
+                                                        type="range"
+                                                        min={0}
+                                                        max={255}
+                                                        step={1}
+                                                        value={answerBorderColorRed}
+                                                        onChange={(event) => handleAnswerBorderRedChange(Number.parseInt(event.target.value, 10))}
+                                                        className="h-2 w-full cursor-pointer appearance-none rounded-full bg-black/15 accent-[#ef4444]"
+                                                        aria-label="Answer border red channel"
+                                                    />
+                                                </label>
+                                                <label className="block">
+                                                    <div className="mb-1 flex items-center justify-between font-nunito text-xs uppercase tracking-[0.14em] text-grey">
+                                                        <span>Green</span>
+                                                        <span>{answerBorderColorGreen}</span>
+                                                    </div>
+                                                    <input
+                                                        type="range"
+                                                        min={0}
+                                                        max={255}
+                                                        step={1}
+                                                        value={answerBorderColorGreen}
+                                                        onChange={(event) => handleAnswerBorderGreenChange(Number.parseInt(event.target.value, 10))}
+                                                        className="h-2 w-full cursor-pointer appearance-none rounded-full bg-black/15 accent-[#22c55e]"
+                                                        aria-label="Answer border green channel"
+                                                    />
+                                                </label>
+                                                <label className="block">
+                                                    <div className="mb-1 flex items-center justify-between font-nunito text-xs uppercase tracking-[0.14em] text-grey">
+                                                        <span>Blue</span>
+                                                        <span>{answerBorderColorBlue}</span>
+                                                    </div>
+                                                    <input
+                                                        type="range"
+                                                        min={0}
+                                                        max={255}
+                                                        step={1}
+                                                        value={answerBorderColorBlue}
+                                                        onChange={(event) => handleAnswerBorderBlueChange(Number.parseInt(event.target.value, 10))}
+                                                        className="h-2 w-full cursor-pointer appearance-none rounded-full bg-black/15 accent-[#3b82f6]"
+                                                        aria-label="Answer border blue channel"
+                                                    />
+                                                </label>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </div>
                     <div className="flex min-h-0 flex-1 w-full flex-col border bg-white">
                         <button
                             type="button"
-                            className="flex w-full items-center justify-between px-4 py-3 text-left text-black"
+                            className="flex w-full items-center justify-between px-4 py-1 text-left text-black"
                             onClick={() => toggleSidebarSection("questions")}
                             aria-expanded={activeSidebarSection === "questions"}
                         >
@@ -2191,7 +3027,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                             borderStyle: "solid",
                                             borderWidth: isGrid
                                                 ? (shouldMergeGridBorders
-                                                    ? getZeroSpacingGridBorderWidth(placement, pagePlacements)
+                                                    ? getZeroSpacingGridBorderWidth(placement, pagePlacements, questionBorderWidth)
                                                     : questionBorderWidth)
                                                 : `0 0 ${showLinearDivider ? questionBorderWidth : 0}px 0`,
                                             borderColor: questionBorderColorHex,
@@ -2199,10 +3035,9 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                             boxSizing: "border-box",
                                         }}
                                     >
-                                        <p className="font-nunito text-xs uppercase tracking-[0.18em] text-black" data-export-vector-text="true">
+                                        <p className="font-nunito text-xs uppercase tracking-[0.18em] text-black">
                                             {formatQuestionNumber(questionIndex)}
                                         </p>
-                                        <div aria-hidden="true" style={{ height: EXPORT_QUESTION_NUMBER_SPACER_PX }} />
                                         <div className="text-black">
                                             <EditorWrapLatex
                                                 latex={question.latex}
@@ -2214,6 +3049,99 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                         {question.svg && (
                                             <div className={SVG_RENDER_CLASS} dangerouslySetInnerHTML={{ __html: question.svg }} />
                                         )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    );
+                })}
+                {includeAnswers && Array.from({ length: answerPlacements.pageCount }, (_, pageIndex) => {
+                    const pagePlacements = answerPlacements.placements.filter((placement) => placement.pageIndex === pageIndex);
+
+                    return (
+                        <div
+                            key={`export-capture-answer-page-${pageIndex}`}
+                            ref={(node) => {
+                                exportAnswerPageRefs.current[pageIndex] = node;
+                            }}
+                            className="relative overflow-hidden"
+                            style={{
+                                width: PAGE_WIDTH,
+                                height: PAGE_HEIGHT,
+                                background: "#fffdfa",
+                            }}
+                        >
+                            <p
+                                className="absolute text-black"
+                                data-export-vector-text="true"
+                                style={{
+                                    left: PAGE_MARGIN_X,
+                                    top: 42,
+                                    fontSize: 26,
+                                    fontWeight: 700,
+                                    fontFamily: TITLE_FONT_FAMILY_KONVA,
+                                }}
+                            >
+                                {(paperTitle || "Exam Paper")} - Answers
+                            </p>
+                            <p
+                                className="absolute font-nunito text-[#5a5a5a]"
+                                data-export-vector-text="true"
+                                style={{
+                                    right: PAGE_MARGIN_X,
+                                    top: PAGE_HEIGHT - 42,
+                                    fontSize: 14,
+                                }}
+                            >
+                                {answersSeparatePdf
+                                    ? `Page ${pageIndex + 1}`
+                                    : `Page ${questionPlacements.pageCount + pageIndex + 1}`}
+                            </p>
+
+                            {pagePlacements.map((placement) => {
+                                const question = questions.find((item) => item.id === placement.id);
+                                if (!question) {
+                                    return null;
+                                }
+
+                                const questionIndex = questions.findIndex((item) => item.id === question.id);
+                                const isGrid = answerLayout === "grid";
+                                const shouldMergeGridBorders = isGrid && answerSpacing === 0;
+                                const showLinearDivider = !isGrid && questionIndex >= 0 && questionIndex < questions.length - 1;
+
+                                return (
+                                    <div
+                                        key={`export-capture-answer-${question.id}`}
+                                        className="absolute px-2"
+                                        style={{
+                                            left: placement.x,
+                                            top: placement.y,
+                                            width: placement.width,
+                                            height: answerLayout === "grid" ? placement.measuredHeight : undefined,
+                                            paddingTop: QUESTION_RENDER_PADDING_Y,
+                                            paddingBottom: QUESTION_RENDER_PADDING_Y,
+                                            borderStyle: "solid",
+                                            borderWidth: isGrid
+                                                ? (shouldMergeGridBorders
+                                                    ? getZeroSpacingGridBorderWidth(placement, pagePlacements, answerBorderWidth)
+                                                    : answerBorderWidth)
+                                                : `0 0 ${showLinearDivider ? answerBorderWidth : 0}px 0`,
+                                            borderColor: answerBorderColorHex,
+                                            borderRadius: 0,
+                                            boxSizing: "border-box",
+                                        }}
+                                    >
+                                        <p className="font-nunito text-xs uppercase tracking-[0.18em] text-black">
+                                            {formatQuestionNumber(questionIndex)}
+                                        </p>
+                                        <div className="text-black">
+                                            <EditorWrapLatex
+                                                latex={question.answerLatex}
+                                                maxLineWidth={answerMaxLineWidth}
+                                                textAlign={questionTextAlign}
+                                                fontSize={questionFontSize}
+                                            />
+                                        </div>
                                     </div>
                                 );
                             })}
@@ -2433,6 +3361,21 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                     className="h-11 w-full rounded-lg border border-black/20 bg-white px-3 font-nunito text-sm text-black outline-none transition-shadow duration-200 focus:shadow-[0_0_0_3px_var(--accent)]"
                                 />
                             </div>
+
+                            {includeAnswers && answersSeparatePdf && (
+                                <div>
+                                    <label htmlFor="download-answer-file-name" className="mb-2 block font-nunito text-sm uppercase tracking-[0.22em] text-grey">
+                                        Answers File Name
+                                    </label>
+                                    <input
+                                        id="download-answer-file-name"
+                                        value={answerExportFileName}
+                                        onChange={(event) => setAnswerExportFileName(sanitizeFileName(event.target.value))}
+                                        placeholder="Exam Paper - Answers"
+                                        className="h-11 w-full rounded-lg border border-black/20 bg-white px-3 font-nunito text-sm text-black outline-none transition-shadow duration-200 focus:shadow-[0_0_0_3px_var(--accent)]"
+                                    />
+                                </div>
+                            )}
 
                             <div>
                                 <p className="mb-2 block font-nunito text-sm uppercase tracking-[0.22em] text-grey">
