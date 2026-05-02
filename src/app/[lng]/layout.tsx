@@ -3,7 +3,6 @@
 
 import { DataProvider } from "../../context/dataContext";
 
-import Analytics from "@/components/general/analytics";
 import type { ReactNode } from "react";
 import LocaleClientWrapper from "@/components/general/LocaleClientWrapper";
 import * as React from "react";
@@ -25,7 +24,6 @@ export default function LocaleLayout({ children, params }: LocaleLayoutProps) {
 
   return (
     <>
-      <Analytics />
       <DataProvider>
         <LocaleClientWrapper lng={lng}>{children}</LocaleClientWrapper>
       </DataProvider>

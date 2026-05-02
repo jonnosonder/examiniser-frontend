@@ -12,6 +12,7 @@ import { toCanvas } from "html-to-image";
 import { jsPDF } from "jspdf";
 import Link from "next/link";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Layer, Rect, Stage, Text } from "react-konva";
 import "katex/dist/katex.min.css";
 
@@ -30,7 +31,7 @@ type QuestionItem = {
 
 type StageOption = {
     id: QuestionLevel;
-    label: string;
+    labelKey: string;
 };
 
 type TopicResult = {
@@ -44,9 +45,9 @@ type SidebarSection = "layout" | "styling" | "answers" | "questions" | null;
 
 const INITIAL_QUESTIONS: QuestionItem[] = [];
 const STAGE_OPTIONS: StageOption[] = [
-    { id: "primary", label: "Primary" },
-    { id: "secondary", label: "Secondary" },
-    { id: "sixthForm", label: "Sixth Form" },
+    { id: "primary", labelKey: "create-exam-paper.stage.primary" },
+    { id: "secondary", labelKey: "create-exam-paper.stage.secondary" },
+    { id: "sixthForm", labelKey: "create-exam-paper.stage.sixthForm" },
 ];
 
 const PAGE_WIDTH = 900;
@@ -80,14 +81,14 @@ type JsPdfImageCompression = "NONE" | "FAST" | "MEDIUM" | "SLOW";
 
 const PDF_COMPRESSION_OPTIONS: Array<{
     key: PdfCompressionLevel;
-    label: string;
+    labelKey: string;
     imageCompression: JsPdfImageCompression;
     imageQuality: number;
 }> = [
-    { key: "none", label: "None", imageCompression: "NONE", imageQuality: 1 },
-    { key: "low", label: "Low", imageCompression: "FAST", imageQuality: 0.92 },
-    { key: "medium", label: "Medium", imageCompression: "MEDIUM", imageQuality: 0.84 },
-    { key: "high", label: "High", imageCompression: "SLOW", imageQuality: 0.74 },
+    { key: "none", labelKey: "create-exam-paper.compression.none", imageCompression: "NONE", imageQuality: 1 },
+    { key: "low", labelKey: "create-exam-paper.compression.low", imageCompression: "FAST", imageQuality: 0.92 },
+    { key: "medium", labelKey: "create-exam-paper.compression.medium", imageCompression: "MEDIUM", imageQuality: 0.84 },
+    { key: "high", labelKey: "create-exam-paper.compression.high", imageCompression: "SLOW", imageQuality: 0.74 },
 ];
 
 const SVG_RENDER_CLASS = "mt-3 flex justify-center overflow-x-auto overflow-y-hidden [&_svg]:mx-auto [&_svg]:h-auto [&_svg]:max-w-full";
@@ -164,10 +165,6 @@ function toTitleFromSlug(value: string) {
             return segment[0].toUpperCase() + segment.slice(1);
         })
         .join(" ");
-}
-
-function stageLabel(stage: QuestionLevel) {
-    return STAGE_OPTIONS.find((option) => option.id === stage)?.label ?? "Secondary";
 }
 
 function escapeLatexText(value: string): string {
@@ -329,6 +326,7 @@ function SectionToggleIcon({ open }: { open: boolean }) {
 export default function CreateExamPaper({ params }: { params: Promise<{ lng: Locale }> }) {
     const resolvedParams = React.use(params);
     const { lng } = resolvedParams;
+    const { t } = useTranslation();
 
     const [selectedLayout, setSelectedLayout] = React.useState<"linear" | "grid">("linear");
     const [activeSidebarSection, setActiveSidebarSection] = React.useState<SidebarSection>("questions");
@@ -482,6 +480,10 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
         }
         return getQuestionGeneratorLevels(modalStage, selectedSubtopicSlug);
     }, [modalStage, selectedSubtopicSlug]);
+
+    const stageLabel = React.useCallback((stage: QuestionLevel) => {
+        return t(`create-exam-paper.stage.${stage}`);
+    }, [t]);
 
     const canAddFromModal = Boolean(selectedTopicId && selectedSubtopicSlug && quantity > 0);
     const editingQuestion = React.useMemo(() => (
@@ -755,9 +757,9 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
 
     const formatQuestionLevel = React.useCallback((question: QuestionItem) => {
         return question.levelMode === "random"
-            ? `Random (${question.level})`
-            : `Level ${question.level}`;
-    }, []);
+            ? t("create-exam-paper.random-level", { level: question.level })
+            : t("create-exam-paper.level-display", { level: question.level });
+    }, [t]);
 
     const zoomOut = React.useCallback(() => {
         setZoomPercent((currentZoom) => Math.max(MIN_ZOOM_PERCENT, currentZoom - ZOOM_STEP));
@@ -1936,7 +1938,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                     onBlur={(event) => {
                         event.currentTarget.scrollLeft = 0;
                     }}
-                    placeholder="Enter file name here..."
+                    placeholder={t("create-exam-paper.file-name-placeholder")}
                 />
                 <div className="ml-4 flex h-full items-center gap-1">
                     <button
@@ -1944,7 +1946,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                         className="flex h-full min-w-10 items-center justify-center rounded-md border border-black bg-white px-3 text-black transition-shadow duration-200 ease-out hover:shadow-[0_0_0_3px_var(--contrast)] disabled:cursor-not-allowed disabled:opacity-40"
                         onClick={zoomOut}
                         disabled={zoomPercent <= MIN_ZOOM_PERCENT}
-                        aria-label="Zoom out"
+                        aria-label={t("create-exam-paper.zoom-out")}
                     >
                         -
                     </button>
@@ -1956,7 +1958,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                         className="flex h-full min-w-10 items-center justify-center rounded-md border border-black bg-white px-3 text-black transition-shadow duration-200 ease-out hover:shadow-[0_0_0_3px_var(--contrast)] disabled:cursor-not-allowed disabled:opacity-40"
                         onClick={zoomIn}
                         disabled={zoomPercent >= MAX_ZOOM_PERCENT}
-                        aria-label="Zoom in"
+                        aria-label={t("create-exam-paper.zoom-in")}
                     >
                         +
                     </button>
@@ -1967,7 +1969,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                     onClick={() => setDownloadModalOpen(true)}
                     className="h-full px-4 bg-white text-black border border-black rounded-md transition-shadow duration-200 ease-out hover:outline-none hover:shadow-[0_0_0_3px_var(--contrast)]"
                 >
-                    Download
+                    {t("create-exam-paper.download")}
                 </button>
             </div>
             <div className="flex min-h-0 flex-1 w-full">
@@ -2006,7 +2008,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                         <Text
                                                             x={PAGE_MARGIN_X}
                                                             y={pageY + 42}
-                                                            text={paperTitle || "Examiniser Paper"}
+                                                            text={paperTitle || t("create-exam-paper.default-paper-title")}
                                                             fontSize={26}
                                                             fontFamily={TITLE_FONT_FAMILY_KONVA}
                                                             fontStyle="bold"
@@ -2017,7 +2019,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                             y={pageY + PAGE_HEIGHT - 42}
                                                             width={130}
                                                             align="right"
-                                                            text={`Page ${index + 1}`}
+                                                            text={t("create-exam-paper.page-label", { number: index + 1 })}
                                                             fontSize={14}
                                                             fontFamily={TITLE_FONT_FAMILY_KONVA}
                                                             fill="#141414"
@@ -2046,7 +2048,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                         <Text
                                                             x={PAGE_MARGIN_X}
                                                             y={pageY + 42}
-                                                            text={`${paperTitle || "Examiniser Paper"} - Answers`}
+                                                            text={`${paperTitle || t("create-exam-paper.default-paper-title")} - ${t("create-exam-paper.answers")}`}
                                                             fontSize={26}
                                                             fontFamily={TITLE_FONT_FAMILY_KONVA}
                                                             fontStyle="bold"
@@ -2057,7 +2059,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                             y={pageY + PAGE_HEIGHT - 42}
                                                             width={130}
                                                             align="right"
-                                                            text={answersSeparatePdf ? `Page ${index + 1}` : `Page ${questionPlacements.pageCount + index + 1}`}
+                                                            text={answersSeparatePdf ? t("create-exam-paper.page-label", { number: index + 1 }) : t("create-exam-paper.page-label", { number: questionPlacements.pageCount + index + 1 })}
                                                             fontSize={14}
                                                             fontFamily={TITLE_FONT_FAMILY_KONVA}
                                                             fill="#141414"
@@ -2078,7 +2080,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                             }}
                                         >
                                             <span className="font-nunito text-xs font-semibold uppercase tracking-[0.2em] text-black/50 whitespace-nowrap">
-                                                New PDF
+                                                {t("create-exam-paper.new-pdf")}
                                             </span>
                                             <div className="h-px flex-1 bg-black/25" />
                                         </div>
@@ -2257,7 +2259,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                 </div>
                 <div className="flex min-h-0 h-full w-96 flex-col border-l border-grey bg-white">
                     <p className="text-center font-bold text-xl text-black mt-2 font-nunito">
-                        Customise
+                        {t("create-exam-paper.customise")}
                     </p>
                     <div className="w-full shrink-0 bg-white">
                         <button
@@ -2266,14 +2268,14 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                             onClick={() => toggleSidebarSection("layout")}
                             aria-expanded={activeSidebarSection === "layout"}
                         >
-                            <span className="font-nunito text-lg font-semibold">Layout</span>
+                            <span className="font-nunito text-lg font-semibold">{t("create-exam-paper.layout")}</span>
                             <SectionToggleIcon open={activeSidebarSection === "layout"} />
                         </button>
                         {activeSidebarSection === "layout" && (
                             <div className="px-4 pb-4">
                                 <div className="flex w-full justify-center py-3">
                                     <button onClick={() => setSelectedLayout("linear")} className={`items-center justify-center flex flex-col rounded-md m-2 ${selectedLayout === "linear" ? "transition duration-200 shadow-[0_0_0_0.2rem_var(--accent)]" : ""}`}>
-                                        <p className="text-center text-grey text-sm">Linear</p>
+                                        <p className="text-center text-grey text-sm">{t("create-exam-paper.layout.linear")}</p>
                                         <div className="items-center justify-center flex">
                                             <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <rect x="4.5" y="4.5" width="39" height="39" rx="5.5" stroke="black"/>
@@ -2284,7 +2286,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                         </div>
                                     </button>
                                     <button onClick={() => setSelectedLayout("grid")} className={`items-center justify-center flex flex-col rounded-md m-2 ${selectedLayout === "grid" ? "transition duration-200 shadow-[0_0_0_0.2rem_var(--accent)]" : ""}`}>
-                                        <p className="text-center text-grey text-sm">Grid</p>
+                                        <p className="text-center text-grey text-sm">{t("create-exam-paper.layout.grid")}</p>
                                         <div className="items-center justify-center flex">
                                             <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <rect x="4.5" y="4.5" width="39" height="39" rx="5.5" stroke="black"/>
@@ -2295,7 +2297,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                     </button>
                                 </div>
                                 <label htmlFor="question-spacing" className="mb-2 mt-2 block font-nunito text-center text-xs uppercase tracking-[0.18em] text-grey">
-                                    Question Spacing
+                                    {t("create-exam-paper.question-spacing")}
                                 </label>
                                 <div className="flex items-center gap-3">
                                     <input
@@ -2322,13 +2324,13 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                         value={questionSpacing}
                                         onChange={(event) => setQuestionSpacing(Number.parseInt(event.target.value, 10))}
                                         className="h-2 w-full cursor-pointer appearance-none rounded-full bg-black/15 accent-black"
-                                        aria-label="Question spacing"
+                                        aria-label={t("create-exam-paper.question-spacing-aria")}
                                     />
                                 </div>
                                 {selectedLayout === "grid" && (
                                     <>
                                         <label htmlFor="grid-columns" className="mb-2 mt-4 block font-nunito text-center text-xs uppercase tracking-[0.18em] text-grey">
-                                            Grid Size
+                                            {t("create-exam-paper.grid-size")}
                                         </label>
                                         <div className="flex items-center gap-3">
                                             <input
@@ -2355,13 +2357,13 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                 value={gridColumns}
                                                 onChange={(event) => setGridColumns(Number.parseInt(event.target.value, 10))}
                                                 className="h-2 w-full cursor-pointer appearance-none rounded-full bg-black/15 accent-black"
-                                                aria-label="Grid size"
+                                                aria-label={t("create-exam-paper.grid-size-aria")}
                                             />
                                         </div>
                                     </>
                                 )}
                                 <label htmlFor="question-border-width" className="mb-2 mt-4 block font-nunito text-center text-xs uppercase tracking-[0.18em] text-grey">
-                                    Border
+                                    {t("create-exam-paper.border")}
                                 </label>
                                 <div className="flex items-center gap-3">
                                     <input
@@ -2388,7 +2390,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                         value={questionBorderWidth}
                                         onChange={(event) => setQuestionBorderWidth(Number.parseInt(event.target.value, 10))}
                                         className="h-2 w-full cursor-pointer appearance-none rounded-full bg-black/15 accent-black"
-                                        aria-label="Question border width"
+                                        aria-label={t("create-exam-paper.question-border-width-aria")}
                                     />
                                 </div>
                                 <button
@@ -2396,7 +2398,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                     onClick={() => setBorderColorPanelOpen((open) => !open)}
                                     className="h-4 w-full rounded-full border border-black/20 mt-2"
                                     style={{ backgroundColor: questionBorderColorHex }}
-                                    aria-label="Toggle border colour picker"
+                                    aria-label={t("create-exam-paper.toggle-border-colour-picker")}
                                 />
                                 {borderColorPanelOpen && (
                                     <div className="mt-3 rounded-xl border border-black/15 bg-white p-3">
@@ -2406,7 +2408,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                 value={questionBorderColorHex}
                                                 onChange={(event) => handleQuestionBorderColorPickerChange(event.target.value)}
                                                 className="h-10 w-14 cursor-pointer rounded border border-black/20 bg-white p-1"
-                                                aria-label="Border colour wheel"
+                                                aria-label={t("create-exam-paper.border-colour-wheel-aria")}
                                             />
                                             <input
                                                 type="text"
@@ -2421,7 +2423,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                 }}
                                                 className="h-10 w-full rounded-lg border border-black/20 bg-white px-3 font-nunito text-sm uppercase text-black outline-none transition-shadow duration-200 focus:shadow-[0_0_0_3px_var(--accent)]"
                                                 placeholder="#000000"
-                                                aria-label="Border hex colour"
+                                                aria-label={t("create-exam-paper.border-hex-colour-aria")}
                                             />
                                         </div>
                                         <div className="mt-3 space-y-2">
@@ -2435,7 +2437,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                     value={questionBorderColorRed}
                                                     onChange={(event) => handleBorderRedChange(Number.parseInt(event.target.value, 10))}
                                                     className="h-2 w-full cursor-pointer appearance-none rounded-full bg-black/15 accent-black"
-                                                    aria-label="Red channel"
+                                                    aria-label={t("create-exam-paper.red-channel")}
                                                 />
                                                 <span className="w-9 text-right font-nunito text-xs text-black">{questionBorderColorRed}</span>
                                             </div>
@@ -2449,7 +2451,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                     value={questionBorderColorGreen}
                                                     onChange={(event) => handleBorderGreenChange(Number.parseInt(event.target.value, 10))}
                                                     className="h-2 w-full cursor-pointer appearance-none rounded-full bg-black/15 accent-black"
-                                                    aria-label="Green channel"
+                                                    aria-label={t("create-exam-paper.green-channel")}
                                                 />
                                                 <span className="w-9 text-right font-nunito text-xs text-black">{questionBorderColorGreen}</span>
                                             </div>
@@ -2463,7 +2465,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                     value={questionBorderColorBlue}
                                                     onChange={(event) => handleBorderBlueChange(Number.parseInt(event.target.value, 10))}
                                                     className="h-2 w-full cursor-pointer appearance-none rounded-full bg-black/15 accent-black"
-                                                    aria-label="Blue channel"
+                                                    aria-label={t("create-exam-paper.blue-channel")}
                                                 />
                                                 <span className="w-9 text-right font-nunito text-xs text-black">{questionBorderColorBlue}</span>
                                             </div>
@@ -2480,23 +2482,23 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                             onClick={() => toggleSidebarSection("styling")}
                             aria-expanded={activeSidebarSection === "styling"}
                         >
-                            <span className="font-nunito text-lg font-semibold">Styling</span>
+                            <span className="font-nunito text-lg font-semibold">{t("create-exam-paper.styling")}</span>
                             <SectionToggleIcon open={activeSidebarSection === "styling"} />
                         </button>
                         {activeSidebarSection === "styling" && (
                             <div className="px-4 pb-4">
                                 <label htmlFor="paper-title" className="mb-2 block font-nunito text-xs uppercase tracking-[0.18em] text-grey">
-                                    Title
+                                    {t("create-exam-paper.paper-title")}
                                 </label>
                                 <input
                                     id="paper-title"
                                     value={paperTitle}
                                     onChange={(event) => setPaperTitle(event.target.value)}
-                                    placeholder="Exam Paper"
+                                    placeholder={t("create-exam-paper.paper-title-placeholder")}
                                     className="mb-4 h-11 w-full rounded-lg border border-black/20 bg-white px-3 font-nunito text-sm text-black outline-none transition-shadow duration-200 focus:shadow-[0_0_0_3px_var(--accent)]"
                                 />
                                 <label htmlFor="question-number-style" className="mb-2 block font-nunito text-xs uppercase tracking-[0.18em] text-grey">
-                                    Question Number Style
+                                    {t("create-exam-paper.question-number-style")}
                                 </label>
                                 <select
                                     id="question-number-style"
@@ -2504,17 +2506,17 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                     onChange={(event) => setQuestionNumberStyle(event.target.value as "short" | "long")}
                                     className="mb-4 h-11 w-full rounded-lg border border-black/20 bg-white px-3 font-nunito text-sm text-black outline-none transition-shadow duration-200 focus:shadow-[0_0_0_3px_var(--accent)]"
                                 >
-                                    <option value="short">Q1</option>
-                                    <option value="long">Question 1</option>
+                                    <option value="short">{t("create-exam-paper.question-number-short")}</option>
+                                    <option value="long">{t("create-exam-paper.question-number-long")}</option>
                                 </select>
                                 <p className="mb-2 block font-nunito text-xs uppercase tracking-[0.18em] text-grey">
-                                    Question Text Alignment
+                                    {t("create-exam-paper.question-text-alignment")}
                                 </p>
                                 <div className="grid grid-cols-3 gap-2">
                                     {([
-                                        { value: "left", label: "Left" },
-                                        { value: "center", label: "Center" },
-                                        { value: "right", label: "Right" },
+                                        { value: "left", labelKey: "create-exam-paper.text-align.left" },
+                                        { value: "center", labelKey: "create-exam-paper.text-align.center" },
+                                        { value: "right", labelKey: "create-exam-paper.text-align.right" },
                                     ] as const).map((option) => (
                                         <button
                                             key={option.value}
@@ -2525,12 +2527,12 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                 : "border-black/20 bg-white text-black hover:border-black"
                                                 }`}
                                         >
-                                            {option.label}
+                                            {t(option.labelKey)}
                                         </button>
                                     ))}
                                 </div>
                                 <label htmlFor="question-font-size" className="mb-2 mt-4 block font-nunito text-xs uppercase tracking-[0.18em] text-grey">
-                                    Question Font Size
+                                    {t("create-exam-paper.question-font-size")}
                                 </label>
                                 <input
                                     id="question-font-size"
@@ -2558,7 +2560,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                             onClick={() => toggleSidebarSection("answers")}
                             aria-expanded={activeSidebarSection === "answers"}
                         >
-                            <span className="font-nunito text-lg font-semibold">Answers</span>
+                            <span className="font-nunito text-lg font-semibold">{t("create-exam-paper.answers")}</span>
                             <SectionToggleIcon open={activeSidebarSection === "answers"} />
                         </button>
                         {activeSidebarSection === "answers" && (
@@ -2576,7 +2578,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                         }}
                                         className="h-4 w-4 rounded border-black/30 accent-black"
                                     />
-                                    Include answers
+                                    {t("create-exam-paper.include-answers")}
                                 </label>
 
                                 <label className={`mt-3 flex items-center gap-3 rounded-lg border px-3 py-3 font-nunito text-sm transition ${includeAnswers
@@ -2590,13 +2592,13 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                         disabled={!includeAnswers}
                                         className="h-4 w-4 rounded border-black/30 accent-black disabled:cursor-not-allowed"
                                     />
-                                    Export answers as separate PDF
+                                    {t("create-exam-paper.export-answers-separate")}
                                 </label>
 
                                 <div className={`mt-4 ${includeAnswers ? "" : "pointer-events-none opacity-45"}`}>
                                     <div className="flex w-full justify-center py-3">
                                         <button onClick={() => setAnswerLayout("linear")} className={`items-center justify-center flex flex-col rounded-md m-2 ${answerLayout === "linear" ? "transition duration-200 shadow-[0_0_0_0.2rem_var(--accent)]" : ""}`}>
-                                            <p className="text-center text-grey text-sm">Linear</p>
+                                            <p className="text-center text-grey text-sm">{t("create-exam-paper.layout.linear")}</p>
                                             <div className="items-center justify-center flex">
                                                 <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <rect x="4.5" y="4.5" width="39" height="39" rx="5.5" stroke="black"/>
@@ -2607,7 +2609,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                             </div>
                                         </button>
                                         <button onClick={() => setAnswerLayout("grid")} className={`items-center justify-center flex flex-col rounded-md m-2 ${answerLayout === "grid" ? "transition duration-200 shadow-[0_0_0_0.2rem_var(--accent)]" : ""}`}>
-                                            <p className="text-center text-grey text-sm">Grid</p>
+                                            <p className="text-center text-grey text-sm">{t("create-exam-paper.layout.grid")}</p>
                                             <div className="items-center justify-center flex">
                                                 <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <rect x="4.5" y="4.5" width="39" height="39" rx="5.5" stroke="black"/>
@@ -2618,7 +2620,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                         </button>
                                     </div>
                                     <label htmlFor="answer-spacing" className="mb-2 mt-2 block font-nunito text-center text-xs uppercase tracking-[0.18em] text-grey">
-                                        Answer Spacing
+                                        {t("create-exam-paper.answer-spacing")}
                                     </label>
                                     <div className="flex items-center gap-3">
                                         <input
@@ -2645,13 +2647,13 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                             value={answerSpacing}
                                             onChange={(event) => setAnswerSpacing(Number.parseInt(event.target.value, 10))}
                                             className="h-2 w-full cursor-pointer appearance-none rounded-full bg-black/15 accent-black"
-                                            aria-label="Answer spacing"
+                                            aria-label={t("create-exam-paper.answer-spacing-aria")}
                                         />
                                     </div>
                                     {answerLayout === "grid" && (
                                         <>
                                             <label htmlFor="answer-grid-columns" className="mb-2 mt-4 block font-nunito text-center text-xs uppercase tracking-[0.18em] text-grey">
-                                                Answer Grid Size
+                                                {t("create-exam-paper.answer-grid-size")}
                                             </label>
                                             <div className="flex items-center gap-3">
                                                 <input
@@ -2678,13 +2680,13 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                     value={answerGridColumns}
                                                     onChange={(event) => setAnswerGridColumns(Number.parseInt(event.target.value, 10))}
                                                     className="h-2 w-full cursor-pointer appearance-none rounded-full bg-black/15 accent-black"
-                                                    aria-label="Answer grid size"
+                                                    aria-label={t("create-exam-paper.answer-grid-size-aria")}
                                                 />
                                             </div>
                                         </>
                                     )}
                                     <label htmlFor="answer-border-width" className="mb-2 mt-4 block font-nunito text-center text-xs uppercase tracking-[0.18em] text-grey">
-                                        Answer Border Width
+                                        {t("create-exam-paper.answer-border-width")}
                                     </label>
                                     <div className="flex items-center gap-3">
                                         <input
@@ -2711,7 +2713,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                             value={answerBorderWidth}
                                             onChange={(event) => setAnswerBorderWidth(Number.parseInt(event.target.value, 10))}
                                             className="h-2 w-full cursor-pointer appearance-none rounded-full bg-black/15 accent-black"
-                                            aria-label="Answer border width"
+                                            aria-label={t("create-exam-paper.answer-border-width-aria")}
                                         />
                                     </div>
                                     <div className="mt-4 flex justify-center">
@@ -2721,9 +2723,8 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                             className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/20 transition-shadow duration-200 focus:outline-none focus:shadow-[0_0_0_3px_var(--accent)]"
                                             style={{ backgroundColor: answerBorderColorHex }}
                                             aria-expanded={answerBorderColorPanelOpen}
-                                            aria-label="Toggle answer border color panel"
+                                            aria-label={t("create-exam-paper.toggle-answer-border-color-panel")}
                                         >
-                                            <span className="sr-only">Select answer border color</span>
                                         </button>
                                     </div>
                                     {answerBorderColorPanelOpen && (
@@ -2734,7 +2735,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                     value={answerBorderColorHex}
                                                     onChange={(event) => handleAnswerBorderColorPickerChange(event.target.value)}
                                                     className="h-12 w-12 cursor-pointer rounded-md border border-black/20 bg-transparent p-0"
-                                                    aria-label="Answer border color picker"
+                                                    aria-label={t("create-exam-paper.answer-border-color-picker-aria")}
                                                 />
                                                 <input
                                                     type="text"
@@ -2749,14 +2750,14 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                     }}
                                                     maxLength={7}
                                                     className="h-11 flex-1 rounded-lg border border-black/20 bg-white px-3 font-mono text-sm uppercase text-black outline-none transition-shadow duration-200 focus:shadow-[0_0_0_3px_var(--accent)]"
-                                                    aria-label="Answer border hex color"
+                                                    aria-label={t("create-exam-paper.answer-border-hex-color-aria")}
                                                     placeholder="#000000"
                                                 />
                                             </div>
                                             <div className="mt-4 space-y-3">
                                                 <label className="block">
                                                     <div className="mb-1 flex items-center justify-between font-nunito text-xs uppercase tracking-[0.14em] text-grey">
-                                                        <span>Red</span>
+                                                        <span>{t("create-exam-paper.red")}</span>
                                                         <span>{answerBorderColorRed}</span>
                                                     </div>
                                                     <input
@@ -2767,12 +2768,12 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                         value={answerBorderColorRed}
                                                         onChange={(event) => handleAnswerBorderRedChange(Number.parseInt(event.target.value, 10))}
                                                         className="h-2 w-full cursor-pointer appearance-none rounded-full bg-black/15 accent-[#ef4444]"
-                                                        aria-label="Answer border red channel"
+                                                        aria-label={t("create-exam-paper.red-channel")}
                                                     />
                                                 </label>
                                                 <label className="block">
                                                     <div className="mb-1 flex items-center justify-between font-nunito text-xs uppercase tracking-[0.14em] text-grey">
-                                                        <span>Green</span>
+                                                        <span>{t("create-exam-paper.green")}</span>
                                                         <span>{answerBorderColorGreen}</span>
                                                     </div>
                                                     <input
@@ -2783,12 +2784,12 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                         value={answerBorderColorGreen}
                                                         onChange={(event) => handleAnswerBorderGreenChange(Number.parseInt(event.target.value, 10))}
                                                         className="h-2 w-full cursor-pointer appearance-none rounded-full bg-black/15 accent-[#22c55e]"
-                                                        aria-label="Answer border green channel"
+                                                        aria-label={t("create-exam-paper.green-channel")}
                                                     />
                                                 </label>
                                                 <label className="block">
                                                     <div className="mb-1 flex items-center justify-between font-nunito text-xs uppercase tracking-[0.14em] text-grey">
-                                                        <span>Blue</span>
+                                                        <span>{t("create-exam-paper.blue")}</span>
                                                         <span>{answerBorderColorBlue}</span>
                                                     </div>
                                                     <input
@@ -2799,7 +2800,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                         value={answerBorderColorBlue}
                                                         onChange={(event) => handleAnswerBorderBlueChange(Number.parseInt(event.target.value, 10))}
                                                         className="h-2 w-full cursor-pointer appearance-none rounded-full bg-black/15 accent-[#3b82f6]"
-                                                        aria-label="Answer border blue channel"
+                                                        aria-label={t("create-exam-paper.blue-channel")}
                                                     />
                                                 </label>
                                             </div>
@@ -2816,20 +2817,20 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                             onClick={() => toggleSidebarSection("questions")}
                             aria-expanded={activeSidebarSection === "questions"}
                         >
-                            <span className="font-nunito text-lg font-semibold">Questions</span>
+                            <span className="font-nunito text-lg font-semibold">{t("create-exam-paper.questions")}</span>
                             <SectionToggleIcon open={activeSidebarSection === "questions"} />
                         </button>
                         {activeSidebarSection === "questions" && (
                             <div className="flex min-h-0 flex-1 flex-col">
                                 <div className="flex w-full items-center justify-between px-4 pb-3 pt-3">
                                     <p className="font-nunito text-sm uppercase tracking-[0.24em] text-grey">
-                                        {questions.length} questions
+                                        {t("create-exam-paper.questions-count", { count: questions.length })}
                                     </p>
                                     <button
                                         type="button"
                                         className="flex h-9 w-9 items-center justify-center rounded-full border border-black bg-white text-black transition-shadow duration-200 ease-out hover:shadow-[0_0_0_3px_var(--contrast)]"
                                         onClick={() => setAddModalOpen(true)}
-                                        aria-label="Add question"
+                                        aria-label={t("create-exam-paper.add-question")}
                                     >
                                         <PlusIcon />
                                     </button>
@@ -2884,7 +2885,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                             </div>
                                             <div className="min-w-0 flex-1">
                                                 <p className="font-nunito text-[0.68rem] uppercase tracking-[0.22em] text-grey">
-                                                    Question {index + 1}
+                                                    {t("create-exam-paper.question-number-list", { number: index + 1 })}
                                                 </p>
                                                 <p className="truncate font-nunito text-base font-bold text-black">
                                                     {question.title}
@@ -2904,7 +2905,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                     onClick={() => regenerateQuestion(question.id)}
                                                     disabled={Boolean(regeneratingQuestionIds[question.id])}
                                                 >
-                                                    {regeneratingQuestionIds[question.id] ? "Regenerating..." : "Regenerate"}
+                                                    {regeneratingQuestionIds[question.id] ? t("create-exam-paper.regenerating") : t("create-exam-paper.regenerate")}
                                                 </button>
                                             </div>
                                             <div className="ml-1 flex min-h-[88px] flex-col items-center justify-between gap-2">
@@ -2952,7 +2953,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                         onClick={regenerateAllQuestions}
                                         disabled={!questions.length || isRegeneratingAllQuestions}
                                     >
-                                        {isRegeneratingAllQuestions ? "Regenerating all questions..." : "Regenerate All Questions"}
+                                        {isRegeneratingAllQuestions ? t("create-exam-paper.regenerating-all-questions") : t("create-exam-paper.regenerate-all-questions")}
                                     </button>
                                 </div>
                             </div>
@@ -2988,7 +2989,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                     fontFamily: TITLE_FONT_FAMILY_KONVA,
                                 }}
                             >
-                                {paperTitle || "Exam Paper"}
+                                {paperTitle || t("create-exam-paper.default-paper-title")}
                             </p>
                             <p
                                 className="absolute font-nunito text-[#5a5a5a]"
@@ -2999,7 +3000,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                     fontSize: 14,
                                 }}
                             >
-                                {`Page ${pageIndex + 1}`}
+                                {t("create-exam-paper.page-label", { number: pageIndex + 1 })}
                             </p>
 
                             {pagePlacements.map((placement) => {
@@ -3082,7 +3083,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                     fontFamily: TITLE_FONT_FAMILY_KONVA,
                                 }}
                             >
-                                {(paperTitle || "Exam Paper")} - Answers
+                                {`${paperTitle || t("create-exam-paper.default-paper-title")} - ${t("create-exam-paper.answers")}`}
                             </p>
                             <p
                                 className="absolute font-nunito text-[#5a5a5a]"
@@ -3094,8 +3095,8 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                 }}
                             >
                                 {answersSeparatePdf
-                                    ? `Page ${pageIndex + 1}`
-                                    : `Page ${questionPlacements.pageCount + pageIndex + 1}`}
+                                    ? t("create-exam-paper.page-label", { number: pageIndex + 1 })
+                                    : t("create-exam-paper.page-label", { number: questionPlacements.pageCount + pageIndex + 1 })}
                             </p>
 
                             {pagePlacements.map((placement) => {
@@ -3153,13 +3154,13 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4">
                     <div className="relative flex w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-black/15 bg-[#fffdf8] shadow-[0_24px_70px_rgba(0,0,0,0.25)]">
                         <div className="border-b border-black/10 bg-[#f6f2e8] px-5 py-4">
-                            <p className="font-nunito text-xs uppercase tracking-[0.26em] text-grey">Question Builder</p>
-                            <h2 className="mt-1 font-nunito text-2xl font-bold text-black">Add Questions</h2>
+                            <p className="font-nunito text-xs uppercase tracking-[0.26em] text-grey">{t("create-exam-paper.question-builder")}</p>
+                            <h2 className="mt-1 font-nunito text-2xl font-bold text-black">{t("create-exam-paper.add-questions")}</h2>
                         </div>
 
                         <div className="flex max-h-[75vh] flex-col gap-4 overflow-y-auto px-5 py-5">
                             <div>
-                                <p className="mb-2 font-nunito text-sm uppercase tracking-[0.22em] text-grey">Pick Stage</p>
+                                <p className="mb-2 font-nunito text-sm uppercase tracking-[0.22em] text-grey">{t("create-exam-paper.pick-stage")}</p>
                                 <div className="grid grid-cols-3 gap-2">
                                     {STAGE_OPTIONS.map((option) => (
                                         <button
@@ -3171,14 +3172,14 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                 : "border-black/20 bg-white text-black hover:border-black"
                                                 }`}
                                         >
-                                            {option.label}
+                                            {t(option.labelKey)}
                                         </button>
                                     ))}
                                 </div>
                             </div>
 
                             <div>
-                                <p className="mb-2 font-nunito text-sm uppercase tracking-[0.22em] text-grey">Search Topic</p>
+                                <p className="mb-2 font-nunito text-sm uppercase tracking-[0.22em] text-grey">{t("create-exam-paper.search-topic")}</p>
                                 <div className="relative">
                                     <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-grey">
                                         <HammerIcon />
@@ -3190,7 +3191,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                             setTopicDropdownOpen(true);
                                         }}
                                         onFocus={() => setTopicDropdownOpen(true)}
-                                        placeholder="Search by topic or subtopic"
+                                        placeholder={t("create-exam-paper.search-topic-placeholder")}
                                         className="h-11 w-full rounded-xl border border-black/20 bg-white pl-10 pr-3 font-nunito text-sm text-black outline-none transition-shadow duration-200 focus:shadow-[0_0_0_3px_var(--accent)]"
                                     />
                                 </div>
@@ -3203,14 +3204,14 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                         <span className="truncate">
                                             {selectedSubtopic
                                                 ? `${toTitleFromSlug(selectedSubtopic.topic.id)} • ${toTitleFromSlug(selectedSubtopic.subtopic.slug)}`
-                                                : "Select topic from dropdown"}
+                                                : t("create-exam-paper.select-topic-from-dropdown")}
                                         </span>
                                         <SectionToggleIcon open={topicDropdownOpen} />
                                     </button>
                                     {topicDropdownOpen && (
                                         <div className="mt-2 max-h-56 overflow-y-auto rounded-xl border border-black/15 bg-white">
                                             {!topicResults.length && (
-                                                <p className="px-3 py-3 font-nunito text-sm text-grey">No matches for this search.</p>
+                                                <p className="px-3 py-3 font-nunito text-sm text-grey">{t("create-exam-paper.no-search-matches")}</p>
                                             )}
                                             {topicResults.map((result) => {
                                                 const isSelected = result.topic.id === selectedTopicId && result.subtopic.slug === selectedSubtopicSlug;
@@ -3240,7 +3241,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                             </div>
 
                             <div>
-                                <p className="mb-2 font-nunito text-sm uppercase tracking-[0.22em] text-grey">Choose Level</p>
+                                <p className="mb-2 font-nunito text-sm uppercase tracking-[0.22em] text-grey">{t("create-exam-paper.choose-level")}</p>
                                 <div className="flex flex-wrap gap-2">
                                     <button
                                         type="button"
@@ -3250,7 +3251,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                             : "border-black/20 bg-white text-black hover:border-black"
                                             }`}
                                     >
-                                        Random
+                                        {t("create-exam-paper.random")}
                                     </button>
                                     {availableDifficulties.map((difficulty) => (
                                         <button
@@ -3262,17 +3263,17 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                 : "border-black/20 bg-white text-black hover:border-black"
                                                 }`}
                                         >
-                                            Level {difficulty}
+                                            {t("create-exam-paper.level-number", { number: difficulty })}
                                         </button>
                                     ))}
                                 </div>
                                 {Boolean(selectedSubtopicSlug) && !availableDifficulties.length && (
-                                    <p className="mt-2 font-nunito text-xs text-grey">No fixed levels listed for this subtopic, random will use level 1.</p>
+                                    <p className="mt-2 font-nunito text-xs text-grey">{t("create-exam-paper.no-fixed-levels")}</p>
                                 )}
                             </div>
 
                             <div>
-                                <p className="mb-2 font-nunito text-sm uppercase tracking-[0.22em] text-grey">How Many</p>
+                                <p className="mb-2 font-nunito text-sm uppercase tracking-[0.22em] text-grey">{t("create-exam-paper.how-many")}</p>
                                 <input
                                     type="number"
                                     min={1}
@@ -3291,7 +3292,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                             </div>
 
                             <div className="rounded-xl border border-black/15 bg-white px-3 py-2">
-                                <p className="font-nunito text-xs uppercase tracking-[0.16em] text-grey">Preview</p>
+                                <p className="font-nunito text-xs uppercase tracking-[0.16em] text-grey">{t("create-exam-paper.preview")}</p>
                                 {selectedSubtopic ? (
                                     <>
                                         <p className="mt-1 font-nunito text-sm text-black">
@@ -3299,7 +3300,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                         </p>
                                         <div className="mt-2 rounded-lg border border-black/10 bg-[#fffdf8] px-3 py-2 text-black">
                                             {isGeneratingPreviewQuestion && !previewQuestionLatex ? (
-                                                <p className="font-nunito text-sm text-grey">Generating preview question...</p>
+                                                <p className="font-nunito text-sm text-grey">{t("create-exam-paper.generating-preview-question")}</p>
                                             ) : previewQuestionLatex ? (
                                                 <EditorWrapLatex
                                                     latex={previewQuestionLatex}
@@ -3308,12 +3309,12 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                     fontSize={10}
                                                 />
                                             ) : (
-                                                <p className="font-nunito text-sm text-grey">Preview unavailable.</p>
+                                                <p className="font-nunito text-sm text-grey">{t("create-exam-paper.preview-unavailable")}</p>
                                             )}
                                         </div>
                                     </>
                                 ) : (
-                                    <p className="mt-1 font-nunito text-sm text-black">Pick a stage and search-select a topic.</p>
+                                    <p className="mt-1 font-nunito text-sm text-black">{t("create-exam-paper.pick-stage-search-topic")}</p>
                                 )}
                             </div>
                         </div>
@@ -3324,7 +3325,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                 onClick={() => setAddModalOpen(false)}
                                 className="rounded-lg border border-black/20 bg-white px-4 py-2 font-nunito text-sm text-black transition duration-200 hover:border-black"
                             >
-                                Cancel
+                                {t("create-exam-paper.cancel")}
                             </button>
                             <button
                                 type="button"
@@ -3333,8 +3334,10 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                 className="rounded-lg border border-black bg-black px-4 py-2 font-nunito text-sm text-white transition duration-200 disabled:cursor-not-allowed disabled:opacity-40"
                             >
                                 {isGeneratingQuestions
-                                    ? "Generating..."
-                                    : `Add ${quantity} Question${quantity === 1 ? "" : "s"}`}
+                                    ? t("create-exam-paper.generating")
+                                    : quantity === 1
+                                        ? t("create-exam-paper.add-question-single", { count: quantity })
+                                        : t("create-exam-paper.add-question-multiple", { count: quantity })}
                             </button>
                         </div>
                     </div>
@@ -3344,20 +3347,20 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                 <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/45 p-4">
                     <div className="relative flex w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-black/15 bg-[#fffdf8] shadow-[0_24px_70px_rgba(0,0,0,0.25)]">
                         <div className="border-b border-black/10 bg-[#f6f2e8] px-5 py-4">
-                            <p className="font-nunito text-xs uppercase tracking-[0.26em] text-grey">Export</p>
-                            <h2 className="mt-1 font-nunito text-2xl font-bold text-black">Download PDF</h2>
+                            <p className="font-nunito text-xs uppercase tracking-[0.26em] text-grey">{t("create-exam-paper.export")}</p>
+                            <h2 className="mt-1 font-nunito text-2xl font-bold text-black">{t("create-exam-paper.download-pdf")}</h2>
                         </div>
 
                         <div className="flex flex-col gap-4 px-5 py-5">
                             <div>
                                 <label htmlFor="download-file-name" className="mb-2 block font-nunito text-sm uppercase tracking-[0.22em] text-grey">
-                                    File Name
+                                    {t("create-exam-paper.file-name")}
                                 </label>
                                 <input
                                     id="download-file-name"
                                     value={exportFileName}
                                     onChange={(event) => setExportFileName(sanitizeFileName(event.target.value))}
-                                    placeholder="Exam Paper"
+                                    placeholder={t("create-exam-paper.download-file-name-placeholder")}
                                     className="h-11 w-full rounded-lg border border-black/20 bg-white px-3 font-nunito text-sm text-black outline-none transition-shadow duration-200 focus:shadow-[0_0_0_3px_var(--accent)]"
                                 />
                             </div>
@@ -3365,13 +3368,13 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                             {includeAnswers && answersSeparatePdf && (
                                 <div>
                                     <label htmlFor="download-answer-file-name" className="mb-2 block font-nunito text-sm uppercase tracking-[0.22em] text-grey">
-                                        Answers File Name
+                                        {t("create-exam-paper.answers-file-name")}
                                     </label>
                                     <input
                                         id="download-answer-file-name"
                                         value={answerExportFileName}
                                         onChange={(event) => setAnswerExportFileName(sanitizeFileName(event.target.value))}
-                                        placeholder="Exam Paper - Answers"
+                                        placeholder={t("create-exam-paper.download-answer-file-name-placeholder")}
                                         className="h-11 w-full rounded-lg border border-black/20 bg-white px-3 font-nunito text-sm text-black outline-none transition-shadow duration-200 focus:shadow-[0_0_0_3px_var(--accent)]"
                                     />
                                 </div>
@@ -3379,7 +3382,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
 
                             <div>
                                 <p className="mb-2 block font-nunito text-sm uppercase tracking-[0.22em] text-grey">
-                                    Compression Level
+                                    {t("create-exam-paper.compression-level")}
                                 </p>
                                 <div className="rounded-lg border border-black/20 bg-white px-4 pb-3 pt-5">
                                     <div className="relative">
@@ -3411,7 +3414,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                 setDownloadCompression(option.key);
                                             }}
                                             className="absolute -top-2 h-6 w-full cursor-pointer opacity-0"
-                                            aria-label="Compression level"
+                                            aria-label={t("create-exam-paper.compression-level-aria")}
                                         />
                                     </div>
                                     <div className="mt-3 flex items-start justify-between gap-1">
@@ -3425,7 +3428,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                     : "text-grey hover:text-black"
                                                     }`}
                                             >
-                                                {option.label}
+                                                {t(option.labelKey)}
                                             </button>
                                         ))}
                                     </div>
@@ -3440,7 +3443,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                 disabled={isExportingPdf}
                                 className="rounded-lg border border-black/20 bg-white px-4 py-2 font-nunito text-sm text-black transition duration-200 hover:border-black disabled:cursor-not-allowed disabled:opacity-40"
                             >
-                                Cancel
+                                {t("create-exam-paper.cancel")}
                             </button>
                             <button
                                 type="button"
@@ -3448,7 +3451,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                 disabled={isExportingPdf}
                                 className="rounded-lg border border-black bg-black px-4 py-2 font-nunito text-sm text-white transition duration-200 disabled:cursor-not-allowed disabled:opacity-40"
                             >
-                                {isExportingPdf ? "Exporting..." : "Export"}
+                                {isExportingPdf ? t("create-exam-paper.exporting") : t("create-exam-paper.export")}
                             </button>
                         </div>
                     </div>
@@ -3458,13 +3461,13 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4">
                     <div className="relative flex w-full max-w-xl flex-col overflow-hidden rounded-2xl border border-black/15 bg-[#fffdf8] shadow-[0_24px_70px_rgba(0,0,0,0.25)]">
                         <div className="border-b border-black/10 bg-[#f6f2e8] px-5 py-4">
-                            <p className="font-nunito text-xs uppercase tracking-[0.26em] text-grey">Question Editor</p>
-                            <h2 className="mt-1 font-nunito text-2xl font-bold text-black">Edit Question</h2>
+                            <p className="font-nunito text-xs uppercase tracking-[0.26em] text-grey">{t("create-exam-paper.question-editor")}</p>
+                            <h2 className="mt-1 font-nunito text-2xl font-bold text-black">{t("create-exam-paper.edit-question")}</h2>
                         </div>
 
                         <div className="flex flex-col gap-4 px-5 py-5">
                             <div className="rounded-xl border border-black/15 bg-white px-3 py-2">
-                                <p className="font-nunito text-xs uppercase tracking-[0.16em] text-grey">Topic</p>
+                                <p className="font-nunito text-xs uppercase tracking-[0.16em] text-grey">{t("create-exam-paper.topic")}</p>
                                 <p className="mt-1 font-nunito text-sm text-black">
                                     {stageLabel(editingQuestionStage)} • {editingSelectedSubtopic
                                         ? `${toTitleFromSlug(editingSelectedSubtopic.topic.id)} • ${toTitleFromSlug(editingSelectedSubtopic.subtopic.slug)}`
@@ -3473,7 +3476,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                             </div>
 
                             <div>
-                                <p className="mb-2 font-nunito text-sm uppercase tracking-[0.22em] text-grey">Pick Stage</p>
+                                <p className="mb-2 font-nunito text-sm uppercase tracking-[0.22em] text-grey">{t("create-exam-paper.pick-stage")}</p>
                                 <div className="grid grid-cols-3 gap-2">
                                     {STAGE_OPTIONS.map((option) => (
                                         <button
@@ -3492,14 +3495,14 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                 : "border-black/20 bg-white text-black hover:border-black"
                                                 }`}
                                         >
-                                            {option.label}
+                                            {t(option.labelKey)}
                                         </button>
                                     ))}
                                 </div>
                             </div>
 
                             <div>
-                                <p className="mb-2 font-nunito text-sm uppercase tracking-[0.22em] text-grey">Change Topic</p>
+                                <p className="mb-2 font-nunito text-sm uppercase tracking-[0.22em] text-grey">{t("create-exam-paper.change-topic")}</p>
                                 <div className="relative">
                                     <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-grey">
                                         <HammerIcon />
@@ -3511,7 +3514,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                             setEditingTopicDropdownOpen(true);
                                         }}
                                         onFocus={() => setEditingTopicDropdownOpen(true)}
-                                        placeholder="Search by topic or subtopic"
+                                        placeholder={t("create-exam-paper.search-topic-placeholder")}
                                         className="h-11 w-full rounded-xl border border-black/20 bg-white pl-10 pr-3 font-nunito text-sm text-black outline-none transition-shadow duration-200 focus:shadow-[0_0_0_3px_var(--accent)]"
                                     />
                                 </div>
@@ -3524,14 +3527,14 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                         <span className="truncate">
                                             {editingSelectedSubtopic
                                                 ? `${toTitleFromSlug(editingSelectedSubtopic.topic.id)} • ${toTitleFromSlug(editingSelectedSubtopic.subtopic.slug)}`
-                                                : "Select topic from dropdown"}
+                                                : t("create-exam-paper.select-topic-from-dropdown")}
                                         </span>
                                         <SectionToggleIcon open={editingTopicDropdownOpen} />
                                     </button>
                                     {editingTopicDropdownOpen && (
                                         <div className="mt-2 max-h-56 overflow-y-auto rounded-xl border border-black/15 bg-white">
                                             {!editingTopicResults.length && (
-                                                <p className="px-3 py-3 font-nunito text-sm text-grey">No matches for this search.</p>
+                                                <p className="px-3 py-3 font-nunito text-sm text-grey">{t("create-exam-paper.no-search-matches")}</p>
                                             )}
                                             {editingTopicResults.map((result) => {
                                                 const isSelected = result.topic.id === editingTopicId && result.subtopic.slug === editingSubtopicSlug;
@@ -3562,7 +3565,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
 
                             <div>
                                 <label htmlFor="editing-question-title" className="mb-2 block font-nunito text-sm uppercase tracking-[0.22em] text-grey">
-                                    Title
+                                    {t("create-exam-paper.title")}
                                 </label>
                                 <input
                                     id="editing-question-title"
@@ -3573,7 +3576,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                             </div>
 
                             <div>
-                                <p className="mb-2 font-nunito text-sm uppercase tracking-[0.22em] text-grey">Level</p>
+                                <p className="mb-2 font-nunito text-sm uppercase tracking-[0.22em] text-grey">{t("create-exam-paper.level")}</p>
                                 <div className="flex flex-wrap gap-2">
                                     <button
                                         type="button"
@@ -3583,7 +3586,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                             : "border-black/20 bg-white text-black hover:border-black"
                                             }`}
                                     >
-                                        Random
+                                        {t("create-exam-paper.random")}
                                     </button>
                                     {editingQuestionAvailableDifficulties.map((difficulty) => (
                                         <button
@@ -3598,13 +3601,13 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                                 : "border-black/20 bg-white text-black hover:border-black"
                                                 }`}
                                         >
-                                            Level {difficulty}
+                                            {t("create-exam-paper.level-number", { number: difficulty })}
                                         </button>
                                     ))}
                                 </div>
                                 {editingQuestionLevelMode === "random" && (
                                     <p className="mt-2 font-nunito text-xs text-grey">
-                                        Save or regenerate will reroll from the available levels.
+                                        {t("create-exam-paper.save-or-regenerate-hint")}
                                     </p>
                                 )}
                             </div>
@@ -3625,7 +3628,7 @@ export default function CreateExamPaper({ params }: { params: Promise<{ lng: Loc
                                 disabled={isSavingQuestionEdit}
                                 className="rounded-lg border border-black bg-black px-4 py-2 font-nunito text-sm text-white transition duration-200 disabled:cursor-not-allowed disabled:opacity-40"
                             >
-                                {isSavingQuestionEdit ? "Saving..." : "Save changes"}
+                                {isSavingQuestionEdit ? t("create-exam-paper.saving") : t("create-exam-paper.save-changes")}
                             </button>
                         </div>
                     </div>

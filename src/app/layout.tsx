@@ -6,6 +6,7 @@ import Script from 'next/script'
 import '@/styles/globals.css';
 import '@/styles/colors.css';
 import '@/styles/fonts.css';
+import Analytics from "@/components/general/analytics";
 
 export const metadata: Metadata = {
   title: 'Examiniser',
@@ -79,7 +80,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
-              gtag('config', 'G-JEH2HSSNE3');
+              gtag('config', 'G-JEH2HSSNE3', { send_page_view: false });
             `,
           }}
         />
@@ -105,7 +106,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Additional Apple Touch Icons (for iOS) */}
         <link rel="apple-touch-icon" sizes="152x152" href="/icons/favicon-152x152.png" />
       </head>
-      <body>{children}</body>
+      <body>
+        <Analytics />
+        {children}
+      </body>
     </html>
   );
 }
